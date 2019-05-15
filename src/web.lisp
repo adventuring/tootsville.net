@@ -2,7 +2,7 @@
 ;;;
 ;;;; ./servers/src/web.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -401,7 +401,6 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 
 ;;; Print-Object method for Hunchentoot requests
 
-
 (defmethod print-object ((request hunchentoot:request) stream)
   "Print a Hunchentoot Request object nicely"
   (print-unreadable-object (request stream :type t)
@@ -414,7 +413,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 (defun query-string->plist (query-string)
   "Split an HTTP QUERY-STRING into a  PList.
 
-Probably a duplicate of something done in Hunchentoot or Drakma?"
+XXX Probably a duplicate of something done in Hunchentoot or Drakma?"
   (mapcan (lambda (pair)
             (destructuring-bind (key value)
                 (split-sequence #\= pair)
