@@ -7,3 +7,6 @@
 [submodule "Choerogryllum"]
 	path = src/lib/Chœrogryllum
 	url = git@github.com:adventuring/Choerogryllum
+[submodule "taskmaster"]
+	path = src/lib/taskmaster
+	url = git@github.com:adventuring/hunchentoot-thread-pool-taskmaster
