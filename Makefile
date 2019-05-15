@@ -58,15 +58,15 @@ clean:
 	-rm -f TODO.org TODO.scorecard	
 	git gc --auto || true
 
-modules:	../.gitmodules $(shell  grep '\[submodule "' ../.gitmodules | \
+modules:	.gitmodules $(shell  grep '\[submodule "' .gitmodules | \
 			cut -d '"' -f 2 | sed -e 's,^,../.git/modules/,g' -e 's,$$,/config,g')
 	if [ -d ../.git ]; then cd .. ; git submodule update --init; fi
 
 ../.git/modules/%/config:	.gitmodules
 	(cd .. ; git submodule update --init )
 
-TAGS:	$(shell find . -name \*.lisp)
-	ctags --languages=lisp -e -R -f TAGS
+#TAGS:	$(shell find . -name \*.lisp)
+#	ctags --languages=lisp -e -R -f TAGS
 
 deploy:	bin test server-push doc-publish deploy-servers
 
@@ -121,9 +121,6 @@ quicklisp-manifest.tmp:	tootsville.asd \
 	done
 	echo $$(pwd) >> quicklisp-manifest.tmp
 
-test:	bin
-	./Tootsville check
-
 doc:	doc/Tootsville.texi
 
 doc/Tootsville.texi:	Tootsville
@@ -140,7 +137,6 @@ install:	tootsville.service Tootsville
 	sudo -n systemctl restart tootsville || :
 	sudo -n systemctl start tootsville
 
-test: servers-test
 
 ####################
 
@@ -151,7 +147,7 @@ test: servers-test
 
 ####################
 
-servers-test:	./Tootsville
+test:	./Tootsville
 	./Tootsville check
 
 #################### vars
@@ -194,12 +190,9 @@ ACCESS_TOKEN=7c28543f4257495694b50fe59acb2ada
 
 servers:	./Tootsville
 
-./Tootsville:	$(shell find servers \( -name \*.lisp -o -name \*.asd \) -and -not -name .\*)
-	$(MAKE) -C servers Tootsville test
-
 #################### doc
 
-doc:	server-doc js-doc
+doc:	server-doc
 
 server-doc: \
 	doc/Tootsville.txt \
@@ -210,11 +203,6 @@ server-doc: \
 doc-install-info:	doc/Tootsville.info
 	install-info doc/Tootsville.info /usr/local/share/info/dir
 
-doc/Tootsville.texi:	./doc/Tootsville.texi
-	cp ./doc/Tootsville.texi doc/
-
-./doc/Tootsville.texi: ./Tootsville
-	$(MAKE) -C servers doc/Tootsville.texi
 
 doc/Tootsville.html.tar.gz:	doc/Tootsville.html.tar
 	gzip -9 -c < $< > $@
@@ -251,7 +239,7 @@ doc/Tootsville.txt:	doc/Tootsville.texi
 doc/Tootsville.info:	doc/Tootsville.texi
 	cd doc; makeinfo -o Tootsville.info Tootsville.texi
 
-doc/doc.css:	www/doc.less
+doc/doc.css:	build/doc.less
 
 all-docs: \
 	doc/Tootsville.html.tar.gz	\
@@ -264,79 +252,9 @@ all-docs: \
 	doc/Tootsville.txt 	\
 	doc/Tootsville.info
 
-#################### htaccess
-
-htaccess:	dist/htaccess.all/play.$(clusterorg).htaccess
-
-dist/htaccess.all/play.$(clusterorg).htaccess:	build/htaccess.base bin/make-all-htaccess
-	bin/make-all-htaccess
-
-#################### /worker.js
-
-worker:	dist/worker.js
-
-dist/worker.js:	worker/Worker.js worker/WorkerStart.js worker/TootsvilleWorker.js
-	mkdir -p dist/
-	closure-compiler --create_source_map dist/worker.map \
-                    $(< build/closure-compiler.opts)           \
-		--js worker/TootsvilleWorker.js            \
-		--js worker/Worker.js                      \
-		--js worker/WorkerStart.js                 \
-		--js_output_file $@
-	echo '//# sourceMappingURL=/worker.map' >> $@
-
-#################### dist/node-adopt.js
-
-node_modules/.bin/browserify:	package-lock.json
-	npm install browserify --save
-
-node_modules/@openid/openyolo/package.json:
-	npm install @openid/openyolo --save
-
-dist/node-adopt.js:	build/node-adopt.js \
-		node_modules/@openid/openyolo/package.json \
-		package-lock.json node_modules/.bin/browserify
-	node_modules/.bin/browserify build/node-adopt.js -o dist/node-adopt.js
-
-#################### dist/play/play.js
-
-dist/play/play.js:	build/js.order $(shell cat build/js.order)
-	mkdir -p dist/play/
-	closure-compiler --create_source_map dist/play/play.map   \
-		--third_party                                   \
-                    $(< build/closure-compiler.opts)                \
-		--source_map_location_mapping 'play/|/play/'        \
-		--language_in ECMASCRIPT6                        \
-		--language_out ECMASCRIPT5_STRICT                \
-		$$(< build/js.order )                            \
-		--js_output_file $@
-	echo '//# sourceMappingURL=/play/play.map' >> $@
-
-dist/play/stun-list.js:	build/public-stun-list.txt
-	echo '/* File generated from build/public-stun-list.txt by Makefile */'  > dist/play/stun-list.js
-	echo 'if (!("Tootsville" in window)) { Tootsville = { gossip: {} }; };'  >> dist/play/stun-list.js
-	echo 'if (!("gossip" in Tootsville)) { Tootsville.gossip = {}; };'  >> dist/play/stun-list.js
-	echo 'Tootsville.gossip.stunList = ['  >> dist/play/stun-list.js
-	(while read stun ; do echo '"'$$stun'",' >> dist/play/stun-list.js; done) < build/public-stun-list.txt
-	echo '];'  >> dist/play/stun-list.js
-
-play:	dist/play.$(clusterorg)
-
-dist/play/play.map:	dist/play/play.js
-
-#################### dist/play/play.css
-
-PLAYLESSDEPS=$(wildcard play/*.less play/**/*.less)
-
-dist/play/play.css:	$(PLAYLESSDEPS)
-	mkdir -p dist/play/
-	lessc --strict-math=yes --source-map play/play.less dist/play/play.css
-
-dist/play/play.css.map:	dist/play/play.css
-
 #################### TODO
 
-TODO.org:	$(shell find */ -name \\*.lisp -o -name \\*.css -o -name \\*.js -o -name \\*.org -o \
+TODO.org:	$(shell find . -name \\*.lisp -o -name \\*.css -o -name \\*.js -o -name \\*.org -o \
 		   -name \\*.texi -o -name \\*.asd -o -name \\*.txt -o -name \\*.html) \
 		 README.org
 	-mv TODO.org TODO.org~ 2>/dev/null
@@ -359,7 +277,7 @@ TODO.org:	$(shell find */ -name \\*.lisp -o -name \\*.css -o -name \\*.js -o -na
 	git grep -Hn ☠☠☠: servers mesh play www build README.org \
 	 | perl -e '$$lastfile = ""; while (<>) { m/^(.*):([0-9]*):(.*)/; if ($$1 ne $$lastfile) { print "*** $$1\n\n"; $$lastfile = $$1 } print "$$2:$$3\n\n" }' >> TODO.org
 
-TODO.scorecard:	$(shell find \( -name \*.lisp -o -name \*.asd \) -and -not -name .\*) \
+TODO.scorecard:	$(shell find . \( -name \*.lisp -o -name \*.asd \) -and -not -name .\*) \
 	README.org
 	echo -n 'TOOTS_FIXME=' > TODO.scorecard
 	git grep FIXME *.lisp *.asd src/
@@ -525,7 +443,7 @@ git-tag-deployment:
 #################### deploy-docs
 
 deploy-docs:
-	make -C servers doc-publish
+	make  doc-publish
 	scp dist/htaccess.all/goethe.tootsville.net.htaccess goethe.tootsville.org:goethe.tootsville.org/.htaccess
 	scp www/favicon.??? goethe.tootsville.org:goethe.tootsville.org/
 	rsync -essh -zar www/error goethe.tootsville.org:goethe.tootsville.org/
