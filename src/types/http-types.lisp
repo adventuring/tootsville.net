@@ -102,7 +102,7 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
               (gethash (http-status-code condition) *http-status-message*))
           (cluster-name)
           hunchentoot:*show-lisp-backtraces-p*
-          (ignore-errors (rollbar::find-appropriate-backtrace))
+          (ignore-errors (coerce (rollbar::find-appropriate-backtrace) 'list))
           (if hunchentoot:*show-lisp-backtraces-p*
               (mapcar
                (lambda (restart)
