@@ -1,0 +1,10 @@
+Dreamhost ( https://dreamhost.com/ ) hosting service has two main API's.
+
+One,  for DreamCompute,  is a  subset of  OpenStack and  can be  treated
+as such.
+
+This  is for  the other  one;  for the  non-DreamCompute shared  hosting
+customers. This  is a set  of access functions  for things like  the DNS
+record editing that can be reached over the legacy API.
+
+This is really not usable yet (11/2018).
