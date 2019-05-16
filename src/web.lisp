@@ -71,7 +71,7 @@ as well.)"
              content-bytes reply))
       ((not (listp reply))
        (setf (hunchentoot:return-code*) 500
-             content-bytes (flexi-streams:string-to-octets 
+             content-bytes (flexi-streams:string-to-octets
                             (format nil "Unable to encode reply ~s" reply)
                             :external-format :utf-8)))
       ((not (numberp (first reply)))
@@ -108,7 +108,7 @@ as well.)"
               temp
               (rest temp)))
         (list "index" extension)))
-  
+
   (defun without-sem (string)
     "The subset of STRING up to the first semicolon, if any."
     (if-let (sem (position #\; (the string string)))
@@ -344,8 +344,8 @@ This is basically just CHECK-TYPE for arguments passed by the user."
            (λ-list (mapcar (lambda (s)
                              (intern (symbol-name s) (symbol-package fname)))
                            (remove-if-not #'symbolp template)))
-           (docstring (concatenate 
-                       'string 
+           (docstring (concatenate
+                       'string
                        (if (and (consp body) (stringp (first body)))
                            (first body)
                            (format nil
@@ -361,7 +361,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 ~:;The URI includes parameters: ~{~a~^, ~}.~]~
 ~2%It will report a slow response if it takes longer than ~f seconds
 \(~:d milliseconds) to complete."
-                               method uri content-type (length λ-list) λ-list 
+                               method uri content-type (length λ-list) λ-list
                                how-slow-is-slow (round (* 1000.0 how-slow-is-slow))))))
       `(progn
          ,(defendpoint/make-endpoint-function
