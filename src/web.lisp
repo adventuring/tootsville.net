@@ -98,6 +98,14 @@ as well.)"
                content-bytes (contents-to-bytes contents)))))
     content-bytes))
 
+(defun report-slow-query (fname elapsed how-slow-is-slow)
+  (v:error `(,(make-keyword (symbol-name fname)) :endpoint :slow-query)
+           "Slow query ~s took ~,3fs (>~,3fs allowed)"
+           fname (* 1.0 elapsed) how-slow-is-slow)
+  (rollbar:info!
+   (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
+           fname (* 1.0 elapsed) how-slow-is-slow)))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defun apply-extension-to-template (template extension)
@@ -150,13 +158,7 @@ as well.)"
                             (* 1.0 ,$elapsed))
                     (when (< ,how-slow-is-slow ,$elapsed)
                       (run-async
-                       (named-lambda report-slow-query ()
-                         (v:error '(,(make-keyword fname) :endpoint :slow-query)
-                                  "Slow query ~s took ~,3fs (>~,3fs allowed)"
-                                  ',fname (* 1.0 ,$elapsed) ,how-slow-is-slow)
-                         (rollbar:error!
-                          (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
-                                  ',fname (* 1.0 ,$elapsed) ,how-slow-is-slow)))
+                       (lambda () (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))
                        :name "Report slow query"))))))))
 
   (defun after-slash (s)
