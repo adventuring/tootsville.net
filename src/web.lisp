@@ -392,7 +392,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
   "Get the Tootsville logo as a PNG"
   (list 307 '(:location "https://Jumbo.Tootsville.org/Assets/Icons/favicon.png") ""))
 
-(defendpoint (get "/favicon/ico")
+(defendpoint (get "/favicon/ico" image/vnd.microsoft.icon)
   "Get the Tootsville logo in Windows Icon format"
   (list 307 '(:location "https://Jumbo.Tootsville.org/Assets/Icons/favicon.ico") ""))
 
