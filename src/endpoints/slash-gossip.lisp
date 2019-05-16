@@ -27,17 +27,17 @@
 
 (in-package :Tootsville)
 
+(defun make-offer-from-json (offer-json)
+  (let* ((offer-object (make-record 'gossip-initiation
+                                    :offeror *user*
+                                    :offer offer-json)))
+    (v:info '(:gossip :gossip-new) 
+            "New SDP offer ~a" (gossip-initiation-uuid offer-object))
+    (save-record offer-object)
+    (gossip-initiation-uuid offer-object)))
+
 (defun make-offers-from-json (json)
-  (let (offers)
-    (dolist (offer (coerce (getf json :|offers|) 'list))
-      (let* ((offer-object (make-record 'gossip-initiation
-                                        :offeror *user*
-                                        :offer offer)))
-        (save-record offer-object)
-        (v:info '(:gossip :gossip-new) 
-                "New SDP offer ~a" (gossip-initiation-uuid offer-object))
-        (push (gossip-initiation-uuid offer-object) offers)))
-    offers))
+  (map 'list #'make-offer-from-json (getf json :|offers|)))
 
 (defendpoint (get "/gossip/ice-servers" "application/json")
   "Obtain STUN/TURN server credentials for ICE"
@@ -51,7 +51,6 @@
     (let* ((json$ (map 'string 'code-char (hunchentoot:raw-post-data)))
            (json (jonathan.decode:parse json$))
            (offers (make-offers-from-json json)))
-      (break)
       (list 202 (list :location "/gossip/offers")
             (list :|offers| (mapcar #'uuid-to-uri offers))))))
 
