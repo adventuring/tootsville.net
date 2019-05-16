@@ -139,7 +139,7 @@ as well.)"
                                     ,@body))))))
                        (let ((bytes (encode-endpoint-reply reply)))
                          (v:info '(,(make-keyword fname) :endpoint :endpoint-output)
-                                 "Status: ~d; ~:d header~p, ~:d octets"
+                                 "Status: ~d; ~:d header~:p, ~:d octets"
                                  (hunchentoot:return-code*)
                                  (length (the list (hunchentoot:headers-out*)))
                                  (length (the vector bytes)))
