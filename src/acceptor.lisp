@@ -206,7 +206,7 @@
     (progn
       (verbose:info :request "No match for ~s ~{/~a~} accepting ~s"
                     method uri-parts ua-accept)
-      (error 'not-found :the (format nil "The URI you requsted")))))
+      (error 'not-found :the (format nil "The URI you requested")))))
 
 (defmethod hunchentoot:acceptor-dispatch-request
     ((acceptor Tootsville-REST-acceptor) request)
