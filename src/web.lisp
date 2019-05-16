@@ -108,7 +108,7 @@ as well.)"
               temp
               (rest temp)))
         (list "index" extension)))
-
+  
   (defun without-sem (string)
     "The subset of STRING up to the first semicolon, if any."
     (if-let (sem (position #\; (the string string)))
@@ -149,8 +149,8 @@ as well.)"
                             ,(concatenate 'string "Finished: " (first-line docstring) " in ~,3fs")
                             (* 1.0 ,$elapsed))
                     (when (< ,how-slow-is-slow ,$elapsed)
-                      (run-async  
-                       (lambda ()
+                      (run-async
+                       (named-lambda report-slow-query ()
                          (v:error '(,(make-keyword fname) :endpoint :slow-query)
                                   "Slow query ~s took ~,3fs (>~,3fs allowed)"
                                   ',fname (* 1.0 ,$elapsed) ,how-slow-is-slow)
