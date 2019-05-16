@@ -26,6 +26,7 @@
 ;;; USA
 
 (in-package :Tootsville)
+
 
 
 (defun accepts-content-type-p (content-type)
@@ -44,8 +45,8 @@
 Looks for  the canonical  \"Accept: application/json\", and  also checks
 the request URI for \".js\" (which  is, of course, a subseq of \".json\"
 as well.)"
-  (or (search "application/json" (hunchentoot:header-in* :accept))
-      (search ".js" (hunchentoot:request-uri*))))
+  (or (search "application/json" (the string (hunchentoot:header-in* :accept)))
+      (search ".js" (the string (hunchentoot:request-uri*)))))
 
 
 
@@ -68,7 +69,12 @@ as well.)"
       ((vectorp reply)
        (setf (hunchentoot:return-code*) 200
              content-bytes reply))
-      ((and (listp reply) (not (numberp (first reply))))
+      ((not (listp reply))
+       (setf (hunchentoot:return-code*) 500
+             content-bytes (flexi-streams:string-to-octets 
+                            (format nil "Unable to encode reply ~s" reply)
+                            :external-format :utf-8)))
+      ((not (numberp (first reply)))
        (setf (hunchentoot:return-code*) 200
              content-bytes (contents-to-bytes reply)))
       ((= 2 (length reply))
@@ -105,13 +111,13 @@ as well.)"
 
   (defun without-sem (string)
     "The subset of STRING up to the first semicolon, if any."
-    (if-let (sem (position #\; string))
+    (if-let (sem (position #\; (the string string)))
       (subseq string 0 sem)
       string))
 
   (defun first-line (string)
     "The first line, or, lacking a shorter break, first 100 characters of STRING."
-    (let ((newline (or (position #\newline string) 100)))
+    (let ((newline (or (position #\newline (the string string)) 100)))
       (subseq string 0 (min newline 100 (length string)))))
 
   (defun defendpoint/make-endpoint-function (&key fname content-type
@@ -128,13 +134,12 @@ as well.)"
                      (let ((reply
                             (catch 'endpoint
                               (block endpoint
-                                (with-timeout (,(* how-slow-is-slow 10))
+                                (with-timeout (,(* (the real how-slow-is-slow) 10.0))
                                   (block ,fname
                                     ,@body))))))
                        (let ((bytes (encode-endpoint-reply reply)))
                          (v:info '(,(make-keyword fname) :endpoint :endpoint-output)
-                                 "Status: ~d; ~[~:;~:*~d header~:p; ~]~d octets"
-                                 
+                                 "Status: ~d; ~:d header~p, ~:d octets"
                                  (hunchentoot:return-code*)
                                  (length (the list (hunchentoot:headers-out*)))
                                  (length (the vector bytes)))
@@ -156,8 +161,8 @@ as well.)"
 
   (defun after-slash (s)
     "Splits a string S at a slash. Useful for getting the end of a content-type."
-    (if (find #\/ s)
-        (subseq (string-downcase s) (1+ (position #\/ s)))
+    (if (find #\/ (the string s))
+        (subseq (string-downcase s) (1+ (or (position #\/ s) #|unreachable|# 0)))
         (string-downcase s)))
 
   (defmacro check-arg-type (arg type &optional name)
@@ -357,7 +362,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 ~2%It will report a slow response if it takes longer than ~f seconds
 \(~:d milliseconds) to complete."
                                method uri content-type (length λ-list) λ-list 
-                               how-slow-is-slow (round (* 1000 how-slow-is-slow))))))
+                               how-slow-is-slow (round (* 1000.0 how-slow-is-slow))))))
       `(progn
          ,(defendpoint/make-endpoint-function
               :fname fname
@@ -370,20 +375,18 @@ It returns a content-type of ~:*~(~a~).~]~2%~
             `(add-or-replace-endpoint ',fname ,method
                                       ',(apply-extension-to-template template extension)
                                       ,content-type))
-         (add-or-replace-endpoint ',fname ,method ',template ,content-type)
-         ;; (format *trace-output* "~2& ★ New endpoint: ~a ~a → ~a~% All
-         ;;         endpoints:  ~{~%  •~s~}"   method  uri  content-type
-         ;;         (enumerate-endpoints))
-         ))))
+         (add-or-replace-endpoint ',fname ,method ',template ,content-type)))))
 
 
 
 (defendpoint (get "/" text/html)
   "GET on the root redirects to the main web page for the cluster (eg, @url{https://Tootsville.org/})"
-  (list 307 (list :location (format nil "https://www.~a.org/" (let ((cluster (cluster-name)))
-                                                                (if (search "tootsville" cluster)
-                                                                    cluster
-                                                                    "test.tootsville.org")))) ""))
+  (list 307 (list :location
+                  (format nil "https://www.~a.org/"
+                          (let ((cluster (cluster-name)))
+                            (if (search "tootsville" (the string cluster))
+                                cluster
+                                "test.tootsville.org")))) ""))
 
 (defendpoint (get "/favicon" image/png)
   "Get the Tootsville logo as a PNG"
