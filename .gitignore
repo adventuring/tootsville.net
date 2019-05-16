@@ -58,12 +58,6 @@ dist/*
 .settings
 .workspace
 
-# Build temp files
-build/
-js/*.js
-js/*.map
-css/*.css
-
 # Compilation target
 Tootsville
 Tootsville.new
