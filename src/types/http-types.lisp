@@ -92,7 +92,7 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
 </ul>
 ~:[<pre>~A</pre>~;Our operations team can find out more in the server logs.~]
 ~@[<dl>
-~{<dt> ~a </dt> <dd> ~a </dd> ~}
+~{<dt> ~a </dt> ~^ <dd> ~a </dd> ~}
 </dl>~]
 </body>
 </html>"
