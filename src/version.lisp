@@ -38,22 +38,20 @@ in HTTP headers and such."
         *romance-ii-copyright-latest*
         (setf *romance-ii-copyright-latest*
               (apply #'max (map-asdf-files #'file-write-year
-                                           (asdf:find-system :tootsville))))))
-  (romance-ii-copyright-latest))
+                                           (asdf:find-system :tootsville)))))))
 
 (defun tootsville-v-banner ()
   (format nil
           "~&~|
 Tootsville Ⅴ, version ~a.
 
-Copyright © 2006-2017, Bruce-Robert Pocock
-Copyright  ©  2018~@[-~*~d~],  the  Corporation  for  Inter-World  Tourism
-and Adventuring (ciwta.org).
+Copyright © 2006-2017,  Bruce-Robert Pocock
+Copyright  © 2018  - ~4d,  the Corporation  for Inter-World  Tourism and
+Adventuring (ciwta.org).
 
 Licensed  under the  terms of  the  GNU Affero  General Public  License,
 version 3.~%~%"
           (romance-ii-program-version)
-          (= 2018 *romance-ii-copyright-latest*)
           *romance-ii-copyright-latest*))
 
 (defun version-info-list ()

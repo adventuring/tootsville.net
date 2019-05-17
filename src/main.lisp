@@ -236,7 +236,8 @@ or exit the REPL.")
   (swank:set-default-directory (asdf:component-relative-pathname
                                 (asdf:find-system  :Tootsville)))
   (swank:set-package :Tootsville)
-  (start))
+  (start)
+  (banner))
 
 (defun destroy-all-listeners ()
   (map nil #'destroy-thread
