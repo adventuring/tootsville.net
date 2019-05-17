@@ -78,10 +78,12 @@
 
 (defmethod to-json-alist ((object gossip-initiation))
   (list (list :|uuid| (gossip-initiation-uuid object))
-        (list :|offeror| (plist-alist (to-plist (gossip-initiation-offeror object))))
-        (list :|offer| (gossip-initiation-offer object))
-        (list :|answeror| (plist-alist (to-plist (gossip-initiation-answeror object))))
-        (list :|answer| (plist-alist (to-plist (gossip-initiation-answer object))))))
+        (list :|offeror| (when-let (x (gossip-initiation-offeror object))
+                           (person-uuid x)))
+        (list :|offer| (plist-alist (gossip-initiation-offer object)))
+        (list :|answeror| (when-let (x (gossip-initiation-answeror object))
+                            (person-uuid x)))
+        (list :|answer| (gossip-initiation-answer object))))
 
 (defmethod destroy-record ((init gossip-initiation))
   (clouchdb:delete-document (gossip-initiation-uri init)))
@@ -104,6 +106,11 @@
   (let ((init (apply #'make-gossip-initiation plist)))
     (save-record init)
     init))
+
+(defmethod invalidate-cache ((init gossip-initiation))
+  (declare (ignore init))
+  ;; no op
+  )
 
 (defmethod find-record ((class (eql 'gossip-initiation))
                         &key uuid)
