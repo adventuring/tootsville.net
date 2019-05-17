@@ -37,8 +37,7 @@
     (gossip-initiation-uuid offer-object)))
 
 (defun make-offers-from-json (json)
-  (check-type json list)
-  (map 'list #'make-offer-from-json (getf json :|offers|)))
+  (map 'list #'make-offer-from-json (getf (jonathan.decode:parse json) :|offers|)))
 
 (defendpoint (get "/gossip/ice-servers" "application/json")
   "Obtain STUN/TURN server credentials for ICE"
