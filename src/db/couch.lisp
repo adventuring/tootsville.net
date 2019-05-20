@@ -67,7 +67,9 @@
   :|uuid|)
 
 (defmethod %to-json ((object gossip-initiation))
-  (%to-json (to-plist object)))
+  (%to-json (to-plist object))) 
+
+(defvar *couch-rev-cache* (make-hash-table :test 'eq))
 
 (defmethod to-plist ((object gossip-initiation))
   (list :|uuid| (gossip-initiation-uuid object)
@@ -86,21 +88,25 @@
         (list :|answer| (gossip-initiation-answer object))))
 
 (defmethod destroy-record ((init gossip-initiation))
-  (clouchdb:delete-document (gossip-initiation-uri init)))
+  (clouchdb:delete-document (gossip-initiation-uri init))
+  (remhash init *couch-rev-cache*))
 
 (defmethod save-record ((init gossip-initiation))
   (unless (gossip-initiation-uuid init)
     (setf (gossip-initiation-uuid init) (uuid:make-v4-uuid)))
-  (clouchdb:put-document (to-json-alist init)
-                         :id (gossip-initiation-uri init))
+  (let ((rev (gethash init *couch-rev-cache* 0)))
+    (clouchdb:put-document (cons (cons :|_rev| rev) (to-json-alist init))
+                           :id (gossip-initiation-uri init)))
+  (remhash init *couch-rev-cache*)
   (to-json init))
 
 (defmethod load-record ((class (eql 'gossip-initiation)) alist)
-  (make-gossip-initiation :uuid (assoc-value alist :|uuid|)
-                          :offeror (assoc-value alist :|offeror|)
-                          :offer (assoc-value alist :|offer|)
-                          :answeror (assoc-value alist :|answeror|)
-                          :answer (assoc-value alist :|answer|)))
+  (let ((init (make-gossip-initiation :uuid (assoc-value alist :|uuid|)
+                                      :offeror (assoc-value alist :|offeror|)
+                                      :offer (assoc-value alist :|offer|)
+                                      :answeror (assoc-value alist :|answeror|)
+                                      :answer (assoc-value alist :|answer|))))
+    (setf (gethash init *couch-rev-cache*) (assoc-value alist :|_rev|))))
 
 (defmethod make-record ((class (eql 'gossip-initiation)) &rest plist)
   (let ((init (apply #'make-gossip-initiation plist)))
