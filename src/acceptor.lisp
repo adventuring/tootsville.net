@@ -155,11 +155,10 @@
              (pretty-print-html-error c)))))
 
 (defmacro with-http-conditions (() &body body)
-  `(handler-case (progn ,@body)
-     (http-client-error (c)
-       (gracefully-report-http-client-error c))
-     (error (c)
-       (gracefully-report-http-client-error c))))
+  `(handler-bind
+       ((http-client-error #'gracefully-report-http-client-error)
+        (error #'gracefully-report-http-client-error))
+     (progn ,@body)))
 
 (defun handle-options-request (uri-parts ua-accept)
   (v:info :request "Method is OPTIONS")
