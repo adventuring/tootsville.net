@@ -124,26 +124,26 @@
                               (answeror nil answerorp)
                               (answer nil answerp))
   (cond
-    ((<= 1 (+ (if offeror 1 0)
-              (if answerorp 1 0)
-              (if answerp 1 0)))
+    ((< 1 (+ (if offeror 1 0)
+             (if answerorp 1 0)
+             (if answerp 1 0)))
      (error "Can't search that way: ~
 supply exactly one of OFFEROR, ANSWEROR, ANSWER"))
     (offeror
-     (mapcar (lambda (r) (load-record 'gossip-initiation r))
+     (mapcar (curry #'load-record 'gossip-initiation)
              (clouchdb:invoke-view
               "offeror" "offeror"
               :key (uuid-to-uri (person-uuid offeror)))))
     ((and answerp
           (null answer))
-     (mapcar (lambda (r) (load-record 'gossip-initiation r))
+     (mapcar (curry #'load-record 'gossip-initiation)
              (clouchdb:invoke-view
               "pending" "pending")))
     ((and answerorp
           (null answeror))
-     (curry #'load-record 'gossip-initiation)
-     (clouchdb:invoke-view
-      "unanswered" "unanswered"))
+     (mapcar (curry #'load-record 'gossip-initiation)
+             (clouchdb:invoke-view
+              "unanswered" "unanswered")))
     (t (clouchdb:all-docs-by-seq))))
 
 
