@@ -28,6 +28,8 @@
 (in-package :Tootsville)
 
 (defun make-offer-from-json (offer-json)
+  (check-type offer-json list)
+  (assert (member :|sdp| offer-json))
   (let* ((offer-object (make-record 'gossip-initiation
                                     :offeror *user*
                                     :offer offer-json)))
