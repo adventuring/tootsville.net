@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/endpoints/gossip/twilio/gossip-twilio.lisp is part of
+;;;; src/endpoints/gossip/twilio/gossip-twilio.lisp is part of
 ;;;; Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
