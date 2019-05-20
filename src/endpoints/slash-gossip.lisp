@@ -58,7 +58,7 @@
                           (map 'string
                                #'code-char (hunchentoot:raw-post-data)))))))))
 
-(defendpoint (get "/gossip/offers/any" "application/sdp")
+(defendpoint (get "/gossip/offers" "application/sdp")
   "Ask for any, arbitrary offer to potentially accept."
   (let ((offer (gossip-pop-offer)))
     (if offer
