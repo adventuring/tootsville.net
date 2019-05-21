@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/db/couch.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -67,7 +67,7 @@
   :|uuid|)
 
 (defmethod %to-json ((object gossip-initiation))
-  (%to-json (to-plist object))) 
+  (%to-json (to-plist object)))
 
 (defvar *couch-rev-cache* (make-hash-table :test 'eq))
 
@@ -91,25 +91,31 @@
   (clouchdb:delete-document (gossip-initiation-uri init))
   (remhash init *couch-rev-cache*))
 
-(defun put-couchdb-document-with-revision (init rev)
-  (clouchdb:put-document (cons (cons :|_rev| rev) (to-json-alist init))
-                         :id (gossip-initiation-uri init)))
+(defun put-couchdb-document-with-revision (init)
+  (setf (gethash init *couch-rev-cache*)
+        (assoc-value (clouchdb:put-document
+                      (cons (cons :|_rev|
+                                  (gethash init *couch-rev-cache*))
+                            (to-json-alist init))
+                      :id (gossip-initiation-uri init))
+                     :|rev|))
+  init)
 
 (defun put-couchdb-new-document (init)
-  (clouchdb:put-document (to-json-alist init)
-                         :id (gossip-initiation-uri init)))
+  (setf (gethash init *couch-rev-cache*)
+        (assoc-value (clouchdb:put-document (to-json-alist init)
+                                            :id (gossip-initiation-uri init))
+                     :|rev|))
+  init)
 
 (defmethod save-record ((init gossip-initiation))
-  (unless (gossip-initiation-uuid init)
-    (setf (gossip-initiation-uuid init) (uuid:make-v4-uuid)))
-  (if-let ((rev (gethash init *couch-rev-cache*)))
-    (put-couchdb-document-with-revision init rev)
-    (put-couchdb-new-document init))
-  (run-async (lambda ()
-               (remhash init *couch-rev-cache*)
-               (let ((new (clouchdb:get-document (gossip-initiation-uri init))))
-                 (setf (gethash init *couch-rev-cache*) (assoc-value new :|_rev|))))
-             :name (format nil "Update CouchDB revision for ~s" init))
+  (cond
+    ((null (gossip-initiation-uuid init))
+     (setf (gossip-initiation-uuid init) (uuid:make-v4-uuid))
+     (put-couchdb-new-document init))
+    ((gethash init *couch-rev-cache*)
+     (put-couchdb-document-with-revision init))
+    (t (put-couchdb-new-document init)))
   (to-json init))
 
 (defmethod load-record ((class (eql 'gossip-initiation)) alist)
@@ -176,7 +182,7 @@ supply exactly one of OFFEROR, ANSWEROR, ANSWER"))
 (defun find-active-Toot-for-user (&optional (user *user*))
   (when user
     (when-let (uuid (couch-get-document
-                     (concatenate 'string "/player/link/toot/" 
+                     (concatenate 'string "/player/link/toot/"
                                   (uuid:format-as-urn nil (person-uuid user)))))
       (find-record 'toot :uuid uuid))))
 
