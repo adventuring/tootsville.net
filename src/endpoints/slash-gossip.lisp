@@ -27,49 +27,27 @@
 
 (in-package :Tootsville)
 
-(defun make-offer-from-json (offer-json)
-  (check-type offer-json list)
-  (assert (member :|sdp| offer-json))
-  (let* ((offer-object (make-record 'gossip-initiation
-                                    :offeror *user*
-                                    :offer offer-json)))
-    (v:info '(:gossip :gossip-new) 
-            "New SDP offer ~a" (gossip-initiation-uuid offer-object))
-    (save-record offer-object)
-    (gossip-initiation-uuid offer-object)))
-
-(defun make-offers-from-json (json)
-  (make-offer-from-json (getf (jonathan.decode:parse json) :|offers|)))
-
 (defendpoint (get "/gossip/ice-servers" "application/json")
   "Obtain STUN/TURN server credentials for ICE"
   (with-user ()
     (list 200 ()
           (ice-credentials))))
 
-(defendpoint (post "/gossip/offers" "application/json")
+(defendpoint (post "/gossip/offers" "application/sdp")
   "Provide a new offer. Body is an SDP offer. Reply will be an offer URI."
   (with-user ()
-    (list 202 (list :location "/gossip/offers")
-          (list :|offers| 
-                (mapcar #'uuid-to-uri 
-                        (make-offers-from-json
-                         (jonathan.decode:parse
-                          (map 'string
-                               #'code-char (hunchentoot:raw-post-data)))))))))
+    (let ((sdp (jonathan.encode:%to-json
+                (getf (jonathan.decode:parse
+                                        ; no idea why I have to do it twice XXX
+                       (jonathan.decode:parse
+                        (map 'string #'code-char (hunchentoot:raw-post-data))))
+                      :|offer|))))
+      (enqueue-sdp-offer sdp)
+      (list 202 (list :location "/gossip/offers")
+            sdp))))
 
 (defendpoint (get "/gossip/offers" "application/sdp")
   "Ask for any, arbitrary offer to potentially accept."
-  (let ((offer (gossip-pop-offer)))
-    (if offer
-        (list 200
-              (list :location (format nil "/gossip/offers/~a"
-                                      (uuid-to-uri (gossip-initiation-uuid offer))))
-              (gossip-initiation-offer offer))
-        (error 'not-found :the "Gossipnet initiation offer"))))
+  (list 200 (dequeue-sdp-offer)))
 
-(defendpoint (put "/gossip/offers/:uuid64" "application/sdp")
-  "Answer a particular offer with ID UUID64"
-  (let ((offer (find-record 'gossip-initiation :uuid (uri-to-uuid uuid64)))
-        (body (hunchentoot:raw-post-data)))
-    (gossip-answer-offer offer body)))
+
