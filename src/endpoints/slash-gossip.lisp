@@ -36,12 +36,7 @@
 (defendpoint (post "/gossip/offers" "application/sdp")
   "Provide a new offer. Body is an SDP offer. Reply will be an offer URI."
   (with-user ()
-    (let ((sdp (jonathan.encode:%to-json
-                (getf (jonathan.decode:parse
-                                        ; no idea why I have to do it twice XXX
-                       (jonathan.decode:parse
-                        (map 'string #'code-char (hunchentoot:raw-post-data))))
-                      :|offer|))))
+    (let ((sdp (map 'string #'code-char (hunchentoot:raw-post-data))))
       (enqueue-sdp-offer sdp)
       (list 202 (list :location "/gossip/offers")
             sdp))))
