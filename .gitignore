@@ -84,3 +84,4 @@ doc/**
 # Bootstrap files for loading Quicklisp
 quicklisp.lisp
 quicklisp.lisp.asc
+src/doc/map.png
