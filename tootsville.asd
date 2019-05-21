@@ -126,7 +126,7 @@ REST services for the front-end."
      (:module "db"
               :depends-on ("package-post")
               :components ((:file "memcached")
-                           (:file "couch" :depends-on ("generic-db"))
+                           (:file "zeromq")
                            (:file "maria" :depends-on ("memcached"))
                            (:file "generic-db" :depends-on ("memcached"))
                            (:file "db-central" :depends-on ("maria" "generic-db"))
