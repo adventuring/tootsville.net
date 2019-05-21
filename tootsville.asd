@@ -70,6 +70,7 @@ REST services for the front-end."
                :trivial-ldap
                :uiop
                :uuid
+               :zeromq
 
                ;; Systems that travel bundled with Tootsville
 
