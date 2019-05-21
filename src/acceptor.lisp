@@ -173,7 +173,9 @@
          (string method)
          (hunchentoot:header-out :Access-Control-Allow-Headers)
          "Accept, Accept-Language, Content-Language, Content-Type, X-Infinity-Auth"
-         (hunchentoot:header-out :Access-Control-Max-Age) 85000)
+         (hunchentoot:header-out :Access-Control-Max-Age) 85000
+         (hunchentoot:header-out :Content-Type) "application/octet-stream"
+         (hunchentoot:header-out :Content-Length) 0)
         (hunchentoot:send-headers)
         nil)
       (progn
