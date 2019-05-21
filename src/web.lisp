@@ -384,7 +384,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 (defendpoint (get "/" text/html)
   "GET on the root redirects to the main web page for the cluster (eg, @url{https://Tootsville.org/})"
   (list 307 (list :location
-                  (format nil "https://www.~a.org/"
+                  (format nil "https://www.~a/"
                           (let ((cluster (cluster-name)))
                             (if (search "tootsville" (the string cluster))
                                 cluster
