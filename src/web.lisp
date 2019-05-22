@@ -106,6 +106,10 @@ as well.)"
    (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
            fname (* 1.0 elapsed) how-slow-is-slow)))
 
+(defun raw-post-string ()
+  "Obtain POSTed data as a string"
+  (hunchentoot:raw-post-data :external-format :utf-8 :force-text t))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defun apply-extension-to-template (template extension)
