@@ -28,21 +28,47 @@
 (in-package :Tootsville)
 
 (defendpoint (get "/gossip/ice-servers" "application/json")
-  "Obtain STUN/TURN server credentials for ICE"
+  "Obtain STUN/TURN server credentials for ICE."
   (with-user ()
     (list 200 ()
           (ice-credentials))))
 
 (defendpoint (post "/gossip/offers" "application/sdp")
-  "Provide a new offer. Body is an SDP offer. Reply will be an offer URI."
-  (with-user ()
-    (let ((sdp (map 'string #'code-char (hunchentoot:raw-post-data))))
-      (enqueue-sdp-offer sdp)
-      (list 202 (list :location "/gossip/offers")
-            sdp))))
+  "Provide a new offer. Body is an SDP offer. Reply will be an offer URI.
 
-(defendpoint (get "/gossip/offers" "application/sdp")
-  "Ask for any, arbitrary offer to potentially accept."
-  (list 200 (dequeue-sdp-offer)))
+The offer URI will  be needed to retrieve the answer  to your offer from
+whatever peer  may accept it. There  is no guarantee that  an offer will
+be accepted."
+  (with-user ()
+    (let ((uri 
+           (format nil "/gossip/answers/~a"
+                   (enqueue-sdp-offer (raw-post-string)))))
+      (list 201
+            (list :location uri)
+            (list :|location| uri)))))
+
+(defendpoint (get "/gossip/offers" "application/json")
+  "Ask for any, arbitrary offer to potentially accept.
+
+Returns a JSON object with UUID (for answering) and SDP description."
+  (with-user ()
+    (list 200 () (dequeue-sdp-offer))))
+
+(defendpoint (post "/gossip/answers/:uuid" "application/sdp")
+  "Post an answer to a received SDP block"
+  (make-record 'gossip-initiation :uuid uuid :answer (raw-post-string))
+  (list 201 () #()))
+
+(defendpoint (get "/gossip/answers/:uuid" "application/sdp" 4/10)
+  "Read back the answer to an offer posted previously. 
+
+COMET-type call may sleep up to 3/10s"
+  (with-user ()
+    (dotimes (_ 30)
+      (if-let ((record (find-record 'gossip-initiation 
+                                    :uuid (uuid:make-uuid-from-string uuid))))
+        (list 200 () (gossip-initiation-answer record))
+        (sleep 1/100)))))
+
 
 
