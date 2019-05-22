@@ -44,11 +44,18 @@
 
 (defun enqueue-sdp-offer (sdp)
   (check-type sdp string)
-  (zeromq:send *gossip-sdp-push* (format nil "~4,'0x" (length sdp)))
-  (zeromq:send *gossip-sdp-push* sdp))
+  (let* ((uuid (uuid:make-v4-uuid))
+         (uuid-bytes (uuid:uuid-to-byte-array uuid)))
+    (zeromq:send *gossip-sdp-push* (format nil "~4,'0x" (+ 16 (length sdp))))
+    (zeromq:msg-send *gossip-sdp-push* (zeromq:make-msg :size 16 :data uuid-bytes))
+    (zeromq:send *gossip-sdp-push* sdp)
+    uuid))
 
 (defun dequeue-sdp-offer ()
-  (let ((length (parse-integer (zeromq:recv *gossip-sdp-pull* 4)
-                               :radix 16)))
-    (zeromq:recv *gossip-sdp-pull* length)))
+  (ignore-errors
+    (let* ((length (parse-integer (zeromq:recv *gossip-sdp-pull* 4)
+                                  :radix 16))
+           (string (zeromq:recv *gossip-sdp-pull* length)))
+      (list :|uuid| (subseq string 0 16)
+            :|offer| (subseq string 16)))))
 
