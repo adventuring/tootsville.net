@@ -52,9 +52,6 @@
 
 (defstruct gossip-initiation
   uuid
-  offeror
-  offer
-  answeror
   answer)
 
 (defmethod database-for ((type (eql 'gossip-initiation)))
@@ -73,18 +70,10 @@
 
 (defmethod to-plist ((object gossip-initiation))
   (list :|uuid| (gossip-initiation-uuid object)
-        :|offeror| (gossip-initiation-offeror object)
-        :|offer| (gossip-initiation-offer object)
-        :|answeror| (gossip-initiation-answeror object)
         :|answer| (gossip-initiation-answer object)))
 
 (defmethod to-json-alist ((object gossip-initiation))
   (list (list :|uuid| (gossip-initiation-uuid object))
-        (list :|offeror| (when-let (x (gossip-initiation-offeror object))
-                           (person-uuid x)))
-        (list :|offer| (plist-alist (gossip-initiation-offer object)))
-        (list :|answeror| (when-let (x (gossip-initiation-answeror object))
-                            (person-uuid x)))
         (list :|answer| (gossip-initiation-answer object))))
 
 (defmethod destroy-record ((init gossip-initiation))
@@ -120,9 +109,6 @@
 
 (defmethod load-record ((class (eql 'gossip-initiation)) alist)
   (let ((init (make-gossip-initiation :uuid (assoc-value alist :|uuid|)
-                                      :offeror (assoc-value alist :|offeror|)
-                                      :offer (assoc-value alist :|offer|)
-                                      :answeror (assoc-value alist :|answeror|)
                                       :answer (assoc-value alist :|answer|))))
     (setf (gethash init *couch-rev-cache*) (assoc-value alist :|_rev|))))
 
