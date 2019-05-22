@@ -126,7 +126,7 @@
                         &key uuid)
   (if uuid
       (clouchdb:get-document (gossip-initiation-uri uuid)
-                             :if-missing :nil)
+                             :if-missing nil)
       (error "Must provide UUID")))
 
 (defmethod find-records ((class (eql 'gossip-initiation))
