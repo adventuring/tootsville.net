@@ -38,8 +38,8 @@ No verb at all defaults to “repl”
 check — perform a very simple power-on self-test
 fast-cgi — run in FastCGI mode under an appropriate server (eg, Apache)
 repl — run a REPL (you might want to rlwrap it)
-server — start a Hunchentoot server for testing
-daemon — start a Hunchentoot server for production
+server [PORT] [HOST] — start a Hunchentoot server for testing
+daemon [PORT] [HOST] — start a Hunchentoot server for production
 swank — start a Swank server
 version — print the precise time and date compiled (DEPRECATED)
 version-info — extract specfic version information
