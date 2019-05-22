@@ -140,18 +140,18 @@
      (error "Can't search that way: ~
 supply exactly one of OFFEROR, ANSWEROR, ANSWER"))
     (offeror
-     (mapcar (curry #'load-record 'gossip-initiation)
+     (mapcar (the function (curry #'load-record 'gossip-initiation))
              (clouchdb:invoke-view
               "offeror" "offeror"
               :key (uuid-to-uri (person-uuid offeror)))))
     ((and answerp
           (null answer))
-     (mapcar (curry #'load-record 'gossip-initiation)
+     (mapcar (the function (curry #'load-record 'gossip-initiation))
              (clouchdb:invoke-view
               "pending" "pending")))
     ((and answerorp
           (null answeror))
-     (mapcar (curry #'load-record 'gossip-initiation)
+     (mapcar (the function (curry #'load-record 'gossip-initiation))
              (clouchdb:invoke-view
               "unanswered" "unanswered")))
     (t (clouchdb:all-docs-by-seq))))
