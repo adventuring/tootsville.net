@@ -60,46 +60,45 @@ as well.)"
 
 (defun encode-endpoint-reply (reply)
   "Handle the reply from an endpoint function gracefully."
-  (let ((content-bytes #()))
-    (cond
-      ((stringp reply)
-       (setf (hunchentoot:return-code*) 200
-             content-bytes (flexi-streams:string-to-octets reply
-                                                           :external-format :utf-8)))
-      ((vectorp reply)
-       (setf (hunchentoot:return-code*) 200
-             content-bytes reply))
-      ((not (listp reply))
-       (setf (hunchentoot:return-code*) 500
-             content-bytes (flexi-streams:string-to-octets
-                            (format nil "Unable to encode reply ~s" reply)
-                            :external-format :utf-8)))
-      ((not (numberp (first reply)))
-       (if (zerop (length (first reply)))
-           (setf (hunchentoot:return-code*) 204
-                 content-bytes #())
-           (setf (hunchentoot:return-code*) 200
-                 content-bytes (contents-to-bytes reply))))
-      ((= 2 (length reply))
-       (destructuring-bind (status contents) reply
-         (check-type status http-response-status-number)
-         (setf (hunchentoot:return-code*) status
-               content-bytes (contents-to-bytes contents))))
-      ((= 3 (length reply))
-       (destructuring-bind (status headers contents) reply
-         (check-type status http-response-status-number)
-         (assert (every (lambda (x)
-                          (or (stringp x) (symbolp x)))
-                        headers)
-                 (headers)
-                 "Headers should be given as strings or symbols; got ~s"
-                 headers)
-         (loop for (header . value) on headers by #'cddr
-            do (setf (hunchentoot:header-out header)
-                     (atom-or-comma-list value)))
-         (setf (hunchentoot:return-code*) status
-               content-bytes (contents-to-bytes contents)))))
-    content-bytes))
+  (cond
+    ((stringp reply)
+     (setf (hunchentoot:return-code*) 200)
+     (flexi-streams:string-to-octets reply
+                                     :external-format :utf-8))
+    ((vectorp reply)
+     (setf (hunchentoot:return-code*) 200)
+     reply)
+    ((not (listp reply))
+     (setf (hunchentoot:return-code*) 500)
+     (flexi-streams:string-to-octets
+      (format nil "Unable to encode reply ~s" reply)
+      :external-format :utf-8))
+    ((and (not (numberp (first reply)))
+          (zerop (length (first reply))))
+     (setf (hunchentoot:return-code*) 204)
+     #())
+    ((and (not (numberp (first reply))))
+     (setf (hunchentoot:return-code*) 200)
+     (contents-to-bytes reply))
+    ((= 2 (length reply))
+     (destructuring-bind (status contents) reply
+       (check-type status http-response-status-number)
+       (setf (hunchentoot:return-code*) status)
+       (contents-to-bytes contents)))
+    ((= 3 (length reply))
+     (destructuring-bind (status headers contents) reply
+       (check-type status http-response-status-number)
+       (assert (every (lambda (x)
+                        (or (stringp x) (symbolp x)))
+                      headers)
+               (headers)
+               "Headers should be given as strings or symbols; got ~s"
+               headers)
+       (loop for (header . value) on headers by #'cddr
+          do (setf (hunchentoot:header-out header)
+                   (atom-or-comma-list value)))
+       (setf (hunchentoot:return-code*) status)
+       (contents-to-bytes contents)))))
 
 (defun report-slow-query (fname elapsed how-slow-is-slow)
   (run-async
