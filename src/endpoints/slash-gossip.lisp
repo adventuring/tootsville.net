@@ -42,7 +42,8 @@ be accepted."
   (with-user ()
     (let ((uri 
            (format nil "/gossip/answers/~a"
-                   (enqueue-sdp-offer (raw-post-string)))))
+                   (enqueue-sdp-offer (jonathan.decode:parse
+                                       (raw-post-string))))))
       (list 201
             (list :location uri)
             (list :|location| uri)))))
@@ -56,7 +57,9 @@ Returns a JSON object with UUID (for answering) and SDP description."
 
 (defendpoint (post "/gossip/answers/:uuid" "application/sdp")
   "Post an answer to a received SDP block"
-  (make-record 'gossip-initiation :uuid uuid :answer (raw-post-string))
+  (make-record 'gossip-initiation 
+               :uuid (uuid:make-uuid-from-string uuid)
+               :answer (raw-post-string))
   (list 202 () #()))
 
 (defendpoint (get "/gossip/answers/:uuid" "application/sdp" 31)
@@ -69,6 +72,7 @@ COMET-type call may sleep up to 30s"
                                     :uuid (uuid:make-uuid-from-string uuid))))
         (return-from endpoint (list 200 () (gossip-initiation-answer record)))
         (sleep 1/100)))
+    (v:info :gossip "No answer to offer ~a" uuid)
     (list 204 () #())))
 
 

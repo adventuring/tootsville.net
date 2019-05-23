@@ -125,8 +125,18 @@
 (defmethod find-record ((class (eql 'gossip-initiation))
                         &key uuid)
   (if uuid
-      (clouchdb:get-document (gossip-initiation-uri uuid)
-                             :if-missing nil)
+      (let* ((doc (clouchdb:get-document (gossip-initiation-uri uuid)
+                                         :if-missing nil))
+             (uuid$ (assoc-value doc :|uuid|))
+             (answer$ (assoc-value doc :|answer|)))
+        (when (and uuid$
+                   (stringp uuid$)
+                   (= 36 (length uuid$))
+                   answer$
+                   (stringp answer$))
+          (make-gossip-initiation
+           :uuid (uuid:make-uuid-from-string uuid$)
+           :answer (jonathan.decode:parse answer$))))
       (error "Must provide UUID")))
 
 (defmethod find-records ((class (eql 'gossip-initiation))
