@@ -45,17 +45,24 @@
 (defun enqueue-sdp-offer (sdp)
   (check-type sdp string)
   (let* ((uuid (uuid:make-v4-uuid))
-         (uuid-bytes (uuid:uuid-to-byte-array uuid)))
-    (zeromq:send *gossip-sdp-push* (format nil "~4,'0x" (+ 16 (length sdp))))
-    (zeromq:msg-send *gossip-sdp-push* (zeromq:make-msg :size 16 :data uuid-bytes))
-    (zeromq:send *gossip-sdp-push* sdp)
+         (bytes (flexi-streams:string-to-octets sdp
+                                                :external-format :utf-8)))
+    (zeromq:send *gossip-sdp-push* "SDPO")
+    (zeromq:send *gossip-sdp-push* (format nil "~4,'0x" (+ 16 (length bytes))))
+    (zeromq:msg-send *gossip-sdp-push*
+                     (zeromq:make-msg :data (uuid:uuid-to-byte-array uuid)))
+    (zeromq:msg-send *gossip-sdp-push*
+                     (zeromq:make-msg :data bytes))
     uuid))
 
 (defun dequeue-sdp-offer ()
-  (ignore-errors
-    (let* ((length (parse-integer (zeromq:recv *gossip-sdp-pull* 4)
-                                  :radix 16))
-           (string (zeromq:recv *gossip-sdp-pull* length)))
-      (list :|uuid| (subseq string 0 16)
-            :|offer| (subseq string 16)))))
-
+  (assert (string= (zeromq:recv *gossip-sdp-pull* 4) "SDPO")
+          () "Trying to pull SDP offer from queue but got garbage data.")
+  (let* ((length (parse-integer (zeromq:recv *gossip-sdp-pull* 4)
+                                :radix 16)))
+    (assert (< 16 length) (length) "Not enough data coming")
+    (list :|uuid| (uuid:byte-array-to-uuid (zeromq:recv *gossip-sdp-pull* 16))
+          :|offer| (flexi-streams:octets-to-string
+                    (zeromq:recv *gossip-sdp-pull*
+                                 (- length 16))
+                    :external-format :utf-8))))
