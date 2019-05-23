@@ -51,7 +51,10 @@ as well.)"
 
 
 (defun contents-to-bytes (contents)
-  "Convert CONTENTS to a sequence of 8-bit bytes"
+  "Convert CONTENTS to a sequence of 8-bit bytes.
+
+Assumes strings are UTF-8; vectors are already bytes; and lists are JSON
+faux data."
   (etypecase contents
     (string (flexi-streams:string-to-octets contents :external-format :utf-8))
     (vector contents)
