@@ -42,26 +42,32 @@
     (zeromq:connect *gossip-sdp-pull* (format nil "tcp://127.0.0.1:~d" port))
     port))
 
+(defvar *gossip-sdp-lock* (make-lock "Gossip SDP queue lock"))
+
 (defun enqueue-sdp-offer (sdp)
   (check-type sdp string)
   (let* ((uuid (uuid:make-v4-uuid))
+         (uuid-msg (zeromq:make-msg :data (uuid:uuid-to-byte-array uuid)))
          (bytes (flexi-streams:string-to-octets sdp
-                                                :external-format :utf-8)))
-    (zeromq:send *gossip-sdp-push* "SDPO")
-    (zeromq:msg-send *gossip-sdp-push*
-                     (zeromq:make-msg :data (uuid:uuid-to-byte-array uuid)))
-    (zeromq:msg-send *gossip-sdp-push*
-                     (zeromq:make-msg :data bytes))
+                                                :external-format :utf-8))
+         (message (zeromq:make-msg :data bytes)))
+    (with-lock-held (*gossip-sdp-lock*)
+      (zeromq:send *gossip-sdp-push* "SDPO")
+      (zeromq:msg-send *gossip-sdp-push* uuid-msg)
+      (zeromq:msg-send *gossip-sdp-push* message))
     uuid))
 
 (defun dequeue-sdp-offer ()
-  (when (string= (zeromq:recv *gossip-sdp-pull* 4) "SDPO")
+  (when (string= "SDPO" (with-lock-held (*gossip-sdp-lock*)
+                          (zeromq:recv *gossip-sdp-pull* 4)))
     (let ((uuid-data (zmq:make-msg))
           (offer-data (zmq:make-msg)))
-      (zmq:msg-recv *gossip-sdp-pull* uuid-data)
-      (zmq:msg-recv *gossip-sdp-pull* offer-data)
+      (with-lock-held (*gossip-sdp-lock*)
+        (zmq:msg-recv *gossip-sdp-pull* uuid-data)
+        (zmq:msg-recv *gossip-sdp-pull* offer-data))
       (handler-case
-          (let* ((uuid (uuid:byte-array-to-uuid (zmq:msg-data-as-array uuid-data)))
+          (let* ((uuid (uuid:byte-array-to-uuid 
+                        (zmq:msg-data-as-array uuid-data)))
                  (offer (flexi-streams:octets-to-string
                          (zmq:msg-data-as-array offer-data)
                          :external-format :utf-8)))
