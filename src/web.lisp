@@ -99,12 +99,15 @@ as well.)"
     content-bytes))
 
 (defun report-slow-query (fname elapsed how-slow-is-slow)
-  (v:error `(,(make-keyword (symbol-name fname)) :endpoint :slow-query)
-           "Slow query ~s took ~,3fs (>~,3fs allowed)"
-           fname (* 1.0 elapsed) how-slow-is-slow)
-  (rollbar:info!
-   (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
-           fname (* 1.0 elapsed) how-slow-is-slow)))
+  (run-async
+   (lambda ()
+     (v:error `(,(make-keyword (symbol-name fname)) :endpoint :slow-query)
+              "Slow query ~s took ~,3fs (>~,3fs allowed)"
+              fname (* 1.0 elapsed) how-slow-is-slow)
+     (rollbar:info!
+      (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
+              fname (* 1.0 elapsed) how-slow-is-slow)))
+   :name (format nil "Report slow query ~s" fname)))
 
 (defun raw-post-string ()
   "Obtain POSTed data as a string"
@@ -161,9 +164,7 @@ as well.)"
                             ,(concatenate 'string "Finished: " (first-line docstring) " in ~,3fs")
                             (* 1.0 ,$elapsed))
                     (when (< ,how-slow-is-slow ,$elapsed)
-                      (run-async
-                       (lambda () (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))
-                       :name "Report slow query"))))))))
+                      (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
 
   (defun after-slash (s)
     "Splits a string S at a slash. Useful for getting the end of a content-type."
