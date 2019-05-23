@@ -113,6 +113,15 @@ as well.)"
   "Obtain POSTed data as a string"
   (hunchentoot:raw-post-data :external-format :utf-8 :force-text t))
 
+(defun send-reply-as-bytes (reply fname)
+  (let ((bytes (encode-endpoint-reply reply)))
+    (v:info `(,(make-keyword fname) :endpoint :endpoint-output)
+            "Status: ~d; ~:d header~:p, ~:d octets"
+            (hunchentoot:return-code*)
+            (length (the list (hunchentoot:headers-out*)))
+            (length (the vector bytes)))
+    bytes))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defun apply-extension-to-template (template extension)
@@ -152,13 +161,7 @@ as well.)"
                                 (with-timeout (,(* (the real how-slow-is-slow) 10.0))
                                   (block ,fname
                                     ,@body))))))
-                       (let ((bytes (encode-endpoint-reply reply)))
-                         (v:info '(,(make-keyword fname) :endpoint :endpoint-output)
-                                 "Status: ~d; ~:d header~:p, ~:d octets"
-                                 (hunchentoot:return-code*)
-                                 (length (the list (hunchentoot:headers-out*)))
-                                 (length (the vector bytes)))
-                         bytes))
+                       (send-reply-as-bytes reply ',fname))
                   (let ((,$elapsed (/ (- (get-internal-real-time) ,$begin) internal-time-units-per-second)))
                     (v:info '(,(make-keyword fname) :endpoint :endpoint-finish)
                             ,(concatenate 'string "Finished: " (first-line docstring) " in ~,3fs")
