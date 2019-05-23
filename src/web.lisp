@@ -126,9 +126,9 @@ faux data."
             (length (the list (hunchentoot:headers-out*)))
             (length (the vector bytes)))
     bytes))
-
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
-
+  
   (defun apply-extension-to-template (template extension)
     "Create a clone of TEMPLATE with EXTENSION."
     (if template
