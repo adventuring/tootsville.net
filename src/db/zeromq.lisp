@@ -56,13 +56,19 @@
     uuid))
 
 (defun dequeue-sdp-offer ()
-  (assert (string= (zeromq:recv *gossip-sdp-pull* 4) "SDPO")
-          () "Trying to pull SDP offer from queue but got garbage data.")
-  (let* ((length (parse-integer (zeromq:recv *gossip-sdp-pull* 4)
-                                :radix 16)))
-    (assert (< 16 length) (length) "Not enough data coming")
-    (list :|uuid| (uuid:byte-array-to-uuid (zeromq:recv *gossip-sdp-pull* 16))
-          :|offer| (flexi-streams:octets-to-string
-                    (zeromq:recv *gossip-sdp-pull*
-                                 (- length 16))
-                    :external-format :utf-8))))
+  (when (string= (zeromq:recv *gossip-sdp-pull* 4) "SDPO")
+    (let* ((length (parse-integer (zeromq:recv *gossip-sdp-pull* 4)
+                                  :radix 16)))
+      (assert (< 16 length) (length) "Not enough data coming")
+      (handler-case
+          (let* ((uuid (uuid:byte-array-to-uuid
+                        (zeromq:recv *gossip-sdp-pull* 16)))
+                 (offer (flexi-streams:octets-to-string
+                         (zeromq:recv *gossip-sdp-pull*
+                                      (- length 16))
+                         :external-format :utf-8)))
+            (list :|uuid| uuid
+                  :|offer| offer))
+        (babel-encodings:end-of-input-in-character (_)
+          (declare (ignore _))
+          nil)))))
