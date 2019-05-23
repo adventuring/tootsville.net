@@ -57,7 +57,7 @@ Returns a JSON object with UUID (for answering) and SDP description."
 (defendpoint (post "/gossip/answers/:uuid" "application/sdp")
   "Post an answer to a received SDP block"
   (make-record 'gossip-initiation :uuid uuid :answer (raw-post-string))
-  (list 201 () #()))
+  (list 202 () #()))
 
 (defendpoint (get "/gossip/answers/:uuid" "application/sdp" 4/10)
   "Read back the answer to an offer posted previously. 
@@ -67,8 +67,9 @@ COMET-type call may sleep up to 3/10s"
     (dotimes (_ 30)
       (if-let ((record (find-record 'gossip-initiation 
                                     :uuid (uuid:make-uuid-from-string uuid))))
-        (list 200 () (gossip-initiation-answer record))
-        (sleep 1/100)))))
+        (return-from endpoint (list 200 () (gossip-initiation-answer record)))
+        (sleep 1/100)))
+    (list 204 () #())))
 
 
 
