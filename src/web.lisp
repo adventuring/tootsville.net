@@ -75,7 +75,9 @@ as well.)"
                             (format nil "Unable to encode reply ~s" reply)
                             :external-format :utf-8)))
       ((not (numberp (first reply)))
-       (setf (hunchentoot:return-code*) 200
+       (setf (hunchentoot:return-code*) (if (zerop (length (first reply)))
+                                            204
+                                            200)
              content-bytes (contents-to-bytes reply)))
       ((= 2 (length reply))
        (destructuring-bind (status contents) reply
