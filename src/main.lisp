@@ -207,7 +207,7 @@ process's PID."
 
 (defmethod verbose:format-message ((stream stream) (message v:message))
   (with-lock-held (*verbose-logging-lock*)
-    (format stream "~&~a	{~a}	[~a: ~{~a~^, ~}]~%⯮	~a~%"
+    (format stream "~&~a	{~a}	[~a; ~{~a~^, ~}]~%⮕ ~a~%"
             (format-timestring nil (v:timestamp message)
                                :format
                                '((:year 4) #\- (:month 2) #\- (:day 2)
