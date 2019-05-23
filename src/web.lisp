@@ -79,8 +79,7 @@ as well.)"
            (setf (hunchentoot:return-code*) 204
                  content-bytes #())
            (setf (hunchentoot:return-code*) 200
-                 content-bytes (contents-to-bytes reply)))
-       )
+                 content-bytes (contents-to-bytes reply))))
       ((= 2 (length reply))
        (destructuring-bind (status contents) reply
          (check-type status http-response-status-number)
