@@ -48,7 +48,6 @@
          (bytes (flexi-streams:string-to-octets sdp
                                                 :external-format :utf-8)))
     (zeromq:send *gossip-sdp-push* "SDPO")
-    (zeromq:send *gossip-sdp-push* (format nil "~4,'0x" (+ 16 (length bytes))))
     (zeromq:msg-send *gossip-sdp-push*
                      (zeromq:make-msg :data (uuid:uuid-to-byte-array uuid)))
     (zeromq:msg-send *gossip-sdp-push*
@@ -57,15 +56,14 @@
 
 (defun dequeue-sdp-offer ()
   (when (string= (zeromq:recv *gossip-sdp-pull* 4) "SDPO")
-    (let* ((length (parse-integer (zeromq:recv *gossip-sdp-pull* 4)
-                                  :radix 16)))
-      (assert (< 16 length) (length) "Not enough data coming")
+    (let ((uuid-data (zmq:make-msg))
+          (offer-data (zmq:make-msg)))
+      (zmq:msg-recv *gossip-sdp-pull* uuid-data)
+      (zmq:msg-recv *gossip-sdp-pull* offer-data)
       (handler-case
-          (let* ((uuid (uuid:byte-array-to-uuid
-                        (zeromq:recv *gossip-sdp-pull* 16)))
+          (let* ((uuid (uuid:byte-array-to-uuid (zmq:msg-data-as-array uuid-data)))
                  (offer (flexi-streams:octets-to-string
-                         (zeromq:recv *gossip-sdp-pull*
-                                      (- length 16))
+                         (zmq:msg-data-as-array offer-data)
                          :external-format :utf-8)))
             (list :|uuid| uuid
                   :|offer| offer))
