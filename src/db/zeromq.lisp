@@ -44,6 +44,7 @@
 
 (defvar *gossip-sdp-lock* (make-lock "Gossip SDP queue lock"))
 
+#+ (or)
 (defun enqueue-sdp-offer (sdp)
   (check-type sdp string)
   (let* ((uuid (uuid:make-v4-uuid))
@@ -57,6 +58,7 @@
       (zeromq:msg-send *gossip-sdp-push* message))
     uuid))
 
+#+ (or)
 (defun dequeue-sdp-offer ()
   (when (string= "SDPO" (with-lock-held (*gossip-sdp-lock*)
                           (zeromq:recv *gossip-sdp-pull* 4)))
@@ -76,3 +78,15 @@
         (babel-encodings:end-of-input-in-character (_)
           (declare (ignore _))
           nil)))))
+
+(defvar *simple-sdp-queue* nil)
+(defun enqueue-sdp-offer (offer)
+  (let ((uuid (uuid:make-v4-uuid)))
+    (push (cons uuid offer) *simple-sdp-queue*)
+    uuid))
+(defun dequeue-sdp-offer ()
+  (and *simple-sdp-queue*
+       (destructuring-bind (uuid . offer)
+           (pop *simple-sdp-queue*)
+         (list :|uuid| uuid
+               :|offer| offer))))
