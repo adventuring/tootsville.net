@@ -73,7 +73,7 @@
         :|answer| (gossip-initiation-answer object)))
 
 (defmethod to-json-alist ((object gossip-initiation))
-  (list (list :|uuid| (gossip-initiation-uuid object))
+  (list (list :|uuid| (format nil "~a" (gossip-initiation-uuid object)))
         (list :|answer| (gossip-initiation-answer object))))
 
 (defmethod destroy-record ((init gossip-initiation))
