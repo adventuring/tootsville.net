@@ -10,6 +10,3 @@
 [submodule "taskmaster"]
 	path = src/lib/taskmaster
 	url = git@github.com:adventuring/hunchentoot-thread-pool-taskmaster
-[submodule "cljwt"]
-	path = src/lib/cljwt
-	url = git@github.com:adventuring/cljwt
