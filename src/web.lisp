@@ -62,20 +62,22 @@ faux data."
                                           :external-format :utf-8))))
 
 (defun encode-endpoint-reply (reply)
-  "Handle the reply from an endpoint function gracefully."
+  "Handle the reply from an endpoint function gracefully.
+
+Strings are sent in UTF-8.
+
+Vectors are assumed to be octet vectors.
+
+Lists can begin with a status  code number, followed by an optional list
+of  headers, followed  by actual  contents.  A list  not beginning  with
+a status number is assumed to be cons data, which is transmitted as JSON
+in UTF-8 using the Jonathan transcoding.
+
+Relies upon `CONTENTS-TO-BYTES', qv"
   (cond
-    ((stringp reply)
-     (setf (hunchentoot:return-code*) 200)
-     (flexi-streams:string-to-octets reply
-                                     :external-format :utf-8))
-    ((vectorp reply)
-     (setf (hunchentoot:return-code*) 200)
-     reply)
     ((not (listp reply))
-     (setf (hunchentoot:return-code*) 500)
-     (flexi-streams:string-to-octets
-      (format nil "Unable to encode reply ~s" reply)
-      :external-format :utf-8))
+     (setf (hunchentoot:return-code*) (if (emptyp reply) 204 200))
+     (contents-to-bytes reply))
     ((and (not (numberp (first reply)))
           (zerop (length (first reply))))
      (setf (hunchentoot:return-code*) 204)
