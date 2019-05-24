@@ -99,33 +99,56 @@
                 keys-update-next)
         keys))))
 
+(defun extract-certificate-base64 (string)
+  "Base64-decode the certificate in STRING between BEGIN CERTIFICATE header and END CERTIFICATE footer lines."
+  (let ((soh (search "-----BEGIN CERTIFICATE-----" string))
+        (sof (search "-----END CERTIFICATE-----" string :from-end t)))
+    (assert (and soh sof (< soh sof)))
+    (let* ((hi (position #\Newline (subseq string soh)))
+           (fi (- sof 1)))
+      (assert (and hi fi (< hi fi)))
+      (base64:base64-string-to-usb8-array (subseq string hi fi)))))
+
+(defpost certificate-extraction ()
+  (equalp #(105 106 154)
+          (extract-certificate-base64
+           "-----BEGIN CERTIFICATE-----
+aaaaa
+-----END CERTIFICATE-----")))
+
 (defun check-firebase-id-token (token)
   (multiple-value-bind (claims header digest claims$ header$)
       (cljwt-custom:unpack token)
-    (declare (ignore digest claims$ header$))
-    (let ((google-account-keys (get-google-account-keys)))
+    (declare (ignore claims$ header$))
+    (let (#+ (or) (google-account-keys (get-google-account-keys)))
+      #+ (or)  (extract-certificate-base64
+                (extract google-account-keys
+                         (make-keyword (gethash "kid" header))))
       (multiple-value-bind (payload-claims payload-header)
-          (ignore-errors ; FIXME actually check the token!
-            (cljwt-custom:verify token
-                                 (extract google-account-keys
-                                          (make-keyword (gethash "kid" header)))
-                                 (gethash "alg" header)
-                                 :fail-if-unsecured t
-                                 :fail-if-unsupported t)))
-      #+ (or) (assert (> (gethash "exp" header) (timestamp-to-unix (now))) (token)
-                      "Credential token has expired")
-      #+ (or) (assert (< (gethash "iat" header) (timestamp-to-unix (now))) (token)
-                      "Credential token will be issued in the future. ~
+          (cljwt-custom:verify token
+                               (crypto:make-cipher
+                                :rc5
+                                :key (base64:base64-string-to-usb8-array digest))
+                               (gethash "alg" header)
+                               :fail-if-unsecured t
+                               :fail-if-unsupported t))
+      (assert (> (gethash "exp" header) (timestamp-to-unix (now))) (token)
+              "Credential token has expired")
+      (assert (< (gethash "iat" header) (timestamp-to-unix (now))) 
+              (token)
+              "Credential token will be issued in the future. ~
 You must be punished for violating causality.")
-      ;;       (assert      (<     (gethash      "auth_time"     header)
-      ;;               (timestamp-to-unix  (now)))  (token)  "Credential
-      ;;               token is from a future user authentication. ~ You
-      ;;               must  be  punished   for  violating  causality.")
-      ;;               (assert    (string=   (gethash    "aud"   header)
-      ;;               (config    :firebase     :project-id))    (token)
-      ;;               "Credential token was not for  us (we are not its
-      ;;               audience)")
-
+      (assert (< (gethash "auth_time" header) 
+                 (timestamp-to-unix (now)))
+              (token)
+              "Credential token  is from  a future  user authentication. ~
+   You must be punished for violating causality.")
+      (assert (string= (gethash "aud" header)
+                       (config :firebase :project-id))
+              (token)
+              "Credential  token  was  not  for   us  (we  are  not  ~
+ its audience)")
+      
       (list :credentials (append (hash-table-plist (extract claims "firebase" "identities"))
                                  (list "firebase" (list (gethash "sub" claims))))
             :email (gethash "email" claims)
