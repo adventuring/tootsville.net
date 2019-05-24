@@ -194,7 +194,8 @@
    (hunchentoot:header-out :X-Lisp-Version)
    (format nil "~a/~a"
            (lisp-implementation-type)
-           (lisp-implementation-version))))
+           (lisp-implementation-version))
+   (hunchentoot:header-out :Vary) "Accept, Accept-Language, X-Infinity-Auth"))
 
 (defun dispatch-endpoint (match)
   (destructuring-bind (endpoint &rest bindings) match
