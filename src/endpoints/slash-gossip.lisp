@@ -71,7 +71,9 @@ COMET-type call may sleep up to 30s"
       (if-let ((record (find-record 'gossip-initiation 
                                     :uuid (uuid:make-uuid-from-string uuid))))
         (return-from endpoint (list 200 () (gossip-initiation-answer record)))
-        (sleep 1/100)))
+        (progn
+          (v:info :gossip "No answer to offer ~a" uuid)
+          (sleep 1/100))))
     (v:info :gossip "No answer to offer ~a" uuid)
     (list 204 () #())))
 
