@@ -42,11 +42,11 @@
 ;;;
 ;;; d is the d: element of the command already converted to plist form.
 
-(definfinity add-furniture ((&rest d) user plane)
+(definfinity add-furniture ((&rest d) user recipient/s)
   "Alias for `INFINITY-SET-FURNITURE', q.v."
-  (apply #'infinity-set-furniture (list d user plane)))
+  (apply #'infinity-set-furniture (list d user recipient/s)))
 
-(definfinity add-To-List (nil user plane)
+(definfinity add-To-List (nil user recipient/s)
   "add a user to a buddy list or ignore list using the traditional (online-only, no notification engine) mechanism (using out of band methods). Compare vs. requestBuddy
 
 @subsection{410 Gone}
@@ -54,7 +54,7 @@
 This was a legacy feature removed in Romance 1.2."
   (error 'legacy-gone))
 
-(definfinity click ((|on| |x| |y| |z| |with|) user plane)
+(definfinity click ((|on| |x| |y| |z| |with|) user recipient/s)
   
   "Used by the client  to report a mouse click or  finger tap.
 
@@ -173,7 +173,7 @@ The click event is being ignored; ITEM-ID was not an interesting item to
 the server.
 "
   )
-(definfinity create-user-house ((|lot| |house| |index|) user plane)
+(definfinity create-user-house ((|lot| |house| |index|) user recipient/s)
   
   "Either claim the user's house and lot, or add a room to their house.
 
@@ -214,7 +214,7 @@ or adding a room, @verb{| { index: roomIndex } |}
               (infinity-error 400 :index-not-valid))
             ;; TODO create room and affix to house 
             )))))))
-(definfinity dofff ((&rest d) user plane)
+(definfinity dofff ((&rest d) user recipient/s)
   "Doff all clothing items.
 
 Takes no parameters.
@@ -223,7 +223,7 @@ Sends two  responses: a success  reply from \"doff\", then  total avatar
   info from \"wardrobe\""
   ;; TODO dofff
   )
-(definfinity don ((|slot| |color|) user plane)
+(definfinity don ((|slot| |color|) user recipient/s)
   "Don an item
 
 JSON object  has the  item slot  number to  be worn  (clothes, patterns,
@@ -254,7 +254,7 @@ in-game via Doodle.
     (infinity-error 400 :cannot-select-color))
   ;; TODO don
   )
-(definfinity echo ((&rest d) user plane)
+(definfinity echo ((&rest d) user recipient/s)
   "Echoes back the supplied JSON (or ActionScript) object to the client.
  
 This method exists solely for testing purposes.
@@ -277,7 +277,7 @@ u - The user calling (to whom the response is sent)
 "
   (list :|from| "echo" :|status| t :|You said| d))
 
-(definfinity endEvent ((|moniker| |eventID| |score| |status|) user plane)
+(definfinity endEvent ((|moniker| |eventID| |score| |status|) user recipient/s)
   
   " This method  terminates an event (probably a  minigame, but possibly
 a fountain) which was initiated by startEvent.
@@ -306,7 +306,7 @@ status = one of \"cxl\" to cancel an event (in which case, score should be
 
 "
   )
-(definfinity finger ((&rest _+user-names) user plane)
+(definfinity finger ((&rest _+user-names) user recipient/s)
   "Get public info for a list of (other) users.
 
 Reply format:
@@ -322,7 +322,7 @@ jso - JSON object, with (ignored) keys tied to values which must be the names of
 
 "
   )
-(definfinity game-Action ((&rest more-params &key |action| &allow-other-keys) user plane)
+(definfinity game-Action ((&rest more-params &key |action| &allow-other-keys) user recipient/s)
   
   "gameAction(org.json.JSONObject jso,
                                 AbstractUser u,
@@ -340,11 +340,11 @@ encode a response into a JSON form
 
 "
   )
-(definfinity get-apple (nil user plane)
+(definfinity get-apple (nil user recipient/s)
   "Get the apple to get into, or out of, $Eden"
   )
 
-(definfinity get-Avatars ((&rest _+user-names) user plane)
+(definfinity get-Avatars ((&rest _+user-names) user recipient/s)
   "Get avatar data for a list of (other) users. cv. finger
 
 Parameters:
@@ -356,7 +356,7 @@ u - The calling user. The calling user's avatar data will not be returned.
 
 
 ")
-(definfinity get-color-palettes (nil user plane)
+(definfinity get-color-palettes (nil user recipient/s)
   "getColorPalettes
 
 @subsection{410 Gone}
@@ -375,7 +375,7 @@ this routine was removed in Appius 1.2.0."
   (declare (ignore _))
   (error 'legacy-gone))
 
-(definfinity get-Inventory ((&rest d) user plane)
+(definfinity get-Inventory ((&rest d) user recipient/s)
   
   "get all inventory for an user — both active and inactive
 
@@ -392,7 +392,7 @@ d — empty
 
 u — The user whose inventory to be searched"
   )
-(definfinity get-Inventory-By-Type ((|type|) user plane)
+(definfinity get-Inventory-By-Type ((|type|) user recipient/s)
   
   "Get a subset of items from your own inventory
 
@@ -436,7 +436,7 @@ u - The user whose inventory to be searched, who is the caller of this routine
 
 "
   )
-(definfinity get-Online-Users ((|inRoom|) user plane)
+(definfinity get-Online-Users ((|inRoom|) user recipient/s)
   "Get a list of users in a Zone, or in a Room.
  
 This is an administrative function, only available to staff members.
@@ -461,7 +461,7 @@ NotFoundException - if the room requested doesn't exist
 
 "
   )
-(definfinity get-Room-List (nil user plane)
+(definfinity get-Room-List (nil user recipient/s)
   "Get a list of all ``well known'' Rooms currently active/visible.
 
 ``Rooms'' no longer exist. The ``rooms'' are now known as ``planes.''
@@ -494,7 +494,7 @@ Pink-Moon
 "
   #("Tootanga" "Space" "Moon" "Other-Moon" "Pink-Moon"))
 
-(definfinity getServerTime (nil user plane)
+(definfinity getServerTime (nil user recipient/s)
   "Send the server time to the client requesting it
  
 For synchronization purposes.
@@ -502,20 +502,20 @@ For synchronization purposes.
 Sends a JSON object with a single property, serverTime, with the current
 time in milliseconds (give or take transit time). This is the Unix time,
 not the Universal time.")
-(definfinity get-session-apple ((&rest d) user plane)
+(definfinity get-session-apple ((&rest d) user recipient/s)
   "Initialise a session key for stream or batch mode operations
 
 Replies with { from: initSession, key: (OPAQUE-STRING) } 
 
 ")
-(definfinity get-store-item-info ((&rest d) user plane)
+(definfinity get-store-item-info ((&rest d) user recipient/s)
   "WRITEME: Document this method brpocock@star-hope.org
 
 jso - JavaScript array-style object where the key names are ignored, but the values are item ID's
 
 "
   )
-(definfinity get-User-Lists (nil user plane)
+(definfinity get-User-Lists (nil user recipient/s)
   
   "Get the user's buddy list and ignore list.
 
@@ -527,7 +527,7 @@ u - The user whose buddy and ignore lists will be fetched
 
 "
   )
-(definfinity get-Wallet ((&rest d) user plane)
+(definfinity get-Wallet ((&rest d) user recipient/s)
   
   "
 WRITEME: Document this method brpocock@star-hope.org
@@ -535,13 +535,13 @@ WRITEME: Document this method brpocock@star-hope.org
 
 "
   )
-(definfinity get-Zone-List (nil user plane)
+(definfinity get-Zone-List (nil user recipient/s)
   
   "Get a list of all Zones currently active/visible. 
 
 This returns \"Universe\" as the only Zone."
   #("Universe"))
-(definfinity give ((|slot| |to|) user plane)
+(definfinity give ((|slot| |to|) user recipient/s)
   
   "Give an item to another user
 
@@ -556,7 +556,7 @@ AlreadyExistsException - if the event can't be started for some reason
 
 "
   )
-(definfinity go ((|do| |x| |y| |z| |facing|) user plane)
+(definfinity go ((|do| |x| |y| |z| |facing|) user recipient/s)
   "go to a place and/or perform a gesture
 
 @example
@@ -569,7 +569,7 @@ facing: FACING (optional)
                                 
 u - the user doing something
 ")
-(definfinity init-user-room ((|room| |autoJoin|) user plane)
+(definfinity init-user-room ((|room| |autoJoin|) user recipient/s)
   "
  
 Creates room  named user/user's  name/room — room  is the  room index
@@ -593,7 +593,7 @@ jso - { room: (room-number), autoJoin: (boolean) }
 @end example
                                 
 u - The user whose house-room needs to be initialized
-") (definfinity join ((|room| |from|) user plane)
+") (definfinity join ((|room| |from|) user recipient/s)
      "Join a room.  On success, sends back the set  of room join events;
      but on failure, replies with  { from: roomJoin, status: false, err:
      ...}
@@ -619,18 +619,17 @@ room.full
 u - the user joining the room
   
   ") 
-(definfinity login ((|userName| |password| |zone|) user plane)
-  "Handle a login request
+(definfinity login ((|userName| |password| |zone|) user recipient/s)
+  "Notification of a new player in the game.
 
-We no longer do this …
     Parameters:
-        jso - { userName: LOGIN, password: $(sha1hex(concat(apple, pass))), zone: ZONE }
+        jso - { userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE }
 
-Response: logOK or { err: login.fail, msg: reason } with 
+Response: logOK or { err: login.fail, msg: reason }  
 "
   )
 
-(definfinity logout ((&rest d) user plane)
+(definfinity logout ((&rest d) user recipient/s)
   "Log out of this game session (or zone)
 
 There was a bug in the Persephone client that caused it to explode if we
@@ -642,7 +641,7 @@ no longer supported.
   "
   )
 
-(definfinity mail-customer-service ((&rest d) user plane) 
+(definfinity mail-customer-service ((&rest d) user recipient/s) 
   "  send an eMail to customer service (feedback)
 
   Parameters:
@@ -652,7 +651,7 @@ no longer supported.
 
   ")
 
-(definfinity peek-at-inventory ((|who| |type|) user plane)
+(definfinity peek-at-inventory ((|who| |type|) user recipient/s)
   "Handle looking at other user's inventories
 
 Parameters: jso -  {\"who\": the login name  of the user of  whom to get
@@ -672,7 +671,7 @@ Throws: org.json.JSONException -  Thrown if
 NotFoundException - Could not find a user with that name
 
   ")
-(definfinity ping (nil user plane)
+(definfinity ping (nil user recipient/s)
   
   "  Send a ping to the server to get back a pong. 
 
@@ -680,7 +679,7 @@ This also updates the user's last-active timestamp, to prevent them from
 being idled offline.
   
   ")
-(definfinity prompt-reply ((|id| |reply|) user plane)
+(definfinity prompt-reply ((|id| |reply|) user recipient/s)
   
   "promptReply(org.json.JSONObject jso,
                                    AbstractUser u,
@@ -828,7 +827,7 @@ Throws:
   org.json.JSONException - for really bad syntax errors
 
   ")
-(definfinity remove-from-list ((|buddy| |ignore|) user plane)
+(definfinity remove-from-list ((|buddy| |ignore|) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
   jso - To remove a buddy: { buddy: (name) }; or to attend to someone who had previously been ignored: { ignore: (name) }
@@ -836,7 +835,7 @@ Throws:
   u - The user whose buddy list or ignore list will be updated
   ")
 
-(definfinity report-bug ((|info|) user plane)
+(definfinity report-bug ((|info|) user recipient/s)
   "This method allows the client to ``phone home'' to report a bug. The bug report itself is just a giant string embedded in the ``bug'' element, but a ``cause'' element will be treated as the subject. Note that the bug report — like all JSON input — will be cut off at a certain limit (typically 4KiB), so it's most helpful to keep it short & sweet: Typically, this should be something like a single stack backtrace (with as much detail as possible), rather than a complete log trace or something.
 
   The suggested usage is to include the exception itself as ``cause,'' the backtrace up to a maximum of 1KiB, a log backtrace up to its last 1KiB as ``bug,'' and as much machine-formatted system information as possible in the ``info'' object.
@@ -1042,13 +1041,13 @@ as a string.
        
        ")
 
-(definfinity report-user ((|userName|) user plane)
+(definfinity report-user ((|userName|) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
         { userName = user to be reported }
        
        ")
-(definfinity request-buddy ((|buddy|) user plane)
+(definfinity request-buddy ((|buddy|) user recipient/s)
   "Request adding a user to your buddy list (mutual-add) using the notification-based system
 
 (Added in 1.1)
@@ -1057,7 +1056,7 @@ as a string.
        
 u - user who is requesting the addition
 ")
-(definfinity send-out-of-band-message ((|sender| |from| |status| |body| |sendRoomList|) user plane)
+(definfinity send-out-of-band-message ((|sender| |from| |status| |body| |sendRoomList|) user recipient/s)
   
   "Send an arbitrary JSON packet to another user, or all of the users in a room, out of the band of communications.
  
@@ -1117,7 +1116,7 @@ some additional data that is being provided.
 
        jso - { serverTime: LONG milliseconds since epoch }
 ")
-(definfinity set-avatar-color ((|base| |extra|) user plane)
+(definfinity set-avatar-color ((|base| |extra|) user recipient/s)
   "Set the avatar base and extra colours for the given user.
 
        Colour numbers are given in X'RRGGBB' form as an integer — to compute one from byte (0..255) RGB values, do ( red << 16 & green << 8 & blue )
@@ -1131,7 +1130,7 @@ some additional data that is being provided.
        SQLException - if the palettes can't be loaded
 
        ")
-(definfinity set-furniture ((|slot| |x| |y| |z| |facing| |remove|) user plane)
+(definfinity set-furniture ((|slot| |x| |y| |z| |facing| |remove|) user recipient/s)
   "Set or change a furniture item. 
 
 To add  a structural item  to the room,  put item: 123  without anything
@@ -1153,7 +1152,7 @@ about ``which chair'')
 
        ") 
 
-(definfinity set-room-var ((&rest key+value-pairs) user plane) 
+(definfinity set-room-var ((&rest key+value-pairs) user recipient/s) 
   
   "Set a room variable or set of room variables.
 
@@ -1167,11 +1166,11 @@ about ``which chair'')
 
        ") 
 
-(definfinity set-user-var ((&rest key+value-pairs) user plane)
+(definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
   "setUserVar
 
        public static void "
-"setUserVar(org.json.JSONObject jso,
+  "setUserVar(org.json.JSONObject jso,
                                   AbstractUser u,
                                   Room room)
        throws org.json.JSONException
@@ -1188,8 +1187,8 @@ about ``which chair'')
 
        ")
 
-(definfinity spawn-zone ((&rest d) user plane)
-"spawnZone
+(definfinity spawn-zone ((&rest d) user recipient/s)
+  "spawnZone
 
        Spawn an additional zone.
 
@@ -1203,7 +1202,7 @@ about ``which chair'')
 
        ")
 
-(definfinity speak ((key |speech|) user plane)
+(definfinity speak ((key |speech|) user recipient/s)
   "speak
 
        Handle speech by the user. XXX This should be calling User.speak(Room, String) to do the dirty work: but, in fact, the reverse is currently true.
@@ -1228,9 +1227,14 @@ about ``which chair'')
        u - The user speaking
        room - The room in which the speech occurs. 
        Throws:
-       org.json.JSONException - Thrown if the data cannot be interpreted from the JSON objects passed in, or conversely, if we can't encode a response into a JSON form 
+       
+org.json.JSONException - Thrown  if the data cannot  be interpreted from
+the JSON objects passed in, or conversely, if we can't encode a response
+into a JSON form
+
        NotFoundException - WRITEME
 
+@code
 	switch (speech.charAt (0)) {
 			case '#':
 			OpCommands.exec (channel, u, speech);
@@ -1257,10 +1261,10 @@ about ``which chair'')
 		return speech.replace (\"!!\", \"!\").replace (\",,\", \",\").replace (
 				\"....\", \"...\").replace (\"??\", \"?\");
 	}
-
+@end code
 
        ")
-(definfinity start-event ((|moniker|) user plane)
+(definfinity start-event ((|moniker|) user recipient/s)
   "Attempt to begin an event. Might return an error. Uses Quæstor for the heavy lifting.
 
 
@@ -1272,33 +1276,52 @@ Calls back the user with either of:
 
 alreadyDone: true; status: false; err: \"event.alreadyDone\"
 
-This returns for fountains that have already given peanuts today (where today started at midnight, database local time)
+This returns for fountains that  have already given peanuts today (where
+today started at midnight, database local time)
 
-eventID: (NUM), filename: \"blah.swf\", asVersion: { 2, 3, or not }, status: true
+eventID: (NUM),  filename: \"blah.swf\",  asVersion: { 2,  3, or  not },
+status: true
 
-For successfully registered events. Must be completed or canceled using ")
-(definfinity end-event ((|moniker|) user plane)
-  "endEvent(JSONObject ,AbstractUser , Room )
+For successfully registered events. Must  be completed or canceled using
+`END-EVENT', qv")
+
+(definfinity end-event ((|moniker|) user recipient/s)
+  "Attempt to end an event begun by `START-EVENT'
 
        Parameters:
-       jso - JSON payload from the caller. Data: moniker = event moniker.
-       u - The caller = the user performing the event
-       room - The caller's room. For fountains, we'll use this room's moniker to figure out which fountain is which 
-       Throws:
-       org.json.JSONException - if JSON data can't be put into a response, or gotten out of a command. 
-       SQLException - probably means that the moniker is bad, but I'm not really doing much to validate it here
+       
+jso - JSON payload from the caller. Data: moniker = event moniker.
+       
+u - The caller = the user performing the event
+       
+room - The  caller's room. For fountains, we'll use  this room's moniker
+to figure out which fountain is which
+       
+Throws:
+       
+org.json.JSONException - if  JSON data can't be put into  a response, or
+gotten out of a command.
+       
+SQLException  - probably  means that  the moniker  is bad,  but I'm  not
+really doing much to validate it here
 
        ")
-(definfinity use-equipment ((|t| |x| |y| |z| |on|) user plane)
-    "useEquipment
+(definfinity use-equipment ((|t| |x| |y| |z| |on|) user recipient/s)
+  "useEquipment
 
        WRITEME: Document this method brpocock@star-hope.org
 
        Parameters:
-       jso - { t: slot-type-char, x: target-x, y: target-y, z: target-z, [ on: target-name ] }
-       u - WRITEME
-       r - WRITEME 
-       Throws:
-       org.json.JSONException - WRITEME
+       
+jso - { t: slot-type-char, x: target-x, y: target-y, z: target-z, [ on: target-name ] }
+       
+u - WRITEME
+       
+r - WRITEME 
+       
+Throws:
+       
+org.json.JSONException - WRITEME
 
+t ∈ 1,2 for primary or secondary item
        ")
