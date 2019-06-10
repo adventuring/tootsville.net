@@ -61,6 +61,7 @@
 
 (defun Toot-info (Toot)
   (list :|name| (Toot-name Toot)
+        :|uuid| (Toot-UUID Toot)
         :|note| (or (Toot-note Toot) "")
         :|avatar| (avatar-moniker (find-reference Toot :avatar))
         :|baseColor| (color24-name (Toot-base-color Toot))
