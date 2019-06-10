@@ -52,7 +52,7 @@ be accepted."
 
 Returns a JSON object with UUID (for answering) and SDP description."
   (with-user ()
-    (dequeue-sdp-offer)))
+    (list (dequeue-sdp-offer))))
 
 (defendpoint (post "/gossip/answers/:uuid" "application/sdp")
   "Post an answer to a received SDP block"
