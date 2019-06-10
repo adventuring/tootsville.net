@@ -80,7 +80,8 @@ Relies upon `CONTENTS-TO-BYTES', qv"
      (contents-to-bytes reply))
     ((and (not (numberp (first reply)))
           (zerop (length (first reply))))
-     (setf (hunchentoot:return-code*) 204)
+     (setf (hunchentoot:return-code*) 204
+           (hunchentoot:content-type*) "application/octet-stream")
      #())
     ((and (not (numberp (first reply))))
      (setf (hunchentoot:return-code*) 200)
