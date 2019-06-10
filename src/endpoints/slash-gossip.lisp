@@ -30,8 +30,7 @@
 (defendpoint (get "/gossip/ice-servers" "application/json")
   "Obtain STUN/TURN server credentials for ICE."
   (with-user ()
-    (list 200 ()
-          (ice-credentials))))
+    (ice-credentials)))
 
 (defendpoint (post "/gossip/offers" "application/sdp")
   "Provide a new offer. Body is an SDP offer. Reply will be an offer URI.
@@ -53,14 +52,14 @@ be accepted."
 
 Returns a JSON object with UUID (for answering) and SDP description."
   (with-user ()
-    (list 200 () (dequeue-sdp-offer))))
+    (dequeue-sdp-offer)))
 
 (defendpoint (post "/gossip/answers/:uuid" "application/sdp")
   "Post an answer to a received SDP block"
   (make-record 'gossip-initiation 
                :uuid (uuid:make-uuid-from-string uuid)
                :answer (raw-post-string))
-  (list 202 () #()))
+  (list 202 #()))
 
 (defendpoint (get "/gossip/answers/:uuid" "application/sdp" 31)
   "Read back the answer to an offer posted previously. 
@@ -75,7 +74,7 @@ COMET-type call may sleep up to 30s"
           (v:info :gossip "No answer to offer ~a" uuid)
           (sleep 1/100))))
     (v:info :gossip "No answer to offer ~a" uuid)
-    (list 204 () #())))
+    (list 204 #())))
 
 
 
