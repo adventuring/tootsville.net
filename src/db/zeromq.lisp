@@ -80,10 +80,12 @@
           nil)))))
 
 (defvar *simple-sdp-queue* nil)
+
 (defun enqueue-sdp-offer (offer)
   (let ((uuid (uuid:make-v4-uuid)))
-    (push (cons uuid offer) *simple-sdp-queue*)
+    (appendf *simple-sdp-queue* (cons (cons uuid offer) nil))
     uuid))
+
 (defun dequeue-sdp-offer ()
   (and *simple-sdp-queue*
        (destructuring-bind (uuid . offer)
