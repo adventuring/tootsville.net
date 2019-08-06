@@ -33,8 +33,12 @@
   `(let ((*user* (find-record 'person :uuid
                               (uuid:make-uuid-from-string
                                "480B0917-3C7A-4D13-B55B-AA56105C5E00"))))
-     (with-user ()
-       ,@body)))
+     ,@body))
+
+(defun setf-user-brp ()
+  (setf *user* (find-record 'person :uuid
+                            (uuid:make-uuid-from-string
+                             "480B0917-3C7A-4D13-B55B-AA56105C5E00")))) 
 
 
 
