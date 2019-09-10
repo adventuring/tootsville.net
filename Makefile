@@ -51,10 +51,10 @@ clean:
 	-rm -rf Tootsville Tootsville.new \
 		doc/* bin/buildapp
 	-rm -rf $$HOME/.cache/common-lisp/*/$$(pwd)
-	find . -name \*.fasl -exec rm {} \;
-	find . -name dumper\*.lisp -exec rm {} \;
-	find . -name \*~ -exec rm {} \;
-	find . -name \*.orig -exec rm {} \;
+	find . -name \\*.fasl -exec rm {} \;
+	find . -name dumper\\*.lisp -exec rm {} \;
+	find . -name \\*~ -exec rm {} \;
+	find . -name \\*.orig -exec rm {} \;
 	-rm -f TODO.org TODO.scorecard	
 	git gc --auto || true
 
@@ -65,7 +65,7 @@ modules:	.gitmodules $(shell  grep '\[submodule "' .gitmodules | \
 ../.git/modules/%/config:	.gitmodules
 	(cd .. ; git submodule update --init )
 
-#TAGS:	$(shell find . -name \*.lisp)
+#TAGS:	$(shell find . -name \\*.lisp)
 #	ctags --languages=lisp -e -R -f TAGS
 
 deploy:	bin test server-push doc-publish deploy-servers
@@ -107,10 +107,10 @@ Tootsville.new:	quicklisp-manifest.tmp bin/buildapp
 		--entry Tootsville:entry
 
 quicklisp-manifest.tmp:	tootsville.asd \
-		$(shell find . -name \*.lisp \
-			-and -not -path \**/.\* \
-			-or -name \*.asd \
-			-and -not -path \**/.\*)
+		$(shell find . -name \\*.lisp \
+			-and -not -path \\**/.\\* \
+			-or -name \\*.asd \
+			-and -not -path \\**/.\\*)
 	sbcl --no-userinit --no-sysinit --non-interactive \
 		--load src/setup.lisp \
 		--eval '(ql:quickload :Tootsville)' \
@@ -277,7 +277,7 @@ TODO.org:	$(shell find . -name \\*.lisp -o -name \\*.css -o -name \\*.js -o -nam
 	git grep -Hn ☠☠☠: servers mesh play www build README.org \
 	 | perl -e '$$lastfile = ""; while (<>) { m/^(.*):([0-9]*):(.*)/; if ($$1 ne $$lastfile) { print "*** $$1\n\n"; $$lastfile = $$1 } print "$$2:$$3\n\n" }' >> TODO.org
 
-TODO.scorecard:	$(shell find . \( -name \*.lisp -o -name \*.asd \) -and -not -name .\*) \
+TODO.scorecard:	$(shell find . \( -name \\*.lisp -o -name \\*.asd \) -and -not -name .\\*) \
 	README.org
 	echo -n 'TOOTS_FIXME=' > TODO.scorecard
 	git grep FIXME *.lisp *.asd src/
