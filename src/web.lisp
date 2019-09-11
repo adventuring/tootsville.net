@@ -148,7 +148,7 @@ Relies upon `CONTENTS-TO-BYTES', qv"
       string))
 
   (defun first-line (string)
-    "The first line, or, lacking a shorter break, first 100 characters of STRING."
+    "The first line, or, up to 100 characters of STRING."
     (let ((newline (or (position #\newline (the string string)) 100)))
       (subseq string 0 (min newline 100 (length string)))))
   
@@ -178,11 +178,13 @@ Relies upon `CONTENTS-TO-BYTES', qv"
                       (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
 
   (defun after-slash (s)
-    "Splits a string S at a slash. Useful for getting the end of a content-type."
+    "Splits a string S at a slash. Useful for getting the end of a content-type.
+
+Downcases the string. Returns entire string when there's no slash."
     (if (find #\/ (the string s))
         (subseq (string-downcase s) (1+ (or (position #\/ s) #|unreachable|# 0)))
         (string-downcase s)))
-
+  
   (defmacro check-arg-type (arg type &optional name)
     "Ensure that ARG  is of type TYPE, which is  called NAME. Signals back
 to an HTTP client with a 400 error if this assertion is untrue.
@@ -198,7 +200,7 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                      :expected-type ,(or name (string-capitalize type))
                      :argument-name ,(string-capitalize arg)
                      :provided-value(format nil "~s" ,arg))))))
-
+  
   (defvar *extensions-for-content-types*
     '(
       :application/ecmascript "es"
@@ -290,21 +292,36 @@ This is basically just CHECK-TYPE for arguments passed by the user."
       :video/x-sgi-movie "movie"
       :x-world/x-vrml "vrml"
       ))
-
+  
   (defun extension-for-content-type (content-type)
+    "Get the canonically-preferred filename extension for CONTENT-TYPE."
     (getf *extensions-for-content-types*
           (make-keyword (string-upcase (without-sem content-type)))))
-
+  
   (defun name-for-content-type (content-type)
+    "Get the name to be used in function names for CONTENT-TYPE.
+
+Typically this is the file extension, but if none is known, it's the end
+of the CONTENT-TYPE after the slash."
     (or (extension-for-content-type content-type)
         (after-slash content-type)))
-
+  
   (defun atom-or-comma-list (value)
+    "Return VALUE, possibly by turning it into a comma-delimited string.
+
+An ATOM VALUE is returned intact.
+
+A one-member sequence is returned as the first element of the sequence.
+
+Anything   else  should   be   a   list  that   will   be  turned   into
+a comma-delimited string.
+
+Used in generating HTTP headers."
     (cond
       ((atom value) value)
       ((= 1 (length value)) (first value))
       (t (format nil "~{~a~^, ~}" value))))
-
+  
   (defun add-charset (content-type)
     "Adds the ;charset=UTF-8 type to the end of text and JS/JSON CONTENT-TYPEs"
     (if (member content-type
@@ -314,7 +331,7 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                 :test 'string=)
         (concatenate 'string content-type "; charset=utf-8")
         content-type))
-
+  
   (assert (equal (add-charset "text/html")
                  "text/html; charset=utf-8"))
   (assert (equal (add-charset "text/plain")
@@ -325,15 +342,17 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                  "application/json; charset=utf-8"))
   (assert (equal (add-charset "image/png")
                  "image/png"))
-
+  
   (defun constituentp (ch)
-    "Is character CH a constituent character of a Lisp name {without escaping it}?"
+    "Is character CH a constituent character of a Lisp name (without quoting)?
+
+Accepts A-Z, 0-9, and these punctuation: -/!?."
     (let ((cc (char-code (char-upcase ch))))
       (or (< #xa0 cc)
           (<= (char-code #\A) cc (char-code #\Z))
           (<= (char-code #\0) cc (char-code #\9))
           (find ch "-/!?." :test #'char=))))
-
+  
   (defun make-endpoint-function-name (method uri accept-type)
     "Create the name of the endpoint function for METHOD, URI, and ACCEPT-TYPE."
     (intern (format nil "ENDPOINT-~a-~a→~a"
