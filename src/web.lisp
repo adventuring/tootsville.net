@@ -450,3 +450,41 @@ XXX Probably a duplicate of something done in Hunchentoot or Drakma?"
     (when-let (qq (position #\? uri))
       (let* ((query-string (subseq uri qq)))
         (query-string->plist query-string)))))
+
+(defmacro with-error-as-http ((error-code) &body body)
+  "Execute BODY in a context in which any error results in HTTP ERROR-CODE.
+
+Rather than  defaulting to an HTTP  500, ERROR-CODE will be  returned as
+the outcome of any uncaught error signal."
+  `(handler-case
+       (progn ,@body)
+     (error (c)
+       (error 'http-client-error :http-status-code ,error-code))))
+
+(defmacro with-posted-json ((&rest λ-list) &body body)
+  "Execute BODY with Λ-LIST values from JSON body of a POST.
+
+Each  variable named  in Λ-LIST  will be  bound to  the `JONATHAN:PARSE'
+contents  of  the   analogous  (camel-case)  key  name   in  the  POSTed
+parameter object.
+
+For example,
+
+    (WITH-POSTED-JSON (FOO-BAR)
+          (BODY))
+
+… will  bind FOO-BAR  to the  value of  the key  \"fooBar\" in  the POST
+content, assuming it is a JSON object like
+ 
+   { \"fooBar\": \"value\" }
+
+In the event of a parse error, an HTTP 400 is returned."
+  (let (($json (gensym "JSON-"))
+        ($plist (gensym "JSON-PLIST-")))
+    `(let* ((,$json (hunchentoot:raw-post-data :external-format :utf-8))
+            (,$plist (with-error-as-http (400)
+                       (jonathan:parse ,$json))
+              ,(loop for key in λ-list
+                  collecting `(,key (getf ,$plist
+                                          ,(symbol-munger:lisp->camel-case key))))))
+       ,@body)))

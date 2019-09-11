@@ -45,7 +45,64 @@
             `(:last-modified ,(header-time))
             (Toot-info Toot)))))
 
-(defendpoint (post "/toots/:toot-name/child-p" "application/json")
+(defendpoint (post "/toots" "application/json")
+  "Create a new Toot.
+
+Input JSON must have the following fields:
+     tootName, baseColor, padColor, pattern, patternColor, tShirtColor
+
+Responds with 201 (Created); or 409 (Conflict)  if the name is in use or
+for some other reason the value can't  be entered; 422 if the Toot name,
+color  or pattern  name(s)  given are  not valid.  (400  if the  request
+is malformed.)"
+  (with-user ()
+    (with-posted-json (Toot-name base-color pad-color pattern pattern-color
+                                 t-shirt-color)
+      (with-errors-as-http (422)
+        (check-type Toot-name Toot-name)
+        (check-type base-color Toot-base-color)
+        (check-type pad-color Toot-pad-color)
+        (check-type pattern pattern)
+        (check-type pattern-color Toot-pattern-color)
+        (check-type t-shirt-color initial-t-shirt-color))
+      (with-errors-as-http (409)
+        (assert (not (find-record 'Toot :name Toot-name)))
+        (let ((Toot
+               (make-record 'Toot
+                            :name toot-name
+                            :pattern (pattern-id (find-record 'pattern
+                                                              :name pattern))
+                            :base-color (parse-color24 base-color)
+                            :pattern-color (parse-color24 pattern-color)
+                            :pad-color (parse-color24 pad-color)
+                            :player (person-uuid *player*)
+                            :avatar-scale-x 1.0
+                            :avatar-scale-y 1.0
+                            :avatar-scale-z 1.0
+                            :avatar 1   ; UltraToot
+                            :note (concatenate 
+                                   'string
+                                   "New Toot registered via web from "
+                                   (hunchentoot:remote-addr*))))
+              (t-shirt 
+               (make-record 'item
+                            :base-color (parse-color24 t-shirt-color)
+                            :alt-color (color24-rgb 0 0 0)
+                            :template 1       ; Solid color basic T-shirt
+                            :avatar-scale-x 1.0
+                            :avatar-scale-y 1.0
+                            :avatar-scale-z 1.0)))
+          (save-record Toot)
+          (save-record t-shirt)
+          (save-record
+           (make-record 'inventory-item
+                        :item (item-uuid t-shirt)
+                        :person (person-uuid *player*)
+                        :Toot (Toot-uuid Toot)
+                        :equipped :y))
+          (list 200 ))))))
+
+(defendpoint (put "/toots/:toot-name/child-p" "application/json")
   "Set CHILD-P flag for TOOT-NAME.
 
 Input JSON: { set: true } or { set: false }"

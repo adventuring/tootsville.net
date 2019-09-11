@@ -68,7 +68,7 @@ modules:	.gitmodules $(shell  grep '\[submodule "' .gitmodules | \
 #TAGS:	$(shell find . -name \\*.lisp)
 #	ctags --languages=lisp -e -R -f TAGS
 
-deploy:	bin test server-push doc-publish deploy-servers
+deploy:	bin test doc-publish deploy-servers
 
 VERSION=$(shell grep :version tootsville.asd | cut -d '"' -f 2)
 doc-publish:	doc
@@ -452,3 +452,4 @@ deploy-docs:
 
 TAGS:	$(shell find . -type f -name *.lisp)
 	etags --declarations $(shell find . -type f -name *.lisp) Makefile
+

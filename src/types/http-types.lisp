@@ -146,3 +146,4 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
   ((http-status-code :initform 402))
   (:report (lambda (c s)
              (format s "~a is gone." (not-found-thing c)))))
+
