@@ -60,11 +60,12 @@ is malformed.)"
                                  t-shirt-color)
       (with-errors-as-http (422)
         (check-type Toot-name Toot-name)
-        (check-type base-color Toot-base-color)
-        (check-type pad-color Toot-pad-color)
-        (check-type pattern pattern)
-        (check-type pattern-color Toot-pattern-color)
-        (check-type t-shirt-color initial-t-shirt-color))
+        (check-type base-color Toot-base-color-name)
+        (check-type pad-color Toot-pad-color-name)
+        (check-type pattern Toot-pattern-name)
+        (check-type pattern-color Toot-pattern-color-name)
+        (assert (member t-shirt-color +initial-t-shirt-colors+
+                        :test 'string-equal)))
       (with-errors-as-http (409)
         (assert (not (find-record 'Toot :name Toot-name)))
         (let ((Toot
@@ -75,7 +76,7 @@ is malformed.)"
                             :base-color (parse-color24 base-color)
                             :pattern-color (parse-color24 pattern-color)
                             :pad-color (parse-color24 pad-color)
-                            :player (person-uuid *player*)
+                            :player (person-uuid *user*)
                             :avatar-scale-x 1.0
                             :avatar-scale-y 1.0
                             :avatar-scale-z 1.0
@@ -97,10 +98,10 @@ is malformed.)"
           (save-record
            (make-record 'inventory-item
                         :item (item-uuid t-shirt)
-                        :person (person-uuid *player*)
+                        :person (person-uuid *user*)
                         :Toot (Toot-uuid Toot)
                         :equipped :y))
-          (list 200 ))))))
+          (list 201 (Toot-uuid Toot)))))))
 
 (defendpoint (put "/toots/:toot-name/child-p" "application/json")
   "Set CHILD-P flag for TOOT-NAME.
@@ -109,17 +110,17 @@ Input JSON: { set: true } or { set: false }"
   (check-arg-type Toot-name Toot-name)
   (with-user ()
     (let ((Toot (find-Toot-by-name Toot-name)))
-      (assert-my-character Toot))
-    (list 200
-          `(:last-modified ,(header-time (Toot-last-active Toot)))
-          (if-let (toot (find-toot-by-name toot-name))
-            (toot-info toot)
-            `(:is-a "toot"
-                    :name ,(string-capitalize toot-name)
-                    :avatar "ultraToot"
-                    :child-p nil
-                    :sensitive-p t
-                    :online-p t
-                    :last-seen ,(local-time:format-timestring
-                                 nil (local-time:now))
-                    :exists-p "maybe?")))))
+      (assert-my-character Toot)
+      (list 200
+            `(:last-modified ,(header-time (Toot-last-active Toot)))
+            (if-let (toot (find-toot-by-name toot-name))
+              (toot-info toot)
+              `(:is-a "toot"
+                      :name ,(string-capitalize toot-name)
+                      :avatar "ultraToot"
+                      :child-p nil
+                      :sensitive-p t
+                      :online-p t
+                      :last-seen ,(local-time:format-timestring
+                                   nil (local-time:now))
+                      :exists-p "maybe?"))))))

@@ -151,7 +151,7 @@ Relies upon `CONTENTS-TO-BYTES', qv"
     "The first line, or, lacking a shorter break, first 100 characters of STRING."
     (let ((newline (or (position #\newline (the string string)) 100)))
       (subseq string 0 (min newline 100 (length string)))))
-
+  
   (defun defendpoint/make-endpoint-function (&key fname content-type
                                                   λ-list docstring body
                                                   (how-slow-is-slow .03))
@@ -351,10 +351,10 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                               (list 'quote var))
                             λ-list))
         'nil))
-
+  
   (defmacro defendpoint ((method uri &optional content-type (how-slow-is-slow .03))
                          &body body)
-    "Define an HTTP endpoint accessing URI via METHOD and accepting CONTENT-TYPE."
+    "Define an HTTP endpoint to access URI via METHOD and return CONTENT-TYPE."
     (let* ((method (make-keyword (string-upcase method)))
            (content-type (make-keyword (string-upcase content-type)))
            (fname (make-endpoint-function-name method uri content-type))
@@ -423,7 +423,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 ;;; Print-Object method for Hunchentoot requests
 
 (defmethod print-object ((request hunchentoot:request) stream)
-  "Print a Hunchentoot Request object nicely"
+  "Print a Hunchentoot Request object nicely."
   (print-unreadable-object (request stream :type t)
     (princ (hunchentoot:request-method request) stream)
     (write-char #\Space stream)
@@ -451,7 +451,7 @@ XXX Probably a duplicate of something done in Hunchentoot or Drakma?"
       (let* ((query-string (subseq uri qq)))
         (query-string->plist query-string)))))
 
-(defmacro with-error-as-http ((error-code) &body body)
+(defmacro with-errors-as-http ((error-code) &body body)
   "Execute BODY in a context in which any error results in HTTP ERROR-CODE.
 
 Rather than  defaulting to an HTTP  500, ERROR-CODE will be  returned as
@@ -459,6 +459,7 @@ the outcome of any uncaught error signal."
   `(handler-case
        (progn ,@body)
      (error (c)
+       (declare (ignore c))
        (error 'http-client-error :http-status-code ,error-code))))
 
 (defmacro with-posted-json ((&rest λ-list) &body body)
@@ -481,10 +482,10 @@ content, assuming it is a JSON object like
 In the event of a parse error, an HTTP 400 is returned."
   (let (($json (gensym "JSON-"))
         ($plist (gensym "JSON-PLIST-")))
-    `(let* ((,$json (hunchentoot:raw-post-data :external-format :utf-8))
-            (,$plist (with-error-as-http (400)
-                       (jonathan:parse ,$json))
-              ,(loop for key in λ-list
-                  collecting `(,key (getf ,$plist
-                                          ,(symbol-munger:lisp->camel-case key))))))
+    `(let* ((,$json (raw-post-string))
+            (,$plist (with-errors-as-http (400)
+                       (jonathan:parse ,$json)))
+            ,@(loop for key in λ-list
+                 collecting `(,key (getf ,$plist
+                                         ,(make-keyword (symbol-munger:lisp->camel-case key))))))
        ,@body)))
