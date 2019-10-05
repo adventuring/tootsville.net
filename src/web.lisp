@@ -507,4 +507,6 @@ In the event of a parse error, an HTTP 400 is returned."
             ,@(loop for key in λ-list
                  collecting `(,key (getf ,$plist
                                          ,(make-keyword (symbol-munger:lisp->camel-case key))))))
+       ,@ (loop for key in λ-list
+             collecting `(v:info :JSON-POST "~a: ~a" ',key ,key))
        ,@body)))

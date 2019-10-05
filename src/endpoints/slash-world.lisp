@@ -130,7 +130,10 @@ It is ~a.~]
 
 (defendpoint (GET "/world/clock/calendar/now/fragment" "text/html")
   "Get a calendar fragment in HTML for MONTH of YEAR."
-  (list 200 () (chœrogryllum::cal-month.html)))
+  (list 200 () (multiple-value-bind (sec min hour day month year)
+                   (chœrogryllum:decode*-universal-time)
+                 (declare (ignore sec min hour day))
+                 (chœrogryllum::cal-month.html year month))))
 
 (defendpoint (GET "/world/clock/calendar/year/:year/fragment" "text/html")
   "Get a calendar fragment in HTML for 12 months of YEAR."
