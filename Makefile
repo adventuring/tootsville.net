@@ -130,12 +130,7 @@ install:	tootsville.service Tootsville
 	cp Tootsville --backup=simple -f /usr/local/bin/
 	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/ || \
 		cat tootsville.service > /usr/lib/systemd/system/tootsville.service
-	#mkdir -p ~/.config/Tootsville/
-	#mv --backup=simple ~/Tootsville.config.lisp ~/.config/Tootsville/
 	cp 55-tootsville.conf -f /etc/rsyslog.conf
-	sudo -n systemctl enable tootsville || :
-	sudo -n systemctl restart tootsville || :
-	sudo -n systemctl start tootsville
 
 
 ####################
@@ -306,8 +301,9 @@ deploy-servers:	predeploy-servers
 	do \
 		echo " » Deploy $$host.$(clusternet)" ;\
                     scp ~/.config/Tootsville/Tootsville.config.lisp $$host.$(clusternet):.config/Tootsville ;\
-		ssh $$host.$(clusternet) make -C tootsville.net install ;\
-		VERSION=$(shell ./Tootsville version-info version) ;\
+		ssh root@$$host.$(clusternet) make -k -C ~pil/tootsville.net install ;\
+		ssh root@$$host.$(clusternet) systemctl restart tootsville ;\
+		VERSION=$(shell ssh $$host.$(clusternet) Tootsville version-info version) ;\
 		curl https://api.rollbar.com/api/1/deploy/ \
 		     -F access_token=$(ACCESS_TOKEN) \
 		     -F environment=$$host.$(clusternet) \
@@ -317,6 +313,7 @@ deploy-servers:	predeploy-servers
 		     -F comment="v $(VERSION)" \
 		     -F uuid=$(uuidgen) \
 		     -F local_username=$(LOCAL_USERNAME) ;\
+		echo "Deployment successful" ;\
 	done
 
 predeploy:	no-fixmes predeploy-servers
