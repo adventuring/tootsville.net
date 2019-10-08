@@ -76,7 +76,8 @@
     (lparallel:submit-task
      *async-channel*
      (lambda ()
-       (let ((idle-name (thread-name (current-thread))))
+       (let ((idle-name (thread-name (current-thread)))
+             (start-time (get-internal-real-time)))
          (setf (thread-name (current-thread)) (or name
                                                   (format nil "Async: run ~s" function)))
          (unwind-protect
@@ -86,7 +87,9 @@
                               "{~a}: working" (thread-name (current-thread)))
                 (funcall function))
            (verbose:info '(:threadpool-worker :async-worker :worker-finish)
-                         "{~a}: done" (thread-name (current-thread)))
+                         "{~a}: done (~f sec)" (thread-name (current-thread))
+                         (/ (- (get-internal-real-time) start-time)
+                            internal-time-units-per-second))
            (setf (sb-thread:thread-name (current-thread)) idle-name)))))))
 
 (defun background-gc ()
