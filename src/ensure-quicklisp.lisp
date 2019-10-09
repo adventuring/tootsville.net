@@ -27,6 +27,9 @@
 
 (in-package :CL-USER)
 
+#.(progn (require 'asdf) nil)
+#.(progn (asdf:load-system :uiop) nil)
+
 
 
 (unless (find-package :ql)
