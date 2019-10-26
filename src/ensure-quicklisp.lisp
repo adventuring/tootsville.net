@@ -64,7 +64,7 @@ downloading bootstrap script … ~2&")
      "cd;gpg --import quicklisp.release.key")
     (format t "~2& … verifying ID and signature of signing key … ~2&")
     (uiop/run-program:run-program
-     "gpg --fingerprint 028B5FF7 | grep 'Key fingerprint = D7A3 489D DEFE 32B7 D0E7  CC61 3079 65AB 028B 5FF7'")
+     "gpg --fingerprint 028B5FF7 | grep 'D7A3 489D DEFE 32B7 D0E7  CC61 3079 65AB 028B 5FF7'")
     (format t "~2& … downloading signature of bootstrap … ~2&")
     (uiop/run-program:run-program
      "cd;curl -o quicklisp.sign.asc https://beta.quicklisp.org/quicklisp.lisp.asc")
