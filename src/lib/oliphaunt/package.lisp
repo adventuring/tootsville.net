@@ -152,7 +152,7 @@ package (or similar). Perhaps it's even named the same? Try (APROPOS
    #:yesno$
    #:|hash|
    #:∞
- 
+   
  ;;; Symbols from other libraries
    ;; There is a  very lengthy set of library functions  that we want to
    ;; use  without  package  prefixes  in all  of  our  other  packages.
@@ -298,7 +298,6 @@ package (or similar). Perhaps it's even named the same? Try (APROPOS
    alexandria:nunionf
    alexandria:of-type
    alexandria:once-only
-   alexandria:ordinary-lambda-list-keywords
    alexandria:parse-body
    alexandria:parse-ordinary-lambda-list
    alexandria:plist-alist
