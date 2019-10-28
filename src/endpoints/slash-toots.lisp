@@ -69,30 +69,31 @@ is malformed.)"
       (with-errors-as-http (409)
         (assert (not (find-record 'Toot :name Toot-name)))
         (let ((Toot
-               (make-record 'Toot
-                            :name toot-name
-                            :pattern (pattern-id (find-record 'pattern
-                                                              :name pattern))
-                            :base-color (parse-color24 base-color)
-                            :pattern-color (parse-color24 pattern-color)
-                            :pad-color (parse-color24 pad-color)
-                            :player (person-uuid *user*)
-                            :avatar-scale-x 1.0
-                            :avatar-scale-y 1.0
-                            :avatar-scale-z 1.0
-                            :avatar 1   ; UltraToot
-                            :note (concatenate 
-                                   'string
-                                   "New Toot registered via web from "
-                                   (hunchentoot:remote-addr*))))
-              (t-shirt 
-               (make-record 'item
-                            :base-color (parse-color24 t-shirt-color)
-                            :alt-color (color24-rgb 0 0 0)
-                            :template 1       ; Solid color basic T-shirt
-                            :avatar-scale-x 1.0
-                            :avatar-scale-y 1.0
-                            :avatar-scale-z 1.0)))
+                (make-record 'Toot
+                             :name toot-name
+                             :player (person-uuid *user*)
+                             :pattern (pattern-id (find-record 'pattern
+                                                               :name pattern))
+                             :base-color (parse-color24 base-color)
+                             :pattern-color (parse-color24 pattern-color)
+                             :pad-color (parse-color24 pad-color)
+                             :player (person-uuid *user*)
+                             :avatar-scale-x 1.0
+                             :avatar-scale-y 1.0
+                             :avatar-scale-z 1.0
+                             :avatar 1   ; UltraToot
+                             :note (concatenate
+                                    'string
+                                    "New Toot registered via web from "
+                                    (hunchentoot:remote-addr*))))
+              (t-shirt
+                (make-record 'item
+                             :base-color (parse-color24 t-shirt-color)
+                             :alt-color (color24-rgb 0 0 0)
+                             :template 1       ; Solid color basic T-shirt
+                             :avatar-scale-x 1.0
+                             :avatar-scale-y 1.0
+                             :avatar-scale-z 1.0)))
           (save-record Toot)
           (save-record t-shirt)
           (save-record
@@ -116,11 +117,11 @@ Input JSON: { set: true } or { set: false }"
             (if-let (toot (find-toot-by-name toot-name))
               (toot-info toot)
               `(:is-a "toot"
-                      :name ,(string-capitalize toot-name)
-                      :avatar "ultraToot"
-                      :child-p nil
-                      :sensitive-p t
-                      :online-p t
-                      :last-seen ,(local-time:format-timestring
-                                   nil (local-time:now))
-                      :exists-p "maybe?"))))))
+                :name ,(string-capitalize toot-name)
+                :avatar "ultraToot"
+                :child-p nil
+                :sensitive-p t
+                :online-p t
+                :last-seen ,(local-time:format-timestring
+                             nil (local-time:now))
+                :exists-p "maybe?"))))))
