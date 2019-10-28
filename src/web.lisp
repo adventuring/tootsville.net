@@ -148,10 +148,10 @@ Relies upon `CONTENTS-TO-BYTES', qv"
       string))
 
   (defun first-line (string)
-    "The first line, or, lacking a shorter break, first 100 characters of STRING."
+    "The first line, or, up to 100 characters of STRING."
     (let ((newline (or (position #\newline (the string string)) 100)))
       (subseq string 0 (min newline 100 (length string)))))
-
+  
   (defun defendpoint/make-endpoint-function (&key fname content-type
                                                   λ-list docstring body
                                                   (how-slow-is-slow .03))
@@ -178,11 +178,13 @@ Relies upon `CONTENTS-TO-BYTES', qv"
                       (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
 
   (defun after-slash (s)
-    "Splits a string S at a slash. Useful for getting the end of a content-type."
+    "Splits a string S at a slash. Useful for getting the end of a content-type.
+
+Downcases the string. Returns entire string when there's no slash."
     (if (find #\/ (the string s))
         (subseq (string-downcase s) (1+ (or (position #\/ s) #|unreachable|# 0)))
         (string-downcase s)))
-
+  
   (defmacro check-arg-type (arg type &optional name)
     "Ensure that ARG  is of type TYPE, which is  called NAME. Signals back
 to an HTTP client with a 400 error if this assertion is untrue.
@@ -198,7 +200,7 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                      :expected-type ,(or name (string-capitalize type))
                      :argument-name ,(string-capitalize arg)
                      :provided-value(format nil "~s" ,arg))))))
-
+  
   (defvar *extensions-for-content-types*
     '(
       :application/ecmascript "es"
@@ -290,21 +292,36 @@ This is basically just CHECK-TYPE for arguments passed by the user."
       :video/x-sgi-movie "movie"
       :x-world/x-vrml "vrml"
       ))
-
+  
   (defun extension-for-content-type (content-type)
+    "Get the canonically-preferred filename extension for CONTENT-TYPE."
     (getf *extensions-for-content-types*
           (make-keyword (string-upcase (without-sem content-type)))))
-
+  
   (defun name-for-content-type (content-type)
+    "Get the name to be used in function names for CONTENT-TYPE.
+
+Typically this is the file extension, but if none is known, it's the end
+of the CONTENT-TYPE after the slash."
     (or (extension-for-content-type content-type)
         (after-slash content-type)))
-
+  
   (defun atom-or-comma-list (value)
+    "Return VALUE, possibly by turning it into a comma-delimited string.
+
+An ATOM VALUE is returned intact.
+
+A one-member sequence is returned as the first element of the sequence.
+
+Anything   else  should   be   a   list  that   will   be  turned   into
+a comma-delimited string.
+
+Used in generating HTTP headers."
     (cond
       ((atom value) value)
       ((= 1 (length value)) (first value))
       (t (format nil "~{~a~^, ~}" value))))
-
+  
   (defun add-charset (content-type)
     "Adds the ;charset=UTF-8 type to the end of text and JS/JSON CONTENT-TYPEs"
     (if (member content-type
@@ -314,7 +331,7 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                 :test 'string=)
         (concatenate 'string content-type "; charset=utf-8")
         content-type))
-
+  
   (assert (equal (add-charset "text/html")
                  "text/html; charset=utf-8"))
   (assert (equal (add-charset "text/plain")
@@ -325,15 +342,17 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                  "application/json; charset=utf-8"))
   (assert (equal (add-charset "image/png")
                  "image/png"))
-
+  
   (defun constituentp (ch)
-    "Is character CH a constituent character of a Lisp name {without escaping it}?"
+    "Is character CH a constituent character of a Lisp name (without quoting)?
+
+Accepts A-Z, 0-9, and these punctuation: -/!?."
     (let ((cc (char-code (char-upcase ch))))
       (or (< #xa0 cc)
           (<= (char-code #\A) cc (char-code #\Z))
           (<= (char-code #\0) cc (char-code #\9))
           (find ch "-/!?." :test #'char=))))
-
+  
   (defun make-endpoint-function-name (method uri accept-type)
     "Create the name of the endpoint function for METHOD, URI, and ACCEPT-TYPE."
     (intern (format nil "ENDPOINT-~a-~a→~a"
@@ -351,10 +370,10 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                               (list 'quote var))
                             λ-list))
         'nil))
-
+  
   (defmacro defendpoint ((method uri &optional content-type (how-slow-is-slow .03))
                          &body body)
-    "Define an HTTP endpoint accessing URI via METHOD and accepting CONTENT-TYPE."
+    "Define an HTTP endpoint to access URI via METHOD and return CONTENT-TYPE."
     (let* ((method (make-keyword (string-upcase method)))
            (content-type (make-keyword (string-upcase content-type)))
            (fname (make-endpoint-function-name method uri content-type))
@@ -423,7 +442,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 ;;; Print-Object method for Hunchentoot requests
 
 (defmethod print-object ((request hunchentoot:request) stream)
-  "Print a Hunchentoot Request object nicely"
+  "Print a Hunchentoot Request object nicely."
   (print-unreadable-object (request stream :type t)
     (princ (hunchentoot:request-method request) stream)
     (write-char #\Space stream)
@@ -450,3 +469,44 @@ XXX Probably a duplicate of something done in Hunchentoot or Drakma?"
     (when-let (qq (position #\? uri))
       (let* ((query-string (subseq uri qq)))
         (query-string->plist query-string)))))
+
+(defmacro with-errors-as-http ((error-code) &body body)
+  "Execute BODY in a context in which any error results in HTTP ERROR-CODE.
+
+Rather than  defaulting to an HTTP  500, ERROR-CODE will be  returned as
+the outcome of any uncaught error signal."
+  `(handler-case
+       (progn ,@body)
+     (error (c)
+       (declare (ignore c))
+       (error 'http-client-error :http-status-code ,error-code))))
+
+(defmacro with-posted-json ((&rest λ-list) &body body)
+  "Execute BODY with Λ-LIST values from JSON body of a POST.
+
+Each  variable named  in Λ-LIST  will be  bound to  the `JONATHAN:PARSE'
+contents  of  the   analogous  (camel-case)  key  name   in  the  POSTed
+parameter object.
+
+For example,
+
+    (WITH-POSTED-JSON (FOO-BAR)
+          (BODY))
+
+… will  bind FOO-BAR  to the  value of  the key  \"fooBar\" in  the POST
+content, assuming it is a JSON object like
+ 
+   { \"fooBar\": \"value\" }
+
+In the event of a parse error, an HTTP 400 is returned."
+  (let (($json (gensym "JSON-"))
+        ($plist (gensym "JSON-PLIST-")))
+    `(let* ((,$json (raw-post-string))
+            (,$plist (with-errors-as-http (400)
+                       (jonathan:parse ,$json)))
+            ,@(loop for key in λ-list
+                 collecting `(,key (getf ,$plist
+                                         ,(make-keyword (symbol-munger:lisp->camel-case key))))))
+       ,@ (loop for key in λ-list
+             collecting `(v:info :JSON-POST "~a: ~a" ',key ,key))
+       ,@body)))

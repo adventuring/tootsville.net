@@ -81,7 +81,7 @@ This service is not available now." ; TODO
                        (ecase (person-gender message-from-user)
                          (:m (format nil "Mister ~a" surname))
                          (:f (format nil "Mizz ~a" surname))
-                         (:x nil)))
+                         (:x (format nil "Mux ~a" surname))))
                      (person-display-name message-from-user)
                      (person-given-name message-from-user))))))))
 

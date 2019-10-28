@@ -68,7 +68,7 @@ modules:	.gitmodules $(shell  grep '\[submodule "' .gitmodules | \
 #TAGS:	$(shell find . -name \\*.lisp)
 #	ctags --languages=lisp -e -R -f TAGS
 
-deploy:	bin test server-push doc-publish deploy-servers
+deploy:	bin test deploy-servers
 
 VERSION=$(shell grep :version tootsville.asd | cut -d '"' -f 2)
 doc-publish:	doc
@@ -99,7 +99,7 @@ Tootsville:	Tootsville.new
 	./Tootsville.new check
 	mv --backup=simple Tootsville.new Tootsville
 
-Tootsville.new:	quicklisp-manifest.tmp bin/buildapp
+Tootsville.new:	deps quicklisp-manifest.tmp bin/buildapp
 	bin/buildapp --output ../Tootsville.new \
 		--manifest-file quicklisp-manifest.tmp \
 		--load src/setup.lisp \
@@ -130,15 +130,12 @@ install:	tootsville.service Tootsville
 	cp Tootsville --backup=simple -f /usr/local/bin/
 	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/ || \
 		cat tootsville.service > /usr/lib/systemd/system/tootsville.service
-	mkdir -p ~/.config/Tootsville/
-	mv --backup=simple ~/Tootsville.config.lisp ~/.config/Tootsville/
 	cp 55-tootsville.conf -f /etc/rsyslog.conf
-	sudo -n systemctl enable tootsville || :
-	sudo -n systemctl restart tootsville || :
-	sudo -n systemctl start tootsville
 
 
 ####################
+
+deps:	.deps~
 
 .deps~:	build/build-deps bin/do-install-deps
 	bin/do-install-deps
@@ -157,10 +154,8 @@ test:	./Tootsville
 #	make CLUSTER=.
 CLUSTER:=test
 ifeq ($(CLUSTER),.)
-clusterorg=tootsville.org
 clusternet=tootsville.net
 else
-clusterorg=$(CLUSTER).tootsville.org
 clusternet=$(CLUSTER).tootsville.net
 endif
 
@@ -306,8 +301,9 @@ deploy-servers:	predeploy-servers
 	do \
 		echo " » Deploy $$host.$(clusternet)" ;\
                     scp ~/.config/Tootsville/Tootsville.config.lisp $$host.$(clusternet):.config/Tootsville ;\
-		ssh $$host.$(clusternet) make -C tootsville.org/servers install ;\
-		VERSION=$(shell ./Tootsville version-info version) ;\
+		ssh root@$$host.$(clusternet) make -k -C ~pil/tootsville.net install ;\
+		ssh root@$$host.$(clusternet) systemctl restart tootsville ;\
+		VERSION=$(shell ssh $$host.$(clusternet) Tootsville version-info version) ;\
 		curl https://api.rollbar.com/api/1/deploy/ \
 		     -F access_token=$(ACCESS_TOKEN) \
 		     -F environment=$$host.$(clusternet) \
@@ -317,6 +313,7 @@ deploy-servers:	predeploy-servers
 		     -F comment="v $(VERSION)" \
 		     -F uuid=$(uuidgen) \
 		     -F local_username=$(LOCAL_USERNAME) ;\
+		echo "Deployment successful" ;\
 	done
 
 predeploy:	no-fixmes predeploy-servers
@@ -367,10 +364,11 @@ predeploy-servers:	servers quicklisp-update-servers
 	for host in $(GAMEHOSTS) ;\
 	do \
 		echo " » Pre-deploy $$host.$(clusternet)" ;\
-		rsync -essh --delete -zar * .??* $$host.$(clusternet):tootsville.org/ ;\
-		ssh $$host.$(clusternet) make -C tootsville.org/servers clean || exit 6 ;\
-		ssh $$host.$(clusternet) make -C tootsville.org/servers Tootsville || exit 6 ;\
-		ssh $$host.$(clusternet) make -C tootsville.org/servers test || exit 6 ;\
+		rsync -essh --delete -zar * .??* $$host.$(clusternet):tootsville.net/ ;\
+		ssh $$host.$(clusternet) rm tootsville.net/*~ ;\
+		ssh $$host.$(clusternet) make -C tootsville.net clean || exit 6 ;\
+		ssh $$host.$(clusternet) make -C tootsville.net Tootsville || exit 6 ;\
+		ssh $$host.$(clusternet) make -C tootsville.net test || exit 6 ;\
 	done
 
 quicklisp-update-servers:
@@ -388,15 +386,15 @@ quicklisp-update-servers:
 remotes:
 	if ! git remote -v | grep github &>/dev/null ;\
 	then \
-		git remote add github git@github.com:adventuring/tootsville.org ;\
+		git remote add github git@github.com:adventuring/tootsville.net ;\
 	fi
 	if ! git remote -v | grep gitlab &>/dev/null ;\
 	then \
-		git remote add gitlab git@gitlab.com:adventuring/tootsville.org ;\
+		git remote add gitlab git@gitlab.com:adventuring/tootsville.net ;\
 	fi
 	if ! git remote -v | grep goethe &>/dev/null ;\
 	then \
-		git remote add goethe goethe.Tootsville.org:devel/git/tootsville.org ;\
+		git remote add goethe goethe.Tootsville.org:devel/git/tootsville.net ;\
 	fi
 
 bump-next-version:
@@ -417,15 +415,15 @@ git-tag-deployment:
 	        now=$$(date +%Y-%m-%d.%H%M) ;\
 	        msg="Deployed v$$VERSION to $(clusterorg) $$now" ;\
 	        echo " - I meant v$$VERSION-$$now" ;\
-	        git submodule foreach git tag -a tootsville-v$$VERSION-$$now -m "for Tootsville.org: $$msg" ;\
+	        git submodule foreach git tag -a tootsville-v$$VERSION-$$now -m "for Tootsville.net: $$msg" ;\
 	        git tag -a v$$VERSION-$$now -m "$$msg" ;\
 	    else \
-	        git submodule foreach git tag -a tootsville-v$$VERSION-$$now -m "for Tootsville.org: $$msg" ;\
+	        git submodule foreach git tag -a tootsville-v$$VERSION-$$now -m "for Tootsville.net: $$msg" ;\
 	        git tag -a v$$VERSION-$$now -m "$$msg" ;\
 	    fi ;\
 	else \
 	    echo "First deploy of v$$VERSION, tagging" ;\
-	    git submodule foreach git tag -a tootsville-v$$VERSION -m "for Tootsville.org: $$msg" ;\
+	    git submodule foreach git tag -a tootsville-v$$VERSION -m "for Tootsville.net: $$msg" ;\
 	    git tag -a v$$VERSION -m "$$msg" ;\
 	fi
 
@@ -450,5 +448,6 @@ deploy-docs:
 
 ####################
 
-TAGS:	$(shell find . -type f -name *.lisp)
+TAGS:	$(shell find . -type f -name \\*.lisp)
 	etags --declarations $(shell find . -type f -name *.lisp) Makefile
+

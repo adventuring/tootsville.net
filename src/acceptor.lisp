@@ -138,19 +138,22 @@
   (rollbar:error! "Sending HTTP response to condition" 
                   :condition c)
   (if (wants-json-p)
+      (let ((status-code (if (slot-boundp c 'http-status-code)
+                             (http-status-code c)
+                             500)))
+        (encode-endpoint-reply
+         (list status-code
+               (list :content-type "application/json; charset=utf-8")
+               (if hunchentoot:*show-lisp-backtraces-p*
+                   (to-json
+                    (list :|error| status-code
+                          :|errorMessage| (princ-to-string c)
+                          :|trace| (rollbar::find-appropriate-backtrace)))
+                   (to-json
+                    (list :|error| status-code
+                          :|errorMessage| (princ-to-string c)))))))
       (encode-endpoint-reply
-       (list (http-status-code c)
-             (list :content-type "application/json; charset=utf-8")
-             (if hunchentoot:*show-lisp-backtraces-p*
-                 (to-json
-                  (list :|error| (http-status-code c)
-                        :|errorMessage| (princ-to-string c)
-                        :|trace| (rollbar::find-appropriate-backtrace)))
-                 (to-json
-                  (list :|error| (http-status-code c)
-                        :|errorMessage| (princ-to-string c))))))
-      (encode-endpoint-reply
-       (list (http-status-code c)
+       (list status-code
              (list :content-type "text/html; charset=utf-8")
              (pretty-print-html-error c)))))
 

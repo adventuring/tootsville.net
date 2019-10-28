@@ -325,8 +325,7 @@ ON DUPLICATE KEY UPDATE  ~
   (when (id-column-for name)
     (let ((id-accessor (intern (concatenate 'string (symbol-name name) "-"
                                             (symbol-name (id-column-for name))))))
-      `(progn
-         ,(defrecord/record= name id-accessor)
+      `(,(defrecord/record= name id-accessor)
          ,(defrecord/save-record name id-accessor database table columns)
          ,(defrecord/destroy-record name id-accessor database table columns)))))
 
@@ -455,10 +454,9 @@ translates to a LOCAL-TIME:TIMESTAMP on loading.
           (defrecord/find-records/pull name table columns)
           (defrecord/find-records name table columns))
      ,(defrecord/before-save-normalize name columns)
-     ,(defrecord/save-record-with-id-column name database table columns)
+     ,@(defrecord/save-record-with-id-column name database table columns)
  ;;;,(defrecord/to-json name columns)
      ,(defrecord/find-reference-columns name columns)))
-
 
 (defmethod save-record ((list cons))
   (warn "Got a list to SAVE-RECORD: ~s" list)

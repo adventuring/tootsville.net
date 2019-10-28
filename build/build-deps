@@ -2,6 +2,7 @@ compat-readline6
 compat-readline6-devel
 curl
 emacs-nox
+gcc
 git
 gnupg
 gpg
