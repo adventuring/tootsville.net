@@ -130,8 +130,7 @@ REST services for the front-end."
                            (:file "maria" :depends-on ("memcached"))
                            (:file "generic-db" :depends-on ("memcached"))
                            (:file "db-central" :depends-on ("maria" "generic-db"))
-                           (:file "friendly" :depends-on ("db-central"))
-                           (:file "couch" :depends-on ("db-central"))))
+                           (:file "friendly" :depends-on ("db-central"))))
      (:file "lib/twilio/twilio-simple")
      (:module "auth"
               :depends-on ("package-post" "users")

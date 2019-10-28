@@ -78,3 +78,16 @@
         :|equip| (apply #'vector
                         (mapcar #'Toot-item-info
                                 (Toot-inventory Toot)))))
+
+(defun find-active-Toot-for-user (&optional (user *user*))
+  (when user
+    (when-let (record (ignore-not-found (find-record 'player-Toot :player (person-uuid user))))
+      (values (find-record 'Toot :uuid (player-Toot-Toot record))
+              record))))
+
+(defun link-active-Toot-to-user (Toot &optional (user *user*))
+  (multiple-value-bind (old-Toot player-Toot) (find-active-Toot-for-user user)
+    (when old-Toot
+      (unless (Toot= Toot old-Toot)
+        (destroy-record player-Toot))))
+  (make-record 'player-Toot :player (person-uuid user) :Toot (Toot-uuid Toot)))

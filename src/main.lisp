@@ -297,6 +297,5 @@ Hopefully you've already tested the changes?"
 (defun connect-databases ()
   (dolist (thread (mapcar (lambda (n)
                             (make-thread n :name (symbol-munger:lisp->english n)))
-                          '(connect-mixer connect-cache connect-maria
-                            connect-zeromq)))
+                          '(connect-cache connect-maria connect-zeromq)))
     (assert (join-thread thread))))

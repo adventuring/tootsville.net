@@ -203,3 +203,9 @@
   (ownership keyword)
   (owner-toot uuid ref Toot)
   (world keyword))
+
+
+
+(defrecord player-toot (:friendly "players_toots")
+  (player uuid ref person)
+  (Toot uuid ref Toots))
