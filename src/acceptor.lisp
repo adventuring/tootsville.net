@@ -120,8 +120,9 @@
         (destructuring-bind (provider token &rest _)
             (split-sequence #\Space (subseq string 23))
           (declare (ignore _) (type string provider token))
-          (v:info :auth "Provider ~a asserts token (~a …)"
-                  provider (subseq token 0 (min (length token) 25)))
+          (v:info :auth "Provider ~:(~a~) asserts token (… ~a)"
+                  provider (subseq token (max 0 (- (length token) 50))
+                                   (length token)))
           (assert (string-equal provider "Firebase"))
           (ensure-user-for-plist
            (check-firebase-id-token token)))
