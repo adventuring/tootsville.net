@@ -33,10 +33,10 @@
 
 
 (defsystem Tootsville
-  :version "0.4.4"
+  :version "0.4.5"
   :author "Bruce-Robert Pocock <BRPocock@ciwta.org>"
   :license "AGPL v3+"
-  :bug-tracker "https://github.com/adventuring/tootsville.org/issues"
+  :bug-tracker "https://github.com/adventuring/tootsville.net/issues"
   :description
   "The server software monolith for REST services of Tootsville.org"
   :long-description
