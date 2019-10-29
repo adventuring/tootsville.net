@@ -138,10 +138,10 @@
            c (ignore-errors (rollbar::find-appropriate-backtrace)))
   (rollbar:error! "Sending HTTP response to condition" 
                   :condition c)
-  (if (wants-json-p)
-      (let ((status-code (if (slot-boundp c 'http-status-code)
-                             (http-status-code c)
-                             500)))
+  (let ((status-code (if (slot-boundp c 'http-status-code)
+                         (http-status-code c)
+                         500)))
+    (if (wants-json-p)
         (encode-endpoint-reply
          (list status-code
                (list :content-type "application/json; charset=utf-8")
