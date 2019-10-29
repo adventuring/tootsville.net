@@ -501,7 +501,9 @@ content, assuming it is a JSON object like
 In the event of a parse error, an HTTP 400 is returned."
   (let (($json (gensym "JSON-"))
         ($plist (gensym "JSON-PLIST-")))
-    `(let* ((,$json (raw-post-string))
+    `(let* ((,$json (let ((,$json (or (raw-post-string) "")))
+                      (v:info :JSON-POST "Posted JSON ~a" ,$json)
+                      ,$json))
             (,$plist (with-errors-as-http (400)
                        (jonathan:parse ,$json)))
             ,@(loop for key in λ-list
