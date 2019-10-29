@@ -96,7 +96,9 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
 </dl>~]
 </body>
 </html>"
-          (http-status-code condition)
+          (if (slot-boundp condition 'http-status-code)
+              (http-status-code condition)
+              500)
           (if hunchentoot:*show-lisp-errors-p*
               condition
               (gethash (http-status-code condition) *http-status-message*))
