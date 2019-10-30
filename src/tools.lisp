@@ -42,6 +42,38 @@
 
 
 
+(defmethod HUNCHENTOOT:REQUEST-URI ((plist list))
+  (getf plist :request-uri))
+(defmethod HUNCHENTOOT:REQUEST-METHOD ((plist list))
+  (getf plist :request-method))
+(defmethod HUNCHENTOOT:HEADERS-IN ((plist list))
+  (getf plist :headers))
+(defmethod HUNCHENTOOT:GET-PARAMETERS ((plist list))
+  nil)
+(defmethod HUNCHENTOOT:POST-PARAMETERS ((plist list))
+  nil)
+(defmethod HUNCHENTOOT:REMOTE-ADDR ((plist list))
+  "::1")
+(defmethod HUNCHENTOOT:QUERY-STRING ((plist list))
+  "")
+(defmethod HUNCHENTOOT:HEADERS-OUT ((plist list))
+  (list))
+(defmethod print-object ((condition HTTP-client-error) stream)
+  (format stream "HTTP error to report to client (code ~a)"
+          (if (slot-boundp condition 'HTTP-status-code)
+              (format nil "~a: ~a" (HTTP-status-code condition)
+                      (gethash (HTTP-status-code condition) *HTTP-status-messages*))
+              "unbound")))
+(defun test-http-error-reply ()
+  (let ((hunchentoot::*request* '(:request-uri "https://example.com/400"
+                                  :request-method "GET"
+                                  :headers ((:Accept . "text/plain"))))
+        (hunchentoot::*reply* '(:reply :foo)))
+    (with-http-conditions ()
+      (error 'http-client-error :http-status-code 400))))
+
+
+
 (defun check-first-line/reservations (file)
   (let ((first-line (split-sequence #\Tab (read-line file))))
     (assert (equalp first-line
