@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/http-status-messages.lisp is part of Tootsville
+;;;; src/http-status-messages.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -30,13 +30,13 @@
 (defvar *http-status-message* (make-hash-table))
 (macrolet ((def-http-status (code phrase)
              `(setf (gethash ,code *http-status-message*) ,phrase)))
-  (def-http-status 100 "Continue")
+  (def-http-status 100 "Continue, please. I'd like to hear more.")
   (def-http-status 101 "Switching Protocols")
-  (def-http-status 200 "OK")
-  (def-http-status 201 "Created")
-  (def-http-status 202 "Accepted")
-  (def-http-status 203 "Non-Authoritative Information")
-  (def-http-status 204 "No Content")
+  (def-http-status 200 "Okie-dokie, here you go!")
+  (def-http-status 201 "Look at what I've made now")
+  (def-http-status 202 "I'll take that, sure")
+  (def-http-status 203 "I'm not really sure, but …")
+  (def-http-status 204 "Here's the nothing you wanted")
   (def-http-status 205 "Reset Content")
   (def-http-status 206 "Partial Content")
   (def-http-status 207 "Multi-Status")
@@ -65,6 +65,7 @@
   (def-http-status 415 "Unsupported Media Type")
   (def-http-status 416 "Requested range not satisfiable")
   (def-http-status 417 "Expectation Failed")
+  (def-http-status 422 "Unprocessable Entity")
   (def-http-status 424 "Failed Dependency")
   (def-http-status 500 "Internal Server Error")
   (def-http-status 501 "Not Implemented")

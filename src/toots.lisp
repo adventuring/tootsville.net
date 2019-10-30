@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/toots.lisp is part of Tootsville
+;;;; src/toots.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -61,6 +61,7 @@
 
 (defun Toot-info (Toot)
   (list :|name| (Toot-name Toot)
+        :|uuid| (Toot-UUID Toot)
         :|note| (or (Toot-note Toot) "")
         :|avatar| (avatar-moniker (find-reference Toot :avatar))
         :|baseColor| (color24-name (Toot-base-color Toot))
@@ -77,3 +78,16 @@
         :|equip| (apply #'vector
                         (mapcar #'Toot-item-info
                                 (Toot-inventory Toot)))))
+
+(defun find-active-Toot-for-user (&optional (user *user*))
+  (when user
+    (when-let (record (ignore-not-found (find-record 'player-Toot :player (person-uuid user))))
+      (values (find-record 'Toot :uuid (player-Toot-Toot record))
+              record))))
+
+(defun link-active-Toot-to-user (Toot &optional (user *user*))
+  (multiple-value-bind (old-Toot player-Toot) (find-active-Toot-for-user user)
+    (when old-Toot
+      (unless (Toot= Toot old-Toot)
+        (destroy-record player-Toot))))
+  (make-record 'player-Toot :player (person-uuid user) :Toot (Toot-uuid Toot)))

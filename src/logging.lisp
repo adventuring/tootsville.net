@@ -86,15 +86,26 @@
 
 (defun banner/query-io ()
   (write-string (tootsville-v-banner) *query-io*)
+  (princ "This is the Query I/O channel
+
+
+
+     	Ⓣ Let's play in Tootsville!
+
+   	♪Let's make some noise! ♪
+
+
+" *query-io*)
   (finish-output *query-io*))
 
 (defun banner/log ()
-  (v:info :startup (tootsville-v-banner))
-  (finish-output *query-io*))
+  (v:info :startup (tootsville-v-banner)))
 
 (defun banner/standard-output ()
   (format t "~&~|~%~a (© ~d)" (tootsville::romance-ii-program-name/version)
           (romance-ii-copyright-latest))
+  (terpri *query-io*)
+  (princ "This is the Standard Output channel" *query-io*)
   (finish-output))
 
 (defun banner/error-output ()

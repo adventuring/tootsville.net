@@ -26,39 +26,8 @@ Tootsbook is a Wordpress installation, and is likewise completely external.
 
 ** Internal Components
 
-Within this repository are the main, "internal" components.
+Located in tootsville.org
 
-*** Play
-
-The Play application is the "in-game" Javascript application that presents
-the 3D world and Heads-Up Display (HUD) overlays.
-
-The front-end components are, at least partially, in Javascript.
-
-**** Login
-
-The Login application manages user sign-up, character selection, and the
-like from the front-end. It interacts mostly with the Users service.
-
-**** Toot Management
-
-Pick a character
-
-**** Babylon.js integration
-
-**** Input handling
-
-- keyboard/mouse/GUI
-- Firefox gamepad support?
-- Bluetooth gamepads?
-
-**** Sound synth
-
-**** Peer-to-peer Gossip Network
-
-**** Asset fetch/share
-
-**** Worker thread
 
 *** Servers
 

@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/endpoints/slash-meta-game.lisp is part of Tootsville
+;;;; src/endpoints/slash-meta-game.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -467,13 +467,13 @@ The data  returned is  in the  JSON encoded form  of OpenAPI  3.0.0; see
                       :|info| (list :|version| (romance-ii-program-version)
                                     :|title| (romance-ii-program-name)
                                     :|license| (list :|name| "AGPLv3"))
-                      :|servers| (list (list :|url| (format nil "https://users.~a.tootsville.org/users/" *cluster*)))
+                      :|servers| (list (list :|url| (format nil "https://game.~a.tootsville.net/" *cluster*)))
                       :|paths|
                       (plist-hash-table
                        (mapcan #'path->openapi
                                (group-plists (enumerate-routes) :template)))
-                      :|components| #()))))
-
+                      :|components| #())))) 
+  
 (defendpoint (get "/meta-game/headers" "application/json")
   "This method returns to the user, the headers that reached the application server.
 

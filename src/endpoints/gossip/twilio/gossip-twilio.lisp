@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/endpoints/gossip/twilio/gossip-twilio.lisp is part of
+;;;; src/endpoints/gossip/twilio/gossip-twilio.lisp is part of
 ;;;; Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
@@ -30,7 +30,9 @@
 
 (defendpoint (post "/gossip/twilio/call/toots/incoming" "text/xml")
   "A call comes in to 954-Toots-05"
-  (error 'unimplemented))
+  (format nil "<Response><Say voice=\"alice\" language=\"en-US\">This phone service ~
+ is not yet available. Visit us online at ~
+W W W  dot Tootsville dot O R G</Say><Pause length=\"3\"/><Hangup/></Response>"))
 
 (defendpoint (post "/gossip/twilio/call/toots/status-changed" "text/xml")
   "Call status changes on 954-Toots-05"
@@ -38,11 +40,14 @@
 
 (defendpoint (post "/gossip/twilio/text/toots/incoming" "text/xml")
   "An SMS or MMS is received on 954-Toots-05"
-  (error 'unimplemented))
+  (format nil "<Response><Message><Body>Visit us online at Tootsville.org</Body>~
+</Message></Response>"))
 
 (defendpoint (post "/gossip/twilio/call/joy/incoming" "text/xml")
   "A call comes in to 9-Joy-4-Toots"
-  (error 'unimplemented))
+  (format nil "<Response><Say voice=\"alice\" language=\"en-AU\">This phone service ~
+ is not yet available. Visit us online at ~
+W W W  dot Tootsville dot O R G</Say><Pause length=\"3\"/><Hangup/></Response>"))
 
 (defendpoint (post "/gossip/twilio/call/joy/status-changed" "text/xml")
   "Call status changes on 9-Joy-4-Toots"
@@ -50,11 +55,14 @@
 
 (defendpoint (post "/gossip/twilio/text/joy/incoming" "text/xml")
   "An SMS or MMS is received on 9-Joy-4-Toots"
-  (error 'unimplemented))
+  (format nil "<Response><Message><Body>Visit us online at Tootsville.org</Body>~
+</Message></Response>"))
 
 (defendpoint (post "/gossip/twilio/call/toots.uk/incoming" "text/xml")
   "A call comes in to +44 12507 70075"
-  (error 'unimplemented))
+  (format nil "<Response><Say voice=\"alice\" language=\"en-GB\">This phone service ~
+ is not yet available. Visit us online at ~
+W W W  dot Tootsville dot O R G</Say><Pause length=\"3\"/><Hangup/></Response>"))
 
 (defendpoint (post "/gossip/twilio/call/toots.uk/status-changed" "text/xml")
   "Call status changes on +44 12507 70075"
@@ -62,4 +70,5 @@
 
 (defendpoint (post "/gossip/twilio/text/toots.uk/incoming" "text/xml")
   "An SMS or MMS is received on +44 12507 70075"
-  (error 'unimplemented))
+  (format nil "<Response><Message><Body>Visit us online at Tootsville.org</Body>~
+</Message></Response>"))

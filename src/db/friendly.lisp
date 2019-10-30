@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/db/friendly.lisp is part of Tootsville
+;;;; src/db/friendly.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -203,3 +203,9 @@
   (ownership keyword)
   (owner-toot uuid ref Toot)
   (world keyword))
+
+
+
+(defrecord player-toot (:friendly "players_toots")
+  (player uuid ref person)
+  (Toot uuid ref Toots))

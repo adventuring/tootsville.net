@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/db/db-central.lisp is part of Tootsville
+;;;; src/db/db-central.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -63,71 +63,86 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
   (check-type name symbol)
   (cffi:translate-name-to-foreign (make-keyword (string name)) *package*))
 
-(defun column-save-value (value type)
-  "Convert VALUE into the database's representation of TYPE"
-  (ecase type
-    (:string value)
-    (:keyword (and value (string value)))
-    (:yornp (if value "Y" "N"))
-    (:number value)
-    (:json (and value
-                (with-output-to-string (*standard-output*)
-                  (%to-json value))))
-    (:uri (and value (etypecase value
-                       (puri:uri (puri:render-uri value nil))
-                       (string value))))
-    (:color24 (and value (format nil "~6,'0x"
-                                 (color24-to-integer value))))
-    (:uuid (etypecase value
-             (null nil)
-             (string (subseq (the string
-                                  (cl-base64:usb8-array-to-base64-string
-                                   (uuid:uuid-to-byte-array
-                                    (uuid:make-uuid-from-string value))))
-                             0 22))
-             (uuid:uuid (subseq (the string
-                                     (cl-base64:usb8-array-to-base64-string
-                                      (uuid:uuid-to-byte-array value)))
-                                0 22))))
-    (:timestamp (and value (substitute #\Space #\T (format-timestring nil value))))))
+(defgeneric column-save-value (value type)
+  (:documentation "Convert VALUE into the database's representation of TYPE")
+  (:method (value (type (eql :string)))
+    value)
+  (:method (value (type (eql :keyword)))
+    (and value (string value)))
+  (:method (value (type (eql :yornp)))
+    (if value "Y" "N"))
+  (:method (value (type (eql :number))) 
+    value)
+  (:method (value (type (eql :json))) 
+    (and value
+         (with-output-to-string (*standard-output*)
+           (%to-json value))))
+  (:method (value (type (eql :uri))) 
+    (and value (etypecase value
+                 (puri:uri (puri:render-uri value nil))
+                 (string value))))
+  (:method (value (type (eql :color24))) 
+    (and value (format nil "~6,'0x"
+                       (color24-to-integer value))))
+  (:method (value (type (eql :uuid))) 
+    (etypecase value
+      (null nil)
+      (string (subseq (the string
+                           (cl-base64:usb8-array-to-base64-string
+                            (uuid:uuid-to-byte-array
+                             (uuid:make-uuid-from-string value))))
+                      0 22))
+      (uuid:uuid (subseq (the string
+                              (cl-base64:usb8-array-to-base64-string
+                               (uuid:uuid-to-byte-array value)))
+                         0 22))))
+  (:method (value (type (eql :timestamp)))
+    (and value (substitute #\Space #\T (format-timestring nil value)))))
 
-(defun column-load-value (value type)
-  "For a column of TYPE, interpret raw VALUE"
-  (ecase type
-    (:string value)
-    (:keyword (make-keyword value))
-    (:yornp (ecase
-                (make-keyword value)
-              (:y t) (:n nil)))
-    (:number (etypecase value
-               (null nil)
-               (integer value)
-               (rational (format nil "~f" (coerce value 'float)))
-               (real (format nil "~f" value))
-               (t (error "Can't record number ~s?" value))))
-    (:json (and value
-                (< 0 (length (the string value)))
-                (jonathan.decode:parse value)))
-    (:uri (puri:parse-uri value))
-    (:color24
-     (etypecase value
-       (null nil)
-       (integer (integer-to-color24 value))
-       (string (parse-color24 value))))
-    (:uuid (uuid:byte-array-to-uuid
-            (cl-base64:base64-string-to-usb8-array
-             (format nil "~a==" value))))
-    (:timestamp (let ((τ value))
-                  (etypecase τ
-                    (null nil)
-                    (integer (universal-to-timestamp τ))
-                    (string (if (equalp τ "0000-00-00")
-                                nil
-                                (parse-timestring (substitute #\T #\Space τ))))
-                    (vector (if (equalp τ #(48 48 48 48 45 48 48 45 48 48))
-                                nil
-                                (parse-timestring
-                                 (substitute #\T #\Space (map 'string #'code-char τ))))))))))
+(defgeneric column-load-value (value type)
+  (:documentation "For a column of TYPE, interpret raw VALUE")
+  (:method (value (type (eql :string)))
+    value)
+  (:method (value (type (eql :keyword)))
+    (make-keyword value))
+  (:method (value (type (eql :yornp)))
+    (ecase (make-keyword value)
+      (:y t) (:n nil)))
+  (:method (value (type (eql :number)))
+    (etypecase value
+      (null nil)
+      (integer value)
+      (rational (format nil "~f" (coerce value 'float)))
+      (real (format nil "~f" value))
+      (t (error "Can't record number ~s?" value))))
+  (:method (value (type (eql :json)))
+    (and value
+         (< 0 (length (the string value)))
+         (jonathan.decode:parse value)))
+  (:method (value (type (eql :uri)))
+    (puri:parse-uri value))
+  (:method (value (type (eql :color24)))
+    (etypecase value
+      (null nil)
+      (integer (integer-to-color24 value))
+      (string (parse-color24 value))))
+  (:method (value (type (eql :uuid)))
+    (uuid:byte-array-to-uuid
+     (cl-base64:base64-string-to-usb8-array
+      (format nil "~a==" value))))
+  (:method (value (type (eql :timestamp)))
+    (let ((τ value))
+      (etypecase τ
+        (null nil)
+        (integer (universal-to-timestamp τ))
+        (string (if (equalp τ "0000-00-00")
+                    nil
+                    (parse-timestring (substitute #\T #\Space τ))))
+        (vector (if (equalp τ #(48 48 48 48 45 48 48 45 48 48))
+                                        ; 0000-00-00 in Unicode char-codes
+                    nil
+                    (parse-timestring
+                     (substitute #\T #\Space (map 'string #'code-char τ)))))))))
 
 
 
@@ -310,8 +325,7 @@ ON DUPLICATE KEY UPDATE  ~
   (when (id-column-for name)
     (let ((id-accessor (intern (concatenate 'string (symbol-name name) "-"
                                             (symbol-name (id-column-for name))))))
-      `(progn
-         ,(defrecord/record= name id-accessor)
+      `(,(defrecord/record= name id-accessor)
          ,(defrecord/save-record name id-accessor database table columns)
          ,(defrecord/destroy-record name id-accessor database table columns)))))
 
@@ -440,6 +454,10 @@ translates to a LOCAL-TIME:TIMESTAMP on loading.
           (defrecord/find-records/pull name table columns)
           (defrecord/find-records name table columns))
      ,(defrecord/before-save-normalize name columns)
-     ,(defrecord/save-record-with-id-column name database table columns)
+     ,@(defrecord/save-record-with-id-column name database table columns)
  ;;;,(defrecord/to-json name columns)
      ,(defrecord/find-reference-columns name columns)))
+
+(defmethod save-record ((list cons))
+  (warn "Got a list to SAVE-RECORD: ~s" list)
+  (map nil #'save-record list))

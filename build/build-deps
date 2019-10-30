@@ -2,6 +2,7 @@ compat-readline6
 compat-readline6-devel
 curl
 emacs-nox
+gcc
 git
 gnupg
 gpg
@@ -16,3 +17,4 @@ texinfo
 texinfo-tex
 time
 tree
+zeromq-devel

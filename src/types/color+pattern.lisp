@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/types/color+pattern.lisp is part of Tootsville
+;;;; src/types/color+pattern.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -288,3 +288,9 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
   (princ (color24-name object) stream)
   (princ "\")" stream)
   nil)
+
+
+
+(define-constant +initial-t-shirt-colors+
+    '(cyan indigo pink red "Spring Green" violet white yellow)
+  :test #'equalp)

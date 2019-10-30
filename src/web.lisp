@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/web.lisp is part of Tootsville
+;;;; src/web.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -26,6 +26,7 @@
 ;;; USA
 
 (in-package :Tootsville)
+
 
 
 (defun accepts-content-type-p (content-type)
@@ -44,13 +45,16 @@
 Looks for  the canonical  \"Accept: application/json\", and  also checks
 the request URI for \".js\" (which  is, of course, a subseq of \".json\"
 as well.)"
-  (or (search "application/json" (hunchentoot:header-in* :accept))
-      (search ".js" (hunchentoot:request-uri*))))
+  (or (search "application/json" (the string (hunchentoot:header-in* :accept)))
+      (search ".js" (the string (hunchentoot:request-uri*)))))
 
 
 
 (defun contents-to-bytes (contents)
-  "Convert CONTENTS to a sequence of 8-bit bytes"
+  "Convert CONTENTS to a sequence of 8-bit bytes.
+
+Assumes strings are UTF-8; vectors are already bytes; and lists are JSON
+faux data."
   (etypecase contents
     (string (flexi-streams:string-to-octets contents :external-format :utf-8))
     (vector contents)
@@ -58,42 +62,76 @@ as well.)"
                                           :external-format :utf-8))))
 
 (defun encode-endpoint-reply (reply)
-  "Handle the reply from an endpoint function gracefully."
-  (let ((content-bytes #()))
-    (cond
-      ((stringp reply)
-       (setf (hunchentoot:return-code*) 200
-             content-bytes (flexi-streams:string-to-octets reply
-                                                           :external-format :utf-8)))
-      ((vectorp reply)
-       (setf (hunchentoot:return-code*) 200
-             content-bytes reply))
-      ((and (listp reply) (not (numberp (first reply))))
-       (setf (hunchentoot:return-code*) 200
-             content-bytes (contents-to-bytes reply)))
-      ((= 2 (length reply))
-       (destructuring-bind (status contents) reply
-         (check-type status http-response-status-number)
-         (setf (hunchentoot:return-code*) status
-               content-bytes (contents-to-bytes contents))))
-      ((= 3 (length reply))
-       (destructuring-bind (status headers contents) reply
-         (check-type status http-response-status-number)
-         (assert (every (lambda (x)
-                          (or (stringp x) (symbolp x)))
-                        headers)
-                 (headers)
-                 "Headers should be given as strings or symbols; got ~s"
-                 headers)
-         (loop for (header . value) on headers by #'cddr
-            do (setf (hunchentoot:header-out header)
-                     (atom-or-comma-list value)))
-         (setf (hunchentoot:return-code*) status
-               content-bytes (contents-to-bytes contents)))))
-    content-bytes))
+  "Handle the reply from an endpoint function gracefully.
 
+Strings are sent in UTF-8.
+
+Vectors are assumed to be octet vectors.
+
+Lists can begin with a status  code number, followed by an optional list
+of  headers, followed  by actual  contents.  A list  not beginning  with
+a status number is assumed to be cons data, which is transmitted as JSON
+in UTF-8 using the Jonathan transcoding.
+
+Relies upon `CONTENTS-TO-BYTES', qv"
+  (cond
+    ((not (listp reply))
+     (setf (hunchentoot:return-code*) (if (emptyp reply) 204 200))
+     (contents-to-bytes reply))
+    ((and (not (numberp (first reply)))
+          (zerop (length (first reply))))
+     (setf (hunchentoot:return-code*) 204
+           (hunchentoot:content-type*) "application/octet-stream")
+     #())
+    ((and (not (numberp (first reply))))
+     (setf (hunchentoot:return-code*) 200)
+     (contents-to-bytes reply))
+    ((= 2 (length reply))
+     (destructuring-bind (status contents) reply
+       (check-type status http-response-status-number)
+       (setf (hunchentoot:return-code*) status)
+       (contents-to-bytes contents)))
+    ((= 3 (length reply))
+     (destructuring-bind (status headers contents) reply
+       (check-type status http-response-status-number)
+       (assert (every (lambda (x)
+                        (or (stringp x) (symbolp x)))
+                      headers)
+               (headers)
+               "Headers should be given as strings or symbols; got ~s"
+               headers)
+       (loop for (header . value) on headers by #'cddr
+          do (setf (hunchentoot:header-out header)
+                   (atom-or-comma-list value)))
+       (setf (hunchentoot:return-code*) status)
+       (contents-to-bytes contents)))))
+
+(defun report-slow-query (fname elapsed how-slow-is-slow)
+  (run-async
+   (lambda ()
+     (v:error `(,(make-keyword (symbol-name fname)) :endpoint :slow-query)
+              "Slow query ~s took ~,3fs (>~,3fs allowed)"
+              fname (* 1.0 elapsed) how-slow-is-slow)
+     (rollbar:info!
+      (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
+              fname (* 1.0 elapsed) how-slow-is-slow)))
+   :name (format nil "Report slow query ~s" fname)))
+
+(defun raw-post-string ()
+  "Obtain POSTed data as a string"
+  (hunchentoot:raw-post-data :external-format :utf-8 :force-text t))
+
+(defun send-reply-as-bytes (reply fname)
+  (let ((bytes (encode-endpoint-reply reply)))
+    (v:info `(,(make-keyword fname) :endpoint :endpoint-output)
+            "Status: ~d; ~:d header~:p, ~:d octets"
+            (hunchentoot:return-code*)
+            (length (the list (hunchentoot:headers-out*)))
+            (length (the vector bytes)))
+    bytes))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
-
+  
   (defun apply-extension-to-template (template extension)
     "Create a clone of TEMPLATE with EXTENSION."
     (if template
@@ -105,15 +143,15 @@ as well.)"
 
   (defun without-sem (string)
     "The subset of STRING up to the first semicolon, if any."
-    (if-let (sem (position #\; string))
+    (if-let (sem (position #\; (the string string)))
       (subseq string 0 sem)
       string))
 
   (defun first-line (string)
-    "The first line, or, lacking a shorter break, first 100 characters of STRING."
-    (let ((newline (or (position #\newline string) 100)))
+    "The first line, or, up to 100 characters of STRING."
+    (let ((newline (or (position #\newline (the string string)) 100)))
       (subseq string 0 (min newline 100 (length string)))))
-
+  
   (defun defendpoint/make-endpoint-function (&key fname content-type
                                                   λ-list docstring body
                                                   (how-slow-is-slow .03))
@@ -128,38 +166,25 @@ as well.)"
                      (let ((reply
                             (catch 'endpoint
                               (block endpoint
-                                (with-timeout (,(* how-slow-is-slow 10))
+                                (with-timeout (,(* (the real how-slow-is-slow) 10.0))
                                   (block ,fname
                                     ,@body))))))
-                       (let ((bytes (encode-endpoint-reply reply)))
-                         (v:info '(,(make-keyword fname) :endpoint :endpoint-output)
-                                 "Status: ~d; ~[~:;~:*~d header~:p; ~]~d octets"
-                                 
-                                 (hunchentoot:return-code*)
-                                 (length (the list (hunchentoot:headers-out*)))
-                                 (length (the vector bytes)))
-                         bytes))
+                       (send-reply-as-bytes reply ',fname))
                   (let ((,$elapsed (/ (- (get-internal-real-time) ,$begin) internal-time-units-per-second)))
                     (v:info '(,(make-keyword fname) :endpoint :endpoint-finish)
                             ,(concatenate 'string "Finished: " (first-line docstring) " in ~,3fs")
                             (* 1.0 ,$elapsed))
                     (when (< ,how-slow-is-slow ,$elapsed)
-                      (run-async  
-                       (lambda ()
-                         (v:error '(,(make-keyword fname) :endpoint :slow-query)
-                                  "Slow query ~s took ~,3fs (>~,3fs allowed)"
-                                  ',fname (* 1.0 ,$elapsed) ,how-slow-is-slow)
-                         (rollbar:error!
-                          (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
-                                  ',fname (* 1.0 ,$elapsed) ,how-slow-is-slow)))
-                       :name "Report slow query"))))))))
+                      (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
 
   (defun after-slash (s)
-    "Splits a string S at a slash. Useful for getting the end of a content-type."
-    (if (find #\/ s)
-        (subseq (string-downcase s) (1+ (position #\/ s)))
-        (string-downcase s)))
+    "Splits a string S at a slash. Useful for getting the end of a content-type.
 
+Downcases the string. Returns entire string when there's no slash."
+    (if (find #\/ (the string s))
+        (subseq (string-downcase s) (1+ (or (position #\/ s) #|unreachable|# 0)))
+        (string-downcase s)))
+  
   (defmacro check-arg-type (arg type &optional name)
     "Ensure that ARG  is of type TYPE, which is  called NAME. Signals back
 to an HTTP client with a 400 error if this assertion is untrue.
@@ -175,7 +200,7 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                      :expected-type ,(or name (string-capitalize type))
                      :argument-name ,(string-capitalize arg)
                      :provided-value(format nil "~s" ,arg))))))
-
+  
   (defvar *extensions-for-content-types*
     '(
       :application/ecmascript "es"
@@ -267,21 +292,36 @@ This is basically just CHECK-TYPE for arguments passed by the user."
       :video/x-sgi-movie "movie"
       :x-world/x-vrml "vrml"
       ))
-
+  
   (defun extension-for-content-type (content-type)
+    "Get the canonically-preferred filename extension for CONTENT-TYPE."
     (getf *extensions-for-content-types*
           (make-keyword (string-upcase (without-sem content-type)))))
-
+  
   (defun name-for-content-type (content-type)
+    "Get the name to be used in function names for CONTENT-TYPE.
+
+Typically this is the file extension, but if none is known, it's the end
+of the CONTENT-TYPE after the slash."
     (or (extension-for-content-type content-type)
         (after-slash content-type)))
-
+  
   (defun atom-or-comma-list (value)
+    "Return VALUE, possibly by turning it into a comma-delimited string.
+
+An ATOM VALUE is returned intact.
+
+A one-member sequence is returned as the first element of the sequence.
+
+Anything   else  should   be   a   list  that   will   be  turned   into
+a comma-delimited string.
+
+Used in generating HTTP headers."
     (cond
       ((atom value) value)
       ((= 1 (length value)) (first value))
       (t (format nil "~{~a~^, ~}" value))))
-
+  
   (defun add-charset (content-type)
     "Adds the ;charset=UTF-8 type to the end of text and JS/JSON CONTENT-TYPEs"
     (if (member content-type
@@ -291,7 +331,7 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                 :test 'string=)
         (concatenate 'string content-type "; charset=utf-8")
         content-type))
-
+  
   (assert (equal (add-charset "text/html")
                  "text/html; charset=utf-8"))
   (assert (equal (add-charset "text/plain")
@@ -302,15 +342,17 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                  "application/json; charset=utf-8"))
   (assert (equal (add-charset "image/png")
                  "image/png"))
-
+  
   (defun constituentp (ch)
-    "Is character CH a constituent character of a Lisp name {without escaping it}?"
+    "Is character CH a constituent character of a Lisp name (without quoting)?
+
+Accepts A-Z, 0-9, and these punctuation: -/!?."
     (let ((cc (char-code (char-upcase ch))))
       (or (< #xa0 cc)
           (<= (char-code #\A) cc (char-code #\Z))
           (<= (char-code #\0) cc (char-code #\9))
           (find ch "-/!?." :test #'char=))))
-
+  
   (defun make-endpoint-function-name (method uri accept-type)
     "Create the name of the endpoint function for METHOD, URI, and ACCEPT-TYPE."
     (intern (format nil "ENDPOINT-~a-~a→~a"
@@ -328,10 +370,10 @@ This is basically just CHECK-TYPE for arguments passed by the user."
                               (list 'quote var))
                             λ-list))
         'nil))
-
+  
   (defmacro defendpoint ((method uri &optional content-type (how-slow-is-slow .03))
                          &body body)
-    "Define an HTTP endpoint accessing URI via METHOD and accepting CONTENT-TYPE."
+    "Define an HTTP endpoint to access URI via METHOD and return CONTENT-TYPE."
     (let* ((method (make-keyword (string-upcase method)))
            (content-type (make-keyword (string-upcase content-type)))
            (fname (make-endpoint-function-name method uri content-type))
@@ -339,8 +381,8 @@ This is basically just CHECK-TYPE for arguments passed by the user."
            (λ-list (mapcar (lambda (s)
                              (intern (symbol-name s) (symbol-package fname)))
                            (remove-if-not #'symbolp template)))
-           (docstring (concatenate 
-                       'string 
+           (docstring (concatenate
+                       'string
                        (if (and (consp body) (stringp (first body)))
                            (first body)
                            (format nil
@@ -356,8 +398,8 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 ~:;The URI includes parameters: ~{~a~^, ~}.~]~
 ~2%It will report a slow response if it takes longer than ~f seconds
 \(~:d milliseconds) to complete."
-                               method uri content-type (length λ-list) λ-list 
-                               how-slow-is-slow (round (* 1000 how-slow-is-slow))))))
+                               method uri content-type (length λ-list) λ-list
+                               how-slow-is-slow (round (* 1000.0 how-slow-is-slow))))))
       `(progn
          ,(defendpoint/make-endpoint-function
               :fname fname
@@ -370,26 +412,24 @@ It returns a content-type of ~:*~(~a~).~]~2%~
             `(add-or-replace-endpoint ',fname ,method
                                       ',(apply-extension-to-template template extension)
                                       ,content-type))
-         (add-or-replace-endpoint ',fname ,method ',template ,content-type)
-         ;; (format *trace-output* "~2& ★ New endpoint: ~a ~a → ~a~% All
-         ;;         endpoints:  ~{~%  •~s~}"   method  uri  content-type
-         ;;         (enumerate-endpoints))
-         ))))
+         (add-or-replace-endpoint ',fname ,method ',template ,content-type)))))
 
 
 
 (defendpoint (get "/" text/html)
   "GET on the root redirects to the main web page for the cluster (eg, @url{https://Tootsville.org/})"
-  (list 307 (list :location (format nil "https://www.~a.org/" (let ((cluster (cluster-name)))
-                                                                (if (search "tootsville" cluster)
-                                                                    cluster
-                                                                    "test.tootsville.org")))) ""))
+  (list 307 (list :location
+                  (format nil "https://www.~a/"
+                          (let ((cluster (cluster-name)))
+                            (if (search "tootsville" (the string cluster))
+                                cluster
+                                "test.tootsville.org")))) ""))
 
 (defendpoint (get "/favicon" image/png)
   "Get the Tootsville logo as a PNG"
   (list 307 '(:location "https://Jumbo.Tootsville.org/Assets/Icons/favicon.png") ""))
 
-(defendpoint (get "/favicon/ico")
+(defendpoint (get "/favicon/ico" image/vnd.microsoft.icon)
   "Get the Tootsville logo in Windows Icon format"
   (list 307 '(:location "https://Jumbo.Tootsville.org/Assets/Icons/favicon.ico") ""))
 
@@ -402,7 +442,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 ;;; Print-Object method for Hunchentoot requests
 
 (defmethod print-object ((request hunchentoot:request) stream)
-  "Print a Hunchentoot Request object nicely"
+  "Print a Hunchentoot Request object nicely."
   (print-unreadable-object (request stream :type t)
     (princ (hunchentoot:request-method request) stream)
     (write-char #\Space stream)
@@ -429,3 +469,46 @@ XXX Probably a duplicate of something done in Hunchentoot or Drakma?"
     (when-let (qq (position #\? uri))
       (let* ((query-string (subseq uri qq)))
         (query-string->plist query-string)))))
+
+(defmacro with-errors-as-http ((error-code) &body body)
+  "Execute BODY in a context in which any error results in HTTP ERROR-CODE.
+
+Rather than  defaulting to an HTTP  500, ERROR-CODE will be  returned as
+the outcome of any uncaught error signal."
+  `(handler-case
+       (progn ,@body)
+     (error (c)
+       (declare (ignore c))
+       (error 'http-client-error :http-status-code ,error-code))))
+
+(defmacro with-posted-json ((&rest λ-list) &body body)
+  "Execute BODY with Λ-LIST values from JSON body of a POST.
+
+Each  variable named  in Λ-LIST  will be  bound to  the `JONATHAN:PARSE'
+contents  of  the   analogous  (camel-case)  key  name   in  the  POSTed
+parameter object.
+
+For example,
+
+    (WITH-POSTED-JSON (FOO-BAR)
+          (BODY))
+
+… will  bind FOO-BAR  to the  value of  the key  \"fooBar\" in  the POST
+content, assuming it is a JSON object like
+ 
+   { \"fooBar\": \"value\" }
+
+In the event of a parse error, an HTTP 400 is returned."
+  (let (($json (gensym "JSON-"))
+        ($plist (gensym "JSON-PLIST-")))
+    `(let* ((,$json (let ((,$json (or (raw-post-string) "")))
+                      (v:info :JSON-POST "Posted JSON ~a" ,$json)
+                      ,$json))
+            (,$plist (with-errors-as-http (400)
+                       (jonathan:parse ,$json)))
+            ,@(loop for key in λ-list
+                 collecting `(,key (getf ,$plist
+                                         ,(make-keyword (symbol-munger:lisp->camel-case key))))))
+       ,@ (loop for key in λ-list
+             collecting `(v:info :JSON-POST "~a: ~a" ',key ,key))
+       ,@body)))

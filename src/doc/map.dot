@@ -1,0 +1,50 @@
+graph {
+
+players [color=red]
+
+builders [color=blue]
+
+"tootsbook.com" -- "tootsbook mySQL database"
+
+"tootsbook.com" -- players
+
+"goethe.tootsville.org" -- builders
+
+"tootsbook.com" -- builders
+
+"play.tootsville.org" -- "tootsville.org"
+
+"tootsville.org" -- "jumbo.tootsville.org"
+
+"tootsville.org" -- players
+
+"jumbo.tootsville.org" -- "play.tootsville.org" -- players
+
+players -- Twitter -- "tootsbook.com"
+players -- Facebook -- "tootsbook.com"
+players -- Tumblr -- "tootsbook.com"
+
+"play.tootsville.org" -- "game.tootsville.net" -- "balancer1.tootsville.net" -- "game1.tootsville.net"
+"game.tootsville.net" -- "balancer2.tootsville.net" -- "game1.tootsville.net"
+"game.tootsville.net" --  "balancer3.tootsville.net" -- "game1.tootsville.net"
+
+"balancer2.tootsville.net" -- "game2.tootsville.net"
+"balancer2.tootsville.net" -- "game3.tootsville.net"
+"balancer3.tootsville.net" -- "game2.tootsville.net"
+"balancer3.tootsville.net" -- "game3.tootsville.net"
+
+"game1.tootsville.net" -- "mixer.tootsville.net"
+"game1.tootsville.net" -- "maria.tootsville.net"
+"game1.tootsville.net" -- "mq.tootsville.net"
+
+"game2.tootsville.net" -- "mixer.tootsville.net"
+"game2.tootsville.net" -- "maria.tootsville.net"
+"game2.tootsville.net" -- "mq.tootsville.net"
+
+"game3.tootsville.net" -- "mixer.tootsville.net"
+"game3.tootsville.net" -- "maria.tootsville.net"
+"game3.tootsville.net" -- "mq.tootsville.net"
+
+players -- "shop.tootsville.com" -- Zazzle
+
+}

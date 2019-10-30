@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/acceptor.lisp is part of Tootsville
+;;;; src/acceptor.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -120,8 +120,9 @@
         (destructuring-bind (provider token &rest _)
             (split-sequence #\Space (subseq string 23))
           (declare (ignore _) (type string provider token))
-          (v:info :auth "Provider ~a asserts token ~a…"
-                  provider (subseq token 0 (min (length token) 40)))
+          (v:info :auth "Provider ~:(~a~) asserts token (… ~a)"
+                  provider (subseq token (max 0 (- (length token) 50))
+                                   (length token)))
           (assert (string-equal provider "Firebase"))
           (ensure-user-for-plist
            (check-firebase-id-token token)))
@@ -137,29 +138,31 @@
            c (ignore-errors (rollbar::find-appropriate-backtrace)))
   (rollbar:error! "Sending HTTP response to condition" 
                   :condition c)
-  (if (wants-json-p)
+  (let ((status-code (if (slot-boundp c 'http-status-code)
+                         (http-status-code c)
+                         500)))
+    (if (wants-json-p)
+        (encode-endpoint-reply
+         (list status-code
+               (list :content-type "application/json; charset=utf-8")
+               (if hunchentoot:*show-lisp-backtraces-p*
+                   (to-json
+                    (list :|error| status-code
+                          :|errorMessage| (princ-to-string c)
+                          :|trace| (rollbar::find-appropriate-backtrace)))
+                   (to-json
+                    (list :|error| status-code
+                          :|errorMessage| (princ-to-string c)))))))
       (encode-endpoint-reply
-       (list (http-status-code c)
-             (list :content-type "application/json; charset=utf-8")
-             (if hunchentoot:*show-lisp-backtraces-p*
-                 (to-json
-                  (list :|error| (http-status-code c)
-                        :|errorMessage| (princ-to-string c)
-                        :|trace| (rollbar::find-appropriate-backtrace)))
-                 (to-json
-                  (list :|error| (http-status-code c)
-                        :|errorMessage| (princ-to-string c))))))
-      (encode-endpoint-reply
-       (list (http-status-code c)
+       (list status-code
              (list :content-type "text/html; charset=utf-8")
              (pretty-print-html-error c)))))
 
 (defmacro with-http-conditions (() &body body)
-  `(handler-case (progn ,@body)
-     (http-client-error (c)
-       (gracefully-report-http-client-error c))
-     (error (c)
-       (gracefully-report-http-client-error c))))
+  `(handler-bind
+       ((http-client-error #'gracefully-report-http-client-error)
+        (error #'gracefully-report-http-client-error))
+     (progn ,@body)))
 
 (defun handle-options-request (uri-parts ua-accept)
   (v:info :request "Method is OPTIONS")
@@ -174,7 +177,9 @@
          (string method)
          (hunchentoot:header-out :Access-Control-Allow-Headers)
          "Accept, Accept-Language, Content-Language, Content-Type, X-Infinity-Auth"
-         (hunchentoot:header-out :Access-Control-Max-Age) 85000)
+         (hunchentoot:header-out :Access-Control-Max-Age) 85000
+         (hunchentoot:header-out :Content-Type) "application/octet-stream"
+         (hunchentoot:header-out :Content-Length) 0)
         (hunchentoot:send-headers)
         nil)
       (progn
@@ -193,7 +198,8 @@
    (hunchentoot:header-out :X-Lisp-Version)
    (format nil "~a/~a"
            (lisp-implementation-type)
-           (lisp-implementation-version))))
+           (lisp-implementation-version))
+   (hunchentoot:header-out :Vary) "Accept, Accept-Language, X-Infinity-Auth"))
 
 (defun dispatch-endpoint (match)
   (destructuring-bind (endpoint &rest bindings) match
@@ -206,7 +212,7 @@
     (progn
       (verbose:info :request "No match for ~s ~{/~a~} accepting ~s"
                     method uri-parts ua-accept)
-      (error 'not-found :the (format nil "The URI you requsted")))))
+      (error 'not-found :the (format nil "The URI you requested")))))
 
 (defmethod hunchentoot:acceptor-dispatch-request
     ((acceptor Tootsville-REST-acceptor) request)

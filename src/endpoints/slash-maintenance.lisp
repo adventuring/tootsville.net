@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/endpoints/slash-maintenance.lisp    is     part    of
+;;;; src/endpoints/slash-maintenance.lisp    is     part    of
 ;;;; Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The

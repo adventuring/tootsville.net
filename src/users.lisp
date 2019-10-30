@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/users.lisp is part of Tootsville
+;;;; src/users.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -118,6 +118,8 @@ come from a trusted authentication provider like Google Firebase)."
     (when-let (email (and (getf plist :email-verified-p)
                           (getf plist :email)))
       (update-gravatar person email))
+    (v:info :login "Person for session is ~a (~a)"
+            (person-display-name person) (person-uuid person))
     person))
 
 (defun update-gravatar (person email)

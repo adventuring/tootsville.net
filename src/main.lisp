@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/main.lisp is part of Tootsville
+;;;; src/main.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -76,7 +76,8 @@
     (lparallel:submit-task
      *async-channel*
      (lambda ()
-       (let ((idle-name (thread-name (current-thread))))
+       (let ((idle-name (thread-name (current-thread)))
+             (start-time (get-internal-real-time)))
          (setf (thread-name (current-thread)) (or name
                                                   (format nil "Async: run ~s" function)))
          (unwind-protect
@@ -86,7 +87,9 @@
                               "{~a}: working" (thread-name (current-thread)))
                 (funcall function))
            (verbose:info '(:threadpool-worker :async-worker :worker-finish)
-                         "{~a}: done" (thread-name (current-thread)))
+                         "{~a}: done (~f sec)" (thread-name (current-thread))
+                         (/ (- (get-internal-real-time) start-time)
+                            internal-time-units-per-second))
            (setf (sb-thread:thread-name (current-thread)) idle-name)))))))
 
 (defun background-gc ()
@@ -207,7 +210,7 @@ process's PID."
 
 (defmethod verbose:format-message ((stream stream) (message v:message))
   (with-lock-held (*verbose-logging-lock*)
-    (format stream "~&~a	{~a}	[~a: ~{~a~^, ~}]~%⯮	~a~%"
+    (format stream "~&~a	{~a}	[~a; ~{~a~^, ~}]~%⮕ ~a~%"
             (format-timestring nil (v:timestamp message)
                                :format
                                '((:year 4) #\- (:month 2) #\- (:day 2)
@@ -236,7 +239,8 @@ or exit the REPL.")
   (swank:set-default-directory (asdf:component-relative-pathname
                                 (asdf:find-system  :Tootsville)))
   (swank:set-package :Tootsville)
-  (start))
+  (start)
+  (banner))
 
 (defun destroy-all-listeners ()
   (map nil #'destroy-thread
@@ -296,5 +300,5 @@ Hopefully you've already tested the changes?"
 (defun connect-databases ()
   (dolist (thread (mapcar (lambda (n)
                             (make-thread n :name (symbol-munger:lisp->english n)))
-                          '(connect-mixer connect-cache connect-maria)))
+                          '(connect-cache connect-maria connect-zeromq)))
     (assert (join-thread thread))))

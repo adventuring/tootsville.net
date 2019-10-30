@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/tools.lisp is part of Tootsville
+;;;; src/tools.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -33,8 +33,44 @@
   `(let ((*user* (find-record 'person :uuid
                               (uuid:make-uuid-from-string
                                "480B0917-3C7A-4D13-B55B-AA56105C5E00"))))
-     (with-user ()
-       ,@body)))
+     ,@body))
+
+(defun setf-user-brp ()
+  (setf *user* (find-record 'person :uuid
+                            (uuid:make-uuid-from-string
+                             "480B0917-3C7A-4D13-B55B-AA56105C5E00")))) 
+
+
+
+(defmethod HUNCHENTOOT:REQUEST-URI ((plist list))
+  (getf plist :request-uri))
+(defmethod HUNCHENTOOT:REQUEST-METHOD ((plist list))
+  (getf plist :request-method))
+(defmethod HUNCHENTOOT:HEADERS-IN ((plist list))
+  (getf plist :headers))
+(defmethod HUNCHENTOOT:GET-PARAMETERS ((plist list))
+  nil)
+(defmethod HUNCHENTOOT:POST-PARAMETERS ((plist list))
+  nil)
+(defmethod HUNCHENTOOT:REMOTE-ADDR ((plist list))
+  "::1")
+(defmethod HUNCHENTOOT:QUERY-STRING ((plist list))
+  "")
+(defmethod HUNCHENTOOT:HEADERS-OUT ((plist list))
+  (list))
+(defmethod print-object ((condition HTTP-client-error) stream)
+  (format stream "HTTP error to report to client (code ~a)"
+          (if (slot-boundp condition 'HTTP-status-code)
+              (format nil "~a: ~a" (HTTP-status-code condition)
+                      (gethash (HTTP-status-code condition) *HTTP-status-messages*))
+              "unbound")))
+(defun test-http-error-reply ()
+  (let ((hunchentoot::*request* '(:request-uri "https://example.com/400"
+                                  :request-method "GET"
+                                  :headers ((:Accept . "text/plain"))))
+        (hunchentoot::*reply* '(:reply :foo)))
+    (with-http-conditions ()
+      (error 'http-client-error :http-status-code 400))))
 
 
 

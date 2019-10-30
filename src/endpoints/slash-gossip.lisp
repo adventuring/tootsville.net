@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/endpoints/slash-gossip.lisp is part of Tootsville
+;;;; src/endpoints/slash-gossip.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -27,46 +27,55 @@
 
 (in-package :Tootsville)
 
-(defun make-offers-from-json (json)
-  (let (offers)
-    (dolist (offer (coerce (getf json :|offers|) 'list))
-      (let* ((offer-object (make-record 'gossip-initiation
-                                        :offeror *user*
-                                        :offer offer)))
-        (save-record offer-object)
-        (v:info '(:gossip :gossip-new) 
-                "New SDP offer ~a" (gossip-initiation-uuid offer-object))
-        (push (gossip-initiation-uuid offer-object) offers)))
-    offers))
-
 (defendpoint (get "/gossip/ice-servers" "application/json")
-  "Obtain STUN/TURN server credentials for ICE"
+  "Obtain STUN/TURN server credentials for ICE."
   (with-user ()
-    (list 200 ()
-          (ice-credentials))))
+    (ice-credentials)))
 
-(defendpoint (post "/gossip/offers" "application/json")
-  "Provide a new offer. Body is an SDP offer. Reply will be an offer URI."
+(defendpoint (post "/gossip/offers" "application/sdp")
+  "Provide a new offer. Body is an SDP offer. Reply will be an offer URI.
+
+The offer URI will  be needed to retrieve the answer  to your offer from
+whatever peer  may accept it. There  is no guarantee that  an offer will
+be accepted."
   (with-user ()
-    (let* ((json$ (map 'string 'code-char (hunchentoot:raw-post-data)))
-           (json (jonathan.decode:parse json$))
-           (offers (make-offers-from-json json)))
-      (break)
-      (list 202 (list :location "/gossip/offers")
-            (list :|offers| (mapcar #'uuid-to-uri offers))))))
+    (let ((uri 
+           (format nil "/gossip/answers/~a"
+                   (enqueue-sdp-offer (jonathan.decode:parse
+                                       (raw-post-string))))))
+      (list 201
+            (list :location uri)
+            (list :|location| uri)))))
 
-(defendpoint (get "/gossip/offers/any" "application/sdp")
-  "Ask for any, arbitrary offer to potentially accept."
-  (let ((offer (gossip-pop-offer)))
-    (if offer
-        (list 200
-              (list :location (format nil "/gossip/offers/~a"
-                                      (uuid-to-uri (gossip-initiation-uuid offer))))
-              (gossip-initiation-offer offer))
-        (error 'not-found :the "Gossipnet initiation offer"))))
+(defendpoint (get "/gossip/offers" "application/json")
+  "Ask for any, arbitrary offer to potentially accept.
 
-(defendpoint (put "/gossip/offers/:uuid64" "application/sdp")
-  "Answer a particular offer with ID UUID64"
-  (let ((offer (find-record 'gossip-initiation :uuid (uri-to-uuid uuid64)))
-        (body (hunchentoot:raw-post-data)))
-    (gossip-answer-offer offer body)))
+Returns a JSON object with UUID (for answering) and SDP description."
+  (with-user ()
+    (list (or (dequeue-sdp-offer)
+              (v:warn :gossip "No offers available for requestor")))))
+
+(defendpoint (post "/gossip/answers/:uuid" "application/sdp")
+  "Post an answer to a received SDP block"
+  (make-record 'gossip-initiation 
+               :uuid (uuid:make-uuid-from-string uuid)
+               :answer (raw-post-string))
+  (list 202 #()))
+
+(defendpoint (get "/gossip/answers/:uuid" "application/sdp" 31)
+  "Read back the answer to an offer posted previously. 
+
+COMET-type call may sleep up to 30s"
+  (with-user ()
+    (dotimes (_ 3000)
+      (if-let ((record (find-record 'gossip-initiation 
+                                    :uuid (uuid:make-uuid-from-string uuid))))
+        (return-from endpoint (list 200 () (gossip-initiation-answer record)))
+        (progn
+          (v:info :gossip "No answer to offer ~a" uuid)
+          (sleep 1/100))))
+    (v:info :gossip "No answer to offer ~a" uuid)
+    (list 204 #())))
+
+
+

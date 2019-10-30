@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/ensure-quicklisp.lisp is part of Tootsville
+;;;; src/ensure-quicklisp.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -26,6 +26,9 @@
 ;;; USA
 
 (in-package :CL-USER)
+
+#.(progn (require 'asdf) nil)
+#.(progn (asdf:load-system :uiop) nil)
 
 
 

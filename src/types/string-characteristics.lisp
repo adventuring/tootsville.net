@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/types/string-characteristics.lisp    is    part    of
+;;;; src/types/string-characteristics.lisp    is    part    of
 ;;;; Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The

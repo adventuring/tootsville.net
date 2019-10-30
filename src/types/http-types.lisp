@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; ./servers/src/types/http-types.lisp is part of Tootsville
+;;;; src/types/http-types.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -53,7 +53,7 @@ harmless  error   message  on  the  second   and  subsequent  attempts."
 (deftype http-response-failure-status-number ()
   '(member
     400 401 402 403 404 405 406 407 408 409
-    410 411 412 413 414 415 416 417 424 428 429 431
+    410 411 412 413 414 415 416 417 422 424 428 429 431
     500 501 502 503 504 505 511))
 
 (deftype http-response-status-number ()
@@ -62,8 +62,16 @@ harmless  error   message  on  the  second   and  subsequent  attempts."
 
 (define-condition http-client-error (error)
   ((http-status-code :type http-response-failure-status-number
+                     :initarg :http-status-code
+                     :initarg :status-code
+                     :initarg :status
                      :reader http-status-code)))
-
+(defmethod print-object ((condition HTTP-client-error) stream)
+  (format stream "HTTP error to report to client (code ~a)"
+          (if (slot-boundp condition 'HTTP-status-code)
+              (format nil "~a: ~a" (HTTP-status-code condition)
+                      (gethash (HTTP-status-code condition) *HTTP-status-message*))
+              "unbound")))
 (defmethod http-status-code ((error error))
   500)
 
@@ -92,17 +100,19 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
 </ul>
 ~:[<pre>~A</pre>~;Our operations team can find out more in the server logs.~]
 ~@[<dl>
-~{<dt> ~a </dt> <dd> ~a </dd> ~}
+~{<dt> ~a </dt> ~^ <dd> ~a </dd> ~}
 </dl>~]
 </body>
 </html>"
-          (http-status-code condition)
+          (if (slot-boundp condition 'http-status-code)
+              (http-status-code condition)
+              500)
           (if hunchentoot:*show-lisp-errors-p*
               condition
               (gethash (http-status-code condition) *http-status-message*))
           (cluster-name)
           hunchentoot:*show-lisp-backtraces-p*
-          (ignore-errors (rollbar::find-appropriate-backtrace))
+          (ignore-errors (coerce (rollbar::find-appropriate-backtrace) 'list))
           (if hunchentoot:*show-lisp-backtraces-p*
               (mapcar
                (lambda (restart)
@@ -146,3 +156,4 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
   ((http-status-code :initform 402))
   (:report (lambda (c s)
              (format s "~a is gone." (not-found-thing c)))))
+
