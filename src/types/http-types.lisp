@@ -62,8 +62,16 @@ harmless  error   message  on  the  second   and  subsequent  attempts."
 
 (define-condition http-client-error (error)
   ((http-status-code :type http-response-failure-status-number
+                     :initarg :http-status-code
+                     :initarg :status-code
+                     :initarg :status
                      :reader http-status-code)))
-
+(defmethod print-object ((condition HTTP-client-error) stream)
+  (format stream "HTTP error to report to client (code ~a)"
+          (if (slot-boundp condition 'HTTP-status-code)
+              (format nil "~a: ~a" (HTTP-status-code condition)
+                      (gethash (HTTP-status-code condition) *HTTP-status-message*))
+              "unbound")))
 (defmethod http-status-code ((error error))
   500)
 
