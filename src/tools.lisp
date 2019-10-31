@@ -58,12 +58,7 @@
   "")
 (defmethod HUNCHENTOOT:HEADERS-OUT ((plist list))
   (list))
-(defmethod print-object ((condition HTTP-client-error) stream)
-  (format stream "HTTP error to report to client (code ~a)"
-          (if (slot-boundp condition 'HTTP-status-code)
-              (format nil "~a: ~a" (HTTP-status-code condition)
-                      (gethash (HTTP-status-code condition) *HTTP-status-messages*))
-              "unbound")))
+
 (defun test-http-error-reply ()
   (let ((hunchentoot::*request* '(:request-uri "https://example.com/400"
                                   :request-method "GET"
