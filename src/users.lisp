@@ -46,6 +46,19 @@
          ,@body)
      (continue () nil)))
 
+(defun find-user-for-credentials (credentials)
+  (loop for (provider ids) on credentials by #'cddr
+     do (dolist (id ids)
+          (when-let (credential (ignore-not-found  (find-record 'credential
+                                                                :id-token id
+                                                                :provider provider)))
+            (v:info :Login "Found user UUID ~a by credential ~s from ~a"
+                    (credential-person credential) id provider)
+            (return-from find-user-for-credentials
+              (find-reference credential :person)))))
+  (v:info :Login "No existing match for credentials ~s" credentials)
+  nil)
+
 (defun associate-credentials (person credentials)
   (loop for (provider ids) on credentials by #'cddr
      do (dolist (id ids)
@@ -84,22 +97,25 @@ PLIST  can  have  keys  that  align to  a  DB.PERSON  or  their  contact
 infos (eg,  email) and is expected  to have been validated  already (eg,
 come from a trusted authentication provider like Google Firebase)."
   (let ((person
-         (or (when-let (email (and (getf plist :email-verified-p)
+         (or (find-user-for-credentials (getf plist :credentials))
+             (when-let (email (and (getf plist :email-verified-p)
                                    (getf plist :email)))
                (when-let (links (person-links-to-email email))
                  (when-let (link (when (all-links-to-same-person-p links)
                                    (first links)))
                    (find-reference link :person))))
-             (make-record
-              'person
-              :display-name (or (getf plist :name)
+             (progn
+               (cerror "Create new user" "Going to create a new user")
+               (make-record
+                'person
+                :display-name (or (getf plist :name)
+                                  (email-lhs (getf plist :email)))
+                :given-name (or (getf plist :given-name)
+                                (getf plist :name)
                                 (email-lhs (getf plist :email)))
-              :given-name (or (getf plist :given-name)
-                              (getf plist :name)
-                              (email-lhs (getf plist :email)))
-              :surname (or (getf plist :surname) "")
-              :gender :X
-              :lang "en_US"))))
+                :surname (or (getf plist :surname) "")
+                :gender :X
+                :lang "en_US")))))
     (ensure-record 'person-link
                    :person (person-uuid person)
                    :rel :contact
