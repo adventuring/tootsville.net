@@ -82,7 +82,6 @@ is malformed.)"
                                 :base-color (parse-color24 base-color)
                                 :pattern-color (parse-color24 pattern-color)
                                 :pad-color (parse-color24 pad-color)
-                                :player (person-uuid *user*)
                                 :avatar-scale-x 1.0
                                 :avatar-scale-y 1.0
                                 :avatar-scale-z 1.0
