@@ -45,8 +45,10 @@
 Looks for  the canonical  \"Accept: application/json\", and  also checks
 the request URI for \".js\" (which  is, of course, a subseq of \".json\"
 as well.)"
-  (or (search "application/json" (the string (hunchentoot:header-in* :accept)))
-      (search ".js" (the string (hunchentoot:request-uri*)))))
+  (let ((result (or (search "application/json" (the string (hunchentoot:header-in* :accept)))
+                    (search ".js" (the string (hunchentoot:request-uri*))))))
+    (v:info :wants-json-p "Wants-JSON-P? Decided that we ~:[don't~;do~] want JSON" result)
+    result))
 
 
 
