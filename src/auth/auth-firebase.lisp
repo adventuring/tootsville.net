@@ -159,10 +159,12 @@ aaaaa
               (token)
               "Credential  token  was  not  for   us  (we  are  not  ~
          its audience)")
-      
-      (list :credentials (append (hash-table-plist (extract claims "firebase" "identities"))
-                                 (list "firebase" (list (gethash "sub" claims))))
-            :email (gethash "email" claims)
-            :email-verified-p (gethash "email_verified" claims)
-            :name (gethash "name" claims)
-            :picture (gethash "picture" claims)))))
+      (let ((credentials
+             (list :credentials (append (hash-table-plist (extract claims "firebase" "identities"))
+                                        (list "firebase" (list (gethash "sub" claims))))
+                   :email (gethash "email" claims)
+                   :email-verified-p (gethash "email_verified" claims)
+                   :name (gethash "name" claims)
+                   :picture (gethash "picture" claims))))
+        (v:info :Firebase "Credentials from Firebase: ~S" credentials)
+        credentials))))
