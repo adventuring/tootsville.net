@@ -108,7 +108,7 @@ Uses MemCacheD when available."
              (caar results))
             ((zerop (length results))
              (error 'not-found :the (cons table columns+values)))
-            (t (error "Found ~p record~:p when expecting one" (length results)))))))
+            (t (error "Found ~:d record~:p when expecting one" (length results)))))))
 
 (defun db-select-single-record (table &rest columns+values)
   "Select a single record from TABLE where columns = values as in COLUMNS+VALUES.
