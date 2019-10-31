@@ -161,27 +161,13 @@
                          (http-status-code c)
                          500)))
     (if (wants-json-p)
-        (encode-endpoint-reply
-         (list status-code
-               (list :content-type "application/json; charset=utf-8")
-               (if hunchentoot:*show-lisp-backtraces-p*
-                   (to-json
-                    (list :|error| status-code
-                          :|errorMessage| (princ-to-string c)
-                          :|trace| (rollbar::find-appropriate-backtrace)))
-                   (to-json
-                    (list :|error| status-code
-                          :|errorMessage| (princ-to-string c)))))))
-      (encode-endpoint-reply
-       (list status-code
-             (list :content-type "text/html; charset=utf-8")
-             (pretty-print-html-error c)))))
+        (gracefully-report-error.json status-code c))
+    (gracefully-report-error.html status-code c)))
 
 (defmacro with-http-conditions (() &body body)
-  `(handler-bind
-       ((http-client-error #'gracefully-report-http-client-error)
-        (error #'gracefully-report-http-client-error))
-     (progn ,@body)))
+  `(handler-case
+       (progn ,@body)
+     (error (c) (gracefully-report-http-client-error c))))
 
 (defun handle-options-request (uri-parts ua-accept)
   (v:info :request "Method is OPTIONS")
