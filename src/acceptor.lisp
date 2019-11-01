@@ -152,17 +152,16 @@
          (pretty-print-html-error c))))
 
 (defun gracefully-report-http-client-error (c)
-  (v:error :HTTP-client "Gracefully reporting error to HTTP client: ~a" c)
-  (v:error :http-error "Condition ~s,~%backtrace ~s"
-           c (ignore-errors (rollbar::find-appropriate-backtrace)))
-  (rollbar:error! "Sending HTTP response to condition" 
-                  :condition c)
+  (v:error :HTTP-error "Gracefully reporting error to HTTP client: ~a" c)
   (let ((status-code (if (slot-boundp c 'http-status-code)
                          (http-status-code c)
                          500)))
+    (when (<= 500 status-code 599)
+      (rollbar:error! "Sending HTTP response to condition"
+                      :condition c))
     (if (wants-json-p)
-        (gracefully-report-error.json status-code c))
-    (gracefully-report-error.html status-code c)))
+        (gracefully-report-error.json status-code c)
+        (gracefully-report-error.html status-code c))))
 
 (defmacro with-http-conditions (() &body body)
   `(handler-case
