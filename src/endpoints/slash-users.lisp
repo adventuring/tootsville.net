@@ -66,10 +66,7 @@ Child accounts will have some tokens here that help us … TODO
 
 "
   (with-user ()
-    (list 200 nil
-          (list :hello "Hello, new user"
-                :fake "This is a totes fake response"
-                :toots "/users/me/toots.json"))))
+    (list 200 (person-info))))
 
 (defendpoint (put "/users/me" "application/json")
   "Makes changes to an user account.
@@ -89,10 +86,38 @@ XXX is there a better status for updates?
 
 "
   (with-user ()
-    (list 200 nil
-          (list :hello "Hello, new user"
-                :fake "This is a totes fake response"
-                :toots "/users/me/toots.json"))))
+    (with-posted-json (field new-value)
+      (with-errors-as-http (400)
+        (check-type field string)
+        (check-type new-value string))
+      (ecase (make-keyword (symbol-munger:camel-case->lisp-name field))
+        (:display-name
+         (setf (person-display-name *user*) (with-errors-as-http (422)
+                                              (reasonable-name new-value))))
+        (:given-name
+         (setf (person-given-name *user*) (with-errors-as-http (422)
+                                            (reasonable-name new-value))))
+        (:surname
+         (setf (person-surname *user*) (with-errors-as-http (422)
+                                         (reasonable-name new-value))))
+        (:language
+         (with-errors-as-http (422)
+           (assert (member (the string new-value) +supported-languages+ :test #'string=)))
+         (setf (person-lang *user*) new-value))
+        (:gender
+         (with-errors-as-http (422)
+           (assert (member (the string new-value) '("☿" "♀" "♂") :test #'string=)))
+         (setf (person-gender *user*) (ecase (char new-value 0)
+                                        (#\☿ "X")
+                                        (#\♀ "F")
+                                        (#\♂ "M"))))
+        (:date-of-birth
+         (with-errors-as-http (422)
+           (setf (person-date-of-birth *user*) new-value)
+           (assert (<= 13 (person-age*) 125) (new-value)
+                   "Person's age must be between 13 and 125."))))
+      (save-record *user*))
+    (list 200 (person-info))))
 
 (defendpoint (patch "/users/me" "application/json")
   "Alters information about your user account.
@@ -239,7 +264,9 @@ main owner of. This is usually a child account.
 "
   (with-user ()
     (assert-my-character Toot-name)
-    (list 200
-          ()
-          (list :|toot| (Toot-info (find-record 'Toot :name Toot-name))
-                :|player| *user*))))
+    (let ((Toot (find-record 'Toot :name Toot-name)))
+      (setf (Toot-last-active Toot) (get-universal-time))
+      (list 200
+            ()
+            (list :|toot| (Toot-info Toot)
+                  :|player| (person-info *user*))))))
