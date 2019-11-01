@@ -319,3 +319,47 @@ limitations under the License. |#
 (defun person-Toot (&optional (person *user*))
                                         ; TODO: person-Toot 
   nil)
+
+
+
+(defun person-age* (&optional (user *user*))
+  (the (integer 0 125)
+       (or (when-let (dob (person-date-of-birth user))
+             (timestamp-whole-year-difference (now) dob))
+           (person-age user))))
+
+(defun reasonable-name-char (char)
+  (or (alpha-char-p char)
+      (find char "-'`\",.()‘’“” " :test #'char=)))
+
+(defun reasonable-name (name)
+  (and (every #'reasonable-name-char name)
+       (not (emptyp name))))
+
+(defun list-of-string= (a b)
+  (and (listp a) (listp b)
+       (loop for aa in a
+          for bb in b
+          always (string= aa bb))))
+
+(assert (list-of-string= '("Foo" "Bar") '("Foo" "Bar")))
+(assert (not (list-of-string= '("Foo" "Bar") '("FOO" "BAR"))))
+
+(define-constant +supported-languages+
+    '("en" "en-US")
+  :test #'list-of-string=)
+
+(defun person-info (&optional (user *user*))
+  (list :|displayName| (person-display-name user)
+        :|patronP| (person-is-patron-p user)
+        :|gender| (ecase (char (person-gender user) 0)
+                    (#\X "☿")
+                    (#\F "♀")
+                    (#\M "♂"))
+        :|givenName| (person-given-name user)
+        :|surname| (person-surname user)
+        :|language| (person-lang user)
+        :|sensitiveP| (person-sensitivep user)
+        :|dateOfBirth| (person-date-of-birth user)
+        :|age| (person-age* user)))
+
