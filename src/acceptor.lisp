@@ -203,6 +203,8 @@
    (format nil "~a/~a"
            (lisp-implementation-type)
            (lisp-implementation-version))
+   (hunchentoot:header-out :X-Machine)
+   (format nil "~a/~a" (machine-type) (machine-version))
    (hunchentoot:header-out :Vary) "Accept, Accept-Language, X-Infinity-Auth"))
 
 (defun dispatch-endpoint (match)
