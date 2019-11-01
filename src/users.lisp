@@ -208,11 +208,12 @@ come from a trusted authentication provider like Google Firebase)."
 
 
 (defun player-childp (&optional (player *user*))
-  (< (or (when-let (dob (person-date-of-birth player)) (legal-age dob))
-         (person-age player)
-         (person-child-code player)
-         1)
-     13))
+  (or (< (or (when-let (dob (person-date-of-birth player)) (legal-age dob))
+             (person-age player)
+             1)
+         13)
+      (when-let (Toot (person-Toot *user*))
+        (Toot-child-code Toot))))
 
 (defun player-adultp (&optional (player *user*))
   (>= (or (legal-age (person-date-of-birth player))
