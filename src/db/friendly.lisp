@@ -35,7 +35,6 @@
   (date-of-birth timestamp)
   (age number)
   (sensitivep yornp)
-  (child-code string)
   (gender keyword)
   (lang keyword))
 
@@ -106,6 +105,7 @@
   (pad-color color24)
   (avatar number ref avatar)
   (player uuid ref person)
+  (child-code string)
   (last-active timestamp)
   (note string)
   (avatar-scale-x number)
