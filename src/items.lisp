@@ -47,20 +47,20 @@
 (defun grant-item (template-id recipient)
   "Create a new instance of TEMPLATE-ID and give it to RECIPIENT."
   (let ((item (create-item template-id))
-        (player-uuid (etypecase recipient
-                       (Toot (Toot-player recipient))
-                       (string (Toot-player (find-record 'Toot :name recipient)))
-                       (person recipient)))
+        (player (etypecase recipient
+                  (Toot (Toot-player recipient))
+                  (string (Toot-player (find-record 'Toot :name recipient)))
+                  (person recipient)))
         (Toot  (etypecase recipient
                  (Toot recipient)
                  (string (find-record 'Toot :name recipient))
                  (person nil))))
-    (player-alert (find-record 'person (Toot-player Toot)) :inventory :get item)
-    ((make-record 'inventory-item
-                  :item (item-uuid item)
-                  :person player-uuid
-                  :Toot (Toot-uuid Toot)
-                  :equipped :N))))
+    (player-alert player :inventory :get item)
+    (make-record 'inventory-item
+                 :item (item-uuid item)
+                 :person (person-uuid player)
+                 :Toot (Toot-uuid Toot)
+                 :equipped :N)))
 
 (defun gift-item (item giver recipient)
   "Transfer the ownership of ITEM from GIVER to RECIPIENT."
