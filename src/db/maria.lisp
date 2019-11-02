@@ -127,7 +127,7 @@ Signals NOT-FOUND if none are found."
              (first results))
             ((zerop (length results))
              (error 'not-found :the (cons table columns+values)))
-            (t (error "Found ~p record~:p when expecting one" (length results))))
+            (t (error "Found ~:d record~:p when expecting one" (length results))))
       (first results))))
 
 (defun db-select-records-simply (table &rest columns+values)
