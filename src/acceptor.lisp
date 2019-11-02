@@ -153,7 +153,8 @@
 
 (defun gracefully-report-http-client-error (c)
   (v:error :HTTP-error "Gracefully reporting error to HTTP client: ~a" c)
-  (let ((status-code (if (slot-boundp c 'http-status-code)
+  (let ((status-code (if (and (typep c 'http-client-error)
+                              (slot-boundp c 'http-status-code))
                          (http-status-code c)
                          500)))
     (when (<= 500 status-code 599)
