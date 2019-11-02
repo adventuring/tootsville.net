@@ -109,8 +109,10 @@ XXX WRITEME
        (defun ,infinity-name (d ,user-var ,plane-var)
          ,docstring
          (declare (ignorable ,user-var ,plane-var))
-         (destructuring-bind (,@λ-list) d
-           ,@body))
+         (destructuring-bind (,(first λ-list) ,@(mapcar (compose #'intern #'symbol-munger:lisp->camel-case) (rest λ-list)))
+             d
+           (let (,@(mapcar (lambda (var) (list var (intern (symbol-munger:lisp->camel-case var)))) (rest λ-list)))
+             ,@body)))
        (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name)))
          ,docstring
          (call-infinity-from-rest  ',infinity-name )))))
@@ -128,4 +130,4 @@ XXX WRITEME
        (defun ,(intern (string command) (find-package :Tootsville-User)) (&rest ,words)
          ,docstring
          (let ((,user *user*) (,plane (user-plane *user*)))
-           ,@body)))))
+           ,@body))))) 
