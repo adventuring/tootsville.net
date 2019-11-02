@@ -206,7 +206,7 @@
            (lisp-implementation-version))
    (hunchentoot:header-out :X-Machine)
    (format nil "~a/~a" (machine-type) (machine-version))
-   (hunchentoot:header-out :Vary) "Accept, Accept-Language, X-Infinity-Auth"))
+   (hunchentoot:header-out :Vary) "Origin, Accept, Accept-Language, X-Infinity-Auth"))
 
 (defun dispatch-endpoint (match)
   (destructuring-bind (endpoint &rest bindings) match
