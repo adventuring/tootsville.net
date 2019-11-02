@@ -113,24 +113,16 @@ is malformed.)"
                       :equipped :y))
         (list 201 (Toot-uuid Toot))))))
 
-(defendpoint (put "/toots/:toot-name/child-p" "application/json")
-  "Set CHILD-P flag for TOOT-NAME.
+(defendpoint (post "/toots/:toot-name/child-code" "application/json")
+  "Set CHILD-CODE for TOOT-NAME.
 
-Input JSON: { set: true } or { set: false }"
+Input JSON: { child-code: code } or { child-code: \"\" } for null"
   (check-arg-type Toot-name Toot-name)
   (with-user ()
-    (let ((Toot (find-Toot-by-name Toot-name)))
-      (assert-my-character Toot)
-      (list 200
-            `(:last-modified ,(header-time (Toot-last-active Toot)))
-            (if-let (toot (find-toot-by-name toot-name))
-              (toot-info toot)
-              `(:is-a "toot"
-                :name ,(string-capitalize toot-name)
-                :avatar "ultraToot"
-                :child-p nil
-                :sensitive-p t
-                :online-p t
-                :last-seen ,(local-time:format-timestring
-                             nil (local-time:now))
-                :exists-p "maybe?"))))))
+    (with-posted-json (child-code)
+      (let ((Toot (find-Toot-by-name Toot-name)))
+        (assert-my-character Toot)
+        (setf (Toot-child-code Toot) (if (emptyp child-code) nil child-code))
+        (list 200
+              `(:last-modified ,(header-time (Toot-last-active Toot)))
+              (Toot-info Toot))))))
