@@ -183,36 +183,36 @@ Data describing the user's lot
 or adding a room, @verb{| { index: roomIndex } |}
 
 "
-  (destructuring-bind (x1 y1 z1) (find-lot-by-id lot)
-    (let ((lot (find-record 'lot :x1 x1 :y1 y1 :z1 z1)))
-      (unless lot
-        (infinity-error 404 :lot-not-found))
-      (ecase (lot-ownership lot)
-        (:public (infinity-error 400 :lot-is-public-property))
+  (let ((lot (find-record 'lot :id lot)))
+    (unless lot
+      (error 'not-found :the :lot))
+    (ecase (lot-ownership lot)
+      (:public (error 'infinity-error :http-status 400 :memo :lot-is-public-property))
                                         ; TODO permission error, 403?
-        (:common  (infinity-error 400  :lot-is-common-property)) 
+      (:common  (error 'infinity-error :http-status 400 :memo :lot-is-common-property)) 
                                         ;  TODO permission error, 403?
-        (:private
-         (cond
-           ((null (lot-owner-Toot lot))
-            ;; claim a lot and build a basic house
-            (unless (or (null index) (and (numberp index) (zerop index)))
-              (infinity-error 400 :empty-lot-use-house-not-index))
-            (setf (lot-owner-Toot lot) (Toot-uuid *Toot*))
-            ;; TODO check house is an house
-            ;; TODO place house on lot
-            )
-           ((equal (lot-owner-Toot) (Toot-uuid *Toot*))
-            (unless (null house)
-              (infinity-error 400 :did-you-want-house-or-room))
-            (when (or (null index)
-                      (not (numberp index)) 
-                      (zerop index)
-                      (minusp index)
-                      (> index 9))
-              (infinity-error 400 :index-not-valid))
-            ;; TODO create room and affix to house 
-            )))))))
+      (:private
+       (cond
+         ((null (lot-owner-Toot lot))
+          ;; claim a lot and build a basic house
+          (unless (or (null index) (and (numberp index) (zerop index)))
+            (infinity-error 400 :empty-lot-use-house-not-index))
+          (setf (lot-owner-Toot lot) (Toot-uuid *Toot*))
+          ;; TODO check house is an house
+          ;; TODO place house on lot
+          )
+         ((equal (lot-owner-Toot lot) (Toot-uuid *Toot*))
+          (unless (null house)
+            (infinity-error 400 :did-you-want-house-or-room))
+          (when (or (null index)
+                    (not (numberp index)) 
+                    (zerop index)
+                    (minusp index)
+                    (> index 9))
+            (infinity-error 400 :index-not-valid))
+          ;; TODO create room and affix to house 
+          ))))))
+
 (definfinity dofff ((&rest d) user recipient/s)
   "Doff all clothing items.
 
@@ -249,8 +249,8 @@ meant  for pattern  changing  in  1.2, which  must  now be  accomplished
 in-game via Doodle.
 
 "
-  (unless (nullp color)
-    (infinity-error 400 :cannot-select-color))
+  (unless (null color)
+    (error 'infinity-error :http-status 400 :memo :cannot-select-color))
   ;; TODO don
   )
 (definfinity echo ((&rest d) user recipient/s)
@@ -276,7 +276,7 @@ u - The user calling (to whom the response is sent)
 "
   (list :|from| "echo" :|status| t :|You said| d))
 
-(definfinity endEvent ((moniker eventID score status) user recipient/s)
+(definfinity endEvent ((moniker event-id score status) user recipient/s)
   
   " This method  terminates an event (probably a  minigame, but possibly
 a fountain) which was initiated by startEvent.
@@ -317,10 +317,10 @@ Reply format:
 
 User public information is in the format of AbstractUser.getPublicInfo()
 
-jso - JSON object, with (ignored) keys tied to values which must be the names of users.
+jso - JSON object, with (ignored) keys tied to values which must be the names of users."
+  (loop for (_ user-name) on _+user-names by #'cddr
+     collect (user-public-info user-name)))
 
-"
-  )
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   
   "gameAction(org.json.JSONObject jso,
@@ -355,6 +355,7 @@ u - The calling user. The calling user's avatar data will not be returned.
 
 
 ")
+
 (definfinity get-color-palettes (nil user recipient/s)
   "getColorPalettes
 
@@ -371,7 +372,6 @@ in the JSON result object (from: \"getColorPalettes\")
 Not used in Tootsville any more.  The analogous palettes in Li'l Vampies
 and Empires  of the Air are  being replaced with algorithmic  checks, so
 this routine was removed in Appius 1.2.0."
-  (declare (ignore _))
   (error 'legacy-gone))
 
 (definfinity get-Inventory ((&rest d) user recipient/s)
@@ -435,7 +435,7 @@ u - The user whose inventory to be searched, who is the caller of this routine
 
 "
   )
-(definfinity get-Online-Users ((inRoom) user recipient/s)
+(definfinity get-Online-Users ((in-room) user recipient/s)
   "Get a list of users in a Zone, or in a Room.
  
 This is an administrative function, only available to staff members.
@@ -591,9 +591,10 @@ already existing
 jso - { room: (room-number), autoJoin: (boolean) }
 @end example
                                 
-u - The user whose house-room needs to be initialized
-") (definfinity join ((room from) user recipient/s)
-     "Join a room.  On success, sends back the set  of room join events;
+u - The user whose house-room needs to be initialized")
+
+(definfinity join ((room from) user recipient/s)
+  "Join a room.  On success, sends back the set  of room join events;
      but on failure, replies with  { from: roomJoin, status: false, err:
      ...}
 
@@ -615,17 +616,15 @@ room.full
   Parameters:
   jso - { room: MONIKER } or { room: MONIKER, from: MONIKER }
   
-u - the user joining the room
-  
-  ") 
+u - the user joining the room") 
+
 (definfinity login ((userName password zone) user recipient/s)
   "Notification of a new player in the game.
 
     Parameters:
         jso - { userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE }
 
-Response: logOK or { err: login.fail, msg: reason }  
-"
+Response: logOK or { err: login.fail, msg: reason }"
   )
 
 (definfinity logout ((&rest d) user recipient/s)
@@ -635,9 +634,7 @@ There was a bug in the Persephone client that caused it to explode if we
 logged it out before it received  & processed the logout message. So, we
 waited for the expected lag time to expire and then throw 2 full seconds
 of wasted wait time after it, which had ought to be enough time. This is
-no longer supported.
-
-  "
+no longer supported."
   )
 
 (definfinity mail-customer-service ((&rest d) user recipient/s) 
@@ -667,16 +664,13 @@ Throws: org.json.JSONException -  Thrown if
   the data  cannot be interpreted  from the  JSON objects passed  in, or
   conversely,  if  we   can't  encode  a  response  into   a  JSON  form
   
-NotFoundException - Could not find a user with that name
-  ")
+NotFoundException - Could not find a user with that name")
 
 (definfinity ping (nil user recipient/s)
   "  Send a ping to the server to get back a pong. 
 
 This also updates the user's last-active timestamp, to prevent them from
-being idled offline.
-  
-  "
+being idled offline."
   (setf (Toot-last-active *Toot*) (now))
   (list 200 '(:|ping| "pong"
               :|serverTime| (- (get-universal-time) +Unix-zero-in-universal-time+))))
@@ -692,19 +686,19 @@ being idled offline.
 @example
 
   { \"from\" : \"prompt\",
-  \"id\" : $ID,
-  \"label\" : $LABEL,
-  \"label_en_US\" : $LABEL,
-  \"title\" : $TITLE,
-  [ \"attachUser\" : $AVATAR_LABEL || \"attachItem\" : $ITEM_ID ] ,
-  \"msg\" : $TEXT,
-  \"replies\" :
-  {  $TOKEN :
-  { \"label\" : $BUTTON_LABEL,
-  \"label_en_US\" : $BUTTON_LABEL,
-  \"type\" : $BUTTON_TYPE },
-  [ … ]
-  }
+    \"id\" : $ID,
+    \"label\" : $LABEL, 
+    \"label_en_US\" : $LABEL,
+    \"title\" : $TITLE,
+    [ \"attachUser\" : $AVATAR_LABEL || \"attachItem\" : $ITEM_ID ] ,
+    \"msg\" : $TEXT,
+    \"replies\" :
+    {  $TOKEN :
+        { \"label\" : $BUTTON_LABEL,
+          \"label_en_US\" : $BUTTON_LABEL,
+          \"type\" : $BUTTON_TYPE },
+        [ … ]
+        }
   }
   
 @end example
@@ -825,9 +819,8 @@ being idled offline.
 room - the room in which the user is standing (unimportant) 
   
 Throws:
-  org.json.JSONException - for really bad syntax errors
+  org.json.JSONException - for really bad syntax errors")
 
-  ")
 (definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
@@ -1042,7 +1035,7 @@ as a string.
        
        ")
 
-(definfinity report-user ((userName) user recipient/s)
+(definfinity report-user ((user-Name) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
         { userName = user to be reported }
@@ -1057,8 +1050,7 @@ as a string.
        
 u - user who is requesting the addition
 ")
-(definfinity send-out-of-band-message ((sender from status body sendRoomList) user recipient/s)
-  
+(definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users in a room, out of the band of communications.
  
 This is neither a public nor a private message in the chat context: just
@@ -1165,9 +1157,12 @@ about ``which chair'')
      (with-errors-as-http (400) (assert (and (null item) (null x) (null y) (null z))))
      (remove-furniture% slot))
     (slot
-     (with-errors-as-http (400) (assert (and (null item) x y z facing))))
+     (with-errors-as-http (400) (assert (and (null item) x y z facing)))
+     (place-furniture% slot x y z facing))
     (item
-     (with-errors-as-http (400) (assert (and (null slot) x y z facing))))
+     (with-errors-as-http (400) (assert (and (null slot) x y z facing)))
+     (let ((slot (drop-item item)))
+       (place-furniture% slot x y z facing)))
     (t (error 'http-client-error :status 400))))
 
 (definfinity set-room-var ((&rest key+value-pairs) user recipient/s) 
@@ -1321,7 +1316,7 @@ SQLException  - probably  means that  the moniker  is bad,  but I'm  not
 really doing much to validate it here
 
        ")
-(definfinity use-equipment ((t x y z on) user recipient/s)
+(definfinity use-equipment ((|t| x y z on) user recipient/s)
   "useEquipment
 
        WRITEME: Document this method brpocock@star-hope.org
