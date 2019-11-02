@@ -305,8 +305,8 @@ limitations under the License. |#
     (list :|person|
           (list :|uid| (princ-to-string (person-uuid person))
                 :|username| (format nil "~@[Toot: ~a, ~]Person: ~a"
-                                    (when-let (Toot (player-Toot person))
-                                      (Toot-name Toot))
+                                    (when-let (Toot-UUID (player-Toot person))
+                                      (ignore-not-found (Toot-name (find-record 'Toot :uuid Toot-UUID))))
                                     (person-display-name person))
                 :|email| (user-email)))))
 
