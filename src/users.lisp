@@ -212,7 +212,7 @@ come from a trusted authentication provider like Google Firebase)."
              (person-age player)
              1)
          13)
-      (when-let (Toot (person-Toot *user*))
+      (when-let (Toot (player-Toot *user*))
         (Toot-child-code Toot))))
 
 (defun player-adultp (&optional (player *user*))
@@ -305,7 +305,7 @@ limitations under the License. |#
     (list :|person|
           (list :|uid| (princ-to-string (person-uuid person))
                 :|username| (format nil "~@[Toot: ~a, ~]Person: ~a"
-                                    (when-let (Toot (person-Toot person))
+                                    (when-let (Toot (player-Toot person))
                                       (Toot-name Toot))
                                     (person-display-name person))
                 :|email| (user-email)))))
@@ -317,9 +317,19 @@ limitations under the License. |#
   (v:info :alert "Player Alert for person ~a; message ~{~a~^ ~}"
           (person-display-name person) message))
 
-(defun person-Toot (&optional (person *user*))
-                                        ; TODO: person-Toot 
-  nil)
+
+
+(defun player-Toot (&optional (person *user*))
+  (when-let (p-t-link (find-record 'player-Toot :player (person-uuid person)))
+    (player-Toot-Toot p-t-link)))
+
+(defun (setf player-toot) (Toot person)
+  (if-let (p-t-link (ignore-not-found 
+                      (find-record 'player-Toot :player (person-uuid person))))
+    (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
+    (save-record (make-record 'player-Toot :player (person-uuid person) 
+                              :Toot (Toot-uuid Toot))))
+  (setf (Toot-last-active Toot) (get-universal-time)))
 
 
 
