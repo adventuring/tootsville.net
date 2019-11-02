@@ -337,11 +337,12 @@ limitations under the License. |#
   (and (every #'reasonable-name-char name)
        (not (emptyp name))))
 
-(defun list-of-string= (a b)
-  (and (listp a) (listp b)
-       (loop for aa in a
-          for bb in b
-          always (string= aa bb))))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun list-of-string= (a b)
+    (and (listp a) (listp b)
+         (loop for aa in a
+            for bb in b
+            always (string= aa bb)))))
 
 (assert (list-of-string= '("Foo" "Bar") '("Foo" "Bar")))
 (assert (not (list-of-string= '("Foo" "Bar") '("FOO" "BAR"))))
