@@ -46,7 +46,7 @@
 
 (defun clean-ice-credentials (credentials)
   (let ((shuffled (shuffle (copy-list credentials))))
-    (mapcar #'ice-url-to-urls (subseq shuffled 0 5))))
+    (mapcar #'ice-url-to-urls (subseq shuffled 0 4))))
 
 (defun ice-credentials ()
   (clean-ice-credentials
