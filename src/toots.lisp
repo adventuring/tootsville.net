@@ -82,7 +82,7 @@
 (defun find-active-Toot-for-user (&optional (user *user*))
   (when user
     (when-let (record (ignore-not-found (find-record 'player-Toot :player (person-uuid user))))
-      (values (find-record 'Toot :uuid (player-Toot-Toot record))
+      (values (ignore-not-found (find-record 'Toot :uuid (player-Toot-Toot record)))
               record))))
 
 (defun link-active-Toot-to-user (Toot &optional (user *user*))
