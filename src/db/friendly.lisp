@@ -206,6 +206,6 @@
 
 
 
-(defrecord player-toot (:friendly "players_toots")
+(defrecord player-toot (:friendly "players_toots" :id-column player)
   (player uuid ref person)
   (Toot uuid ref Toots))
