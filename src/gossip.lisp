@@ -36,11 +36,24 @@
 
 (defvar *ice-credentials* nil)
 
+(defun ice-url-to-urls (credential)
+  (if-let (url (getf credential :|url|))
+    (progn
+      (let ((c (copy-list credential)))
+        (remf c :|url|)
+        (list* :|urls| (vector url) c)))
+    credential))
+
+(defun clean-ice-credentials (credentials)
+  (let ((shuffled (shuffle (copy-list credentials))))
+    (mapcar #'ice-url-to-urls (subseq shuffled 0 5))))
+
 (defun ice-credentials ()
-  (or (unless (zerop (random 100))
-        *ice-credentials*)
-      (setf *ice-credentials*
-            (fetch-ice-credentials/xirsys))))
+  (clean-ice-credentials
+   (or (unless (zerop (random 100))
+         *ice-credentials*)
+       (setf *ice-credentials*
+             (fetch-ice-credentials/xirsys)))))
 
 (defun fetch-ice-credentials/xirsys ()
   (let ((s (map 'string #'code-char
