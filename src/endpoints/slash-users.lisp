@@ -265,12 +265,7 @@ main owner of. This is usually a child account.
   (with-user ()
     (assert-my-character Toot-name)
     (let ((Toot (find-record 'Toot :name Toot-name)))
-      (if-let (p-t-link (ignore-not-found 
-                          (find-record 'player-Toot :player (person-uuid *user*))))
-        (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
-        (save-record (make-record 'player-Toot :player (person-uuid *user*) 
-                                  :Toot (Toot-uuid Toot))))
-      (setf (Toot-last-active Toot) (get-universal-time))
+      (setf (player-Toot *user*) Toot)
       (list 200
             ()
             (list :|toot| (Toot-info Toot)
