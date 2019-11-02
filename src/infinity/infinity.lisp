@@ -109,9 +109,15 @@ XXX WRITEME
        (defun ,infinity-name (d ,user-var ,plane-var)
          ,docstring
          (declare (ignorable ,user-var ,plane-var))
-         (destructuring-bind (,(first λ-list) ,@(mapcar (compose #'intern #'symbol-munger:lisp->camel-case) (rest λ-list)))
+         (destructuring-bind (,(first λ-list) ,@(mapcar (lambda (sym)
+                                                          (if (char= #\& (char (symbol-name sym) 0))
+                                                              sym
+                                                              (intern (symbol-munger:lisp->camel-case sym))))
+                                                        (rest λ-list)))
              d
-           (let (,@(mapcar (lambda (var) (list var (intern (symbol-munger:lisp->camel-case var)))) (rest λ-list)))
+           (let (,@(mapcar (lambda (var) (list var (intern (symbol-munger:lisp->camel-case var)))) (remove-if (lambda (sym)
+                                                                                                                (char= #\& (char (symbol-name sym) 0)))
+                                                                                                              (rest λ-list))))
              ,@body)))
        (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name)))
          ,docstring
