@@ -49,9 +49,9 @@
 (defun find-user-for-credentials (credentials)
   (loop for (provider ids) on credentials by #'cddr
      do (dolist (id ids)
-          (when-let (credential (ignore-not-found  (find-record 'credential
-                                                                :id-token id
-                                                                :provider provider)))
+          (when-let (credential (ignore-not-found (find-record 'credential
+                                                               :id-token id
+                                                               :provider provider)))
             (v:info :Login "Found user UUID ~a by credential ~s from ~a"
                     (credential-person credential) id provider)
             (return-from find-user-for-credentials
