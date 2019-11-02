@@ -6,7 +6,8 @@
   (let* ((json$ (hunchentoot:post-parameters*))
          (json (jonathan.decode:parse json$)))
     (with-user ()
-      (list 200 () (funcall method json *user* (user-plane *user*))))))
+      (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
+        (list 200 () (funcall method json *user* (user-plane *user*)))))))
 
 (defmacro definfinity (name (lambda-list user-var plane-var) &body body)
   "Define an Infinity-mode “c” command NAME.
