@@ -54,8 +54,7 @@
 This was a legacy feature removed in Romance 1.2."
   (error 'legacy-gone))
 
-(definfinity click ((|on| |x| |y| |z| |with|) user recipient/s)
-  
+(definfinity click ((on x y z with) user recipient/s)
   "Used by the client  to report a mouse click or  finger tap.
 
 If the user  clicks on a placed-item, this method  should be called with
@@ -173,7 +172,7 @@ The click event is being ignored; ITEM-ID was not an interesting item to
 the server.
 "
   )
-(definfinity create-user-house ((|lot| |house| |index|) user recipient/s)
+(definfinity create-user-house ((lot house index) user recipient/s)
   
   "Either claim the user's house and lot, or add a room to their house.
 
@@ -184,7 +183,7 @@ Data describing the user's lot
 or adding a room, @verb{| { index: roomIndex } |}
 
 "
-  (destructuring-bind (x1 y1 z1) (find-lot-by-id |lot|)
+  (destructuring-bind (x1 y1 z1) (find-lot-by-id lot)
     (let ((lot (find-record 'lot :x1 x1 :y1 y1 :z1 z1)))
       (unless lot
         (infinity-error 404 :lot-not-found))
@@ -197,17 +196,17 @@ or adding a room, @verb{| { index: roomIndex } |}
          (cond
            ((null (lot-owner-Toot lot))
             ;; claim a lot and build a basic house
-            (unless (or (null |index|) (and (numberp |index|) (zerop |index|)))
+            (unless (or (null index) (and (numberp index) (zerop index)))
               (infinity-error 400 :empty-lot-use-house-not-index))
             (setf (lot-owner-Toot lot) (Toot-uuid *Toot*))
-            ;; TODO check |house| is an house
+            ;; TODO check house is an house
             ;; TODO place house on lot
             )
            ((equal (lot-owner-Toot) (Toot-uuid *Toot*))
-            (unless (null |house|)
+            (unless (null house)
               (infinity-error 400 :did-you-want-house-or-room))
-            (when (or (null |index|)
-                      (not (numberp |index|)) 
+            (when (or (null index)
+                      (not (numberp index)) 
                       (zerop index)
                       (minusp index)
                       (> index 9))
@@ -223,7 +222,7 @@ Sends two  responses: a success  reply from \"doff\", then  total avatar
   info from \"wardrobe\""
   ;; TODO dofff
   )
-(definfinity don ((|slot| |color|) user recipient/s)
+(definfinity don ((slot color) user recipient/s)
   "Don an item
 
 JSON object  has the  item slot  number to  be worn  (clothes, patterns,
@@ -250,7 +249,7 @@ meant  for pattern  changing  in  1.2, which  must  now be  accomplished
 in-game via Doodle.
 
 "
-  (unless (nullp |color|)
+  (unless (nullp color)
     (infinity-error 400 :cannot-select-color))
   ;; TODO don
   )
@@ -277,7 +276,7 @@ u - The user calling (to whom the response is sent)
 "
   (list :|from| "echo" :|status| t :|You said| d))
 
-(definfinity endEvent ((|moniker| |eventID| |score| |status|) user recipient/s)
+(definfinity endEvent ((moniker eventID score status) user recipient/s)
   
   " This method  terminates an event (probably a  minigame, but possibly
 a fountain) which was initiated by startEvent.
@@ -322,7 +321,7 @@ jso - JSON object, with (ignored) keys tied to values which must be the names of
 
 "
   )
-(definfinity game-Action ((&rest more-params &key |action| &allow-other-keys) user recipient/s)
+(definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   
   "gameAction(org.json.JSONObject jso,
                                 AbstractUser u,
@@ -392,7 +391,7 @@ d — empty
 
 u — The user whose inventory to be searched"
   )
-(definfinity get-Inventory-By-Type ((|type|) user recipient/s)
+(definfinity get-Inventory-By-Type ((type) user recipient/s)
   
   "Get a subset of items from your own inventory
 
@@ -436,7 +435,7 @@ u - The user whose inventory to be searched, who is the caller of this routine
 
 "
   )
-(definfinity get-Online-Users ((|inRoom|) user recipient/s)
+(definfinity get-Online-Users ((inRoom) user recipient/s)
   "Get a list of users in a Zone, or in a Room.
  
 This is an administrative function, only available to staff members.
@@ -541,7 +540,7 @@ WRITEME: Document this method brpocock@star-hope.org
 
 This returns \"Universe\" as the only Zone."
   #("Universe"))
-(definfinity give ((|slot| |to|) user recipient/s)
+(definfinity give ((slot to) user recipient/s)
   
   "Give an item to another user
 
@@ -556,7 +555,7 @@ AlreadyExistsException - if the event can't be started for some reason
 
 "
   )
-(definfinity go ((|do| |x| |y| |z| |facing|) user recipient/s)
+(definfinity go ((do x y z facing) user recipient/s)
   "go to a place and/or perform a gesture
 
 @example
@@ -569,7 +568,7 @@ facing: FACING (optional)
                                 
 u - the user doing something
 ")
-(definfinity init-user-room ((|room| |autoJoin|) user recipient/s)
+(definfinity init-user-room ((room autoJoin) user recipient/s)
   "
  
 Creates room  named user/user's  name/room — room  is the  room index
@@ -593,7 +592,7 @@ jso - { room: (room-number), autoJoin: (boolean) }
 @end example
                                 
 u - The user whose house-room needs to be initialized
-") (definfinity join ((|room| |from|) user recipient/s)
+") (definfinity join ((room from) user recipient/s)
      "Join a room.  On success, sends back the set  of room join events;
      but on failure, replies with  { from: roomJoin, status: false, err:
      ...}
@@ -619,7 +618,7 @@ room.full
 u - the user joining the room
   
   ") 
-(definfinity login ((|userName| |password| |zone|) user recipient/s)
+(definfinity login ((userName password zone) user recipient/s)
   "Notification of a new player in the game.
 
     Parameters:
@@ -651,7 +650,7 @@ no longer supported.
 
   ")
 
-(definfinity peek-at-inventory ((|who| |type|) user recipient/s)
+(definfinity peek-at-inventory ((who type) user recipient/s)
   "Handle looking at other user's inventories
 
 Parameters: jso -  {\"who\": the login name  of the user of  whom to get
@@ -669,18 +668,20 @@ Throws: org.json.JSONException -  Thrown if
   conversely,  if  we   can't  encode  a  response  into   a  JSON  form
   
 NotFoundException - Could not find a user with that name
-
   ")
+
 (definfinity ping (nil user recipient/s)
-  
   "  Send a ping to the server to get back a pong. 
 
 This also updates the user's last-active timestamp, to prevent them from
 being idled offline.
   
-  ")
-(definfinity prompt-reply ((|id| |reply|) user recipient/s)
-  
+  "
+  (setf (Toot-last-active *Toot*) (now))
+  (list 200 '(:|ping| "pong"
+              :|serverTime| (- (get-universal-time) +Unix-zero-in-universal-time+))))
+
+(definfinity prompt-reply ((id reply) user recipient/s)
   "promptReply(org.json.JSONObject jso,
                                    AbstractUser u,
                                    Room room)
@@ -827,7 +828,7 @@ Throws:
   org.json.JSONException - for really bad syntax errors
 
   ")
-(definfinity remove-from-list ((|buddy| |ignore|) user recipient/s)
+(definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
   jso - To remove a buddy: { buddy: (name) }; or to attend to someone who had previously been ignored: { ignore: (name) }
@@ -835,7 +836,7 @@ Throws:
   u - The user whose buddy list or ignore list will be updated
   ")
 
-(definfinity report-bug ((|info|) user recipient/s)
+(definfinity report-bug ((info) user recipient/s)
   "This method allows the client to ``phone home'' to report a bug. The bug report itself is just a giant string embedded in the ``bug'' element, but a ``cause'' element will be treated as the subject. Note that the bug report — like all JSON input — will be cut off at a certain limit (typically 4KiB), so it's most helpful to keep it short & sweet: Typically, this should be something like a single stack backtrace (with as much detail as possible), rather than a complete log trace or something.
 
   The suggested usage is to include the exception itself as ``cause,'' the backtrace up to a maximum of 1KiB, a log backtrace up to its last 1KiB as ``bug,'' and as much machine-formatted system information as possible in the ``info'' object.
@@ -1041,13 +1042,13 @@ as a string.
        
        ")
 
-(definfinity report-user ((|userName|) user recipient/s)
+(definfinity report-user ((userName) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
         { userName = user to be reported }
        
        ")
-(definfinity request-buddy ((|buddy|) user recipient/s)
+(definfinity request-buddy ((buddy) user recipient/s)
   "Request adding a user to your buddy list (mutual-add) using the notification-based system
 
 (Added in 1.1)
@@ -1056,7 +1057,7 @@ as a string.
        
 u - user who is requesting the addition
 ")
-(definfinity send-out-of-band-message ((|sender| |from| |status| |body| |sendRoomList|) user recipient/s)
+(definfinity send-out-of-band-message ((sender from status body sendRoomList) user recipient/s)
   
   "Send an arbitrary JSON packet to another user, or all of the users in a room, out of the band of communications.
  
@@ -1109,15 +1110,21 @@ some additional data that is being provided.
 
        ") 
 
-(definfinity server-time ((|serverTime|) u r )
+(definfinity server-time ((server-time) u r )
   "Accept  the client's  notification of  a server-time  adjustment.
 
        This is used to compute the client's round-trip lag time.
 
-       jso - { serverTime: LONG milliseconds since epoch }
-")
-(definfinity set-avatar-color ((|base| |extra|) user recipient/s)
-  "Set the avatar base and extra colours for the given user.
+       jso - { serverTime: LONG milliseconds since epoch }"
+  (list 200 '(:|serverTime| (- (get-universal-time) +Unix-time-in-Universal+))))
+
+(defun rgb-bytes->rgb (bytes)
+  (list (ldb (byte 8 0) bytes)
+        (ldb (byte 8 8) bytes)
+        (ldb (byte 8 16) bytes)))
+
+(definfinity set-avatar-color ((base extra) user recipient/s)
+  "Set the avatar base and extra (pad) colours for the given user.
 
        Colour numbers are given in X'RRGGBB' form as an integer — to compute one from byte (0..255) RGB values, do ( red << 16 & green << 8 & blue )
 
@@ -1127,10 +1134,14 @@ some additional data that is being provided.
        room - The room in which the user is standing 
        Throws:
        org.json.JSONException - Thrown if the data cannot be interpreted from the JSON objects passed in, or conversely, if we can't encode a response into a JSON form 
-       SQLException - if the palettes can't be loaded
+       SQLException - if the palettes can't be loaded"
+  (error "This requires Doodle's intervention now")
+  (destructuring-bind (base-red base-green base-blue) (rgb-bytes->rgb base)
+    (setf (Toot-base-color *Toot*) (color24-rgb base-red base-green base-blue)))
+  (destructuring-bind (pad-red pad-green pad-blue) (rgb-bytes->rgb extra)
+    (setf (Toot-pad-color *Toot*) (color24-rgb pad-red pad-green pad-blue))))
 
-       ")
-(definfinity set-furniture ((|slot| |x| |y| |z| |facing| |remove|) user recipient/s)
+(definfinity set-furniture ((item slot x y z facing remove) user recipient/s)
   "Set or change a furniture item. 
 
 To add  a structural item  to the room,  put item: 123  without anything
@@ -1148,12 +1159,18 @@ about ``which chair'')
        room - The room in which this user is standing 
        Throws:
        org.json.JSONException - Thrown if the data cannot be interpreted from the JSON objects passed in, or conversely, if we can't encode a response into a JSON form 
-       NotFoundException - if the furniture doesn't exist
-
-       ") 
+       NotFoundException - if the furniture doesn't exist"
+  (cond 
+    (remove
+     (with-errors-as-http (400) (assert (and (null item) (null x) (null y) (null z))))
+     (remove-furniture% slot))
+    (slot
+     (with-errors-as-http (400) (assert (and (null item) x y z facing))))
+    (item
+     (with-errors-as-http (400) (assert (and (null slot) x y z facing))))
+    (t (error 'http-client-error :status 400))))
 
 (definfinity set-room-var ((&rest key+value-pairs) user recipient/s) 
-  
   "Set a room variable or set of room variables.
 
        Parameters:
@@ -1162,9 +1179,7 @@ about ``which chair'')
        room - the room to which the variable(s) are associated 
        Throws:
        org.json.JSONException - if the packet is malformed 
-       PrivilegeRequiredException - if a non-privileged user attempts to set a room variable.
-
-       ") 
+       PrivilegeRequiredException - if a non-privileged user attempts to set a room variable.") 
 
 (definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
   "setUserVar
@@ -1202,7 +1217,7 @@ about ``which chair'')
 
        ")
 
-(definfinity speak ((key |speech|) user recipient/s)
+(definfinity speak ((key speech) user recipient/s)
   "speak
 
        Handle speech by the user. XXX This should be calling User.speak(Room, String) to do the dirty work: but, in fact, the reverse is currently true.
@@ -1264,7 +1279,7 @@ into a JSON form
 @end code
 
        ")
-(definfinity start-event ((|moniker|) user recipient/s)
+(definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin an event. Might return an error. Uses Quæstor for the heavy lifting.
 
 
@@ -1285,7 +1300,7 @@ status: true
 For successfully registered events. Must  be completed or canceled using
 `END-EVENT', qv")
 
-(definfinity end-event ((|moniker|) user recipient/s)
+(definfinity end-event ((moniker) user recipient/s)
   "Attempt to end an event begun by `START-EVENT'
 
        Parameters:
@@ -1306,7 +1321,7 @@ SQLException  - probably  means that  the moniker  is bad,  but I'm  not
 really doing much to validate it here
 
        ")
-(definfinity use-equipment ((|t| |x| |y| |z| |on|) user recipient/s)
+(definfinity use-equipment ((t x y z on) user recipient/s)
   "useEquipment
 
        WRITEME: Document this method brpocock@star-hope.org
