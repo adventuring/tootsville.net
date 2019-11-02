@@ -71,3 +71,6 @@ reasons, eg, COPPA."
 
 (defun header-time (&optional (time (now)))
   (format-timestring nil time :format +rfc-1123-format+))
+
+(defconstant +Unix-zero-in-universal-time+ 2208988800
+  "The Unix zero timestamp occurs at Universal Time 2,208,988,800seconds.")
