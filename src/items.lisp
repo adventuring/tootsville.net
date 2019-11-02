@@ -35,6 +35,8 @@
   (let ((template (find-record 'item-template :id template-id)))
     (make-record 'item
                  :template template-id
+                 :base-color (item-template-default-base-color template)
+                 :alt-color (item-template-default-alt-color template)
                  :avatar-scale-x (item-template-avatar-scale-x template)
                  :avatar-scale-y (item-template-avatar-scale-y template)
                  :avatar-scale-z (item-template-avatar-scale-z template)
