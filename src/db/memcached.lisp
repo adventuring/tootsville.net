@@ -120,6 +120,8 @@
 
 (defun erase-all-memcached-for (name &rest columns+values)
   (if cl-memcached:*memcache* 
+      (cl-memcached:mc-flush-all)
+      #+ (or)
       (let ((db (second (database-for name)))
             (table (db-table-for name))
             (columns (plist-keys columns+values)))
