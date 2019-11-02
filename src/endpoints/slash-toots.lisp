@@ -71,44 +71,47 @@ is malformed.)"
         (v:info :registration
                 "Registration request for ~:(~a~) seems sane" name))
       (with-errors-as-http (409)
-        (assert (not (ignore-not-found (find-record 'Toot :name name))))
-        (let ((Toot
-               (prog1
-                   (make-record 'Toot
-                                :name name
-                                :player (person-uuid *user*)
-                                :pattern (pattern-id (find-record 'pattern
-                                                                  :name pattern))
-                                :base-color (parse-color24 base-color)
-                                :pattern-color (parse-color24 pattern-color)
-                                :pad-color (parse-color24 pad-color)
-                                :avatar-scale-x 1.0
-                                :avatar-scale-y 1.0
-                                :avatar-scale-z 1.0
-                                :avatar 1  ; UltraToot
-                                :note (concatenate
-                                       'string
-                                       "New Toot registered via web from "
-                                       (hunchentoot:remote-addr*)))
-                 (v:info :registration
-                         "Created new Toot ~:(~a~)" name)))
-              (t-shirt
-               (make-record 'item
-                            :base-color (parse-color24 t-shirt-color)
-                            :alt-color (color24-rgb 0 0 0)
-                            :template 1       ; Solid color basic T-shirt
-                            :avatar-scale-x 1.0
-                            :avatar-scale-y 1.0
-                            :avatar-scale-z 1.0)))
-          (save-record Toot)
-          (save-record t-shirt)
-          (save-record
-           (make-record 'inventory-item
-                        :item (item-uuid t-shirt)
-                        :person (person-uuid *user*)
-                        :Toot (Toot-uuid Toot)
-                        :equipped :y))
-          (list 201 (Toot-uuid Toot)))))))
+        (assert (not (ignore-not-found (find-record 'Toot :name name)))))
+      (let ((Toot
+             (prog1
+                 (make-record 'Toot
+                              :name name
+                              :player (person-uuid *user*)
+                              :pattern (pattern-id (find-record 'pattern
+                                                                :name pattern))
+                              :base-color (parse-color24 base-color)
+                              :pattern-color (parse-color24 pattern-color)
+                              :pad-color (parse-color24 pad-color)
+                              :avatar-scale-x 1.0
+                              :avatar-scale-y 1.0
+                              :avatar-scale-z 1.0
+                              :avatar 1  ; UltraToot
+                              :note (concatenate
+                                     'string
+                                     "New Toot registered via web from "
+                                     (hunchentoot:remote-addr*)))
+               (v:info :registration
+                       "Created new Toot ~:(~a~)" name)))
+            (t-shirt
+             (make-record 'item
+                          :base-color (parse-color24 t-shirt-color)
+                          :alt-color (color24-rgb 0 0 0)
+                          :template 1       ; Solid color basic T-shirt
+                          :x 0 :y 0 :z 0
+                          :latitude 0 :longitude 0 :altitude 0
+                          :world "Tootanga"
+                          :avatar-scale-x 1.0
+                          :avatar-scale-y 1.0
+                          :avatar-scale-z 1.0)))
+        (save-record Toot)
+        (save-record t-shirt)
+        (save-record
+         (make-record 'inventory-item
+                      :item (item-uuid t-shirt)
+                      :person (person-uuid *user*)
+                      :toot (Toot-uuid Toot)
+                      :equipped :y))
+        (list 201 (Toot-uuid Toot))))))
 
 (defendpoint (put "/toots/:toot-name/child-p" "application/json")
   "Set CHILD-P flag for TOOT-NAME.
