@@ -373,6 +373,19 @@ Accepts A-Z, 0-9, and these punctuation: -/!?."
                             λ-list))
         'nil))
   
+  (defun destroy-endpoint (method uri &optional content-type)
+    (let ((instance (make-instance 'endpoint
+                                   :function #'null
+                                   :method method
+                                   :uri uri
+                                   :content-type (make-keyword
+                                                  (etypecase content-type
+                                                    (string (string-upcase content-type))
+                                                    (symbol (symbol-name content-type))))
+                                   :slow 0)))
+      (remhash (endpoint-hash instance) *endpoints*) 
+      (remap-endpoints))) 
+  
   (defmacro defendpoint ((method uri &optional content-type (how-slow-is-slow .03))
                          &body body)
     "Define an HTTP endpoint to access URI via METHOD and return CONTENT-TYPE."
