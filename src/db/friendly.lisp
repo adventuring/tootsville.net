@@ -115,7 +115,7 @@
 (defmethod save-record :before ((Toot Toot))
   (setf (Toot-last-active Toot) (now)))
 
-(defrecord wear-slot (:friendly "wear-slots")
+(defrecord wear-slot (:friendly "wear_slots")
   (id number)
   (name string)
   (alternate number)
