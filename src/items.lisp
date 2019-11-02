@@ -55,26 +55,26 @@
                  (Toot recipient)
                  (string (find-record 'Toot :name recipient))
                  (person nil))))
-    (player-alert player-uuid :inventory :get item)
-    (make-record 'inventory-item
-                 :item (item-uuid item)
-                 :person player-uuid
-                 :Toot (Toot-uuid Toot)
-                 :equipped :N)))
+    (player-alert (find-record 'person (Toot-player Toot)) :inventory :get item)
+    ((make-record 'inventory-item
+                  :item (item-uuid item)
+                  :person player-uuid
+                  :Toot (Toot-uuid Toot)
+                  :equipped :N))))
 
 (defun gift-item (item giver recipient)
   "Transfer the ownership of ITEM from GIVER to RECIPIENT."
   (when *user*
     (unless (eql *user* giver)
       (error 'not-allowed)))
-  (let ((giver-player (etypecase recipient
-                        (Toot (Toot-player recipient))
-                        (string (Toot-player (find-record 'Toot :name recipient)))
-                        (person recipient)))
-        (giver-Toot  (etypecase recipient
-                       (Toot recipient)
-                       (string (find-record 'Toot :name recipient))
-                       (person nil)))
+  (let ((giver-player (etypecase giver
+                        (Toot (Toot-player giver))
+                        (string (Toot-player (find-record 'Toot :name giver)))
+                        (person giver)))
+        (giver-Toot  (etypecase giver
+                       (Toot giver)
+                       (string (find-record 'Toot :name giver))
+                       (person (player-Toot giver))))
         (recipient-player (etypecase recipient
                             (Toot (Toot-player recipient))
                             (string (Toot-player (find-record 'Toot :name recipient)))
@@ -82,7 +82,7 @@
         (recipient-Toot  (etypecase recipient
                            (Toot recipient)
                            (string (find-record 'Toot :name recipient))
-                           (person nil))))
+                           (person (player-Toot recipient)))))
     (player-alert recipient-player :inventory :get item)
     (player-alert giver-player :inventory :drop item)
     (let ((inventory (find-record 'inventory
