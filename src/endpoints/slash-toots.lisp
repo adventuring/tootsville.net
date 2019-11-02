@@ -99,7 +99,7 @@ is malformed.)"
                           :template 1       ; Solid color basic T-shirt
                           :x 0 :y 0 :z 0
                           :latitude 0 :longitude 0 :altitude 0
-                          :world "Tootanga"
+                          :world :chor
                           :avatar-scale-x 1.0
                           :avatar-scale-y 1.0
                           :avatar-scale-z 1.0)))
