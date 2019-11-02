@@ -91,3 +91,6 @@
       (unless (Toot= Toot old-Toot)
         (destroy-record player-Toot))))
   (make-record 'player-Toot :player (person-uuid user) :Toot (Toot-uuid Toot)))
+
+(defun every-Toot-name ()
+  (sort (mapcar #'Toot-name (find-records 'Toot)) #'string-lessp)) 
