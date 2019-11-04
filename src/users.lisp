@@ -341,12 +341,12 @@ limitations under the License. |#
              (timestamp-whole-year-difference (now) dob))
            (person-age user))))
 
-(defun reasonable-name-char (char)
+(defun reasonable-name-char-p (char)
   (or (alpha-char-p char)
       (find char "-'`\",.()‘’“” " :test #'char=)))
 
-(defun reasonable-name (name)
-  (and (every #'reasonable-name-char name)
+(defun reasonable-name-p (name)
+  (and (every #'reasonable-name-char-p name)
        (not (emptyp name))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

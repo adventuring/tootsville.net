@@ -93,13 +93,13 @@ XXX is there a better status for updates?
       (ecase (make-keyword (symbol-munger:camel-case->lisp-name field))
         (:display-name
          (setf (person-display-name *user*) (with-errors-as-http (422)
-                                              (reasonable-name new-value))))
+                                              (reasonable-name-p new-value))))
         (:given-name
          (setf (person-given-name *user*) (with-errors-as-http (422)
-                                            (reasonable-name new-value))))
+                                            (reasonable-name-p new-value))))
         (:surname
          (setf (person-surname *user*) (with-errors-as-http (422)
-                                         (reasonable-name new-value))))
+                                         (reasonable-name-p new-value))))
         (:language
          (with-errors-as-http (422)
            (assert (member (the string new-value) +supported-languages+ :test #'string=)))
