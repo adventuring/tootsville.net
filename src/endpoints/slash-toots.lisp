@@ -36,11 +36,20 @@
           (Toot-info Toot))
     (list 404 nil nil)))
 
+(defendpoint (get "/toots/:toot-name" "text/plain")
+  "Get public info about TOOT-NAME"
+  (check-arg-type Toot-name Toot-name)
+  (with-user ()
+    (let ((Toot (find-Toot-by-name Toot-name)))
+      (list 200
+            (list :last-modified (header-time (Toot-last-active Toot)))
+            (Toot-info Toot)))))
+
 (defendpoint (get "/toots/:toot-name" "application/json" 1)
   "Get public info about TOOT-NAME"
-  (check-arg-type toot-name toot-name)
+  (check-arg-type Toot-name Toot-name)
   (with-user ()
-    (let ((Toot (find-toot-by-name toot-name)))
+    (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
             `(:last-modified ,(header-time))
             (Toot-info Toot)))))

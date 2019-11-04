@@ -224,7 +224,7 @@ Requires a body with fields to be changed, and their new values. TODO.
     (assert-my-character Toot-name)
     (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
-            (list :Last-Modified (Toot-last-active Toot))
+            (list :Last-Modified (header-time (Toot-last-active Toot)))
             (plist-to-English (Toot-info Toot))))))
 
 (defendpoint (get "/users/me/toots/:toot-name" "application/json")
@@ -251,7 +251,7 @@ The user credentials presented were not recognized.
     (assert-my-character Toot-name)
     (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
-            (list :Last-Modified (Toot-last-active Toot))
+            (list :Last-Modified (header-time (Toot-last-active Toot)))
             (Toot-info Toot)))))
 
 (defendpoint (delete "/users/me/toots/:toot-name" "application/json")
