@@ -125,3 +125,13 @@ leftmost digit must be after the rightmost non-digit character.
 
 (deftype Toot-name ()
   `(and string (satisfies potential-Toot-name-p)))
+
+
+
+(defun valid-child-code-p (code)
+  (and (every #'alpha-char-p code)
+       (<= 4 (length code) 6)
+       (string= code (string-downcase code))))
+
+(deftype child-code ()
+  `(and string (satisfies valid-child-code-p)))
