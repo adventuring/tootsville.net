@@ -264,7 +264,7 @@ main owner of. This is usually a child account.
 "
   (with-user ()
     (assert-my-character Toot-name)
-    (let ((Toot (find-record 'Toot :name Toot-name)))
+    (let ((Toot (find-Toot-by-name Toot-name)))
       (setf (player-Toot *user*) Toot)
       (list 200
             ()
