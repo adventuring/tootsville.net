@@ -298,15 +298,15 @@ limitations under the License. |#
 
 (defun person-is-patron-p (person)
   ;; just me ☹
-  (eql (uuid-to-uri (person-uuid person)) "SAsJFzx6TRO1W6pWEFxeAA=="))
+  (string= (uuid-to-uri (person-uuid person)) "SAsJFzx6TRO1W6pWEFxeAA=="))
 
 (defun get-rollbar-person (&optional (person *user*))
   (when person
     (list :|person|
           (list :|uid| (princ-to-string (person-uuid person))
                 :|username| (format nil "~@[Toot: ~a, ~]Person: ~a"
-                                    (when-let (Toot-UUID (player-Toot person))
-                                      (ignore-not-found (Toot-name (find-record 'Toot :uuid Toot-UUID))))
+                                    (when-let (Toot (player-Toot person))
+                                      (ignore-not-found (Toot-name Toot)))
                                     (person-display-name person))
                 :|email| (user-email)))))
 
@@ -321,7 +321,7 @@ limitations under the License. |#
 
 (defun player-Toot (&optional (person *user*))
   (when-let (p-t-link (find-record 'player-Toot :player (person-uuid person)))
-    (player-Toot-Toot p-t-link)))
+    (ignore-not-found (find-record 'Toot :UUID (player-Toot-Toot p-t-link)))))
 
 (defun (setf player-toot) (Toot person)
   (if-let (p-t-link (ignore-not-found 
@@ -329,7 +329,9 @@ limitations under the License. |#
     (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
     (save-record (make-record 'player-Toot :player (person-uuid person) 
                               :Toot (Toot-uuid Toot))))
-  (setf (Toot-last-active Toot) (get-universal-time)))
+  (setf (Toot-last-active Toot) (now))
+  (save-record Toot)
+  Toot)
 
 
 
