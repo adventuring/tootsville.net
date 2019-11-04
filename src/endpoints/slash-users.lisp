@@ -108,9 +108,9 @@ XXX is there a better status for updates?
          (with-errors-as-http (422)
            (assert (member (the string new-value) '("☿" "♀" "♂") :test #'string=)))
          (setf (person-gender *user*) (ecase (char new-value 0)
-                                        (#\☿ "X")
-                                        (#\♀ "F")
-                                        (#\♂ "M"))))
+                                        (#\☿ :X)
+                                        (#\♀ :F)
+                                        (#\♂ :M))))
         (:date-of-birth
          (with-errors-as-http (422)
            (setf (person-date-of-birth *user*) new-value)
