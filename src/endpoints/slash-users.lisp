@@ -29,6 +29,17 @@
 
 (declaim (optimize (speed 3)))
 
+(defun plist-to-English (plist)
+  (format nil "~{~a~^~%~}"
+          (loop for (key value) on plist by #'cddr
+             collect (format nil "~:(~a~): ~s"
+                             (symbol-munger:camel-case->english key) value))))
+
+(defendpoint (get "/users/me" "text/plain")
+  "Provides information about your user account, in plain text form."
+  (with-user ()
+    (plist-to-English (person-info))))
+
 (defendpoint (get "/users/me" "application/json")
   "Provides information about your user account.
 
@@ -170,12 +181,28 @@ Requires a body with fields to be changed, and their new values. TODO.
   (with-user ()
     (error 'unimplemented)))
 
+(defendpoint (get "/users/me/toots" "text/plain")
+  "Enumerate all Toot characters available to you."
+  (with-user ()
+    (list 200
+          (list :Last-Modified (header-time
+                                (universal-to-timestamp
+                                 (loop for Toot in (player-Toots)
+                                    maximizing
+                                      (the fixnum
+                                           (timestamp-to-universal
+                                            (or (Toot-last-active Toot) (now))))))))
+          (format nil "~{~:(~a~)~^~%~}"
+                  (mapcar #'Toot-name
+                          (sort (player-Toots)
+                                #'timestamp<
+                                :key (lambda (Toot)
+                                       (or (Toot-last-active Toot)
+                                           (universal-to-timestamp 0)))))))))
+
 (defendpoint (get "/users/me/toots" "application/json" 1)
   "Enumerate all Toot characters available to you."
   (with-user ()
-    (dolist (Toot (player-Toots))
-      (v:info :Toots "Player ~a has Toot ~a" (person-display-name *user*)
-              (Toot-name Toot)))
     (list 200
           (list :Last-Modified (header-time
                                 (universal-to-timestamp
@@ -190,6 +217,15 @@ Requires a body with fields to be changed, and their new values. TODO.
                                        :key (lambda (Toot)
                                               (or (Toot-last-active Toot)
                                                   (universal-to-timestamp 0)))))))))
+
+(defendpoint (get "/users/me/toots/:toot-name" "text/plain")
+  "Gives detailed information about your Toot character TOOT-NAME."
+  (with-user ()
+    (assert-my-character Toot-name)
+    (let ((Toot (find-Toot-by-name Toot-name)))
+      (list 200
+            (list :Last-Modified (Toot-last-active Toot))
+            (plist-to-English (Toot-info Toot))))))
 
 (defendpoint (get "/users/me/toots/:toot-name" "application/json")
   "Gives detailed information about your Toot character TOOT-NAME.
@@ -213,9 +249,9 @@ The user credentials presented were not recognized.
 "
   (with-user ()
     (assert-my-character Toot-name)
-    (let ((Toot (find-record 'Toot :name Toot-name)))
+    (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
-            () ;; (list :Last-Modified (Toot-last-active Toot))
+            (list :Last-Modified (Toot-last-active Toot))
             (Toot-info Toot)))))
 
 (defendpoint (delete "/users/me/toots/:toot-name" "application/json")
@@ -302,3 +338,4 @@ main owner of. This is usually a child account.
             ()
             (list :|toot| (Toot-info Toot)
                   :|player| (person-info *user*))))))
+
