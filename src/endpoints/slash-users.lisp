@@ -71,8 +71,33 @@ Child accounts will have some tokens here that help us … TODO
 (defendpoint (put "/users/me" "application/json")
   "Makes changes to an user account.
 
-Requires the user  to pass some external,  trusted authentication source
-information, like an OAuth2 login.
+Input JSO: { field: \"field\", newValue: \"x\" }
+
+Fields and value formats:
+
+displayName (fullName)
+
+givenName
+
+surname (familyName)
+
+sensitive (sensitiveP)
+
+Must be \"true\" or \"false\" (as a string)
+
+lang (language)
+
+Must be a supported ISO language string; e.g. \"en_US\"
+
+gender
+
+Must  be  one of  \"☿\"  \"♀\"  \"♂\",  where \"☿\"  is  gender-neutral.
+Selects pronouns; respectively, \"they,\" \"she,\" or \"he.\"
+
+dob (dateOfBirth)
+
+Format in RFC-3339 timestamp format; eg, \"1990-05-21T00:00:00-0400\" or
+just \"1990-05-21\"
 
 @subsection{Status: 201 Created}
 
@@ -83,6 +108,8 @@ XXX is there a better status for updates?
 @subsection{Status: 403 Authorization Failed}
 
 @subsection{Status: 405 Not Allowed}
+
+@subsection{Status: 422 }
 
 "
   (with-user ()
