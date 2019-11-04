@@ -43,7 +43,8 @@
     (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
             (list :last-modified (header-time (Toot-last-active Toot)))
-            (Toot-info Toot)))))
+            (Toot-info Toot
+                       (UUID:UUID= (person-uuid *user*) (Toot-player Toot)))))))
 
 (defendpoint (get "/toots/:toot-name" "application/json" 1)
   "Get public info about TOOT-NAME"
@@ -52,7 +53,23 @@
     (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
             `(:last-modified ,(header-time))
-            (Toot-info Toot)))))
+            (Toot-info Toot 
+                       (UUID:UUID= (person-uuid *user*) (Toot-player Toot)))))))
+
+(defendpoint (post "/toots/:toot-name" "application/json")
+  "Set properties of a Toot. Currently only child-code."
+  (check-arg-type Toot-name Toot-name)
+  (with-user ()
+    (assert-my-character Toot-name)
+    (let ((Toot (find-Toot-by-name Toot-name)))
+      (with-posted-json (key new-value)
+        (ecase (make-keyword (string-upcase (symbol-munger:camel-case->lisp-name key)))
+          (:child-code
+           (unless (null new-value)
+             (with-errors-as-http (422)
+               (check-type new-value child-code)))
+           (setf (Toot-child-code Toot) new-value)
+           #()))))))
 
 (defendpoint (post "/toots" "application/json")
   "Create a new Toot.
