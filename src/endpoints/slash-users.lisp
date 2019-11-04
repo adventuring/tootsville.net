@@ -118,16 +118,21 @@ XXX is there a better status for updates?
         (check-type field string)
         (check-type new-value string))
       (ecase (make-keyword (symbol-munger:camel-case->lisp-name field))
-        (:display-name
+        ((:full-name :display-name)
          (setf (person-display-name *user*) (with-errors-as-http (422)
                                               (reasonable-name-p new-value))))
         (:given-name
          (setf (person-given-name *user*) (with-errors-as-http (422)
                                             (reasonable-name-p new-value))))
-        (:surname
+        ((:family-name :surname)
          (setf (person-surname *user*) (with-errors-as-http (422)
                                          (reasonable-name-p new-value))))
-        (:language
+        ((:sensitive :sensitive-p)
+         (setf (person-sensitivep *user*) (with-errors-as-http (422)
+                                            (ecase (make-keyword (string-upcase new-value))
+                                              (:true t)
+                                              (:false nil)))))
+        ((:lang :language)
          (with-errors-as-http (422)
            (assert (member (the string new-value) +supported-languages+ :test #'string=)))
          (setf (person-lang *user*) new-value))
@@ -138,9 +143,9 @@ XXX is there a better status for updates?
                                         (#\☿ :X)
                                         (#\♀ :F)
                                         (#\♂ :M))))
-        (:date-of-birth
+        ((:dob :date-of-birth)
          (with-errors-as-http (422)
-           (setf (person-date-of-birth *user*) new-value)
+           (setf (person-date-of-birth *user*) (parse-timestring new-value))
            (assert (<= 13 (person-age*) 125) (new-value)
                    "Person's age must be between 13 and 125."))))
       (save-record *user*))
