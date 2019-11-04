@@ -36,9 +36,8 @@
   (check-type Toot-name Toot-name)
   (find-record 'Toot :name Toot-name))
 
-
 (defun Toot-childp (Toot)
-  (player-childp (find-reference Toot :player)))
+  (and (Toot-child-code Toot) t))
 
 (defun Toot-item-info (inv)
   (let* ((item (find-reference inv :item))
