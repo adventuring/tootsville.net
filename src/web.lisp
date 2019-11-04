@@ -114,9 +114,10 @@ Relies upon `CONTENTS-TO-BYTES', qv"
      (v:error `(,(make-keyword (symbol-name fname)) :endpoint :slow-query)
               "Slow query ~s took ~,3fs (>~,3fs allowed)"
               fname (* 1.0 elapsed) how-slow-is-slow)
-     (rollbar:info!
-      (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
-              fname (* 1.0 elapsed) how-slow-is-slow)))
+     (when (zerop (random 1000))
+       (rollbar:info!
+        (format nil "Slow query ~s took ~,3fs (>~,3fs allowed)"
+                fname (* 1.0 elapsed) how-slow-is-slow))))
    :name (format nil "Report slow query ~s" fname)))
 
 (defun raw-post-string ()
