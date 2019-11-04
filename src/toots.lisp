@@ -56,10 +56,19 @@
           :|wearSlot| (item-template-wear-slot template)
           :|weight| (item-template-weight template))))
 
-(defun Toot-inventory (Toot)
-  (find-records 'inventory-item :Toot (Toot-uuid Toot)))
+(defun inventory-item-equipped-p (item)
+  "Is the inventory item equipped at all?"
+  (ecase (inventory-item-equipped item)
+    ((:Y :A) t)
+    (:N nil)))
 
-(defun Toot-info (Toot)
+(defun Toot-inventory (Toot &optional privatep)
+  (remove-if (lambda (item)
+               (and privatep
+                    (not (inventory-item-equipped-p item))))
+             (find-records 'inventory-item :Toot (Toot-uuid Toot))))
+
+(defun Toot-info (Toot &optional privatep)
   (list :|name| (Toot-name Toot)
         :|uuid| (Toot-UUID Toot)
         :|note| (or (Toot-note Toot) "")
@@ -77,7 +86,7 @@
         :|lastSeen| (Toot-last-active Toot)
         :|equip| (apply #'vector
                         (mapcar #'Toot-item-info
-                                (Toot-inventory Toot)))))
+                                (Toot-inventory Toot privatep)))))
 
 (defun find-active-Toot-for-user (&optional (user *user*))
   (when user
