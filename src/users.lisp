@@ -337,10 +337,9 @@ limitations under the License. |#
 
 
 (defun person-age* (&optional (user *user*))
-  (the (integer 0 125)
-       (or (when-let (dob (person-date-of-birth user))
-             (timestamp-whole-year-difference (now) dob))
-           (person-age user))))
+  (or (when-let (dob (person-date-of-birth user))
+        (timestamp-whole-year-difference (now) dob))
+      (person-age user)))
 
 (defun reasonable-name-char-p (char)
   (or (alpha-char-p char)
