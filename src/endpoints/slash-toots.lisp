@@ -27,15 +27,6 @@
 
 (in-package :Tootsville)
 
-(defendpoint (get "/toots/:toot-name/avatar" "application/json" 1)
-  "Get the avatar info for TOOT-NAME"
-  (check-arg-type Toot-name Toot-name)
-  (if-let (Toot (find-Toot-by-name Toot-name))
-    (list 200
-          `(:last-modified ,(header-time (or (Toot-last-active Toot) (now))))
-          (Toot-info Toot))
-    (list 404 nil nil)))
-
 (defendpoint (get "/toots/:toot-name" "text/plain")
   "Get public info about TOOT-NAME"
   (check-arg-type Toot-name Toot-name)
@@ -43,8 +34,7 @@
     (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
             (list :last-modified (header-time (Toot-last-active Toot)))
-            (Toot-info Toot
-                       (UUID:UUID= (person-uuid *user*) (Toot-player Toot)))))))
+            (Toot-info Toot)))))
 
 (defendpoint (get "/toots/:toot-name" "application/json" 1)
   "Get public info about TOOT-NAME"
