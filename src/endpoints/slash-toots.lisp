@@ -63,13 +63,17 @@
     (assert-my-character Toot-name)
     (let ((Toot (find-Toot-by-name Toot-name)))
       (with-posted-json (key new-value)
+        (check-arg-type key string)
+        (check-arg-type new-value string)
         (ecase (make-keyword (string-upcase (symbol-munger:camel-case->lisp-name key)))
           (:child-code
-           (unless (null new-value)
+           (unless (emptyp new-value)
              (with-errors-as-http (422)
                (check-type new-value child-code)))
-           (setf (Toot-child-code Toot) new-value)
-           #()))))))
+           (setf (Toot-child-code Toot) (when (not (emptyp new-value))
+                                          new-value))
+           (save-record Toot)
+           (list 202 (Toot-info Toot t))))))))
 
 (defendpoint (post "/toots" "application/json")
   "Create a new Toot.

@@ -164,7 +164,7 @@ XXX is there a better status for updates?
            (setf (person-date-of-birth *user*) (parse-timestring new-value))
            (assert (<= 13 (person-age*) 125) (new-value)))))
       (save-record *user*))
-    (list 200 (person-info))))
+    (list 202 (person-info))))
 
 (defendpoint (patch "/users/me" "application/json")
   "Alters information about your user account.

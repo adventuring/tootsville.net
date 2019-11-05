@@ -37,7 +37,7 @@
   (find-record 'Toot :name Toot-name))
 
 (defun Toot-childp (Toot)
-  (and (Toot-child-code Toot) t))
+  (and (not (emptyp (Toot-child-code Toot))) t))
 
 (defun Toot-item-info (inv)
   (let* ((item (find-reference inv :item))
@@ -59,18 +59,24 @@
   "Is the inventory item equipped at all?"
   (ecase (inventory-item-equipped item)
     ((:Y :A) t)
-    (:N nil)))
+    ((:N :nil) nil)))
 
-(defun Toot-inventory (Toot &optional privatep)
+(defun Toot-inventory (Toot &optional (privatep
+                                       (and *user*
+                                            (uuid:uuid= (person-uuid *user*)
+                                                        (Toot-player Toot)))))
   (remove-if (lambda (item)
                (and privatep
                     (not (inventory-item-equipped-p item))))
              (find-records 'inventory-item :Toot (Toot-uuid Toot))))
 
-(defun Toot-info (Toot &optional privatep)
+(defun Toot-info (Toot &optional (privatep
+                                  (and *user*
+                                       (uuid:uuid= (person-uuid *user*)
+                                                   (Toot-player Toot)))))
   (list :|name| (Toot-name Toot)
         :|uuid| (Toot-UUID Toot)
-        :|note| (or (Toot-note Toot) "")
+        :|note| (and privatep (or (Toot-note Toot) ""))
         :|avatar| (avatar-moniker (find-reference Toot :avatar))
         :|baseColor| (color24-name (Toot-base-color Toot))
         :|pattern| (string-downcase (pattern-name
@@ -78,6 +84,8 @@
         :|patternColor| (color24-name (Toot-pattern-color Toot))
         :|padColor| (color24-name (Toot-pad-color Toot))
         :|childP| (or (Toot-childp Toot) :false)
+        :|childCode| (or (and privatep (Toot-child-code Toot))
+                         "*secret")
         :|sensitiveP| (or (Toot-childp Toot)
                           (person-sensitivep
                            (find-reference Toot :player))
