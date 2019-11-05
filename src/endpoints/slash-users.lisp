@@ -51,25 +51,10 @@ You will receive some information about your user account.
 
 The top-level keys of the JSON object are:
 
+TODO: document this properly
+
 @table
-@item toots
-The names of the Toot characters that you own.
-@item logins
-
-The authentication services which you can use. Each one has its own data
-elements below it.
-
 @end table
-
-@subsubsection{Google Auth}
-
-Under  logins/google, we  put  your  real name,  Gmail  address, URI  of
-portrait (if you have  uploaded one), and a string token  that we use to
-represent you to Google. TODO document this better
-
-@subsubsection{Child Auth}
-
-Child accounts will have some tokens here that help us … TODO
 
 @subsection{Status: 401 Authorization Required}
 
@@ -82,7 +67,7 @@ Child accounts will have some tokens here that help us … TODO
 (defendpoint (put "/users/me" "application/json")
   "Makes changes to an user account.
 
-Input JSO: { field: \"field\", newValue: \"x\" }
+Input JSO: { key: \"field\", newValue: \"x\" }
 
 Fields and value formats:
 
@@ -199,7 +184,7 @@ Requires a body with fields to be changed, and their new values. TODO.
           (format nil "~{~:(~a~)~^~%~}"
                   (mapcar #'Toot-name
                           (sort (player-Toots)
-                                #'timestamp<
+                                #'timestamp>
                                 :key (lambda (Toot)
                                        (or (Toot-last-active Toot)
                                            (universal-to-timestamp 0)))))))))
