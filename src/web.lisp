@@ -532,7 +532,7 @@ In the event of a parse error, an HTTP 400 is returned."
     `(let* ((,$json (let ((,$json (or (raw-post-string) "")))
                       (v:info :JSON-POST "Posted JSON ~a" ,$json)
                       ,$json))
-            (,$plist (with-errors-as-http (400)
+            (,$plist (with-errors-as-http (400 "JSON format")
                        (jonathan:parse ,$json)))
             ,@(loop for key in λ-list
                  collecting `(,key (getf ,$plist
