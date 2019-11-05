@@ -493,7 +493,7 @@ XXX Probably a duplicate of something done in Hunchentoot or Drakma?"
       (let* ((query-string (subseq uri qq)))
         (query-string->plist query-string)))))
 
-(defmacro with-errors-as-http ((error-code) &body body)
+(defmacro with-errors-as-http ((error-code &optional thing) &body body)
   "Execute BODY in a context in which any error results in HTTP ERROR-CODE.
 
 Rather than  defaulting to an HTTP  500, ERROR-CODE will be  returned as
@@ -502,7 +502,12 @@ the outcome of any uncaught error signal."
        (progn ,@body)
      (error (c)
        (declare (ignore c))
-       (error 'http-client-error :http-status-code ,error-code))))
+       ,(if thing
+            (ecase error-code
+              (400 `(error 'bad-request :the ,thing))
+              (404 `(error 'not-found :the ,thing))
+              (422 `(error 'unprocessable :the ,thing)))
+            `(error 'http-client-error :http-status-code ,error-code)))))
 
 (defmacro with-posted-json ((&rest λ-list) &body body)
   "Execute BODY with Λ-LIST values from JSON body of a POST.
