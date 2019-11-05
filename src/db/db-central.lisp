@@ -167,7 +167,7 @@ Used in `DEFRECORD', qv."
                   (ecase (make-keyword (symbol-name (second column)))
                     (:string `(typecase ,name (string ,name) (t (princ-to-string ,name))))
                     (:keyword `(make-keyword (string ,name)))
-                    (:yornp `(or ,name t)) ; T or NIL
+                    (:yornp `(when ,name t)) ; T or NIL
                     (:number `(etypecase ,name
                                 (number ,name)
                                 (string (parse-number ,name))))
