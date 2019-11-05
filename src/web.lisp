@@ -188,19 +188,19 @@ Downcases the string. Returns entire string when there's no slash."
         (subseq (string-downcase s) (1+ (or (position #\/ s) #|unreachable|# 0)))
         (string-downcase s)))
   
-  (defun check-arg-type-fail% (arg type name)
+  (defun check-arg-type-fail% (arg-name type arg-value name)
     (list 400
           (list :content-type "application/json")
           (list :error
                 (format nil "Value provided for ~:(~a~) is not a valid ~a"
-                        arg (or name
-                                (string-capitalize
-                                 (symbol-munger:lisp->english type))))
+                        arg-name (or name
+                                     (string-capitalize
+                                      (symbol-munger:lisp->english type))))
                 :expected-type (or name 
                                    (string-capitalize
                                     (symbol-munger:lisp->english type)))
-                :argument-name (symbol-munger:lisp->camel-case arg)
-                :provided-value (format nil "~s" arg))))
+                :argument-name (symbol-munger:lisp->camel-case arg-name)
+                :provided-value (format nil "~s" arg-value))))
   
   (defmacro check-arg-type (arg type &optional name)
     "Ensure that ARG  is of type TYPE, which is  called NAME. Signals back
@@ -209,7 +209,7 @@ to an HTTP client with a 400 error if this assertion is untrue.
 This is basically just CHECK-TYPE for arguments passed by the user."
     `(unless (typep ,arg ',type)
        (return-from endpoint
-         (check-arg-type-fail% ,arg ',type ,name))))
+         (check-arg-type-fail% ',arg ',type ,arg ,name))))
   
   (defvar *extensions-for-content-types*
     '(
