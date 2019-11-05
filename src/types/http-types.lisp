@@ -132,9 +132,7 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
 
 (define-condition unidentified-player-error (http-client-error)
   ((http-status-code :initform 403))
-  (:report (lambda (c s)
-             (declare (ignore c))
-             (format s "Unidentified player"))))
+  (:report "Unidentified player"))
 
 (define-condition unimplemented (http-client-error)
   ((http-status-code :initform 501)
@@ -143,6 +141,21 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
   (:report (lambda (c s)
              (format s "~a has not been implemented." (unimplemented-feature c))))
   (:documentation "Signals that a feature has not been inmplemented yet"))
+
+(define-condition bad-request (http-client-error)
+  ((http-status-code :initform 400)
+   (thing :initarg :thing :initarg :object :initarg :item :initarg :the
+          :initform "A value provided by the client"
+          :accessor bad-request-thing))
+  (:report (lambda (c s)
+             (format s "The value of ~a submitted was incorrect type."
+                     (bad-request-thing c)))))
+
+(define-condition unprocessable (bad-request)
+  ((http-status-code :initform 422))
+  (:report (lambda (c s)
+             (format s "The value of ~a submitted could not be processed."
+                     (bad-request-thing c)))))
 
 (define-condition not-found (http-client-error)
   ((http-status-code :initform 404)
