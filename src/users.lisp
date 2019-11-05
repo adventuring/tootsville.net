@@ -326,7 +326,8 @@ limitations under the License. |#
 (defun (setf player-toot) (Toot person)
   (if-let (p-t-link (ignore-not-found 
                       (find-record 'player-Toot :player (person-uuid person))))
-    (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
+    (progn (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
+           (save-record p-t-link))
     (save-record (make-record 'player-Toot :player (person-uuid person) 
                               :Toot (Toot-uuid Toot))))
   (setf (Toot-last-active Toot) (now))
