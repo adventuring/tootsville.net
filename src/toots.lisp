@@ -77,11 +77,11 @@
                                      (find-reference Toot :pattern)))
         :|patternColor| (color24-name (Toot-pattern-color Toot))
         :|padColor| (color24-name (Toot-pad-color Toot))
-        :|childP| (if (Toot-childp Toot) :true :false)
-        :|sensitiveP| (if (or (Toot-childp Toot)
-                              (person-sensitivep
-                               (find-reference Toot :player)))
-                          :true :false)
+        :|childP| (or (Toot-childp Toot) :false)
+        :|sensitiveP| (or (Toot-childp Toot)
+                          (person-sensitivep
+                           (find-reference Toot :player))
+                          :false)
         :|lastSeen| (Toot-last-active Toot)
         :|equip| (apply #'vector
                         (mapcar #'Toot-item-info

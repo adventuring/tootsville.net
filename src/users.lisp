@@ -364,8 +364,9 @@ limitations under the License. |#
   :test #'list-of-string=)
 
 (defun person-info (&optional (user *user*))
-  (list :|displayName| (person-display-name user)
-        :|patronP| (person-is-patron-p user)
+  (list :|uuid| (person-uuid user)
+        :|displayName| (person-display-name user)
+        :|patronP| (or (person-is-patron-p user) :false)
         :|gender| (ecase (person-gender user)
                     (:X "☿")
                     (:F "♀")
@@ -373,7 +374,7 @@ limitations under the License. |#
         :|givenName| (person-given-name user)
         :|surname| (person-surname user)
         :|language| (person-lang user)
-        :|sensitiveP| (person-sensitivep user)
+        :|sensitiveP| (or (person-sensitivep user) :false)
         :|dateOfBirth| (person-date-of-birth user)
         :|age| (person-age* user)))
 
