@@ -56,7 +56,7 @@
             (Toot-info Toot 
                        (UUID:UUID= (person-uuid *user*) (Toot-player Toot)))))))
 
-(defendpoint (post "/toots/:toot-name" "application/json")
+(defendpoint (put "/toots/:toot-name" "application/json")
   "Set properties of a Toot. Currently only child-code."
   (check-arg-type Toot-name Toot-name)
   (with-user ()
@@ -86,16 +86,16 @@ is malformed.)"
                             t-shirt-color)
       (v:info :registration
               "Begin registration request for ~:(~a~)" name)
-      (with-errors-as-http (422)
-        (check-type name Toot-name)
-        (check-type base-color Toot-base-color-name)
-        (check-type pad-color Toot-pad-color-name)
-        (check-type pattern Toot-pattern-name)
-        (check-type pattern-color Toot-pattern-color-name)
+      (check-arg-type name Toot-name)
+      (check-arg-type base-color Toot-base-color-name)
+      (check-arg-type pad-color Toot-pad-color-name)
+      (check-arg-type pattern Toot-pattern-name)
+      (check-arg-type pattern-color Toot-pattern-color-name)
+      (with-errors-as-http (400 "T-shirt color")
         (assert (member t-shirt-color +initial-t-shirt-colors+
-                        :test 'string-equal))
-        (v:info :registration
-                "Registration request for ~:(~a~) seems sane" name))
+                        :test 'string-equal)))
+      (v:info :registration
+              "Registration request for ~:(~a~) seems sane" name)
       (with-errors-as-http (409)
         (assert (not (ignore-not-found (find-record 'Toot :name name)))))
       (let ((Toot
@@ -139,16 +139,3 @@ is malformed.)"
                       :equipped :y))
         (list 201 (Toot-uuid Toot))))))
 
-(defendpoint (post "/toots/:toot-name/child-code" "application/json")
-  "Set CHILD-CODE for TOOT-NAME.
-
-Input JSON: { child-code: code } or { child-code: \"\" } for null"
-  (check-arg-type Toot-name Toot-name)
-  (with-user ()
-    (with-posted-json (child-code)
-      (let ((Toot (find-Toot-by-name Toot-name)))
-        (assert-my-character Toot)
-        (setf (Toot-child-code Toot) (if (emptyp child-code) nil child-code))
-        (list 200
-              `(:last-modified ,(header-time (Toot-last-active Toot)))
-              (Toot-info Toot))))))
