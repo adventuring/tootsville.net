@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoints/slash-users.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -129,7 +129,7 @@ XXX is there a better status for updates?
       (check-arg-type new-value string)
       (ecase (make-keyword (string-upcase (symbol-munger:camel-case->lisp-name key)))
         ((:full-name :display-name)
-         (setf (person-display-name *user*) 
+         (setf (person-display-name *user*)
                (with-errors-as-http (422 "Display Name")
                  (reasonable-name-p new-value))))
         (:given-name
@@ -137,11 +137,11 @@ XXX is there a better status for updates?
                (with-errors-as-http (422 "Given Name")
                  (reasonable-name-p new-value))))
         ((:family-name :surname)
-         (setf (person-surname *user*) 
+         (setf (person-surname *user*)
                (with-errors-as-http (422 "Surname")
                  (reasonable-name-p new-value))))
         ((:sensitive :sensitive-p)
-         (setf (person-sensitivep *user*) 
+         (setf (person-sensitivep *user*)
                (with-errors-as-http (422 "Sensitive User flag")
                  (ecase (make-keyword (string-upcase new-value))
                    (:true t)
@@ -342,4 +342,3 @@ main owner of. This is usually a child account.
             ()
             (list :|toot| (Toot-info Toot)
                   :|player| (person-info *user*))))))
-
