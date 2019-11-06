@@ -38,10 +38,7 @@ The terrain and objects in that area, characters, &c. will be returned.
 
 Your character must be able to observe that general area. No peeking!
 "
-  (if-let (doc (clouchdb:get-document
-                (format nil "T:~36R,~36R,~36R" x-coord y-coord z-coord) ))
-    doc
-    (spawn-terrain :tootanga x-coord y-coord z-coord)))
+  (spawn-terrain :tootanga x-coord y-coord z-coord))
 
 
 
