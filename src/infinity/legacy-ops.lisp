@@ -1196,21 +1196,25 @@ This can be -1 under certain circumstances.
         org.json.JSONException - if something can't be done 
         PrivilegeRequiredException - if so
 "
-
-)
+                         
+                         )
 (define-operator-command setavatarcolors (words user plane) "
-                               throws NumberFormatException,
-                                      DataException
                                       
-    Sets the base an extra color of a user's avatar. Colors should be passed in HTML format (see below). Must have staff level 4 (DESIGNER) to use this command.
+    Sets the  base an extra color  of a user's avatar.  Colors should be
+    passed  in   HTML  format  (see   below).  Must  have   staff  level
+    4 (DESIGNER) to use this command.
 
     Syntax for use
     #setavatarcolors [LOGIN] [BASE] [EXTRA]
 
-    Instantiate a Colour object based upon the CSS, HTML, or JSON style of colour string.
+    Instantiate a Colour object based upon  the CSS, HTML, or JSON style
+    of colour string.
 
-        The \"CSS style\" uses a decimal triplet in the form rgb(R,G,B) (the literal string \"rgb(\" identifies it).
-        The \"HTML style\" uses a # sign followed by either 3 or 6 hex characters, in the form #RGB or #RRGGBB.
+        The  \"CSS   style\"  uses  a   decimal  triplet  in   the  form
+        rgb(R,G,B) (the literal string \"rgb(\" identifies it).
+
+        The \"HTML style\" uses  a # sign followed by either  3 or 6 hex
+        characters, in the form #RGB or #RRGGBB.
 
     Examples
     #setavatarcolors mouser #000000 #ffffff
@@ -1218,7 +1222,9 @@ This can be -1 under certain circumstances.
 
     Parameters:
         words - The command parameters (whitespace-delimited list) provided after the # command name
+
         u - The user invoking the operator command
+
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances. 
     Throws:
         DataException - if the colour is bad 
@@ -1226,13 +1232,16 @@ This can be -1 under certain circumstances.
     See Also:
         Colour.Colour(String)
 "
-
-)
+                         
+                         )
 (define-operator-command setbadge (words user plane) "
 
-    Set the badge on a room. Must have staff level 4 (DESIGNER) to use this command on another character. Staff level 2 (MODERATOR) can use the command with the #me parameter.
+    Set the badge on  a room. Must have staff level  4 (DESIGNER) to use
+    this command on another character. Staff level 2 (MODERATOR) can use
+    the command with the #me parameter.
 
-    NOTE: Rooms that don't directly appear on the map will not have visible badges, but the badges can still be set.
+    NOTE: Rooms  that don't  directly appear  on the  map will  not have
+    visible badges, but the badges can still be set.
 
     Syntax for use
     #setbadge [LOGIN] [ROOM] #setbadge
@@ -1246,7 +1255,8 @@ This can be -1 under certain circumstances.
         Room moniker of a room
         #here for the room you are currently in
 
-    NOTE: Using #setbadge with no parameters will assume default values which are identical to typing #setbadge #me #here
+    NOTE: Using #setbadge with no  parameters will assume default values
+    which are identical to typing #setbadge #me #here
 
     Examples
     #setbadge snowcone tootSquareWest
@@ -1259,8 +1269,8 @@ This can be -1 under certain circumstances.
         u - The user invoking the operator command
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
-)
+                         
+                         )
 (define-operator-command setconfig (words user plane) "
 
     Set a config property. Must have staff level 8 (DEVELOPER) to use this command.
@@ -1278,8 +1288,8 @@ This can be -1 under certain circumstances.
     See Also:
         op_getconfig(String[], AbstractUser, Room)
 "
-
-)
+                         
+                         )
 (define-operator-command setstafflevel (words user plane) "
                              throws PrivilegeRequiredException,
                                     GameLogicException

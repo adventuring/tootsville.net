@@ -159,7 +159,7 @@ else
 clusternet=$(CLUSTER).tootsville.net
 endif
 
-GAMEHOSTS=game3
+GAMEHOSTS=game1 game3
 BALANCERS=balancer1 balancer2
 
 LOCAL_USERNAME=$(shell whoami)
