@@ -1118,7 +1118,9 @@ some additional data that is being provided.
 (definfinity set-avatar-color ((base extra) user recipient/s)
   "Set the avatar base and extra (pad) colours for the given user.
 
-       Colour numbers are given in X'RRGGBB' form as an integer — to compute one from byte (0..255) RGB values, do ( red << 16 & green << 8 & blue )
+       Colour numbers  are given in  X'RRGGBB' form  as an integer  — to
+       compute one from byte (0..255) RGB values, do ( red << 16 & green
+       << 8 & blue )
 
        Parameters:
        jso - { \"base\": (colour number), \"extra\": (colour number) }
