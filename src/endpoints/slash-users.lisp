@@ -202,7 +202,7 @@ Requires a body with fields to be changed, and their new values. TODO.
                                             (or (Toot-last-active Toot) (now))))))))
           (list :|toots| (mapcar #'Toot-name
                                  (sort (player-Toots)
-                                       #'timestamp<
+                                       #'timestamp>
                                        :key (lambda (Toot)
                                               (or (Toot-last-active Toot)
                                                   (universal-to-timestamp 0)))))))))
