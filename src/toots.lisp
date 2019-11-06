@@ -70,6 +70,18 @@
                     (not (inventory-item-equipped-p item))))
              (find-records 'inventory-item :Toot (Toot-uuid Toot))))
 
+(defun Toot-peanuts (Toot)
+  ;; TODO Toot-peanuts
+  (if (person-is-patron-p (find-reference Toot :player))
+      1000
+      100))
+
+(defun Toot-fairy-dust (Toot)
+  ;; TODO Toot-fairy-dust
+  (if (person-is-patron-p (find-reference Toot :player))
+      1000
+      0))
+
 (defun Toot-info (Toot &optional (privatep
                                   (and *user*
                                        (uuid:uuid= (person-uuid *user*)
@@ -86,6 +98,10 @@
         :|childP| (or (Toot-childp Toot) :false)
         :|childCode| (or (and privatep (Toot-child-code Toot))
                          "*secret")
+        :|peanuts| (or (and privatep (Toot-peanuts Toot))
+                       -1)
+        :|fairyDust| (or (and privatep (Toot-fairy-dust Toot))
+                         -1)
         :|sensitiveP| (or (Toot-childp Toot)
                           (person-sensitivep
                            (find-reference Toot :player))
