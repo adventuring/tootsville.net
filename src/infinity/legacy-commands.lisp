@@ -772,11 +772,18 @@ being idled offline."
   { \"c\":\"promptReply\", \"d\": { \"id\":  \"fountain/tootSquare/Ã¾=?/x'deadbeef'\", \"reply\": \"yes\" } }
   
 
-  As a special-case, for the reply only, the special $TOKEN of \"close\" should be sent if the user dismissed the dialog box with the close button.
+  As a special-case, for the reply only, the special $TOKEN of \"close\"
+  should  be  sent  if  the  user dismissed  the  dialog  box  with  the
+  close button.
 
-  I'd suggest that the GUI attach anonymous functions with the reply packets already constructed to the various dialog box controls at creation time, rather than trying to manage some queue of pending prompts.
+  I'd suggest  that the  GUI attach anonymous  functions with  the reply
+  packets  already constructed  to the  various dialog  box controls  at
+  creation  time,   rather  than   trying  to   manage  some   queue  of
+  pending prompts.
 
-  To handle user expectations, it would be best to display the button in a \"down\" state until receiving the server's acknowledgement of the \"promptReply\" and disallow multiple-clicking in the window.
+  To handle user expectations, it would be best to display the button in
+  a \"down\" state  until receiving the server's  acknowledgement of the
+  \"promptReply\" and disallow multiple-clicking in the window.
 
   The server will respond with
 
@@ -824,16 +831,28 @@ Throws:
 (definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
-  jso - To remove a buddy: { buddy: (name) }; or to attend to someone who had previously been ignored: { ignore: (name) }
+  jso - To remove a buddy: { buddy: (name) };
+ 
+or to attend to someone who had previously been ignored: { ignore: (name) }
 
   u - The user whose buddy list or ignore list will be updated
   ")
 
 (definfinity report-bug ((info) user recipient/s)
-  "This method allows the client to ``phone home'' to report a bug. The bug report itself is just a giant string embedded in the ``bug'' element, but a ``cause'' element will be treated as the subject. Note that the bug report — like all JSON input — will be cut off at a certain limit (typically 4KiB), so it's most helpful to keep it short & sweet: Typically, this should be something like a single stack backtrace (with as much detail as possible), rather than a complete log trace or something.
+  "This method allows the client to ``phone home'' to report a bug. 
 
-  The suggested usage is to include the exception itself as ``cause,'' the backtrace up to a maximum of 1KiB, a log backtrace up to its last 1KiB as ``bug,'' and as much machine-formatted system information as possible in the ``info'' object.
-  Fields of ``info''
+The bug  report itself is  just a giant  string embedded in  the ``bug''
+element,  but  a ``cause''  element  will  be  treated as  the  subject.
+Note that  the bug report  — like all  JSON input —  will be cut  off at
+a certain limit (typically 4KiB), so  it's most helpful to keep it short
+&  sweet:  Typically, this  should  be  something  like a  single  stack
+backtrace (with as much detail as  possible), rather than a complete log
+trace or something.
+
+  The suggested usage  is to include the exception  itself as ``cause,''
+  the backtrace up to a maximum of  1KiB, a log backtrace up to its last
+  1KiB as ``bug,''  and as much machine-formatted  system information as
+  possible in the ``info'' object. Fields of ``info''
 
   As many fields as possible, limit the contents to a reasonable length though…
 
