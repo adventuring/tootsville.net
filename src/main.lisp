@@ -286,15 +286,7 @@ or exit the REPL.")
   "Recompile the running server.
 
 Hopefully you've already tested the changes?"
-  (load (merge-pathnames
-         #p"Tootsville.asd"
-         (or (when *location-of-main*
-               (merge-pathnames
-                (make-pathname :directory '(:relative :up))
-                (make-pathname :directory (pathname-directory
-                                           *location-of-main*))))
-             (merge-pathnames #p"servers/"
-                              (user-homedir-pathname)))))
+  (asdf:load-asd (asdf:system-relative-pathname :Tootsville "Tootsville.asd"))
   (ql:quickload :Tootsville))
 
 
