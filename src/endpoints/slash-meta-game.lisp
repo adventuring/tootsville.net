@@ -90,7 +90,7 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
 (defun enumerate-endpoints ()
   (sort
    (sort
-    (mapcar #'endpoint->plist (enumerate-endpoints))
+    (mapcar #'endpoint->plist (hash-table-values *endpoints*))
     #'string<
     :key (rcurry #'getf :method))
    #'string<
