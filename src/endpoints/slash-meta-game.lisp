@@ -87,7 +87,7 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
         :docstring (documentation (endpoint-function endpoint) 'function)
         :variables (remove-if-not #'symbolp (endpoint-template endpoint))))
 
-(defun enumerate-routes ()
+(defun enumerate-endpoints ()
   (sort
    (sort
     (mapcar #'endpoint->plist (enumerate-endpoints))
@@ -222,7 +222,7 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
   (format nil "<span class=\"method method-~(~a~)\">~:*~a</span>"
           method))
 
-(defun decorate-route-template-html (template variables method)
+(defun decorate-endpoint-template-html (template variables method)
   (if (null variables)
       (if (eql :get method)
           (format nil "<a href=\"~a\">~:*~a</a>" template)
@@ -254,18 +254,18 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
                                  (format nil "</tt><span class=\"var\">~:(~a~)</span><tt>"
                                          variable)))))))
 
-(defun route->html (route)
+(defun endpoint->html (endpoint)
   (concatenate 'string "<li>"
-               (decorate-method-html (getf route :method))
+               (decorate-method-html (getf endpoint :method))
                " <tt class=\"uri\">"
-               (decorate-route-template-html (format nil "~{/~a~}" (getf route :template))
-                                             (remove-if-not #'symbolp (getf route :template))
-                                             (getf route :method))
+               (decorate-endpoint-template-html (format nil "~{/~a~}" (getf endpoint :template))
+                                             (remove-if-not #'symbolp (getf endpoint :template))
+                                             (getf endpoint :method))
                "</tt> (→ "
-               (string-downcase (getf route :content-type))
+               (string-downcase (getf endpoint :content-type))
                ") <br>"
-               (docstring->html (getf route :docstring)
-                                (getf route :fn))
+               (docstring->html (getf endpoint :docstring)
+                                (getf endpoint :fn))
                "</li>" #(#\Newline)))
 
 (defun template->openapi (template)
@@ -325,13 +325,13 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
                    finally (return (docstring->markdown
                                     (reduce #'concat description))))))))
 
-(defun route->openapi (route)
-  "Convert a ROUTE description PList into an OpenAPI description. "
-  (check-type route proper-list)
-  (list (string-downcase (getf route :method))
+(defun endpoint->openapi (endpoint)
+  "Convert an ENDPOINT description PList into an OpenAPI description. "
+  (check-type endpoint proper-list)
+  (list (string-downcase (getf endpoint :method))
         (let ((partial
                (list :|summary|
-                     (docstring->markdown (getf route :docstring))
+                     (docstring->markdown (getf endpoint :docstring))
                      :|responses|
                      (plist-hash-table
                       (mapcan (lambda (results)
@@ -343,44 +343,44 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
                                           (plist-hash-table
                                            (list :|description| description
                                                  :|summary| summary))))))
-                              (find-results-in-docstring (getf route :docstring)))))))
-          (if (getf route :variables)
+                              (find-results-in-docstring (getf endpoint :docstring)))))))
+          (if (getf endpoint :variables)
               (list* :|parameters|
-                     (route-vars->openapi route)
+                     (endpoint-vars->openapi endpoint)
                      partial)
               partial))))
 
-(defun path->openapi (route-group)
-  "Given a path list ROUTE-GROUP, return an OpenAPI URI string.
+(defun path->openapi (endpoint-group)
+  "Given a path list ENDPOINT-GROUP, return an OpenAPI URI string.
 
-The path  list ROUTE-GROUP consists  a URI template of  constant strings
-and variables as symbols and a list of routes which share that template,
+The path  list ENDPOINT-GROUP consists  a URI template of  constant strings
+and variables as symbols and a list of endpoints which share that template,
 each of which is a PList  with a :METHOD, :TEMPLATE, :CONTENT-TYPE, :FN,
 and :DOCSTRING."
-  (destructuring-bind (uri &rest routes) route-group
+  (destructuring-bind (uri &rest endpoints) endpoint-group
     (check-type uri proper-list)
-    (check-type routes proper-list)
+    (check-type endpoints proper-list)
     (list (template->openapi uri)
-          (plist-hash-table (mapcan #'route->openapi routes)))))
+          (plist-hash-table (mapcan #'endpoint->openapi endpoints)))))
 
-(defun route-vars->openapi (route)
-  (loop for var in (getf route :variables)
+(defun endpoint-vars->openapi (endpoint)
+  (loop for var in (getf endpoint :variables)
      collecting
        (list :|name| (symbol-munger:lisp->camel-case var)
              :|in| "query"
-             :|description| (find-var-in-docstring var (getf route :docstring))
+             :|description| (find-var-in-docstring var (getf endpoint :docstring))
              :|required| t
              :|schema| (list :|type| "string"))))
 
-(defun routes-prefixed (routes)
-  (let ((map (group-by routes :test 'equal
-                       :key (lambda (route)
+(defun endpoints-prefixed (endpoints)
+  (let ((map (group-by endpoints :test 'equal
+                       :key (lambda (endpoint)
                               (format nil "~{~a/~}"
                                       (butlast
                                        (split-sequence #\/
-                                                       (getf route :template))))))))
+                                                       (getf endpoint :template))))))))
     (loop for row in map
-       for (prefix . routes) = row
+       for (prefix . endpoints) = row
        when (search "maintenance" prefix)
        do (setf (cdr row) nil))
     map))
@@ -430,7 +430,7 @@ key in the resulting Alist."
                                         ; The  timeout   is  because  of
                                         ; something  that spiralled  out
                                         ; to doom in this area …
-                               (mapcar #'route->html
+                               (mapcar #'endpoint->html
                                        (sort
                                         (sort
                                          (cdr prefix-group)
@@ -440,7 +440,7 @@ key in the resulting Alist."
                                         :key (lambda (r)
                                                (format nil "~{/~a~}" 
                                                        (getf r :template))))))))
-                   (sort (routes-prefixed (enumerate-routes))
+                   (sort (endpoints-prefixed (enumerate-endpoints))
                          #'string-lessp
                          :key #'car))
            (endpoints-page-footer))))))
@@ -449,7 +449,7 @@ key in the resulting Alist."
   "This is a sketchy  sort of listing of services in  a JSON format that
  is not  anybody's standard. It  exists as  a stop-gap measure  until the
  OpenAPI form is working nicely."
-  (list 200 () (list :services (enumerate-routes))))
+  (list 200 () (list :services (enumerate-endpoints))))
 
 (defendpoint (get "/meta-game/services"
                   "application/vnd.oai.openapi;version=3.0")
@@ -471,7 +471,7 @@ The data  returned is  in the  JSON encoded form  of OpenAPI  3.0.0; see
                       :|paths|
                       (plist-hash-table
                        (mapcan #'path->openapi
-                               (group-plists (enumerate-routes) :template)))
+                               (group-plists (enumerate-endpoints) :template)))
                       :|components| #())))) 
   
 (defendpoint (get "/meta-game/headers" "application/json")
