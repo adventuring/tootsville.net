@@ -270,6 +270,8 @@ or exit the REPL.")
   (start :host host :port port)
   (v:info :starting "Starting Swank")
   (start-swank)
+  (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")
+  (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp"))
   (loop
      (trace-output-heartbeat)
      (sleep *trace-output-heartbeat-time*)))
