@@ -320,7 +320,7 @@ User public information is in the format of AbstractUser.getPublicInfo()
 jso - JSON object, with (ignored) keys tied to values which must be the names of users."
   (list 200
         (coerce (loop for (_ Toot-name) on _+Toot-names by #'cddr
-                   collect (Toot-info user-name))
+                   collect (Toot-info Toot-name))
                 'vector)))
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
