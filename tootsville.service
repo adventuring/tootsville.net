@@ -1,19 +1,16 @@
 [Unit]
 Description=The Tootsville HTTP REST Server
-After=network.target remote-fs.target nss-lookup.target httpd-init.service
+After=network.target remote-fs.target nss-lookup.target
 
 [Service]
 Type=simple
 Environment=LANG=C
 
-ExecStart=/bin/bash -c 'exec /usr/bin/sudo -n -u pil /usr/local/bin/Tootsville daemon 5000 0.0.0.0'
-#ExecReload=
-ExecStop=/bin/bash -c 'exec /usr/bin/sudo -n -u pil killall Tootsville'
-#/usr/local/bin/Tootsville swank-send-stop
-
+User=pil
+ExecStart=/home/pil/tootsville.net/Tootsville daemon 5000 0.0.0.0
+Restart=always
+KillSignal=KILL
 PrivateTmp=true
-
-#PidFile=/var/run/tootsville.pid
 
 [Install]
 WantedBy=multi-user.target
