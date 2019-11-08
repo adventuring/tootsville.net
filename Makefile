@@ -127,11 +127,10 @@ doc/Tootsville.texi:	Tootsville
 	./Tootsville write-docs
 
 install:	tootsville.service Tootsville
-	cp Tootsville --backup=simple -f /usr/local/bin/
-	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/ || \
-		cat tootsville.service > /usr/lib/systemd/system/tootsville.service
+	chcon unconfined_u:object_r:bin_t:s0 /home/pil/tootsville.net/Tootsville
+	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/
+	restorecon /usr/lib/systemd/system/tootsville.service
 	cp 55-tootsville.conf -f /etc/rsyslog.conf
-
 
 ####################
 
