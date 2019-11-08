@@ -26,7 +26,8 @@
 (defun open-log-file (pathname)
   (open pathname :direction :output
         :if-exists :append
-        :if-does-not-exist :create))
+        :if-does-not-exist :create
+        :external-format :utf-8))
 
 
 
