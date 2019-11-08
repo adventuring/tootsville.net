@@ -301,6 +301,7 @@ deploy-servers:	predeploy-servers
 		echo " » Deploy $$host.$(clusternet)" ;\
                     scp ~/.config/Tootsville/Tootsville.config.lisp $$host.$(clusternet):.config/Tootsville ;\
 		ssh root@$$host.$(clusternet) make -k -C ~pil/tootsville.net install ;\
+		ssh root@$$host.$(clusternet) systemctl daemon-reload ;\
 		ssh root@$$host.$(clusternet) systemctl restart tootsville ;\
 		VERSION=$(shell ssh $$host.$(clusternet) Tootsville version-info version) ;\
 		curl https://api.rollbar.com/api/1/deploy/ \
