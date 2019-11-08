@@ -351,7 +351,7 @@ encode a response into a JSON form
 Parameters:
 
 jso - JSON object, with (ignored) keys  tied to values which must be the
-names of users. e.g. { 0: "someUser", 1: "otherUser" }
+names of users. e.g. { 0: \"someUser\", 1: \"otherUser\" }
 
 u - The calling user. The calling user's avatar data will not be returned.
 
