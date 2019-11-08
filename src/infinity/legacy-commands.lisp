@@ -305,8 +305,8 @@ status = one of \"cxl\" to cancel an event (in which case, score should be
 
 "
   )
-(definfinity finger ((&rest _+user-names) user recipient/s)
-  "Get public info for a list of (other) users.
+(definfinity finger ((&rest _+Toot-names) user recipient/s)
+  "Get public info for a list of Toots.
 
 Reply format:
 
@@ -318,8 +318,10 @@ Reply format:
 User public information is in the format of AbstractUser.getPublicInfo()
 
 jso - JSON object, with (ignored) keys tied to values which must be the names of users."
-  (loop for (_ user-name) on _+user-names by #'cddr
-     collect (user-public-info user-name)))
+  (list 200
+        (coerce (loop for (_ Toot-name) on _+Toot-names by #'cddr
+                   collect (Toot-info user-name))
+                'vector)))
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   
