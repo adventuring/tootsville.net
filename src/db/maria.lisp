@@ -82,6 +82,15 @@
 
 
 
+(defun db-select (query)
+  (cl-dbi:execute (cl-dbi:prepare tootsville::*dbi-connection* query)))
+
+(defun db-select-all (db query)
+  (with-dbi (db)
+    (cl-dbi:fetch-all (db-select query))))
+
+
+
 (defun db-select-single-column (table column &rest columns+values)
   "Select COLUMN from TABLE where columns = values as in plist COLUMNS+VALUES.
 
