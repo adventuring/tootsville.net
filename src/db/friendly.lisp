@@ -161,7 +161,7 @@
   (latitude number)
   (longitude number)
   (altitude number)
-  (world keyword))
+  (world keyword ref worlds))
 
 (defrecord inventory-item (:friendly "inventory" :id-column item)
   (item uuid ref item)
@@ -202,10 +202,35 @@
   (z2 number)
   (ownership keyword)
   (owner-toot uuid ref Toot)
-  (world keyword))
+  (world keyword ref worlds))
 
 
 
 (defrecord player-toot (:friendly "players_toots" :id-column player)
   (player uuid ref person)
   (Toot uuid ref Toots))
+
+
+
+(defrecord world (:friendly "worlds"
+                            :pull t)
+  (moniker keyword)
+  (name string))
+
+(defrecord mist (:friendly "mist")
+  (world keyword ref worlds)
+  (latitude-1 number)
+  (longitude-1 number)
+  (altitude-1 number)
+  (latitude-2 number)
+  (longitude-2 number)
+  (altitude-2 number)
+  (definedp yornp))
+
+
+
+(defrecord terrain-height (:friendly "terrain_heights")
+  (world keyword ref worlds)
+  (latitude number)
+  (longitude number)
+  (terrain string))
