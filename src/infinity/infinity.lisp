@@ -119,7 +119,8 @@ XXX WRITEME
                                                                                                                 (char= #\& (char (symbol-name sym) 0)))
                                                                                                               (rest λ-list))))
              ,@body)))
-       (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name)))
+       (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name)) 
+                          "application/json")
          ,docstring
          (call-infinity-from-rest  ',infinity-name )))))
 
