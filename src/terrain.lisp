@@ -53,9 +53,15 @@
     :manatee-city :beachside :space :asteroid-field))
 
 (deftype map-places ()
-  '(member :tootanga
-    :moon :other-moon :pink-moon
+  '(member :chor
+    :moon :othm :pink
     :orbit))
+
+(defun divisible-by-200-p (n)
+  (zerop (mod n 200)))
+
+(deftype even-coordinate ()
+  (and integer (satisfies divisible-by-200-p)))
 
 
 
@@ -93,20 +99,22 @@ approximate/net altitude of each 200 by 200 meter area of the game.")
                       (color24-name color)))))
     (cdr c)))
 
-(defun get-9-terrain-tiles (x y)
-  "Returns 9 tiles of terrain centered on X Y as a 3 by 3 array"
-  (let ((x-offset (1- (+ 400 (floor x 200))))
-        (y-offset (1- (+ 300 (floor y 200))))
+(defun get-9-terrain-tiles (latitude longitude)
+  "Returns 9 tiles of terrain centered on LATITUDE LONGITUDE as a 3 by 3 array"
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
+  (let ((x-offset latitude)
+        (y-offset longitude)
         (elevation (make-array '(3 3) :element-type '(unsigned-byte 8)))
         (habitat (make-array '(3 3) :element-type 'symbol :initial-element :ocean)))
-    (when (or (< x-offset 1) (< y-offset 1)
+    (when (or (< x-offset 0) (< y-offset 0)
               (> x-offset 799) (> y-offset 599))
       (error 'unimplemented))
     (dotimes (ix 3)
       (dotimes (iy 3)
         (setf (aref elevation ix iy)
               (aref (pngload:data *elevation-map*) (+ x-offset ix) (+ y-offset iy) 2)
-
+              
               (aref habitat ix iy)
               (habitat<-pixel
                (color24-rgb
@@ -156,25 +164,25 @@ Should return true  if a body of water exists  which enters the space
  this definition."
   (error 'unimplemented))
 
-(defun point-underwater-p (x y)
+(defun point-underwater-p (latitude longitude)
   "Is the point underwater? TODO"
-  (declare (ignore x y))
+  (declare (ignore latitude longitude))
   (error 'unimplemented))
 
 (defun find-random-point-if (function)
   "Find a random point within the space for which FUNCTION is true.
 
-Returns (LIST X Y)"
+Returns (LIST LATITUDE LONGITUDE)"
   (loop
-     for x = (/ (random 20000) 100)
-     for y = (/ (random 20000) 100)
-     until (funcall function x y)
-     finally (return (list x y))))
+     for latitude = (/ (random 20000) 100)
+     for langitude = (/ (random 20000) 100)
+     until (funcall function latitude longitude)
+     finally (return (list latitude longitude))))
 
 (defun terrain/add-small-pond ()
   "Create a pool of water smaller than the tile and contained within it. TODO"
   (if (terrain/stream-present-p)
-      (destructuring-bind (x y)
+      (destructuring-bind (latitude longitude)
           (find-random-point-if #'point-underwater-p)
         (error 'unimplemented))
       (error 'unimplemented)))
@@ -238,91 +246,98 @@ Returns (LIST X Y)"
 
 
 
-(defgeneric generate-terrain-contour (9-elevations habitat x y scale)
+(defgeneric generate-terrain-contour (9-elevations habitat
+                                      latitude longitude scale)
   (:documentation "Generate the contour for a tile area"))
 
-(defun copy-terrain-edge-horz (start-x y end-x dest-x dest-y)
-  (loop for xi from start-x to end-x
-     for yi = y
-     for xj from dest-x to (+ dest-x (- start-x end-x))
-     for yj = dest-y
+(defun copy-terrain-edge-horz (start-latitude longitude end-latitude dest-latitude dest-longitude)
+  (loop for xi from start-latitude to end-latitude
+     for yi = longitude
+     for xj from dest-latitude to (+ dest-latitude (- start-latitude end-latitude))
+     for yj = dest-longitude
      do (setf (global-heightmap-corner xj yj) (global-heightmap-corner xi yi))))
 
-(defun copy-terrain-edge-vert (x start-y end-y dest-x dest-y)
-  (loop for yi from start-y to end-y
-     for xi = x
-     for yj from dest-y to (+ dest-y (- start-y end-y))
-     for xj = dest-x
+(defun copy-terrain-edge-vert (latitude start-longitude end-longitude dest-latitude dest-longitude)
+  (loop for yi from start-longitude to end-longitude
+     for xi = latitude
+     for yj from dest-longitude to (+ dest-longitude (- start-longitude end-longitude))
+     for xj = dest-latitude
      do (setf (global-heightmap-corner xj yj) (global-heightmap-corner xi yi))))
 
-(defun generate-terrain-blank-edge-horz (start-x y end-x base-elevation)
-  (loop for xi from start-x to end-x
-     for yi = y
+(defun generate-terrain-blank-edge-horz (start-latitude longitude end-latitude base-elevation)
+  (loop for xi from start-latitude to end-latitude
+     for yi = longitude
      do (setf (global-heightmap-corner xi yi) base-elevation)))
 
-(defun generate-terrain-blank-edge-vert (x start-y end-y base-elevation)
-  (loop for yi from start-y to end-y
-     for xi = x
+(defun generate-terrain-blank-edge-vert (latitude start-longitude end-longitude base-elevation)
+  (loop for yi from start-longitude to end-longitude
+     for xi = latitude
      do (setf (global-heightmap-corner xi yi) base-elevation)))
 
-(defun fill-blank-contour (x y base-elevation)
+(defun fill-blank-contour (latitude longitude base-elevation)
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
   (dotimes (xi 200)
     (dotimes (yi 200)
-      (setf (global-heightmap-corner (+ xi x) (+ yi y)) (+ base-elevation (- (random 5) 2))))))
+      (setf (global-heightmap-corner (+ xi latitude) (+ yi longitude)) (+ base-elevation (- (random 5) 2))))))
 
-(defun smoothe-contour-200×200 (x y &optional (repeats 3))
+(defun smoothe-contour-200×200 (latitude longitude &optional (repeats 3))
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
   (dotimes (i repeats)
     (dotimes (xi 200)
       (dotimes (yi 200)
-        (setf (global-heightmap-corner (+ xi x) (+ yi y))
-              (floor (+ (* 4 (global-heightmap-corner (+ xi x) (+ yi y)))
-                        (global-heightmap-corner (+ xi x -1) (+ yi y))
-                        (global-heightmap-corner (+ xi x 1) (+ yi y))
-                        (global-heightmap-corner (+ xi x) (+ yi y -1))
-                        (global-heightmap-corner (+ xi x) (+ yi y 1)))
+        (setf (global-heightmap-corner (+ xi latitude) (+ yi longitude))
+              (floor (+ (* 4 (global-heightmap-corner (+ xi latitude) (+ yi longitude)))
+                        (global-heightmap-corner (+ xi latitude -1) (+ yi longitude))
+                        (global-heightmap-corner (+ xi latitude 1) (+ yi longitude))
+                        (global-heightmap-corner (+ xi latitude) (+ yi longitude -1))
+                        (global-heightmap-corner (+ xi latitude) (+ yi longitude 1)))
                      8))))))
 
-(defun generate-blank-contour (9-elevations x y)
-  (if (terrain-exists-p :Tootanga (1- x) y)
-      (copy-terrain-edge-vert (1- x) y (+ y 200) x y)
-      (generate-terrain-blank-edge-vert (1- x) (1- y) (+ y 200)
+(defun generate-blank-contour (9-elevations latitude longitude)
+  (if (terrain-exists-p :chor (1- latitude) longitude)
+      (copy-terrain-edge-vert (1- latitude) longitude (+ longitude 200) latitude longitude)
+      (generate-terrain-blank-edge-vert (1- latitude) (1- longitude) (+ longitude 200)
                                         (aref 9-elevations 0 1)))
-  (if (terrain-exists-p :Tootanga (+ x 200) y)
-      (copy-terrain-edge-vert (+ x 200) y (+ y 200) x y)
-      (generate-terrain-blank-edge-vert (+ x 200) (1- y) (+ y 200)
+  (if (terrain-exists-p :chor (+ latitude 200) longitude)
+      (copy-terrain-edge-vert (+ latitude 200) longitude (+ longitude 200) latitude longitude)
+      (generate-terrain-blank-edge-vert (+ latitude 200) (1- longitude) (+ longitude 200)
                                         (aref 9-elevations 2 1)))
-  (if (terrain-exists-p :Tootanga x (1- y))
-      (copy-terrain-edge-horz (1- x) (1- y) (+ x 200) x y)
-      (generate-terrain-blank-edge-horz (1- x) (1- y) (+ x 200)
+  (if (terrain-exists-p :chor latitude (1- longitude))
+      (copy-terrain-edge-horz (1- latitude) (1- longitude) (+ latitude 200) latitude longitude)
+      (generate-terrain-blank-edge-horz (1- latitude) (1- longitude) (+ latitude 200)
                                         (aref 9-elevations 1 0)))
-  (if (terrain-exists-p :Tootanga x (+ y 200))
-      (copy-terrain-edge-horz (1- x) (+ y 200) (+ x 200) x y)
-      (generate-terrain-blank-edge-horz (1- x) (+ y 200) (+ x 200)
+  (if (terrain-exists-p :chor latitude (+ longitude 200))
+      (copy-terrain-edge-horz (1- latitude) (+ longitude 200) (+ latitude 200) latitude longitude)
+      (generate-terrain-blank-edge-horz (1- latitude) (+ longitude 200) (+ latitude 200)
                                         (aref 9-elevations 1 2)))
-  (fill-blank-contour x y (aref 9-elevations 1 1))
-  (smoothe-contour-200×200 x y 30))
+  (fill-blank-contour latitude longitude (aref 9-elevations 1 1))
+  (smoothe-contour-200×200 latitude longitude 30))
 
 
-(defun (setf global-heightmap-corner) (elevation x y)
+(defun (setf global-heightmap-corner) (elevation latitude longitude)
   (setf (aref *global-heightmap%
-              (- x *global-heightmap-x%)
-              (- y *global-heightmap-y%))
+              (- latitude *global-heightmap-x%)
+              (- longitude *global-heightmap-y%))
         elevation))
 
-(defun global-heightmap-corner (x y)
+(defun global-heightmap-corner (latitude longitude)
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
   (aref *global-heightmap%
-        (- x *global-heightmap-x%)
-        (- y *global-heightmap-y%)))
+        (- latitude *global-heightmap-x%)
+        (- longitude *global-heightmap-y%)))
 
-(defmethod generate-terrain-contour (9-elevations habitat x y (scale (eql 0)))
+(defmethod generate-terrain-contour (9-elevations habitat latitude longitude (scale (eql 0)))
   ;; (format *trace-output* "~& Initial blank slate:")
-  ;; (dump-global-heightmap x y)
-  (generate-blank-contour 9-elevations x y)
+  ;; (dump-global-heightmap latitude longitude)
+  (generate-blank-contour 9-elevations latitude longitude)
   ;; (format *trace-output* "~& With neighbouring elevations:")
-  ;; (dump-global-heightmap x y)
-  (call-next-method 9-elevations habitat x y 8))
+  ;; (dump-global-heightmap latitude longitude)
+  (call-next-method 9-elevations habitat latitude longitude 8))
 
-(defmethod generate-terrain-contour (9-elevations habitat x y (scale (eql 1)))
+(defmethod generate-terrain-contour (9-elevations habitat latitude longitude (scale (eql 1)))
   t)
 
 (defgeneric habitat-elevation-roughness (habitat)
@@ -333,13 +348,15 @@ Returns (LIST X Y)"
   (:method ((habitat (eql :savannah))) 1/12)
   (:method ((habitat (eql :ocean))) 1/2))
 
-(defun shift-contour-point (x y shift)
+(defun shift-contour-point (latitude longitude shift)
   "Shift a point on the contour map vertically"
-  (setf (global-heightmap-corner x y)
-        (min #xff (max 0 (+ (global-heightmap-corner x y)
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
+  (setf (global-heightmap-corner latitude longitude)
+        (min #xff (max 0 (+ (global-heightmap-corner latitude longitude)
                             shift)))))
 
-(defmethod generate-terrain-contour (9-elevations habitat x y step)
+(defmethod generate-terrain-contour (9-elevations habitat latitude longitude step)
   (let ((scale (elt '(0 1 2 5 10 25 50 100 200)
                     step)))
     (dotimes (xi (floor 200 scale))
@@ -350,24 +367,26 @@ Returns (LIST X Y)"
                                (signum (1- (random 3)))))))
           (dotimes (xj scale)
             (dotimes (yj scale)
-              (shift-contour-point (+ x (* xi scale) xj)
-                                   (+ y (* yi scale) yj)
+              (shift-contour-point (+ latitude (* xi scale) xj)
+                                   (+ longitude (* yi scale) yj)
                                    shift))))))
-    (smoothe-contour-200×200 x y)
+    (smoothe-contour-200×200 latitude longitude)
 
     ;; (format  *trace-output*   "~&  After  contour   randomization  on
     ;; ~D×~:*~D     square~p:"     scale      (floor     200     scale))
-    ;; (dump-global-heightmap x y)
+    ;; (dump-global-heightmap latitude longitude)
     )
 
-  (generate-terrain-contour 9-elevations habitat x y (1- step)))
+  (generate-terrain-contour 9-elevations habitat latitude longitude (1- step)))
 
-(defun dump-global-heightmap (x y)
+(defun dump-global-heightmap (latitude longitude)
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
   (format *trace-output* "~& ┎────────────────────────────────────────────────────────────────┒~
 ~{~% ┃ ~{~2,'0x~^ ~} ┃~}~
 ~% ┖────────────────────────────────────────────────────────────────┚"
-          (loop for yi from y upto (+ y 200) by 5
-             collect (loop for xi from x upto (+ x 200) by 10
+          (loop for yi from longitude upto (+ longitude 200) by 5
+             collect (loop for xi from latitude upto (+ latitude 200) by 10
                         collect (global-heightmap-corner xi yi)))))
 
 
@@ -375,51 +394,55 @@ Returns (LIST X Y)"
 ;;; Spawn new, never-before-seen terrain block
 ;;
 ;;; Terrain blocks are 200m×200m and  can potentially be on Chœrogryllum
-;;; (:Tootanga), in the  near-Chœrogryllum orbit (:Oribt), or  on one of
-;;; the moons (:Moon, :Other-Moon, :Pink-Moon).
+;;; (:chor), in the  near-Chœrogryllum orbit (:Oribt), or  on one of
+;;; the moons (:Moon, :othm, :pink).
 
-(defgeneric spawn-terrain (place x-coord y-coord z-coord))
+(defgeneric spawn-terrain (place latitude longitude))
 
-(defmethod spawn-terrain ((place (eql :tootanga)) (x integer) (y integer) (z integer))
-  (assert (<= -80000 x 80000))
-  (assert (<= -60000 y 60000))
+(defmethod spawn-terrain ((place (eql :chor)) (latitude integer) (longitude integer))
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
+  (assert (<= -80000 latitude 80000))
+  (assert (<= -60000 longitude 60000))
   (let ((*global-heightmap% (make-array (list 202 202) :element-type '(unsigned-byte 8)))
-        (*global-heightmap-x% (1- x))
-        (*global-heightmap-y% (1- y))
+        (*global-heightmap-x% (1- latitude))
+        (*global-heightmap-y% (1- longitude))
         (*features%))
-    (destructuring-bind (elevation habitat) (get-9-terrain-tiles x y)
+    (destructuring-bind (elevation habitat) 
+        (get-9-terrain-tiles latitude longitude)
       (verbose:info :terrain "~& Generating map at (~:d,~:d) ~
 in habitat ~:(~A~) with elevations ~S"
-                    x y (aref habitat 1 1) elevation)
-      (let* ((contour (generate-terrain-contour elevation habitat x y 0))
+                    latitude longitude (aref habitat 1 1) elevation)
+      (let* ((contour (generate-terrain-contour elevation habitat 
+                                                latitude longitude))
              (features (generate-terrain-features contour (aref habitat 1 1)))))
-      ;; (format *trace-output* "~& Final rough map:")
-      ;; (dump-global-heightmap x y)
+      (format *trace-output* "~& Final rough map:")
+      (dump-global-heightmap latitude longitude)
       ))
   ;; apply sea level
   ;; save to map database
-
+  
   )
 
 
 
-(defun terrain-db-key (place x y)
+(defun terrain-db-key (place latitude longitude)
   (check-type place map-places)
-  (check-type x integer)
-  (check-type y integer)
-  (format nil "World/~:(~a~)/~x×~x" place (floor x 200) (floor y 200)))
+  (check-type latitude even-coordinate)
+  (check-type longitude even-coordinate)
+  (format nil "World/~:(~a~)/~x×~x" place latitude longitude))
 
-(defun terrain-exists-p (place x y)
+(defun terrain-exists-p (place latitude longitude)
   "If terrain has been previously defined at the tile given, return it.
 
 Use `TERRAIN' generally instead."
-  (clouchdb:get-document (terrain-db-key place x y)))
+  (clouchdb:get-document (terrain-db-key place latitude longitude)))
 
-(defun terrain (place x y)
-  "Obtain the terrain tile in PLACE at X,Y
+(defun terrain (place latitude longitude)
+  "Obtain the terrain tile in PLACE at LATITUDE,LONGITUDE
 
-PLACE is one of :Tootanga, :Moon, :Other-Moon, :Pink-Moon.
+PLACE is one of :chor, :Moon, :othm, :pink, :orbit.
 
-X and Y must be aligned to 200m increments."
-  (or (terrain-exists-p place x y)
-      (spawn-terrain place x y)))
+LATITUDE and LONGITUDE must be aligned to 200m increments."
+  (or (terrain-exists-p place latitude longitude)
+      (spawn-terrain place latitude longitude)))
