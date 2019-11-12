@@ -1,0 +1,40 @@
+#!/bin/bash
+
+host=$(hostname)
+dom=${host/game[0-9]\./}
+b1=$(dig balancer1.$dom a | grep -v "^;" | grep 'IN' | cut -f3)
+b2=$(dig balancer2.$dom a | grep -v "^;" | grep 'IN' | cut -f3)
+
+echo " ---------------- setting up $host security at domain $dom" 
+
+systemctl stop firewalld
+
+if ! ls /etc/letsencrypt/archive/$host/privkey1.pem
+then
+
+    dnf -y install certbot
+    echo " You may be asked for host name $host ..."
+    certbot certonly --standalone
+
+    chgrp pil /etc/letsencrypt/archive
+    chmod g+rx /etc/letsencrypt/archive
+    chgrp pil /etc/letsencrypt/archive/$host
+    chmod g+rx /etc/letsencrypt/archive/$host
+    chgrp pil /etc/letsencrypt/archive/$host/*.pem
+    chmod g+r /etc/letsencrypt/archive/$host/*.pem
+
+    sh -c "echo '0 0 * * 0 certbot renew' > /etc/cron.weekly/certbot.cron"
+    chmod +x /etc/cron.weekly/certbot.cron
+
+fi
+
+systemctl enable firewalld
+systemctl start firewalld
+
+zone=$( firewall-cmd  --get-default-zone )
+
+firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b1'" port port="5000" protocol="tcp" accept' --zone=$zone --permanent
+firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b2'" port port="5000" protocol="tcp" accept' --zone=$zone --permanent
+firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b1'" port port="5010" protocol="tcp" accept' --zone=$zone --permanent
+firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b2'" port port="5010" protocol="tcp" accept' --zone=$zone --permanent
+
