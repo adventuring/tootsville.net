@@ -303,7 +303,7 @@ deploy-servers:	predeploy-servers
 		ssh root@$$host.$(clusternet) make -k -C ~pil/tootsville.net install ;\
 		ssh root@$$host.$(clusternet) systemctl daemon-reload ;\
 		ssh root@$$host.$(clusternet) systemctl restart tootsville ;\
-		ssh root@$$host.$(clusternet) ~pil/bin/make-secure ;\
+		ssh root@$$host.$(clusternet) ~pil/tootsville.net/bin/make-secure ;\
 		VERSION=$(shell ssh $$host.$(clusternet) Tootsville version-info version) ;\
 		curl https://api.rollbar.com/api/1/deploy/ \
 		     -F access_token=$(ACCESS_TOKEN) \
