@@ -68,13 +68,23 @@
 
 (defvar *enable-ssl-p* nil)
 
+(defun ssl-private-key ()
+  (make-pathname :directory (list :absolute 
+                                  "etc" "letsencrypt" "archive"
+                                  (machine-instance))
+                 :name "privkey1"
+                 :type "pem"))
+
+(defun ssl-certificate ()
+  (make-pathname :directory (list :absolute 
+                                  "etc" "letsencrypt" "archive"
+                                  (machine-instance))
+                 :name "privkey1"
+                 :type "pem"))
+
 (defun look-for-ssl-certs ()
   (setf *enable-ssl-p*
-        (probe-file (make-pathname :directory (list :absolute 
-                                                    "etc" "letsencrypt" "archive"
-                                                    (machine-instance))
-                                   :name "privkey1"
-                                   :type "pem"))))
+        (probe-file (ssl-private-key))))
 
 (defun load-config (&optional (config-file (default-config-file)))
   "Load the configuration from CONFIG-FILE."
