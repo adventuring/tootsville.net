@@ -134,9 +134,10 @@ a restart will be presented to allow you to kill it (RESTART-SERVER)."
                  (setf (hunchentoot:acceptor-name ssl)
                        (format nil "Tootsville at ~a port ~d" host port))
                  (push ssl *acceptors*)))
-             (let ((acceptor (make-instance 'Tootsville-REST-Acceptor
-                                            :address host
-                                            :port port)))
+             (let ((acceptor (hunchentoot:start
+                              (make-instance 'Tootsville-REST-Acceptor
+                                             :address host
+                                             :port port))))
                (setf (hunchentoot:acceptor-name acceptor)
                      (format nil "Tootsville Non-TLS at ~a port ~d"
                              host port))
@@ -294,5 +295,5 @@ Hopefully you've already tested the changes?"
 (defun connect-databases ()
   (dolist (thread (mapcar (lambda (n)
                             (make-thread n :name (symbol-munger:lisp->english n)))
-                          '(connect-cache connect-maria connect-zeromq)))
+                          '(connect-cache connect-maria)))
     (assert (join-thread thread))))
