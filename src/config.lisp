@@ -66,9 +66,20 @@
   ;; TODO: Set site name from configuration
   )
 
+(defvar *enable-ssl-p* nil)
+
+(defun look-for-ssl-certs ()
+  (setf *enable-ssl-p*
+        (probe-file (make-pathname :directory (list :absolute 
+                                                    "etc" "letsencrypt" "archive"
+                                                    (machine-instance))
+                                   :name "privkey1"
+                                   :type "pem"))))
+
 (defun load-config (&optional (config-file (default-config-file)))
   "Load the configuration from CONFIG-FILE."
   (load config-file)
+  (look-for-ssl-certs)
   (apply-config)
   (setf *config-file* (list :path config-file
                             :truename (truename config-file)

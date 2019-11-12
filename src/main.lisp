@@ -124,23 +124,23 @@ a restart will be presented to allow you to kill it (RESTART-SERVER)."
         hunchentoot:*log-lisp-backtraces-p* t
         hunchentoot:*log-lisp-warnings-p* t)
   (restart-case
-      (push (let ((acceptor
-                   (hunchentoot:start
-                    (if (config :ssl)
-                        (make-instance 'Tootsville-REST-SSL-Acceptor
-                                       :ssl-certificate-file (config :ssl :certificate-file)
-                                       :ssl-privatekey-file (config :ssl :private-key-file)
-                                       :ssl-privatekey-password (config :ssl :private-key-password)
-                                       :address host
-                                       :port port)
-                        (make-instance 'Tootsville-REST-Acceptor
-                                       :address host
-                                       :port port)))))
-              (setf (hunchentoot:acceptor-name acceptor)
-                    (format nil "Tootsville ~:[Non-TLS ~;~](~a port ~d)"
-                            (config :ssl) host port))
-              acceptor)
-            *acceptors*)
+      (progn (when *enable-ssl-p*
+               (let ((ssl (hunchentoot:start
+                           (make-instance 'Tootsville-REST-SSL-Acceptor
+                                          :ssl-certificate-file (ssl-certificate)
+                                          :ssl-privatekey-file (ssl-private-key)
+                                          :address host
+                                          :port (config :ssl :port)))))
+                 (setf (hunchentoot:acceptor-name ssl)
+                       (format nil "Tootsville at ~a port ~d" host port))
+                 (push ssl *acceptors*)))
+             (let ((acceptor (make-instance 'Tootsville-REST-Acceptor
+                                            :address host
+                                            :port port)))
+               (setf (hunchentoot:acceptor-name acceptor)
+                     (format nil "Tootsville Non-TLS at ~a port ~d"
+                             host port))
+               (push acceptor *acceptors*)))
     (change-port (port*)
       :report "Use a different port"
       (start :host host :port port*))
