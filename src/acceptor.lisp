@@ -35,6 +35,14 @@
     :access-log-destination (config :log :access)
     :message-log-destination (config :log :message)))
 
+(defclass Tootsville-REST-SSL-acceptor (hunchentoot:easy-ssl-acceptor)
+  ((hunchentoot::taskmaster
+    :initform (make-instance 'thread-pool-taskmaster:thread-pool-taskmaster)))
+  (:default-initargs
+   :error-template-directory (config :templates :errors)
+    :access-log-destination (config :log :access)
+    :message-log-destination (config :log :message)))
+
 (defmethod initialize-instance :after
     ((acceptor Tootsville-REST-acceptor) &rest initargs)
   (declare (ignore initargs))
