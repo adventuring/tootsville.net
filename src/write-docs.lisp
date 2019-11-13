@@ -77,6 +77,16 @@ Quicklisp when called."
                           (merge-pathnames #p"src/doc/conclusion"
                                            source-dir)))))
 
+(defun sort-all-packages ()
+  (cons
+   (find-package :Tootsville)
+   (sort (remove-if (lambda (p)
+                      (member p (list (find-package :Tootsville)
+                                      (find-package :Keyword))))
+                    (list-all-packages)) 
+         #'string-lessp
+         :key #'package-name)))
+
 (defun write-docs-directly ()
   "Write out the TεΧinfo documentation directly, without DECLT."
   (let ((source-dir (asdf:component-pathname (asdf:find-system :Tootsville))))
