@@ -143,7 +143,7 @@ It is ~a.~]
 (defendpoint (GET "/world/clock/calendar/year/:year/month/:month" "text/html")
   "Get a calendar as an HTML page for MONTH of YEAR."
   (list 200 () 
-        (format nil "<html>
+        (format nil "<!DOCTYPE html><html>
 <head><meta charset=\"utf-8\">
 <title> Month ~d of Year ~d — Chœrogryllum Calendar </title></head>
 <body>~a</body></html>"
