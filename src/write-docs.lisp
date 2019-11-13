@@ -78,14 +78,10 @@ Quicklisp when called."
                                            source-dir)))))
 
 (defun sort-all-packages ()
-  (cons
+  (list
    (find-package :Tootsville)
-   (sort (remove-if (lambda (p)
-                      (member p (list (find-package :Tootsville)
-                                      (find-package :Keyword))))
-                    (list-all-packages)) 
-         #'string-lessp
-         :key #'package-name)))
+   (find-package :Chœrogryllum)
+   (find-package :Rollbar)))
 
 (defun write-docs-directly ()
   "Write out the TεΧinfo documentation directly, without DECLT."
@@ -97,6 +93,7 @@ Quicklisp when called."
       (format t "\\input texinfo @c -*-texinfo-*-
 @setfilename Tootsville.info
 @settitle Tootsville V / Romance II Programmers' Reference Guide
+@headings double
 @copying
 
 Draft Edition.
@@ -116,7 +113,7 @@ A copy of the license is also available from the Free Software
 Foundation Web site at @url{https://www.gnu.org/licenses/fdl.html}.
 @end quotation
 
-The document was typeset with @uref{http://www.textinto.org/, GNU Texinfo}.
+The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
 
 @end copying
 
@@ -194,38 +191,28 @@ The package ~:(~a~) uses these packages:
       (boundp symbol)
       (ignore-errors (find-class symbol))))
 
-(defun docstring-change-annotations (docstring)
-  (regex-replace-pairs 
-   '(("@arg\[(.+?)\]\{(.+?)\}" "Argument \\1 is \\2")
-     ("@class\{(.+?)\}" "the class `\\1'")
-     ("@return\{(.+?)\}" "returns \\1")
-     ("@see\{(.+?)\}" "see also: `\\1'")
-     ("@" "@@"))
-   docstring))
 
 (defun clean-docs (docstring)
-  (if (or (search "@arg" docstring)
-          (search "@return" docstring)
-          (search "@see" docstring))
-      (docstring-change-annotations docstring)
-      (or docstring "")))
+  (or docstring ""))
 
 (defun write-docs-for-symbol (symbol)
-  (format t "~2%@node ~:(~a::~a~)~2%@section ~:(~a~)~%" 
+  (format t "~2%@page~%@node ~:(~a::~a~)~2%@section ~:(~a~)~%" 
           (package-name (symbol-package symbol)) symbol symbol)
   (when (fboundp symbol)
-    (format t "~2% ~:(~a~) names a function, taking ~[no arguments~
+    (format t "~2% ~:(~a~) names a ~:[function~;macro~], taking ~[no arguments~
 ~;the argument (~{~:(~a~)~})~
 ~:;the arguments: (~{~:(~a~)~^ ~})~].
 
 ~a"
             symbol
+            (macro-function symbol)
             (length (function-lambda-list symbol))
             (function-lambda-list symbol)
             (clean-docs (documentation symbol 'function))))
   (when (boundp symbol)
-    (format t "~2% ~:(~a~) names a special variable.~2%~a"
+    (format t "~2% ~:(~a~) names a ~:[special variable~;global constant~].~2%~a"
             symbol
+            (constantp symbol)
             (clean-docs (documentation symbol 'variable))))
   (when (ignore-errors (find-class symbol))
     (format t "~2% ~:(~a~) names a class.~2%~a"

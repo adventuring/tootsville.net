@@ -49,7 +49,7 @@
 (definfinity add-To-List (nil user recipient/s)
   "add a user to a buddy list or ignore list using the traditional (online-only, no notification engine) mechanism (using out of band methods). Compare vs. requestBuddy
 
-@subsection{410 Gone}
+@subsection 410 Gone
 
 This was a legacy feature removed in Romance 1.2."
   (error 'legacy-gone))
@@ -60,15 +60,15 @@ This was a legacy feature removed in Romance 1.2."
 If the user  clicks on a placed-item, this method  should be called with
 the following syntax:
 
-@example
+@verbatim
 {\"c\":\"click\", \"d\":{ \"on\": itemID, \"x\": x, \"y\": y, \"z\": z, \"with\": mods } }
-@end example
+@end verbatim
 
 Note that the (x,y,z) values passed  are relative to the origin point of
 the item;  thus, if an  item is placed  at (200,200,200) and  is clicked
 at (210,210,210), the coördinates reported should be (10,10,10).
 
-@subsection{Modifiers characters}
+@subsection Modifiers characters
 
 The mods string  can contain any of the following  symbols in any order,
 representing modifier keys that were held  down when the user clicked on
@@ -123,11 +123,13 @@ Plus represents rolling a scroll wheel down; Minus to scroll up
 @item <, >
 Less-than represents rolling a scroll knob left; greater-than, right.
 
-@subsection{Flash details}
+@end table
+
+@subsection Flash details
 
 In the Flash MouseEvent object, you can create the \"mods\" with the following:
 
-@example
+@verbatim
 var mods:String = \"\";
 if (ev.altKey) mods += \"M\";
 if (ev.commandKey || ev.ctrlKey) mods += \"^\";
@@ -140,9 +142,9 @@ if (ev.type == ev.MOUSE_WHEEL)
     if (ev.delta > 0) mods += \"+\"; }
 if (Keyboard.numLock) mods += \"N\";
 if (Keyboard.capsLock) mods += \"C\";
-@end example
+@end verbatim
 
-@subsection{Changes from 1.2}
+@subsection Changes from 1.2
 
 @itemize
 
@@ -161,12 +163,12 @@ were always meant to be opaque identifiers.
 
 @end itemize
 
-@subsection{202 Accepted}
+@subsection 202 Accepted
 
 The  click event  has been  noted. Any  outcomes of  that event  will be
 broadcast over other channels.
 
-@subsection{204 No Content}
+@subsection 204 No Content
 
 The click event is being ignored; ITEM-ID was not an interesting item to
 the server.
@@ -230,8 +232,8 @@ pivitz) and optionally set the color (for patterns)
 
 Response with total avatar info from \"wardrobe\"
 
-Parameters: jso -  { slot : ### }  or { slot: ###, color: CCC  } — valid
-formats defined in Colour.Colour(String)
+Parameters: jso  - @verb{| {  slot : ### }  |} or @verb{| {  slot: ###,
+color: CCC } |}— valid formats defined in Colour.Colour(String)
 
 Throws:
 
@@ -242,7 +244,7 @@ into a JSON form
 DataException - for bad colour 
 NumberFormatException - for bad colour numeric parts
 
-@subsection{Changes from 1.2}
+@subsection Changes from 1.2
 
 Colors of  items can no  longer be changed  when donning them.  This was
 meant  for pattern  changing  in  1.2, which  must  now be  accomplished
@@ -260,11 +262,11 @@ This method exists solely for testing purposes.
 
 Sends response containing:
 
-@example
+@verbatim
 ⇒ { c: \"echo\", d: { foo: 42 } }
 
 { from: \"echo\", status: true, \"You said\": { foo: 42 } }
-@end example
+@end verbatim
 
 Note that the field name is literally ``@samp{You said:}.''
 
@@ -286,11 +288,11 @@ used  as  the effective  score.  Since  fountains  (should) have  a  1:1
 points:peanuts ratio, this will earn  the player 1..100 peanuts randomly
 per fountain visit.
 
-Response:  JSON sent  to user:  { ended:  event ID;  peanuts: number  of
+Response:  JSON sent  to user:  @verb{| { ended:  event ID;  peanuts: number  of
 peanuts earned; highScores: array of  scores, indexed by position on the
 high score  list (1..24), each  of which  contains: { points:  number of
 points  scored by  the  high-scoring  user; userName:  the  name of  the
-user }, totalPeanuts: user's new total peanut balance }
+user }, totalPeanuts: user's new total peanut balance } |}
 
 Additionally, if this user earned a  high score on this event, s/he will
 get the  attribute in the top  level of the response  as \"gotHighScore\":
@@ -298,10 +300,14 @@ with the value being the position  number which was earned. For example,
 earning  no high  score omits  the \"gotHighScore\"  attribute altogether;
 earning the third highest score will return instead \"gotHighScore\" == 3.
 
-jso -  JSON parameters. { moniker  = the event's moniker;  eventID = the
+jso -  JSON parameters. 
+
+@verbatim
+{ moniker  = the event's moniker;  eventID = the
 event ID to be ended; score = the earned score, in points (not peanuts);
 status = one of \"cxl\" to cancel an event (in which case, score should be
 0), or \"cmp\" to complete an event (score may be zero or more). }
+@end verbatim
 
 "
   )
@@ -310,9 +316,9 @@ status = one of \"cxl\" to cancel an event (in which case, score should be
 
 Reply format:
 
-@example
+@verbatim
 { from: avatars, status: true, avatars: { 0: { USER-INFO … }, … }
-@end example
+@end verbatim
 
 
 User public information is in the format of AbstractUser.getPublicInfo()
@@ -333,7 +339,7 @@ throws org.json.JSONException
 WRITEME  — basically  similar  to an  sendOutOfBandMessage(JSONObject,
 AbstractUser, Room) but specifically something to do with a game
 
-Parameters: jso -  { \"action\": (verb), (other params...) }  u - The user
+Parameters: jso -  @verb{| { \"action\": (verb), (other params...) } |} u - The user
 calling  this method  room -  The room  in which  this user  is standing
 Throws:  org.json.JSONException   -  Thrown   if  the  data   cannot  be
 interpreted from the JSON objects passed  in, or conversely, if we can't
@@ -351,7 +357,7 @@ encode a response into a JSON form
 Parameters:
 
 jso - JSON object, with (ignored) keys  tied to values which must be the
-names of users. e.g. { 0: \"someUser\", 1: \"otherUser\" }
+names of users. e.g. @{ 0: \"someUser\", 1: \"otherUser\" @}
 
 u - The calling user. The calling user's avatar data will not be returned.
 
@@ -361,7 +367,7 @@ u - The calling user. The calling user's avatar data will not be returned.
 (definfinity get-color-palettes (nil user recipient/s)
   "getColorPalettes
 
-@subsection{410 Gone}
+@subsection 410 Gone
 
 Removed.. This  routine appeared to be  unused by anyone in  Romance 1.1
 and was removed in 1.2.
@@ -369,7 +375,7 @@ and was removed in 1.2.
 returns palettes  in \"extraColors\",  \"baseColors\", \"patternColors\"
 in the JSON result object (from: \"getColorPalettes\")
 
-@subsection{Note}
+@subsection Note
 
 Not used in Tootsville any more.  The analogous palettes in Li'l Vampies
 and Empires  of the Air are  being replaced with algorithmic  checks, so
@@ -381,9 +387,9 @@ this routine was removed in Appius 1.2.0."
   "get all inventory for an user — both active and inactive
 
 Returns a set of items as 
-@example
+@verbatim
 inv: { 0: { id: 123, isActive: boolean }, ... } 
-@end example
+@end verbatim
 
 furniture with  placement data  will also  have x,  y, and  facing vars.
 Other attributes  are \"from\":\"inventory\",  \"type\": matching the  type of
@@ -399,9 +405,8 @@ u — The user whose inventory to be searched"
 
 Parameters:
 
-jso    -    {     type:    TYPE-STRING    }    — 
-    
- JSON object has the type of item from the strings in the config file.
+jso    -       type:    TYPE-STRING     — 
+JSON object has the type of item from the strings in the config file.
 
 OR, you can specify  an item type by passing # plus its  ID, or a string
 of them; e.g. for items of type 1, pass \"#1,\" for items of types 2 or 3,
@@ -410,27 +415,31 @@ pass \"#2:3\"
 OR, you  can specify  a list  of item  type strings  using '$'  plus the
 string identifiers divided by ':', e.g. \"$Pants:Shirts\"
 
-Returns a  set of items  as inv:  { 0: {  id: 123, isActive:  boolean },
-... } — furniture with placement data  will also have x, y, and facing
+Returns a  set of items  as 
+@verbatim
+inv:  { 0: {  id: 123, isActive:  boolean },
+                ... } 
+@end verbatim
+— furniture with placement data  will also have x, y, and facing
 vars. Other attributes are \"from\":\"inventory\", \"type\": matching the type
 of the question
 
 You can also supply withActive: false to screen out active items.
 Return data
 
-@example
+@verbatim
   { from: inventory, for: USER-LOGIN, type: TYPE-STRING,
     inv: {
      #: { ITEM-INFO },
       #: { ITEM-INFO } …
     }
   }
-@end example
+@end verbatim
 
 TODO    see    Java
 getInventoryByType(JSONObject,  AbstractUser,  AbstractUser,  Room)  for
-discussion of TYPE-STRING; or { type: TYPE-STRING, withActive: BOOLEAN }
-to  mask out  active items;  optional  { who:  LOGIN-NAME }  to look  at
+discussion of TYPE-STRING; or @{ type: TYPE-STRING, withActive: BOOLEAN @}
+to  mask out  active items;  optional  @{ who:  LOGIN-NAME @}  to look  at
 someone else's inventory
 
 u - The user whose inventory to be searched, who is the caller of this routine
@@ -506,7 +515,7 @@ not the Universal time.")
 (definfinity get-session-apple ((&rest d) user recipient/s)
   "Initialise a session key for stream or batch mode operations
 
-Replies with { from: initSession, key: (OPAQUE-STRING) } 
+Replies with @{ from: initSession, key: (OPAQUE-STRING) @} 
 
 ")
 (definfinity get-store-item-info ((&rest d) user recipient/s)
@@ -520,7 +529,9 @@ jso - JavaScript array-style object where the key names are ignored, but the val
   
   "Get the user's buddy list and ignore list.
 
+@verbatim
 { buddyList: { … } , ignoreList: { … } }
+@end verbatim
 
 jso - no parameters needed
 
@@ -549,7 +560,7 @@ This returns \"Universe\" as the only Zone."
 XXX: notify the recipient using notifications (currently using a Message
 Box popup message)
 
-jso - { slot: SLOT-NUMBER, to: USER-LOGIN }
+jso - @verb{| { slot: SLOT-NUMBER, to: USER-LOGIN } |}
 
 u - giver
 
@@ -560,13 +571,13 @@ AlreadyExistsException - if the event can't be started for some reason
 (definfinity go ((do x y z facing) user recipient/s)
   "go to a place and/or perform a gesture
 
-@example
+@verbatim
 
 { do: VERB (required)
   x: DEST, y: DEST, z: DEST (each optional, but if x or y is given, both must be; z can be omitted)
 facing: FACING (optional)
 }
-@end example
+@end verbatim
                                 
 u - the user doing something
 ")
@@ -580,8 +591,11 @@ furniture-type items for that room onto a set of room variables owned by
 the user. The  user calling this method  must be the owner  of the room.
 If the  user has not visited  his/her house before, this  will return an
 asynchronous \"make a  new house\" notification to do  the \"first run\"
-screen,  by sending  a  message of  type  { \"from\":  \"initUserRoom\",
+screen,  by sending  a  message of  type  
+@verbatim
+{ \"from\":  \"initUserRoom\",
 \"status\": false, \"err\": \"showFirstRun\" }.
+@end verbatim
 
 Success:   responds    with   true,   and   \"moniker\":    the   room's
 moniker (user/WHOEVER/123)
@@ -589,16 +603,16 @@ moniker (user/WHOEVER/123)
 If unneccessary, returns an error of \"exists\" meaning that the room is
 already existing
 
-@example
+@verbatim
 jso - { room: (room-number), autoJoin: (boolean) }
-@end example
+@end verbatim
                                 
 u - The user whose house-room needs to be initialized")
 
 (definfinity join ((room from) user recipient/s)
   "Join a room.  On success, sends back the set  of room join events;
-     but on failure, replies with  { from: roomJoin, status: false, err:
-     ...}
+     but on failure, replies with  @{ from: roomJoin, status: false, err:
+     ...@}
 
   NOTE the inconsistency: the command is  join, but the reply comes from
   roomJoin
@@ -616,7 +630,7 @@ room.full
   The room is too full (too many users)
 
   Parameters:
-  jso - { room: MONIKER } or { room: MONIKER, from: MONIKER }
+  jso -  @{ room: MONIKER @} or @{ room: MONIKER, from: MONIKER @}
   
 u - the user joining the room") 
 
@@ -624,9 +638,9 @@ u - the user joining the room")
   "Notification of a new player in the game.
 
     Parameters:
-        jso - { userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE }
+        jso - @{ userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE @}
 
-Response: logOK or { err: login.fail, msg: reason }"
+Response: logOK or @{ err: login.fail, msg: reason @}"
   )
 
 (definfinity logout ((&rest d) user recipient/s)
@@ -643,7 +657,7 @@ no longer supported."
   "  send an eMail to customer service (feedback)
 
   Parameters:
-  jso - { subject: STRING, body: STRING }
+  jso - @{ subject: STRING, body: STRING @}
   u - the user sending the feedback
   room - the room in which the user is standing
 
@@ -652,8 +666,8 @@ no longer supported."
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Handle looking at other user's inventories
 
-Parameters: jso -  {\"who\": the login name  of the user of  whom to get
-the  inventory   };  optional   \"type\":  to   filter  by   type.  (see
+Parameters: jso -  @{\"who\": the login name  of the user of  whom to get
+the  inventory   @};  optional   \"type\":  to   filter  by   type.  (see
 getInventoryByType(JSONObject,  AbstractUser,  AbstractUser,  Room)  for
 details)
 
@@ -685,7 +699,7 @@ being idled offline."
 
   Server initiates prompt with:
 
-@example
+@verbatim
 
   { \"from\" : \"prompt\",
     \"id\" : $ID,
@@ -703,7 +717,7 @@ being idled offline."
         }
   }
   
-@end example
+@end verbatim
 
   Where:
 
@@ -750,7 +764,7 @@ being idled offline."
   in presentation to the end-user.
 
   Example:
-@example
+@verbatim
 
   { \"from\": \"prompt\", \"status\": \"true\",
   \"id\": \"fountain/tootSquare/Ã¾=?/x'deadbeef'\",
@@ -762,16 +776,18 @@ being idled offline."
   }
   }
   
-@end example 
+@end verbatim 
 
   The client's response is a bit simpler:
-@example
-  { \"c\": \"promptReply\", \"d\": { \"id\": $ID, \"reply\": $TOKEN } }
-  @end example
+@verbatim
+  { \"c\": \"promptReply\", \"d\": { \"id\": $ID, \"reply\": $TOKEN } } 
+@end verbatim
 
   e.g.
 
+@verbatim
   { \"c\":\"promptReply\", \"d\": { \"id\":  \"fountain/tootSquare/Ã¾=?/x'deadbeef'\", \"reply\": \"yes\" } }
+@end verbatim
   
 
   As a special-case, for the reply only, the special $TOKEN of \"close\"
@@ -789,12 +805,16 @@ being idled offline."
 
   The server will respond with
 
+@verbatim
   { \"from\": \"promptReply\", \"status\": \"true\", \"id\": $ID }
+@end verbatim
   
 
   For debugging purposes, the server may reply with
 
+@verbatim
   { \"from\": \"promptReply\", \"status\": \"false\", \"err\": $ERR }
+@end verbatim
   
 
   Where $ERR  will be a  brief description of  the problem. e.g.  $ERR =
@@ -821,7 +841,7 @@ being idled offline."
   packet silently if they do not process it.
 
   Parameters:
-  jso - in the form { id: $ID, reply: $TOKEN }, as detailed above
+  jso - in the form @{ id: $ID, reply: $TOKEN @}, as detailed above
 
   u - the user replying to a prompt
   
@@ -833,9 +853,9 @@ Throws:
 (definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
-  jso - To remove a buddy: { buddy: (name) };
+  jso - To remove a buddy: @{ buddy: (name) @};
  
-or to attend to someone who had previously been ignored: { ignore: (name) }
+or to attend to someone who had previously been ignored: @{ ignore: (name) @}
 
   u - The user whose buddy list or ignore list will be updated
   ")
@@ -860,14 +880,14 @@ trace or something.
 
   Note that the keys listed are strings, so e.g.:
 
-@example
+@verbatim
   info [\"navigator.language\"] = navigator.language;
   info [\"navigator.product\"] = navigator.product; 
-@end example
+@end verbatim
 
   ActionScript example:
 
-@example
+@verbatim
   var info:Object = {
   \"flash.sys.ime\": flash.system.System.ime,
   \"flash.sys.totalMemory\": flash.system.System.totalMemory,
@@ -877,9 +897,9 @@ trace or something.
   for ( var key in flash.system.Capabilities ) {
   info[\"flash.sysCap.\" + key] = flash.system.Capabilities[key];
   }
-@end example
+@end verbatim
   
-@table samp
+@table @samp
 
 @item navigator.language
   JavaScript: navigator.language
@@ -921,12 +941,12 @@ trace or something.
   JavaScript: window.innerwidth note case
   @item window.windowName
   JavaScript: the window.name property of the highest parent of this window (frame); e.g.
-@example
+@verbatim
   var topWindow = window.parent;
   for (; topWindow.parent != topWindow; topWindow = topWindow.parent)
                                         ;
        info [\"window.windowName\"] = topWindow.name;
-@end example
+@end verbatim
 
        @item flash.sys.totalMemory
        ActionScript: flash.system.System.totalMemory
@@ -994,7 +1014,7 @@ trace or something.
        ActionScript: flash.display.Stage.scaleMode
 @end table
 
-@example
+@verbatim
 
        // ActionScript example
        function systemReport:Object () {
@@ -1045,7 +1065,7 @@ trace or something.
        }
        };
        }
-@end example
+@end verbatim
        
 jso - Must contain a  single string attribute named ``bug.'' Should
 contain  an  attribute  named   ``info''  with  system  information
@@ -1059,7 +1079,7 @@ as a string.
 (definfinity report-user ((user-Name) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
-        { userName = user to be reported }
+        @{ userName = user to be reported @}
        
        ")
 (definfinity request-buddy ((buddy) user recipient/s)
@@ -1067,7 +1087,7 @@ as a string.
 
 (Added in 1.1)
 
-       jso - { buddy: LOGIN }
+       jso - @{ buddy: LOGIN @}
        
 u - user who is requesting the addition
 ")
@@ -1078,7 +1098,7 @@ This is neither a public nor a private message in the chat context: just
 some additional data that is being provided.
 
 
-       { sender: sender, from: outOfBand, status: true, body: {JSON} }
+       @{ sender: sender, from: outOfBand, status: true, body: @{JSON@} @}
 
        Adds \"roomTitle\"  to body if  body contains \"room\"  and title
        can be determined
@@ -1087,6 +1107,7 @@ some additional data that is being provided.
        updated  room list  as well.  (Necessary for  invitations to  new
        rooms.) Inviting to houses …
 
+@verbatim
        initUserRoom { room: 0, autoJoin: false }
        { from: initUserRoom, status: true, moniker: ROOM-MONIKER } ** OK
 
@@ -1102,13 +1123,13 @@ some additional data that is being provided.
        {  from:  outOfBand,  sender:  YOUR-LOGIN,  status:  true,  body:
        { locType: \"house\", type: \"invite\", room: MONIKER, roomTitle:
        USER-VISIBLE-NAME } }
-
+@end verbatim
        for user houses, roomTitle will be like \"BlackDaddyNerd's House\"
 
        Parameters:
 
-       jso - To send to one user:  { to: userName, body: {JSON} }, or to
-       broadcast to the entire room: { toRoom: true, body: {JSON} }
+       jso - To send to one user:  @{ to: userName, body: @{JSON@} @}, or to
+       broadcast to the entire room: @{ toRoom: true, body: @{JSON@} @}
 
        u - The sender of the out-of-band-message
 
@@ -1128,7 +1149,7 @@ some additional data that is being provided.
 
        This is used to compute the client's round-trip lag time.
 
-       jso - { serverTime: LONG milliseconds since epoch }"
+       jso - @{ serverTime: LONG milliseconds since epoch @}"
   (list 200 '(:|serverTime| (- (get-universal-time) +Unix-time-in-Universal+))))
 
 (defun rgb-bytes->rgb (bytes)
@@ -1144,7 +1165,7 @@ some additional data that is being provided.
        << 8 & blue )
 
        Parameters:
-       jso - { \"base\": (colour number), \"extra\": (colour number) }
+       jso - @{ \"base\": (colour number), \"extra\": (colour number) @}
        u - The user whose avatar colours are being set
        room - The room in which the user is standing 
        Throws:
@@ -1166,10 +1187,10 @@ and facing.
 To  change furniture,  replace item:  with slot:  (to avoid  ambiguities
 about ``which chair'')
 
-       To remove an item from the room, send { slot: 123, remove: true }
+       To remove an item from the room, send @{ slot: 123, remove: true @}
 
        Parameters:
-       jso - { slot: #, x: #, y: #, facing: $ } or { item: #, x: #, y: #, facing: $ } or { slot: #, remove: true }
+       jso - @{ slot: #, x: #, y: #, facing: $ @} or @{ item: #, x: #, y: #, facing: $ @} or @{ slot: #, remove: true @}
        u - The user calling this method
        room - The room in which this user is standing 
        Throws:
@@ -1209,7 +1230,7 @@ about ``which chair'')
        throws org.json.JSONException
 
        Set user variable(s)
-       Input: { key : value } (one or more)
+       Input: @{ key : value @} (one or more)
 
        Parameters:
        jso - user variable(s) to set
@@ -1244,6 +1265,7 @@ about ``which chair'')
 
        Emotes are simply speech beginning with \"/\". A few are special-cased. WRITEME: which
 
+@verbatim
 	if (speech.contains (\",dumpthreads,\")) {
 			OpCommands.op_dumpthreads (new String [] {}, u, channel);
 			return;
@@ -1252,11 +1274,12 @@ about ``which chair'')
 			OpCommands.z$z (u);
 			return;
 		}
+@end verbatim
 
        Commands are speech beginning with \"#\"
 
        Parameters:
-       jso - { \"speech\": TEXT-TO-BE-SPOKEN }
+       jso - @{ \"speech\": TEXT-TO-BE-SPOKEN @}
        u - The user speaking
        room - The room in which the speech occurs. 
        Throws:
@@ -1267,7 +1290,7 @@ into a JSON form
 
        NotFoundException - WRITEME
 
-@code
+@verbatim
 	switch (speech.charAt (0)) {
 			case '#':
 			OpCommands.exec (channel, u, speech);
@@ -1294,7 +1317,7 @@ into a JSON form
 		return speech.replace (\"!!\", \"!\").replace (\",,\", \",\").replace (
 				\"....\", \"...\").replace (\"??\", \"?\");
 	}
-@end code
+@end verbatim
 
        ")
 (definfinity start-event ((moniker) user recipient/s)
@@ -1307,16 +1330,18 @@ Note that for all fountains, use the magic moniker ``fountain''
 
 Calls back the user with either of:
 
-alreadyDone: true; status: false; err: \"event.alreadyDone\"
+@table @code
+@item alreadyDone: true; status: false; err: \"event.alreadyDone\"
 
 This returns for fountains that  have already given peanuts today (where
 today started at midnight, database local time)
 
-eventID: (NUM),  filename: \"blah.swf\",  asVersion: { 2,  3, or  not },
-status: true
+@item eventID: (NUM),  filename: \"blah.swf\",  asVersion: @{ 2,  3, or  not @}, status: true
 
 For successfully registered events. Must  be completed or canceled using
-`END-EVENT', qv")
+`END-EVENT', qv
+
+@end table")
 
 (definfinity end-event ((moniker) user recipient/s)
   "Attempt to end an event begun by `START-EVENT'
@@ -1346,7 +1371,7 @@ really doing much to validate it here
 
        Parameters:
        
-jso - { t: slot-type-char, x: target-x, y: target-y, z: target-z, [ on: target-name ] }
+jso - @{ t: slot-type-char, x: target-x, y: target-y, z: target-z, [ on: target-name ] @}
        
 u - WRITEME
        

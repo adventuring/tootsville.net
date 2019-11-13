@@ -126,6 +126,9 @@ doc:	doc/Tootsville.texi
 doc/Tootsville.texi:	Tootsville
 	./Tootsville write-docs
 
+# emacsclient -e '(with-current-buffer (find-file doc/Tootsville.texi) (texinfo-all-menus-update) (save-buffer) (kill-buffer))'
+
+
 install:	tootsville.service Tootsville
 	chcon unconfined_u:object_r:bin_t:s0 /home/pil/tootsville.net/Tootsville
 	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/

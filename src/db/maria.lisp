@@ -207,7 +207,7 @@ name is obtained via mySQL function GET_LOCK(STRING), if possible.
 
 If the lock is busy, IF-NOT-LOCKED determines the next action.
 
-@table
+@table @code
 
 @item :WAIT
 
@@ -274,7 +274,7 @@ name is obtained via mySQL function GET_LOCK(STRING), if possible.
 
 If the lock is busy, IF-NOT-LOCKED determines the next action.
 
-@table
+@table @code
 
 @item :WAIT
 

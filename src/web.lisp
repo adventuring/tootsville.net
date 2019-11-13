@@ -411,7 +411,7 @@ Accepts A-Z, 0-9, and these punctuation: -/!?."
                            (format nil
                                    "Undocumented endpoint for ~a ~a → ~s"
                                    method uri content-type))
-                       (format nil "~2%@subsection{Web Service Endpoint}
+                       (format nil "~2%@subsection Web Service Endpoint
 ~2%This is a web service ~
 endpoint accessed by the HTTP method ~a at the URI template ~a. ~
 ~:[The returned content-type is not specified.~;~
@@ -518,13 +518,17 @@ parameter object.
 
 For example,
 
+@lisp
     (WITH-POSTED-JSON (FOO-BAR)
           (BODY))
+@end lisp
 
 … will  bind FOO-BAR  to the  value of  the key  \"fooBar\" in  the POST
 content, assuming it is a JSON object like
  
+@verbatim
    { \"fooBar\": \"value\" }
+@end verbatim
 
 In the event of a parse error, an HTTP 400 is returned."
   (let (($json (gensym "JSON-"))

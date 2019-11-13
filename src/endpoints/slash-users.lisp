@@ -45,7 +45,7 @@
 
 Requires player authentication.
 
-@subsection{Status: 200 OK}
+@subsection Status: 200 OK
 
 You will receive some information about your user account.
 
@@ -53,12 +53,12 @@ The top-level keys of the JSON object are:
 
 TODO: document this properly
 
-@table
+@table @samp
 @end table
 
-@subsection{Status: 401 Authorization Required}
+@subsection Status: 401 Authorization Required
 
-@subsection{Status: 403 Authorization Failed}
+@subsection Status: 403 Authorization Failed
 
 "
   (with-user ()
@@ -67,45 +67,40 @@ TODO: document this properly
 (defendpoint (put "/users/me" "application/json")
   "Makes changes to an user account.
 
-Input JSO: { key: \"field\", newValue: \"x\" }
+Input JSO: 
+@example
+{ key: \"field\", newValue: \"x\" }
+@end example
 
 Fields and value formats:
 
-displayName (fullName)
-
-givenName
-
-surname (familyName)
-
-sensitive (sensitiveP)
-
+@table @code
+@item displayName (fullName)
+@item givenName
+@item surname (familyName)
+@item sensitive (sensitiveP)
 Must be \"true\" or \"false\" (as a string)
-
-lang (language)
-
-Must be a supported ISO language string; e.g. \"en_US\"
-
-gender
-
+@item lang (language)
+ Must be a supported ISO language string; e.g. \"en_US\"
+@item gender
 Must  be  one of  \"☿\"  \"♀\"  \"♂\",  where \"☿\"  is  gender-neutral.
 Selects pronouns; respectively, \"they,\" \"she,\" or \"he.\"
-
-dob (dateOfBirth)
-
+@item dob (dateOfBirth)
 Format in RFC-3339 timestamp format; eg, \"1990-05-21T00:00:00-0400\" or
 just \"1990-05-21\"
+@end table
 
-@subsection{Status: 201 Created}
+@subsection Status: 201 Created
 
 XXX is there a better status for updates?
 
-@subsection{Status: 401 Authorization Required}
+@subsection Status: 401 Authorization Required
 
-@subsection{Status: 403 Authorization Failed}
+@subsection Status: 403 Authorization Failed
 
-@subsection{Status: 405 Not Allowed}
+@subsection Status: 405 Not Allowed
 
-@subsection{Status: 422 }
+@subsection Status: 422 
 
 "
   (with-user ()
@@ -158,13 +153,13 @@ Requires player authentication.
 
 Requires a body with fields to be changed, and their new values. TODO.
 
-@subsection{Status: 200 OK}
+@subsection Status: 200 OK
 
-@subsection{Status: 401 Authorization Required}
+@subsection Status: 401 Authorization Required
 
-@subsection{Status: 403 Authorization Failed}
+@subsection Status: 403 Authorization Failed
 
-@subsection{Status: 405 Not Allowed}
+@subsection Status: 405 Not Allowed
 
 "
   (with-user ()
@@ -225,15 +220,15 @@ other players.
 
 Requires player authentication.
 
-@subsection{Status: 200 OK}
+@subsection Status: 200 OK
 
-@subsection{Status: 401 Authorization Required}
+@subsection Status: 401 Authorization Required
 No user credentials were passed.
 
-@subsection{Status: 403 Authorization Failed}
+@subsection Status: 403 Authorization Failed
 The user credentials presented were not recognized.
 
-@subsection{Status: 404 Not Found}
+@subsection Status: 404 Not Found
 
 "
   (with-user ()
@@ -257,29 +252,29 @@ prevent immediate impersonation).
 
 Requires player authentication.
 
-@subsection{Status:  202 Toot  deletion in  progress}
+@subsection Status:  202 Toot  deletion in  progress 
 
 The  Toot  will  be  deleted,  but   it  may  not  have  completed  yet.
 A subsequent, identical request can confirm.
 
-@subsection{Status: 204 Toot deleted}
+@subsection Status: 204 Toot deleted 
 
 The Toot has  been deleted. Repeated calls will return  the same status,
 for the duration of the name lock on the Toot.
 
-@subsection{Status: 401 Authorization Required}
+@subsection Status: 401 Authorization Required 
 
 No user credentials were passed.
 
-@subsection{Status: 403 Authorization Failed}
+@subsection Status: 403 Authorization Failed 
 
 The user credentials presented were not recognized.
 
-@subsection{Status: 404 Not Found}
+@subsection Status: 404 Not Found 
 
 The Toot named does not exist.
 
-@subsection{Status: 405 Not Allowed}
+@subsection Status: 405 Not Allowed 
 
 The Toot named is  one that you have permission to use,  but are not the
 main owner of. This is usually a child account.
@@ -292,28 +287,28 @@ main owner of. This is usually a child account.
 (defendpoint (post "/users/me/play-with/:toot-name" "application/json")
   "Begin playing with the Toot named TOOT-NAME.
 
-@table
+@table  @samp
 @item Toot-Name
 The name of the Toot character to play with.
 @end table
 
-@subsection{Status: 200 OK}
+@subsection Status: 200 OK 
 
 You are now in control of this Toot. The Toot's info will be returned.
 
-@subsection{Status: 401 Authorization Required}
+@subsection Status: 401 Authorization Required 
 
 No user credentials were passed.
 
-@subsection{Status: 403 Authorization Failed}
+@subsection Status: 403 Authorization Failed 
 
 The user credentials presented were not recognized.
 
-@subsection{Status: 404 Not Found}
+@subsection Status: 404 Not Found 
 
 The Toot named does not exist.
 
-@subsection{Status: 405 Not Allowed}
+@subsection Status: 405 Not Allowed 
 
 The Toot named is  one that you have permission to use,  but are not the
 main owner of. This is usually a child account.

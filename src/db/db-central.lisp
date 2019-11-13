@@ -417,7 +417,7 @@ is made. NUMBER REF columns point to ID, UUID REF columns to UUID.
 
 TYPE is one of the following:
 
-@table
+@table @code
 @item NUMBER
 map to an integer or real column in the database
 @item STRING

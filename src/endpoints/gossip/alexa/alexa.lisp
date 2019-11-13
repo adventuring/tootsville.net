@@ -377,7 +377,7 @@ an error code (such as 400 Bad Request).
 +alexa-timestamp-tolerance+))
 
 (defun check-alexa (body-json)
-"Performs the mandatory checks for queries from Alexa.
+  "Performs the mandatory checks for queries from Alexa.
 
 Documented                 by                 Amazon                 at:
 @url{https://developer.amazon.com/docs/custom-skills/host-a-custom-skill-as-a-web-service.html}
@@ -390,42 +390,34 @@ following requirements:
 @enumerate
 
 @item
-
 The service must be Internet-accessible.
 
 @item
-
 The service must adhere to the Alexa Skills Kit interface.
 
 @item
-
 The   service   must   support   HTTP  over   SSL/TLS,   leveraging   an
 Amazon-trusted certificate.
 
 @itemize
 @item
-
 For   testing,   Amazon   accepts  different   methods   for   providing
 a certificate. For details, see About the SSL Options.
 
 @item
-
 For publishing to  end users, Amazon only trusts  certificates that have
 been signed by an Amazon-approved certificate authority.
 
 @end itemize
 
 @item
-
 The service must accept requests on port 443.
 
 @item
-
 The service  must present  a certificate with  a subject  alternate name
 that matches the domain name of the endpoint.
 
 @item
-
 The service must validate that incoming requests are coming from Alexa.
 
 @end enumerate
@@ -438,13 +430,13 @@ the Alexa  service from sending  the customer's request to  your server.
 To address this, either upgrade to  2.4.10 or later, or add ServerName /
 ServerAlias to your server's configuration file.
 "
-(handler-case
-(progn
-(check-alexa-signature)
-(check-alexa-timestamp-tolerance body-json))
-(error (c)
-(report-error c)
-(throw 'endpoint (list 400 () (stringify c))))))
+  (handler-case
+      (progn
+        (check-alexa-signature)
+        (check-alexa-timestamp-tolerance body-json))
+    (error (c)
+      (report-error c)
+      (throw 'endpoint (list 400 () (stringify c))))))
 
 (defmacro define-alexa-endpoint (name (&optional arg) &body body)
 `(defendpoint (post ,(format nil "/gossip/alexa/~(~a~)/region/:region" name) "application/json")
