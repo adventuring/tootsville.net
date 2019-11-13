@@ -27,18 +27,6 @@
 
 (in-package :Tootsville)
 
-
-(defconstant +moon-year+ 3600000)
-(defconstant +other-moon-year+ 583243)
-(defconstant +pink-moon-year+ 452398723)
-
-(defconstant +moon-day+ (* 18 60 59))
-(defconstant +other-moon-day+ (* 2 18 60 58))
-(defconstant +pink-moon-day+ (* 8 18 60 56))
-
-(defun sinus (x range)
-  (sin (/ (mod x range) (/ range pi))))
-
 (defun sky-contents (x y z &optional (now (get-universal-time)))
   (let ((day (nth-value 9 (Choerogryllum:decode*-universal-time now))))
     (list :|sun| (list :|azimuth| (sinus (- now (* 21 18 60 60)) (* 360 18 60 60))
