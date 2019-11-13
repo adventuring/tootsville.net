@@ -35,8 +35,6 @@
                :last-used (now)
                :starredp nil))
 
-(defun bool-sort (a b) (declare (ignore b)) a)
-
 (defun Toot-contacts (Toot)
   (find-records 'contact :owner (Toot-uuid (Toot-player Toot))))
 
