@@ -14,7 +14,7 @@
 
 And now, let's talk about the Infinity Mode protocol.
 
-@subsection{ History of Infinity Mode }
+@subsection History of Infinity Mode 
 
 In the Beginning,  Tootsville used a commercial  program called SmartFox
 Server as  its chat server. There  were many problems with  this, and it
@@ -41,15 +41,15 @@ which is a particular kind of infinity  that is not as big as some other
 kinds  of  infinity, as  silly  as  that mathematical  construction  may
 sound (yes, that's real maths).
 
-@subsection{ Wire protocols }
+@subsection Wire protocols 
 
 There are two main wire protocols; RESTful POSTs and gossipnet.
 
-@subsubsection{ RESTful POSTs }
+@subsubsection RESTful POSTs 
 
 XXX WRITEME
 
-@subsection{ Datagram constructions }
+@subsection Datagram constructions 
 
 There are three datagram kinds used in Infinity Mode.
 
@@ -76,18 +76,18 @@ a @samp{from} attribute.
 
 XXX WRITEME
 
-@subsection{ logOK datagrams }
+@subsection logOK datagrams 
 
 XXX WRITEME
 
-@subsection{ Command datagrams }
+@subsection Command datagrams 
 
 Command  datagrams  may be  processed  through  either  a REST  POST  or
 the Gossipnet. These represent an action or enquiry that a client is making.
 
 XXX WRITEME
 
-@subsection{ Gatekeeper datagrams }
+@subsection Gatekeeper datagrams 
 
 Gatekeeper datagrams are found either as the response to a REST POST, or
 distributed along the Gossipnet. These  represent the state of the world
