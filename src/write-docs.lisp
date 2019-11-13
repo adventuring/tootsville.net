@@ -99,7 +99,9 @@ Quicklisp when called."
 @settitle Tootsville V / Romance II Programmers' Reference Guide
 @copying
 
-Copyright @copyright{} 2018,2019, the Corporation for Inter-World Tourism and 
+Draft Edition.
+
+Copyright @copyright{} ~d, the Corporation for Inter-World Tourism and 
 Adventuring.
 
 @quotation
@@ -133,20 +135,23 @@ The document was typeset with @uref{http://www.textinto.org/, GNU Texinfo}.
 @node Top
 @top Tootsville V Programmers' Reference Guide
 @insertcopying
-@end ifnottex
 
 @menu
-@c FIXME
+@c Use (texinfo-all-menus-update) in Emacs to write menus.
 @end menu
+@end ifnottex
 
 @node Introduction
 @chapter* Introduction
 ~a"
+              *romance-ii-copyright-latest*
               (read-file-into-string (asdf:system-relative-pathname 
                                       :Tootsville
                                       "src/doc/Introduction.texi")))
-      (dolist (package (sort (list-all-packages) #'string< :key #'package-name))
-        (format t "@node ~a~%@chapter Package ~:*~a"
+      (dolist (package (sort-all-packages))
+        (format t "~2%@node ~a~%@chapter Package ~:*~a
+
+@menu~%@end menu"
                 (string-capitalize (package-name package)))
         (let ((overview (asdf:system-relative-pathname
                          :Tootsville 
