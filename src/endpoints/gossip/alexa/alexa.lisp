@@ -428,7 +428,7 @@ that matches the domain name of the endpoint.
 
 The service must validate that incoming requests are coming from Alexa.
 
-@end itemize
+@end enumerate
 
 Note: if you are using Apache HTTP  Server to host your web service, use
 version 2.4.10 or later. Earlier versions  of Apache HTTP Server send an
