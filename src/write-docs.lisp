@@ -48,7 +48,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program; if not,  write to the Free Software Foundation,
 Inc., 675 Mass Ave, Cambridge, MA 02139, USA."))))))
 
-(defun write-docs ()
+(defun write-docs/declt ()
   "Write out the documentation in TeΧinfo format using DECLT.
 
 Note that DECLT  is not usually compiled into the  binary by default, so
@@ -83,7 +83,7 @@ Quicklisp when called."
    (find-package :Chœrogryllum)
    (find-package :Rollbar)))
 
-(defun write-docs-directly ()
+(defun write-docs ()
   "Write out the TεΧinfo documentation directly, without DECLT."
   (let ((source-dir (asdf:component-pathname (asdf:find-system :Tootsville))))
     (ensure-directories-exist (merge-pathnames #p"doc/" source-dir))
