@@ -29,7 +29,8 @@
 
 
 
-(defvar *acceptors* nil)
+(defvar *acceptors* nil
+  "The set of listening acceptors awaiting incoming connections.")
 
 (defun find-acceptor (host port)
   "Find an active Acceptor running on the given HOST address and PORT"
@@ -41,16 +42,25 @@
                   (hunchentoot:acceptor-port acceptor)))
       (return-from find-acceptor acceptor))))
 
-(defvar *async-tasks* nil)
-(defvar *async-channel* nil)
+(defvar *async-tasks* nil
+  "An LPARALLEL kernel used for running asynchronous tasks.")
+(defvar *async-channel* nil
+  "An LPARALLEL channel used for running asynchronous tasks.")
 
 (defun (setf thread-name) (name thread)
+  "Set the NAME of THREAD.
+
+This isn't supported by Bordeaux, so we need per-implementation versions here.
+
+Presently only supported for SBCL."
   #+sbcl (setf (sb-thread:thread-name thread) name))
 
 (defun swank-connected-p ()
+  "Is Swank currently connected to this Lisp image?"
   (when (swank:connection-info) t))
 
 (defun name-idle-threads-sequentially (count)
+  "Name all of the idle asynchronous worker threads with numbers up to COUNT."
   (let ((n 0))
     (dolist (thread (all-threads))
       (when (string-equal "Idle Asynchronous Worker" (thread-name thread))
@@ -59,6 +69,7 @@
                       (incf (the fixnum n)) count))))))
 
 (defun init-async ()
+  "Initialize LPARALLEL for running tasks asynchronously."
   (let ((count-threads (max 1 (round (/ (processor-count) 2)))))
     (setf *async-tasks*
           (lparallel:make-kernel count-threads
@@ -70,6 +81,9 @@
     (setf lparallel:*kernel* *async-tasks*)))
 
 (defun run-async (function &key name)
+  "Run FUNCTION asynchronously in a thread named NAME.
+
+If NAME is omitted, a generic name will be created based on FUNCTION."
   (unless *async-tasks*
     (init-async))
   (let ((lparallel:*kernel* *async-tasks*))
@@ -93,23 +107,42 @@
            (setf (sb-thread:thread-name (current-thread)) idle-name)))))))
 
 (defun background-gc ()
-  "Start a garbage collection in a different thread."
-  (run-async (lambda () (sb-ext:gc))
-               :name "Garbage Collection"))
+  "Start a garbage collection in a different thread.
+
+This starts an asynchronous run of the garbage collector, but of course,
+based on  implementation characteristics, this could  affect all threads
+in this image.
+
+Presently only works in SBCL."
+  (run-async (lambda () #+sbcl (sb-ext:gc))
+             :name "Garbage Collection"))
 
 (defun start (&key (host "localhost") (port 5000) (fullp t))
-  "Start a local Hunchentoot server.
+  "Start a local Hunchentoot server on HOST and PORT.
 
 HOST is an address of a live interface; PORT may be a port number.
 
-The server will  be started running on port  5000 on local-loopback-only
-addresses  (127.0.0.1  and  ::1).  If an  existing  server  is  running,
-a restart will be presented to allow you to kill it (RESTART-SERVER)."
+The  server will  be  started running  on port  PORT  (default 5000)  on
+HOST (default local-loopback-only address \"localhost\"). If an existing
+server is  running, a  restart will  be presented to  allow you  to kill
+it (RESTART-SERVER).
+
+When FULLP is true, a  complete start-up including reading config files,
+connecting to the databases, power-on self-test, &c. will be performed.
+
+In addition,  if a  TSL (SSL)  certificate for this  host appears  to be
+present, created by  Let's Encrypt, then a TLS acceptor  will be started
+on  a  port as  identified  in  the  configuration  file, if  that  port
+is available."
   (when fullp
     (load-config)
     (connect-databases)
     (power-on-self-test)
     (background-gc))
+  
+  (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")
+  (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp"))
+  
   (when-let ((previous (find-acceptor host port)))
     (restart-case (error "Server is already running on ~a port ~a" host port)
       (stop-previous ()
@@ -153,6 +186,10 @@ a restart will be presented to allow you to kill it (RESTART-SERVER)."
 
 
 (defmethod usocket:socket-close ((socket null))
+  "This is a NO-OP methed.
+
+Sometimes  we  attempt  to  close  NIL  as  though  it  were  a  socket.
+This prevents that from signaling an error, giving a warning instead."
   (warn "Ignoring request to close NIL"))
 
 (defun stop (&optional (acceptor (first *acceptors*)))
@@ -207,9 +244,16 @@ process's PID."
 
 
 
-(defvar *verbose-logging-lock* (make-lock "Verbose logging lock"))
+(defvar *verbose-logging-lock* (make-lock "Verbose logging lock")
+  "A lock used to prevent the Verbose library from cross-talking over itself.
+ 
+When multiple threads try to write at the same time, you can get partial
+messages mixed together in a confusing way. This lock prevents that from
+occurring when  we use our definition  of `VERBOSE:FORMAT-MESSAGE' which
+observes it.")
 
 (defmethod verbose:format-message ((stream stream) (message v:message))
+  "Sets an ornate formatting for messages logged via the Verbose library."
   (with-lock-held (*verbose-logging-lock*)
     (format stream "~&~a	{~a}	[~a; ~{~a~^, ~}]~%⮕ ~a~%"
             (format-timestring nil (v:timestamp message)
@@ -237,6 +281,7 @@ or exit the REPL.")
   (start-repl))
 
 (defun debugger ()
+  "Start up Swank in the project directory and start a server on the default port."
   (swank:set-default-directory (asdf:component-relative-pathname
                                 (asdf:find-system  :Tootsville)))
   (swank:set-package :Tootsville)
@@ -244,12 +289,18 @@ or exit the REPL.")
   (banner))
 
 (defun destroy-all-listeners ()
+  "Destroy all Hunchentoot listener threads violently.
+
+Normally only needed during debugging. See instead `STOP'."
   (map nil #'destroy-thread
        (remove-if-not (lambda (th) (search "Hunchentoot Listening on Address"
                                            (thread-name th)))
                       (all-threads))))
 
 (defun destroy-all-idle-workers ()
+  "Destroy all idle web worker threads violently.
+
+Normally only needed during debugging. See instead `STOP'."
   (let ((workers (remove-if-not (lambda (th) (search "Idle Web Worker"
                                                      (thread-name th)))
                                 (all-threads))))
@@ -257,31 +308,38 @@ or exit the REPL.")
     workers))
 
 (defun destroy-all-web-tasks ()
+  "Destroy all web listeners and worker threads.
+
+May  make a  second (or  subsequent) pass  to try  to clean  up non-idle
+worker threads  after 1 second,  but no  guarantee that it  will destroy
+them all."
   (destroy-all-listeners)
   (while (destroy-all-idle-workers)
     (sleep 1)))
 
-(defparameter *trace-output-heartbeat-time* 90)
+(defparameter *trace-output-heartbeat-time* 90
+  "A  thread  listing   is  dumped  every  *TRACE-OUTPUT-HEARTBEAT-TIME* 
+seconds into the verbose log.")
 
 (defun start-production (&key host port)
-  "Start a Hunchentoot  server via `START' and daemonize with Swank"
+  "Start a Hunchentoot  server via `START' and daemonize with Swank.
+
+This is the entry point for running a Production, stand-alone server.
+
+SBCL's Low-level Debugger  is disabled, so crashes  are instantly fatal,
+allowing SystemD to start a new instance in case of a fatal error."
   (disable-sbcl-ldb)
   (set-up-for-daemon/start-logging)
   (v:info :starting "Starting on host interface ~a port ~a" host port)
   (start :host host :port port)
   (v:info :starting "Starting Swank")
   (start-swank)
-  (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")
-  (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp"))
   (loop
      (trace-output-heartbeat)
      (sleep *trace-output-heartbeat-time*)))
 
 
 ;;; Recompilation
-
-(defvar *location-of-main* (or *load-pathname*
-                               *compile-file-pathname*))
 
 (defun rebuild-myself ()
   "Recompile the running server.
@@ -293,6 +351,7 @@ Hopefully you've already tested the changes?"
 
 
 (defun connect-databases ()
+  "Connect all database systems in parallel (each in its own thread)"
   (dolist (thread (mapcar (lambda (n)
                             (make-thread n :name (symbol-munger:lisp->english n)))
                           '(connect-cache connect-maria)))
