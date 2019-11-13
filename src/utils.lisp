@@ -46,3 +46,8 @@
 (defun bool-sort (a b)
   (declare (ignore b))
   a)
+
+
+(defun sinus (x range)
+  (sin (/ (mod x range) (/ range pi))))
+
