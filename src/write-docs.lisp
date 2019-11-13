@@ -81,7 +81,10 @@ Quicklisp when called."
   (list
    (find-package :Tootsville)
    (find-package :Chœrogryllum)
-   (find-package :Rollbar)))
+   (find-package :Dreamhost)
+   (find-package :Rollbar)
+   (find-package :thread-pool-taskmaster)
+   (find-package :Tootsville-User)))
 
 (defun write-docs ()
   "Write out the TεΧinfo documentation directly, without DECLT."
@@ -139,7 +142,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
 @end ifnottex
 
 @node Introduction
-@chapter* Introduction
+@chapter Introduction
 ~a"
               *romance-ii-copyright-latest*
               (read-file-into-string (asdf:system-relative-pathname 
@@ -157,23 +160,34 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
           (when (probe-file overview)
             (format t "~2%@section Overview~2%~a~2%"
                     (read-file-into-string overview))))
-        (format t "~2%@section Package Information
-The package ~:(~a~) uses these packages:
+        (format t "~2%@section Package Information")
+        (when (package-use-list package)
+          (format t "~%The package ~:(~a~) uses these packages:
 @itemize
 ~{@item
 ~:(~a~)~%~}~
 @end itemize"
-                (package-name package)
-                (sort (mapcar #'package-name (package-use-list package))
-                      #'string-lessp))
-        (format t "~2%~:(~a~) is used by these packages:
+                  (package-name package)
+                  (sort (mapcar #'package-name (package-use-list package))
+                        #'string-lessp)))
+        (when (package-used-by-list package)
+          (format t "~2%~:(~a~) is used by these packages:
 @itemize
 ~{@item
 ~:(~a~)~%~}~
 @end itemize"
-                (package-name package)
-                (sort (mapcar #'package-name (package-used-by-list package))
-                      #'string-lessp))
+                  (package-name package)
+                  (sort (mapcar #'package-name (package-used-by-list package))
+                        #'string-lessp)))
+        (when (sb-ext:package-locked-p package)
+          (format t "~2%The package is locked against modifications."))
+        (when (package-nicknames package)
+          (format t "~2%The package has these nicknames:
+@itemize
+~{@item
+~:(~a~)~%~}~
+@end itemize"
+                  (sort (package-nicknames package) #'string-lessp)))
         (let (symbols)
           (do-all-symbols (symbol)
             (when (and (eql (symbol-package symbol) package)
@@ -196,7 +210,7 @@ The package ~:(~a~) uses these packages:
   (or docstring ""))
 
 (defun write-docs-for-symbol (symbol)
-  (format t "~2%@page~%@node ~:(~a::~a~)~2%@section ~:(~a~)~%" 
+  (format t "~%@node ~:(~a::~a~)~2%@section ~:(~a~)~%" 
           (package-name (symbol-package symbol)) symbol symbol)
   (when (fboundp symbol)
     (format t "~2% ~:(~a~) names a ~:[function~;macro~], taking ~[no arguments~

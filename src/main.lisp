@@ -143,6 +143,8 @@ is available."
   (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")
   (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp"))
   
+  (setf hunchentoot:*hunchentoot-default-external-format* :utf-8)
+  
   (when-let ((previous (find-acceptor host port)))
     (restart-case (error "Server is already running on ~a port ~a" host port)
       (stop-previous ()

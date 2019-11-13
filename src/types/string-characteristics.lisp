@@ -29,14 +29,17 @@
 (in-package :Tootsville)
 
 (defun string-length-2-p (s)
+  "Is S a string of length 2?"
   (check-type s string)
-  (equal 2 (length s)))
+  (= 2 (length s)))
 
 (defun string-all-alpha-chars-p (s)
+  "Is S a string of only alphabetical characters?"
   (check-type s string)
   (every #'alpha-char-p s))
 
 (deftype two-letter-string ()
+  "A string of two letters (alphabetical characters)"
   '(and string
     (satisfies string-length-2-p)
     (satisfies string-all-alpha-chars-p)))

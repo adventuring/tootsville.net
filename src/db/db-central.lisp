@@ -315,8 +315,11 @@ ON DUPLICATE KEY UPDATE  ~
   (let (($fname (intern (concatenate 'string (symbol-name name) "="))))
     `(defun ,$fname (a b &rest more)
        ,(format nil
-                "Returns true if A and B represent the same ~A record in the database."
-                (symbol-munger:lisp->english name))
+                "Returns true if all arguments represent the same ~A record in the database.
+
+Identity is determined by the ID column, ~A."
+                (symbol-munger:lisp->english name)
+                id-accessor)
        (if more
            (and (,$fname a b) (apply ',$fname a more))
            (equalp (,id-accessor a) (,id-accessor b))))))

@@ -61,15 +61,21 @@ reasons, eg, COPPA."
 
 
 (defun yesterday ()
+  "Get a timestamp for yesterday."
   (timestamp- (now) 24 :hour))
 
 (defun 2-days-ago ()
+  "Get a timestamp for the second day in the past (the day before yesterday)."
   (timestamp- (now) 48 :hour))
 
 (defun 3-days-ago ()
+  "Get a timestamp for the third day in the past (the day before the day before yesterday)."
   (timestamp- (now) 72 :hour))
 
 (defun header-time (&optional (time (now)))
+  "Get TIME in RFC-1123 format, as needed for HTTP headers.
+
+TIME defaults to the present (@code{(NOW)})."
   (format-timestring nil time :format +rfc-1123-format+))
 
 (defconstant +Unix-zero-in-universal-time+ 2208988800

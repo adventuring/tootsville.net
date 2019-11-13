@@ -34,11 +34,17 @@
   :documentation "Named colors allowed as Toot base colors")
 
 (define-memo-function Toot-base-color-name-p (string-designator)
+  "Is STRING-DESIGNATOR a color that can be used for a Toot's base color.
+
+See also `+TOOT-BASE-COLOR-NAMES' and `TOOT-BASE-COLOR-NAME'"
   (check-type string-designator string-designator)
   (member string-designator +Toot-base-color-names+
           :test #'string-equal))
 
 (deftype Toot-base-color-name ()
+  "A string designator which describes a valid color for a Toot's base color.
+
+See `+TOOT-BASE-COLOR-NAMES' for the list."
   '(and string-designator
     (satisfies Toot-base-color-name-p)))
 

@@ -86,7 +86,7 @@
   `(defendpoint (:post ,(concatenate 'string
                                      "/maintenance/"
                                      (string-downcase label)))
-     nil
+     ,name
      (verbose:info :maintenance
                    ,(format nil "Maintenance request: ~a (~a)" label name))
      (with-maintenance-times (,label
@@ -105,7 +105,8 @@
   (locally (declare #+sbcl (sb-ext:muffle-conditions style-warning))
     (asdf:load-system :Tootsville)))
 
-(defvar *compilation* (make-string-output-stream))
+(defvar *compilation* (make-string-output-stream)
+  "This is used as a temporary output buffer during some maintenance tasks.")
 
 (define-maintenance-task buildapp
     ("Recompiling Tootsville executable"
