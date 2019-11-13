@@ -40,3 +40,9 @@
     sb-alien:void)
 #-sbcl
 (defun enable-sbcl-ldb ())
+
+
+
+(defun bool-sort (a b)
+  (declare (ignore b))
+  a)
