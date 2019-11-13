@@ -510,7 +510,7 @@ Replies with { from: initSession, key: (OPAQUE-STRING) }
 
 ")
 (definfinity get-store-item-info ((&rest d) user recipient/s)
-  "WRITEME: Document this method brpocock@star-hope.org
+  "WRITEME: Document this method brpocock@@star-hope.org
 
 jso - JavaScript array-style object where the key names are ignored, but the values are item ID's
 
@@ -531,7 +531,7 @@ u - The user whose buddy and ignore lists will be fetched
 (definfinity get-Wallet ((&rest d) user recipient/s)
   
   "
-WRITEME: Document this method brpocock@star-hope.org
+WRITEME: Document this method brpocock@@star-hope.org
 
 
 "
@@ -1342,7 +1342,7 @@ really doing much to validate it here
 (definfinity use-equipment ((|t| x y z on) user recipient/s)
   "useEquipment
 
-       WRITEME: Document this method brpocock@star-hope.org
+       WRITEME: Document this method brpocock@@star-hope.org
 
        Parameters:
        

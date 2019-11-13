@@ -39,7 +39,7 @@ The script name must be a function previously defined by @samp{#SCRIPT}
 
 (define-operator-command agent (words user plane) "
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     "
                          
@@ -258,7 +258,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
                           throws PrivilegeRequiredException,
                                  NotReadyException
 
-    WRITEME: Document this metho WRITEMEd brpocock@star-hope.org
+    WRITEME: Document this metho WRITEMEd brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -491,7 +491,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 (define-operator-command getschedule (words user plane) "
                            throws PrivilegeRequiredException
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -656,7 +656,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 (define-operator-command goto (words user plane) "
                     throws PrivilegeRequiredException
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -960,7 +960,7 @@ Throws:
                                      AlreadyExistsException,
                                      NotReadyException
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -1014,7 +1014,7 @@ Throws:
      WHERE := #here | #here-tiny | #here-big | x,y~x,y~x,y~x,y polygon list
      
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -1028,7 +1028,7 @@ Throws:
 (define-operator-command purgephysics (words user plane) "
                             throws PrivilegeRequiredException
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -1053,7 +1053,7 @@ Throws:
 (define-operator-command put (words user plane) "
                    throws PrivilegeRequiredException
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -1167,7 +1167,7 @@ This can be -1 under certain circumstances.
                               )
 (define-operator-command saveroomvars (words user plane) "
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -1294,7 +1294,7 @@ This can be -1 under certain circumstances.
                              throws PrivilegeRequiredException,
                                     GameLogicException
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
@@ -1831,7 +1831,7 @@ This can be -1 under certain circumstances.
                          )
 (define-operator-command zoom (words user plane) "
 
-    WRITEME: Document this method brpocock@star-hope.org
+    WRITEME: Document this method brpocock@@star-hope.org
 
     Parameters:
         words - WRITEME
