@@ -55,7 +55,7 @@ Note that DECLT  is not usually compiled into the  binary by default, so
 this  may  have  to  download  DECLT  and/or  its  dependencies  through
 Quicklisp when called."
   (format *trace-output* "~& Writing documentation…")
-
+  
   (ql:quickload :net.didierverna.declt)
   (let ((source-dir (asdf:component-pathname (asdf:find-system :tootsville))))
     (inform-declt-of-agplv3)
@@ -76,3 +76,118 @@ Quicklisp when called."
              :conclusion (alexandria:read-file-into-string
                           (merge-pathnames #p"src/doc/conclusion"
                                            source-dir)))))
+
+(defun write-docs-directly ()
+  "Write out the TεΧinfo documentation directly, without DECLT."
+  (let ((source-dir (asdf:component-pathname (asdf:find-system :Tootsville))))
+    (ensure-directories-exist (merge-pathnames #p"doc/" source-dir))
+    (with-output-to-file (*standard-output*
+                          (merge-pathnames #p "doc/Tootsville.texi" source-dir)
+                          :if-exists :supersede)
+      (format t "\\input texinfo @c -*-texinfo-*-
+@setfilename Tootsville.info
+@settitle Tootsville V / Romance II Programmers' Reference Guide
+@copying
+
+Copyright @copyright{} 2018,2019, the Corporation for Inter-World Tourism and 
+Adventuring.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
+
+A copy of the license is also available from the Free Software
+Foundation Web site at @url{https://www.gnu.org/licenses/fdl.html}.
+@end quotation
+
+The document was typeset with @uref{http://www.textinto.org/, GNU Texinfo}.
+
+@end copying
+
+@titlepage
+@title Tootsville V Programmers' Reference Guide
+@subtitle Romance II System Documentation
+@author Bruce-Robert Pocock <brpocock@@tootsville.org>
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Tootsville V Programmers' Reference Guide
+@insertcopying
+@end ifnottex
+
+@menu
+@c FIXME
+@end menu
+
+@node Introduction
+@chapter* Introduction
+~a"
+              (read-file-into-string (asdf:system-relative-pathname 
+                                      :Tootsville
+                                      "src/doc/Introduction.texi")))
+      (dolist (package (sort (list-all-packages) #'string< :key #'package-name))
+        (format t "@node ~a~%@chapter Package ~:*~a"
+                (string-capitalize (package-name package)))
+        (let ((overview (asdf:system-relative-pathname
+                         :Tootsville 
+                         (format nil "src/doc/~a.texi"
+                                 (string-downcase (package-name package))))))
+          (when (probe-file overview)
+            (format t "~2%@section Overview~2%~a~2%"
+                    (read-file-into-string overview))))
+        (format t "~2%@section Package Information
+The package ~:(~a~) uses these packages:
+@itemize
+~{@item
+~:(~a~)~%~}~
+@end itemize"
+                (package-name package)
+                (sort (mapcar #'package-name (package-use-list package))
+                      #'string-lessp))
+        (format t "~2%~:(~a~) is used by these packages:
+@itemize
+~{@item
+~:(~a~)~%~}~
+@end itemize"
+                (package-name package)
+                (sort (mapcar #'package-name (package-used-by-list package))
+                      #'string-lessp))
+        (let (symbols)
+          (do-all-symbols (symbol)
+            (when (eql (symbol-package symbol) package)
+              (push symbol symbols)))
+          (dolist (symbol (sort (remove-duplicates symbols) #'string<))
+            (write-docs-for-symbol symbol))))
+      (princ "@bye"))))
+
+(defun write-docs-for-symbol (symbol)
+  (format t "~2%@node ~:(~a::~a~)~2%@section ~:(~a~)~2%@menu~%@end menu" 
+          (package-name (symbol-package symbol)) symbol symbol)
+  (when (fboundp symbol)
+    (format t "~2%~:(~a~) names a function, taking ~[no arguments~
+~;the argument (~{~:(~a~)~})~
+~:;the arguments: (~{~:(~a~)~^ ~})~].
+
+~a"
+            symbol
+            (length (function-lambda-list symbol))
+            (function-lambda-list symbol)
+            (documentation symbol 'function)))
+  (when (boundp symbol)
+    (format t "~2%~:(~a~) names a special variable.~2%~a"
+            symbol
+            (documentation symbol 'variable)))
+  (when (ignore-errors (find-class symbol))
+    (format t "~2%~:(~a~) names a class.~2%~a"
+            symbol
+            (documentation symbol 'type))))
