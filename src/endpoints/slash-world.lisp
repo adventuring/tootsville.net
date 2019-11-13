@@ -89,10 +89,10 @@ Your character must be able to observe that general area. No peeking!
 Currently the universal time code is ~:d.
 
 On the planet Chœorgryllum, it is ~2,'0d:~2,'0d:~2,'0d in the ~
-~[wee hours of the morning~;morning~;afternoon~;evening~] on
+~[wee hours of the morning~;morning~;afternoon~;evening~] on ~
 ~a.
 
-That's the ~:r day of the nine-day week, and the ~:r month
+That's the ~:r day of the nine-day week, and the ~:r month ~
 of the twelve months of the year.
 
 ~[It is new moon for The Moon.~:;~
