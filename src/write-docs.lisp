@@ -179,17 +179,42 @@ The package ~:(~a~) uses these packages:
                       #'string-lessp))
         (let (symbols)
           (do-all-symbols (symbol)
-            (when (eql (symbol-package symbol) package)
+            (when (and (eql (symbol-package symbol) package)
+                       (symbol-has-definition-p symbol)
+                       (or (eql (symbol-package symbol) (find-package :Tootsville))
+                           (swank::symbol-external-p symbol)))
               (push symbol symbols)))
           (dolist (symbol (sort (remove-duplicates symbols) #'string<))
             (write-docs-for-symbol symbol))))
+      (terpri)
       (princ "@bye"))))
 
+(defun symbol-has-definition-p (symbol)
+  (or (fboundp symbol)
+      (boundp symbol)
+      (ignore-errors (find-class symbol))))
+
+(defun docstring-change-annotations (docstring)
+  (regex-replace-pairs 
+   '(("@arg\[(.+?)\]\{(.+?)\}" "Argument \\1 is \\2")
+     ("@class\{(.+?)\}" "the class `\\1'")
+     ("@return\{(.+?)\}" "returns \\1")
+     ("@see\{(.+?)\}" "see also: `\\1'")
+     ("@" "@@"))
+   docstring))
+
+(defun clean-docs (docstring)
+  (if (or (search "@arg" docstring)
+          (search "@return" docstring)
+          (search "@see" docstring))
+      (docstring-change-annotations docstring)
+      (or docstring "")))
+
 (defun write-docs-for-symbol (symbol)
-  (format t "~2%@node ~:(~a::~a~)~2%@section ~:(~a~)~2%@menu~%@end menu" 
+  (format t "~2%@node ~:(~a::~a~)~2%@section ~:(~a~)~%" 
           (package-name (symbol-package symbol)) symbol symbol)
   (when (fboundp symbol)
-    (format t "~2%~:(~a~) names a function, taking ~[no arguments~
+    (format t "~2% ~:(~a~) names a function, taking ~[no arguments~
 ~;the argument (~{~:(~a~)~})~
 ~:;the arguments: (~{~:(~a~)~^ ~})~].
 
@@ -197,12 +222,12 @@ The package ~:(~a~) uses these packages:
             symbol
             (length (function-lambda-list symbol))
             (function-lambda-list symbol)
-            (documentation symbol 'function)))
+            (clean-docs (documentation symbol 'function))))
   (when (boundp symbol)
-    (format t "~2%~:(~a~) names a special variable.~2%~a"
+    (format t "~2% ~:(~a~) names a special variable.~2%~a"
             symbol
-            (documentation symbol 'variable)))
+            (clean-docs (documentation symbol 'variable))))
   (when (ignore-errors (find-class symbol))
-    (format t "~2%~:(~a~) names a class.~2%~a"
+    (format t "~2% ~:(~a~) names a class.~2%~a"
             symbol
-            (documentation symbol 'type))))
+            (clean-docs (documentation symbol 'type)))))
