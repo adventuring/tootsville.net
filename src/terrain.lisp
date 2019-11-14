@@ -53,12 +53,7 @@
     :manatee-city :beachside :space :asteroid-field))
 
 (deftype map-places ()
-  '(member :chor
-    :moon :othm :pink
-    :orbit))
-
-(defun divisible-by-200-p (n)
-  (zerop (mod n 200)))
+  '(member :chor :moon :othm :pink :orbit))
 
 (deftype even-coordinate ()
   (and integer (satisfies divisible-by-200-p)))
