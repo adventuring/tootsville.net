@@ -283,6 +283,11 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
                (parse-number color :radix 16)))
      (number color))))
 
+(defun color24-rgb (color)
+  (list (color24-red color)
+        (color24-green color)
+        (color24-blue color)))
+
 (defun color24-name (color)
   (let ((n (color24-to-integer color)))
     (if-let (as (assoc n +color24-values+))
