@@ -67,11 +67,18 @@
                   "Unimplemented function called: ~s" error)))
 
 (defun request-accept-types ()
+  "Determine the Accept: types from the current HTTP request headers."
   (when-let (accept (assoc :accept (hunchentoot:headers-in*)))
     (mapcar (lambda (s) (string-trim +whitespace+ (the string s)))
             (split-sequence #\, (rest accept)))))
 
 (defun template-match (template list)
+  "Attempt to match a template list against a split-down URI.
+
+The  template list  consists of  strings, which  must match  exactly, or
+symbols,  in which  case  any string  will match.  The  values to  which
+symbols   are  bound   are   returned   sequentially,  like   positional
+parameters."
   (if (every #'stringp template)
       (equalp template list)
       (loop for tmpl in template
@@ -84,8 +91,10 @@
          finally (return (nreverse result)))))
 
 (defpost acceptor-template-matches-constants ()
+  "An acceptor template list must match constants."
   (template-match '("foo" "bar" "baz") '("foo" "bar" "baz")))
 (defpost acceptor-template-unifies-variables ()
+  "An acceptor template list must match variables and return their bindings."
   (equalp '("42" "99")
           (template-match '("foo" :bar :baz) '("foo" "42" "99"))))
 
@@ -109,16 +118,22 @@
                  (equal b "*/*"))))))
 
 (defpost accept-type-matches-identically ()
+  "The Accept: type must match with exact matching."
   (accept-type-equal "text/html" "text/html"))
 (defpost accept-type-matches-with-charset=utf-8 ()
+  "The Accept: type must match with trailing ;charset=utf-8"
   (accept-type-equal "text/html" "text/html;charset=utf-8"))
 (defpost accept-type-matches-/* ()
+  "The Accept: type must match a wildcard like text/*"
   (accept-type-equal "text/html" "text/*"))
 (defpost accept-type-matches-/*-with-charset=utf-8 ()
+  "The Accept: type must match a wildcard like text/* with ;charset=utf-8"
   (accept-type-equal "text/html" "text/*;charset=utf-8"))
 (defpost accept-type-matches-*/* ()
+  "The Accept: type must match */*"
   (accept-type-equal "text/html" "*/*"))
 (defpost accept-type-does-not-match-/*-when-not-allow-wildcards-p ()
+  "The Accept: type with :ALLOW-WILDCARD-P NIL  does not match a wildcard"
   (not (accept-type-equal "text/html" "text/*" :allow-wildcard-p nil)))
 
 (defun find-user-for-headers (string)
