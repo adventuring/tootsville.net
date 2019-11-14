@@ -1339,12 +1339,13 @@ today started at midnight, database local time)
 @item eventID: (NUM),  filename: \"blah.swf\",  asVersion: @{ 2,  3, or  not @}, status: true
 
 For successfully registered events. Must  be completed or canceled using
-`END-EVENT', qv
+`INFINITY-END-EVENT', qv
 
-@end table")
+@end table
+")
 
 (definfinity end-event ((moniker) user recipient/s)
-  "Attempt to end an event begun by `START-EVENT'
+  "Attempt to end an event begun by `INFINITY-START-EVENT'
 
        Parameters:
        

@@ -152,7 +152,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
         (format t "~2%@node ~a~%@chapter Package ~:*~a
 
 @menu~%@end menu"
-                (string-capitalize (package-name package)))
+                (clean-docs (package-name package)))
         (let ((overview (asdf:system-relative-pathname
                          :Tootsville 
                          (format nil "src/doc/~a.texi"
@@ -162,22 +162,26 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
                     (read-file-into-string overview))))
         (format t "~2%@section Package Information")
         (when (package-use-list package)
-          (format t "~%The package ~:(~a~) uses these packages:
+          (format t "~%The package ~a uses these packages:
 @itemize
 ~{@item
-~:(~a~)~%~}~
+~a~%~}~
 @end itemize"
-                  (package-name package)
-                  (sort (mapcar #'package-name (package-use-list package))
+                  (clean-docs (package-name package))
+                  (sort (mapcar #'clean-docs
+                                (mapcar #'package-name
+                                        (package-use-list package)))
                         #'string-lessp)))
         (when (package-used-by-list package)
-          (format t "~2%~:(~a~) is used by these packages:
+          (format t "~2%~a is used by these packages:
 @itemize
 ~{@item
-~:(~a~)~%~}~
+~a~%~}~
 @end itemize"
-                  (package-name package)
-                  (sort (mapcar #'package-name (package-used-by-list package))
+                  (clean-docs (package-name package))
+                  (sort (mapcar #'clean-docs
+                                (mapcar #'package-name
+                                        (package-used-by-list package)))
                         #'string-lessp)))
         (when (sb-ext:package-locked-p package)
           (format t "~2%The package is locked against modifications."))
@@ -185,9 +189,11 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
           (format t "~2%The package has these nicknames:
 @itemize
 ~{@item
-~:(~a~)~%~}~
+~a~%~}~
 @end itemize"
-                  (sort (package-nicknames package) #'string-lessp)))
+                  (sort (mapcar #'clean-docs
+                                (package-nicknames package))
+                        #'string-lessp)))
         (let (symbols)
           (do-all-symbols (symbol)
             (when (and (eql (symbol-package symbol) package)
@@ -205,30 +211,213 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
       (boundp symbol)
       (ignore-errors (find-class symbol))))
 
+(define-constant +teχinfo-accented-char-pairs+
+    '(("ä" . "@\"a")
+      ("ë" . "@\"e")
+      ("ï" . "@\"i")
+      ("ö" . "@\"o")
+      ("ü" . "@\"u")
+      ("ÿ" . "@\"y")
+      ("á" . "@'a")
+      ("é" . "@'e")
+      ("í" . "@'i")
+      ("ó" . "@'o")
+      ("ú" . "@'u")
+      ("ý" . "@'y")
+      ("ç" . "@,{c}")
+      ("ā" . "@=a")
+      ("ē" . "@=e")
+      ("ī" . "@=i")
+      ("ō" . "@=o")
+      ("ū" . "@=u")
+      ("ȳ" . "@=y")
+      ("à" . "@`a")
+      ("è" . "@`e")
+      ("ì" . "@`i")
+      ("ò" . "@`o")
+      ("ù" . "@`u")
+      ("ỳ" . "@`y")
+      ("ñ" . "@~n")
+      ("æ" . "@ae{}")
+      ("ð" . "@dh{}")
+      ("œ" . "@oe{}")
+      ("þ" . "@th{}")
+      ("Ä" . "@\"A")
+      ("Ë" . "@\"E")
+      ("Ï" . "@\"I")
+      ("Ö" . "@\"O")
+      ("Ü" . "@\"U")
+      ("Ÿ" . "@\"Y")
+      ("Á" . "@'A")
+      ("É" . "@'E")
+      ("Í" . "@'I")
+      ("Ó" . "@'O")
+      ("Ú" . "@'U")
+      ("Ý" . "@'Y")
+      ("Ç" . "@,{C}")
+      ("Ā" . "@=A")
+      ("Ē" . "@=E")
+      ("Ī" . "@=I")
+      ("Ō" . "@=O")
+      ("Ū" . "@=U")
+      ("Ȳ" . "@=Y")
+      ("À" . "@`A")
+      ("È" . "@`E")
+      ("Ì" . "@`I")
+      ("Ò" . "@`O")
+      ("Ù" . "@`U")
+      ("Ỳ" . "@`Y")
+      ("Ñ" . "@~N")
+      ("Æ" . "@AE{}")
+      ("Ð" . "@DH{}")
+      ("Œ" . "@OE{}")
+      ("Þ" . "@TH{}")
+      ("°" . "@ordm{}")
+      ("ª" . "@ordf{}")
+      ("©" . "@copyright")
+      ("TεΧ" . "@TeX")
+      ("TeΧ" . "@TeX")
+      ("TeX" . "@TeX")
+      ("•" . "@bullet")
+      ("…" . "@dots{}")
+      ("€" . "@euro")
+      ("°" . "@textdegree")
+      ("≤" . "@leq")
+      ("≥" . "@geq")
+      ("®" . "@registeredsymbol{}")
+      ("→" . "@expansion{}")
+      ("⇒" . "@result{}")
+      ("≍" . "@equiv{}")
+      ("===" . "@equiv{}")
+      ("\\" . "@backslashchar{}")
+      ("¡" . "@exclamdown{}")
+      ("¿" . "@questiondown{}")
+      ("([a-zA-Z])/([a-zA-Z])" . "\1/@ \2")
+      ("⊕POST-" . "* Power-on Self-Test ")
+      ("⊕Post-" . "* Power-on Self-Test "))
+  :test #'equalp
+  :documentation "Replacement sequences for TeΧinfo for special characters.")
+
+(defun maybe-make-hyperlink (text)
+  (let ((symbol (intern text)))
+    (if (or (fboundp symbol)
+            (boundp symbol))
+        (format nil "@ref{~a::~a}"
+                (package-name (symbol-package symbol))
+                (symbol-name symbol))
+        text)))
+
+(defun make-hyperlinks (string)
+  (regex-replace-all 
+   "\`(.*)'" string
+   (lambda (TARGET-STRING START END
+            MATCH-START MATCH-END
+            REG-STARTS REG-ENDS)
+     (format nil "`~a'"
+             (maybe-make-hyperlink
+              (subseq target-string (1+ match-start) (1- match-end)))))))
 
 (defun clean-docs (docstring)
-  (or docstring ""))
+  (etypecase docstring
+    (proper-list (mapcar #'clean-docs docstring))
+    (number (format nil "~a" docstring))
+    (keyword (format nil "~s" docstring))
+    (symbol (regex-replace-pairs 
+             +teχinfo-accented-char-pairs+
+             (string-capitalize docstring)))
+    (string (regex-replace-pairs 
+             +teχinfo-accented-char-pairs+
+             (make-hyperlinks docstring)))))
+
+(defun pretty-function-lambda-list (symbol)
+  (let ((λ-list (function-lambda-list symbol))
+        (positionalp t)
+        (optionalp nil)
+        (index 1))
+    (with-output-to-string (*standard-output*)
+      (format t "~%@itemize")
+      (loop for symbol in λ-list
+         do 
+           (progn
+             (cond 
+               ((eql symbol '&optional)
+                (setf optionalp t)
+                (format t "~%@end itemize
+The following arguments are optional:
+@itemize"))
+               ((eql symbol '&key)
+                (setf optionalp t
+                      positionalp nil)
+                (format t "~%@end itemize
+The following are keyword arguments:
+@itemize"))
+               ((eql symbol '&rest)
+                (setf optionalp t)
+                (format t "~%@end itemize
+All remaining arguments are collected into the &REST argument:
+@itemize"))
+               ((proper-list-p symbol)
+                (cond
+                  ((and optionalp (not positionalp))
+                   (format t "~%@item~%The keyword argument ~a ~
+has a default value of ~a~
+~@[, and its presence or absence is recorded in ~a~]"
+                           (clean-docs (first symbol))
+                           (clean-docs (second symbol))
+                           (and (= 3 (length symbol))
+                                (clean-docs (third symbol)))))
+                  ((and optionalp positionalp)
+                   (format t "~%@item~%The optional ~:r argument, ~a, ~
+has a default value of ~a"
+                           index
+                           (clean-docs (first symbol))
+                           (clean-docs (second symbol)))
+                   (incf index))
+                  (t
+                   (format t "~%@item~%The ~:r argument is a list of ~s"
+                           index
+                           symbol)
+                   (incf index))))
+               ((symbolp symbol)
+                (cond
+                  ((and optionalp (not positionalp))
+                   (format t "~%@item~%Keyword argument ~a (with default nil)"
+                           (clean-docs symbol)))
+                  (optionalp
+                   (format t "~%@item~%Optional ~:r argument ~a (with default nil)"
+                           index
+                           (clean-docs symbol))
+                   (incf index))
+                  (t
+                   (format t "~%@item~%Required ~:r argument ~a"
+                           index
+                           (clean-docs symbol))
+                   (incf index)))))))
+      (format t "~%@end itemize~%"))))
 
 (defun write-docs-for-symbol (symbol)
-  (format t "~%@node ~:(~a::~a~)~2%@section ~:(~a~)~%" 
-          (package-name (symbol-package symbol)) symbol symbol)
+  (format t "~%@vskip 48pt plus 1filll 
+@node ~a::~a~2%@section ~a~%" 
+          (clean-docs (package-name (symbol-package symbol)))
+          (clean-docs symbol) 
+          (clean-docs symbol))
   (when (fboundp symbol)
-    (format t "~2% ~:(~a~) names a ~:[function~;macro~], taking ~[no arguments~
-~;the argument (~{~:(~a~)~})~
-~:;the arguments: (~{~:(~a~)~^ ~})~].
+    (format t "~2% ~a names a ~:[function~;macro~], taking ~[no arguments.~
+~;one argument: ~a~
+~:;the arguments: ~a~]
 
-~a"
-            symbol
+~a~2%"
+            (clean-docs symbol)
             (macro-function symbol)
             (length (function-lambda-list symbol))
-            (function-lambda-list symbol)
+            (pretty-function-lambda-list symbol)
             (clean-docs (documentation symbol 'function))))
   (when (boundp symbol)
-    (format t "~2% ~:(~a~) names a ~:[special variable~;global constant~].~2%~a"
-            symbol
+    (format t "~2% ~a names a ~:[special variable~;global constant~].~2%~a~2%"
+            (clean-docs symbol)
             (constantp symbol)
             (clean-docs (documentation symbol 'variable))))
   (when (ignore-errors (find-class symbol))
-    (format t "~2% ~:(~a~) names a class.~2%~a"
-            symbol
+    (format t "~2% ~a names a class.~2%~a~2%"
+            (clean-docs symbol)
             (clean-docs (documentation symbol 'type)))))

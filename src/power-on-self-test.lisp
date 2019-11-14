@@ -37,6 +37,12 @@
   (let ((fn-name (intern (concatenate 'string "⊕POST-" (string name)))))
     `(progn
        (defun ,fn-name ()
+         ,(if (stringp (first body))
+              (first body)
+              (format nil 
+                      "This is an undocumented ~
+Power-On Self-Test, named ~:(~a~)."
+                      name))
          (declare (optimize (speed 0)))
          (block ,name ,@body))
        (pushnew ',fn-name *post-tests-queue*))))
