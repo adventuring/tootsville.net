@@ -126,9 +126,6 @@ doc:	doc/Tootsville.texi
 doc/Tootsville.texi:	Tootsville
 	./Tootsville write-docs
 
-# emacsclient -e '(with-current-buffer (find-file doc/Tootsville.texi) (texinfo-all-menus-update) (save-buffer) (kill-buffer))'
-
-
 install:	tootsville.service Tootsville
 	chcon unconfined_u:object_r:bin_t:s0 /home/pil/tootsville.net/Tootsville
 	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/
@@ -228,12 +225,13 @@ doc/Tootsville.ps:	doc/Tootsville.pdf
 	cd doc; pdf2ps Tootsville.pdf
 
 doc/Tootsville.pdf:	doc/Tootsville.texi
-	cd doc; PDFLATEX=xelatex texi2pdf Tootsville.texi 
+	cd doc; PDFLATEX=xelatex makeinfo --pdf Tootsville.texi 
 
 doc/Tootsville.txt:	doc/Tootsville.texi
 	cd doc; makeinfo --plaintext -o Tootsville.txt Tootsville.texi
 
 doc/Tootsville.info:	doc/Tootsville.texi
+	emacsclient -e '(with-current-buffer (find-file "doc/Tootsville.texi") (texinfo-all-menus-update) (texinfo-every-node-update) (save-buffer) (kill-buffer))'
 	cd doc; makeinfo -o Tootsville.info Tootsville.texi
 
 doc/doc.css:	build/doc.less
