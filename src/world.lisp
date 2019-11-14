@@ -59,15 +59,33 @@
   ;; XXX for now …
   (unless (eql world :chor)
     (return-from world-mistp t))
+  
+  (when (= latitude longitude altitude 0)
+    (return-from world-mistp nil))
+  
   (ignore-not-found
     (find-record 'terrain-height
                  :world world :latitude latitude :longitude longitude)))
 
 (defun describe-world (latitude longitude altitude world)
   (check-type world world-moniker)
-  (if (world-mistp latitude longitude altitude world)
-      (generate-terrain latitude longitude world)
-      (progn
-        (spawn-terrain :tootanga latitude longitude altitude)
-        ))
-  )
+  (when (world-mistp latitude longitude altitude world)
+    (if (zerop altitude) 
+        (spawn-terrain world latitude longitude)
+        (error 'unimplemented)))
+  (list 
+   :terrain (make-array '(200 200) :element-type 'fixnum :initial-element 0)
+   :furniture (items-at latitude longitude altitude world)))
+
+(defun item-in-inventory-p (item)
+  (and nil
+       (ignore-not-found (find-record 'inventory-item
+                                      :item (item-uuid item)))))
+
+(defun items-at (latitude longitude altitude world)
+  (remove-if #'item-in-inventory-p
+             (find-records 'item
+                           :latitude latitude
+                           :longitude longitude
+                           :altitude altitude
+                           :world world)))
