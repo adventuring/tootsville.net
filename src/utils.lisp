@@ -44,10 +44,14 @@
 
 
 (defun bool-sort (a b)
+  "Sort Boolean values"
   (declare (ignore b))
   a)
 
-
 (defun sinus (x range)
+  "Give the Y value at X in a sinus curve"
   (sin (/ (mod x range) (/ range pi))))
 
+(defun divisible-by-200-p (n)
+  "Is N evenly divisible by 200?"
+  (zerop (mod n 200)))
