@@ -84,11 +84,13 @@ Quicklisp when called."
    (find-package :Dreamhost)
    (find-package :Rollbar)
    (find-package :thread-pool-taskmaster)
-   (find-package :Tootsville-User)))
+   (find-package :Tootsville-User)
+   (find-package :Common-Lisp)))
 
 (defun write-docs ()
   "Write out the TεΧinfo documentation directly, without DECLT."
-  (let ((source-dir (asdf:component-pathname (asdf:find-system :Tootsville))))
+  (let ((source-dir (asdf:component-pathname (asdf:find-system :Tootsville)))
+        (*print-right-margin* 72))
     (ensure-directories-exist (merge-pathnames #p"doc/" source-dir))
     (with-output-to-file (*standard-output*
                           (merge-pathnames #p "doc/Tootsville.texi" source-dir)
@@ -144,7 +146,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
 @node Introduction
 @chapter Introduction
 ~a"
-              *romance-ii-copyright-latest*
+              (romance-ii-copyright-latest)
               (read-file-into-string (asdf:system-relative-pathname 
                                       :Tootsville
                                       "src/doc/Introduction.texi")))
@@ -292,7 +294,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
       ("\\" . "@backslashchar{}")
       ("¡" . "@exclamdown{}")
       ("¿" . "@questiondown{}")
-      ("([a-zA-Z])/([a-zA-Z])" . "\1/@ \2")
+      ("([a-zA-Z])/([a-zA-Z])" . "\\1/@ \\2")
       ("⊕POST-" . "* Power-on Self-Test ")
       ("⊕Post-" . "* Power-on Self-Test "))
   :test #'equalp
@@ -396,11 +398,25 @@ has a default value of ~a"
       (format t "~%@end itemize~%"))))
 
 (defun write-docs-for-symbol (symbol)
-  (format t "~%@vskip 48pt plus 1filll 
+  (format t "~%@vskip 48pt
 @node ~a::~a~2%@section ~a~%" 
-          (clean-docs (package-name (symbol-package symbol)))
-          (clean-docs symbol) 
+          (package-name (symbol-package symbol))
+          symbol 
           (clean-docs symbol))
+  (when (eql (symbol-package symbol) (find-package :common-lisp))
+    (format t "~2%~a~2%"
+            (regex-replace-pairs
+             '(
+               ("@" . "@@")
+               ("{" . "@{")
+               ("}" . "@}")
+               ("
+" . "
+
+"))
+             (with-output-to-string (*standard-output*)
+               (describe symbol))))
+    (return-from write-docs-for-symbol))
   (when (fboundp symbol)
     (format t "~2% ~a names a ~:[function~;macro~], taking ~[no arguments.~
 ~;one argument: ~a~
@@ -416,8 +432,13 @@ has a default value of ~a"
     (format t "~2% ~a names a ~:[special variable~;global constant~].~2%~a~2%"
             (clean-docs symbol)
             (constantp symbol)
-            (clean-docs (documentation symbol 'variable))))
-  (when (ignore-errors (find-class symbol))
-    (format t "~2% ~a names a class.~2%~a~2%"
+            (clean-docs (documentation symbol 'variable)))
+    (when (constantp symbol)
+      (format t "The value of ~a is:~2%@verbatim~%~s~%@end verbatim"
+              (clean-docs symbol)
+              (symbol-value symbol))))
+  (when (or (ignore-errors (find-class symbol))
+            (documentation symbol 'type))
+    (format t "~2% ~a names a type.~2%~a~2%"
             (clean-docs symbol)
             (clean-docs (documentation symbol 'type)))))
