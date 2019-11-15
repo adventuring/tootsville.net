@@ -68,7 +68,16 @@
                  :world world :latitude latitude :longitude longitude)))
 
 (defun describe-world (latitude longitude altitude world)
-  (check-type world world-moniker)
+  "Describe the world at LATITUDE, LONGITUDE, ALTITUDE in WORLD.
+
+Returns a PList with :TERRAIN and :FURNITURE. 
+
+:TERRAIN  contains a  201×201  grid of  1m corners  of  a 200×200  meter
+space (that is, the entire  space at LATITUDE, LONGITUDE at ALTITUDE=0).
+If ALTITUDE is not zero, the :TERRAIN is omitted.
+
+:FURNITURE contains a list of item descriptions as per `ITEMS-AT', which
+are as per `ITEM-INFO'."
   (when (world-mistp latitude longitude altitude world)
     (if (zerop altitude) 
         (spawn-terrain world latitude longitude)
@@ -78,11 +87,15 @@
    :furniture (items-at latitude longitude altitude world)))
 
 (defun item-in-inventory-p (item)
+  "Is ITEM in a character's inventory?"
   (and nil
        (ignore-not-found (find-record 'inventory-item
                                       :item (item-uuid item)))))
 
 (defun items-at (latitude longitude altitude world)
+  "All items in the space at LATITUDE, LONGITUDE, and ALTITUDE in WORLD.
+
+Returns all items in that volume which are not in a character's inventory."
   (remove-if #'item-in-inventory-p
              (find-records 'item
                            :latitude latitude

@@ -164,6 +164,33 @@ be in the world, and not owned by any other player."
 
 
 (defun item-info (item)
+  "Describe ITEM in a form suitable for JSON representation.
+
+The keys are:
+
+@table @code
+@item uuid
+The item's globally unique identifier
+@item baseColor
+If the item's avatar has a layer named \"Base\", it should be recolored to this 
+color.
+@item altColor
+If the item's avatar has a layer named \"Alt\", it should be recolored to this
+color.
+@item template
+The description of the item's template, as per `ITEM-TEMPLATE-INFO'.
+@item energy
+The amount of energy that this item has, if any. 
+@item avatarScale
+The scaling of the avatar in each of @code{x}, @code{y}, and @code{z} 
+dimentions.
+@item position
+The position of the avatar within the 200m cube: @code{x}, @code{y},
+and @code{z}.
+@item location
+The 200m cube in which the avatar is located, by @code{latitude},
+@code{longitude}, @code{altitude}, and @code{world}.
+@end table"
   (list :|uuid| (item-uuid item)
         :|baseColor| (item-base-color item)
         :|altColor| (item-alt-color item)
@@ -182,6 +209,43 @@ be in the world, and not owned by any other player."
                           :|world| (item-world item))))
 
 (defun item-template-info (template)
+  "Information about the item TEMPLATE in a form suitable for JSON.
+
+@table @code
+@item id
+The unique ID of this item template
+@item name
+The unique name of this item template, in a form suitable for
+displaying to the user (in English).
+@item avatar
+The avatar model file. The full name of the model will be 
+@code{https://jumbo.tootsville.org/Assets/Models/5/}@i{avatar}@code{.babylon}
+@item energyKind
+The kind of energy counting that applies to item instances of this template.
+Values are @code{:COUNTABLE} or @code{:UNCOUNTABLE}, or @code{NIL}.
+When an item has countable energy, it represents discrete quanta of energy 
+which should be presented to the player via a counter. When an item has
+uncountable energy, ithas energy which exists on a continuum, and should be
+presented as a gauge representing the fraction of @code{energyMax} which
+is present.
+@item energyMax
+The maximum amount of energy.
+@item onZero
+When the item's energy reaches zero, what becomes of it? 
+Values are @code{:VANISH} or @code{:EMPTY}.
+The item can either vanish (be destroyed) when its energy reaches zero, or
+it can simply remain empty awaiting potential recharging.
+@item wearSlot
+As per `WEAR-SLOT-INFO'.
+@item weight
+The mass of the item in grams.
+@end table
+
+Not  presented via  this  interface, item  templates  also have  default
+colors (base  and alternate) and  avatar scaling values;  however, these
+are only interesting at the moment of item creation.
+
+"
   (list :|id| (item-template-id template)
         :|name| (item-template-name template)
         :|avatar| (item-template-avatar template)
@@ -194,9 +258,47 @@ be in the world, and not owned by any other player."
         :|weight| (item-template-weight template)))
 
 (defun wear-slot-info (slot)
+  "Decribes a wearable item SLOT in suitable form for JSON.
+
+A ``wear  slot'' represents  a place  on the  character avatar  model on
+which an item, such as an  article of clothing, can be donned (mounted).
+Each  named avatar  mounting  point  can have  wear  slots of  different
+valences, which are layers building outwards from the skin to the sky.
+
+For example, in the  case of the HEAD slots, valence  10 is \"Hair\", 20
+is \"Headscarf\", and 30 is \"Hat\".
+
+Not all wear slots are necessarily present on every avatar. If an avatar
+lacks the @code{avatarPoint} named, then  all valences on that point are
+absent,  and  no  item  whose  template specifies  that  wear  slot  can
+be donned.
+
+@table @code
+@item id
+The unique ID of this wear slot
+@item name
+The unique name of this wear slot, in a form suitable for presentation to
+the end user (in English).
+@item alternate
+If this slot has a mirror, alternate slot that corresponds to it, each should
+reciprocally point to the other's ID here. Usually NIL.
+@item avatarPoint
+The name of the point on the character avatar on which a model of an
+item donned in this wear slot is joined to the character. This is limited to
+8 characters and is traditionally in CAPS.
+@item valence
+The valence of the slot represents its depth in stacking order on the avatar
+access point.
+@item obstructs
+If this slot obstructs another slot from having an item mounted on it, then
+it must be identified here. The obstruction will be against the named avatar
+mount point @code{point}, and affect valences from @code{min} through
+@code{max}, inclusive.
+@end table"
   (list :|id| (wear-slot-id slot)
         :|name| (wear-slot-name slot)
         :|alternate| (wear-slot-alternate slot)
+        :|avatarPoint| (wear-slot-avatar-point slot)
         :|valence| (wear-slot-valence slot)
         :|obstructs| (list :|point| (wear-slot-obstruct-point slot)
                            :|min| (wear-slot-obstruct-min slot)

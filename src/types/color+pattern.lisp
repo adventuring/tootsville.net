@@ -300,3 +300,8 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
 (define-constant +initial-t-shirt-colors+
     '(cyan indigo pink red "Spring Green" violet white yellow)
   :test #'equalp)
+
+(defun rgb-bytes->rgb (bytes)
+  (list (ldb (byte 8 0) bytes)
+        (ldb (byte 8 8) bytes)
+        (ldb (byte 8 16) bytes)))

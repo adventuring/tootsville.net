@@ -55,3 +55,10 @@
 (defun divisible-by-200-p (n)
   "Is N evenly divisible by 200?"
   (zerop (mod n 200)))
+
+(defun split-plist (plist)
+  "Split a PLIST into two lists, of keys and values."
+  (loop for (key value) on plist by #'cddr
+     collect key into keys
+     collect value into values
+     finally (return (list keys values))))

@@ -47,7 +47,11 @@
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
 (definfinity add-To-List (nil user recipient/s)
-  "add a user to a buddy list or ignore list using the traditional (online-only, no notification engine) mechanism (using out of band methods). Compare vs. requestBuddy
+  "add   a  user   to   a  buddy   list  or   ignore   list  
+
+…using   the   traditional   (online-only,   no   notification   engine)
+mechanism    (using    out    of     band    methods).    Compare    vs.
+requestBuddy `INFINITY-REQUEST-BUDDY'
 
 @subsection 410 Gone
 
@@ -178,12 +182,20 @@ the server.
   
   "Either claim the user's house and lot, or add a room to their house.
 
-Data describing the user's lot 
+Data describing the user's lot.
+
+When the player has  found an empty lot and wishes to  claim it as their
+own, they choose a base house item and send
 
 @verb{| { lot: lot-ID, house: house-ID },  |}
 
-or adding a room, @verb{| { index: roomIndex } |}
+When the player has a house and wishes to add a room, they send
 
+ @verb{| { index: roomIndex, connectTo: roomIndex, connectAt: pointMoniker } |}
+
+@subsection Changes from 1.2
+
+In 1.2 adding a room required only an index.
 "
   (let ((lot (find-record 'lot :id lot)))
     (unless lot
@@ -227,28 +239,22 @@ Sends two  responses: a success  reply from \"doff\", then  total avatar
 (definfinity don ((slot color) user recipient/s)
   "Don an item
 
-JSON object  has the  item slot  number to  be worn  (clothes, patterns,
-pivitz) and optionally set the color (for patterns)
+JSON  object has  the  item UUID  number to  be  worn (clothes,  pivitz,
+trunk).  See `WEAR-SLOT-INFO'  for descriptions  of how  wear slots  are
+identified and  described. Note  that the appropriate  wear slot  can be
+determined from the item's template; see `ITEM-TEMPLATE-INFO'.
 
-Response with total avatar info from \"wardrobe\"
+Response with total avatar info from @code{wardrobe}.
 
-Parameters: jso  - @verb{| {  slot : ### }  |} or @verb{| {  slot: ###,
-color: CCC } |}— valid formats defined in Colour.Colour(String)
-
-Throws:
-
-org.json.JSONException - Thrown  if the data cannot  be interpreted from
-the JSON objects passed in, or conversely, if we can't encode a response
-into a JSON form
-
-DataException - for bad colour 
-NumberFormatException - for bad colour numeric parts
+Parameters: jso  - @verb{| {  slot: item-uuid }  |} 
 
 @subsection Changes from 1.2
 
 Colors of  items can no  longer be changed  when donning them.  This was
 meant  for pattern  changing  in  1.2, which  must  now be  accomplished
 in-game via Doodle.
+
+Patterns are no longer clothing items.
 
 "
   (unless (null color)
@@ -271,42 +277,53 @@ Sends response containing:
 Note that the field name is literally ``@samp{You said:}.''
 
 Parameters:
-jso - Any JSON object, the contents of which will be returned to the caller.
-u - The user calling (to whom the response is sent)
-
+@table @code
+@item jso
+Any JSON object, the contents of which will be returned to the caller.
+@item u
+The user calling (to whom the response is sent)
+@end table
 
 "
   (list :|from| "echo" :|status| t :|You said| d))
 
-(definfinity endEvent ((moniker event-id score status) user recipient/s)
-  
-  " This method  terminates an event (probably a  minigame, but possibly
-a fountain) which was initiated by startEvent.
+(definfinity end-Event ((moniker event-id score status) user recipient/s)
+  "End an event started by `INFINITY-START-EVENT'
+ 
+This  method  terminates  an  event  (probably  a  fountain)  which  was
+initiated by startEvent.
 
 For fountains, the score is ignored,  and a random number from 1..100 is
 used  as  the effective  score.  Since  fountains  (should) have  a  1:1
 points:peanuts ratio, this will earn  the player 1..100 peanuts randomly
 per fountain visit.
 
-Response:  JSON sent  to user:  @verb{| { ended:  event ID;  peanuts: number  of
-peanuts earned; highScores: array of  scores, indexed by position on the
-high score  list (1..24), each  of which  contains: { points:  number of
-points  scored by  the  high-scoring  user; userName:  the  name of  the
-user }, totalPeanuts: user's new total peanut balance } |}
+Response:  JSON sent  to user:  
+
+@verbatim 
+{ ended:  event ID,
+  peanuts: number  of  peanuts earned,
+  highScores: array of  scores, indexed by position on the
+     high score  list (1..24), each  of which  contains: { points:  number of
+     points  scored by  the  high-scoring  user; userName:  the  name of  the
+     user }, 
+ totalPeanuts: user's new total peanut balance }
+@end verbatim
 
 Additionally, if this user earned a  high score on this event, s/he will
-get the  attribute in the top  level of the response  as \"gotHighScore\":
+get the attribute in the top  level of the response as \"gotHighScore\":
 with the value being the position  number which was earned. For example,
-earning  no high  score omits  the \"gotHighScore\"  attribute altogether;
-earning the third highest score will return instead \"gotHighScore\" == 3.
+earning no  high score omits the  \"gotHighScore\" attribute altogether;
+earning  the third  highest score  will return  instead @code{\"gotHighScore\":
+3}.
 
-jso -  JSON parameters. 
-
+Input parameters are:
 @verbatim
-{ moniker  = the event's moniker;  eventID = the
-event ID to be ended; score = the earned score, in points (not peanuts);
-status = one of \"cxl\" to cancel an event (in which case, score should be
-0), or \"cmp\" to complete an event (score may be zero or more). }
+{ moniker  = the event's moniker; 
+ eventID = the event ID to be ended;
+ score = the earned score, in points (not peanuts);
+ status = one of \"cxl\" to cancel an event (in which case, score should be
+   0), or \"cmp\" to complete an event (score may be zero or more). }
 @end verbatim
 
 "
@@ -320,21 +337,19 @@ Reply format:
 { from: avatars, status: true, avatars: { 0: { USER-INFO … }, … }
 @end verbatim
 
+User public information is in the format of `TOOT-INFO', which should be
+a supserset  of what @code{AbstructUser.getPublicInfo()} used  to return
+in 1.2.
 
-User public information is in the format of AbstractUser.getPublicInfo()
-
-jso - JSON object, with (ignored) keys tied to values which must be the names of users."
+jso - JSON object, with (ignored) keys  tied to values which must be the
+names of users."
   (list 200
         (coerce (loop for (_ Toot-name) on _+Toot-names by #'cddr
                    collect (Toot-info Toot-name))
                 'vector)))
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
-  
-  "gameAction(org.json.JSONObject jso,
-                                AbstractUser u,
-                                Room room)
-throws org.json.JSONException
+  "Send an in-world game's action
 
 WRITEME  — basically  similar  to an  sendOutOfBandMessage(JSONObject,
 AbstractUser, Room) but specifically something to do with a game
@@ -352,7 +367,7 @@ encode a response into a JSON form
   )
 
 (definfinity get-Avatars ((&rest _+user-names) user recipient/s)
-  "Get avatar data for a list of (other) users. cv. finger
+  "Get avatar data for a list of (other) users. cv. `INFINITY-FINGER'
 
 Parameters:
 
@@ -379,12 +394,17 @@ in the JSON result object (from: \"getColorPalettes\")
 
 Not used in Tootsville any more.  The analogous palettes in Li'l Vampies
 and Empires  of the Air are  being replaced with algorithmic  checks, so
-this routine was removed in Appius 1.2.0."
+this routine was removed in Appius 1.2.0.
+
+@subsection Revival?
+
+This might be revived in 2.0 for the UI to present lists of named colors
+during character creation, rather than  using hard-coded lists that have
+to be separately maintained in the client and server both."
   (error 'legacy-gone))
 
 (definfinity get-Inventory ((&rest d) user recipient/s)
-  
-  "get all inventory for an user — both active and inactive
+  "get all inventory for an user (themself) — both active and inactive
 
 Returns a set of items as 
 @verbatim
@@ -397,7 +417,8 @@ the question
 
 d — empty
 
-u — The user whose inventory to be searched"
+u — The user whose inventory to be searched
+"
   )
 (definfinity get-Inventory-By-Type ((type) user recipient/s)
   
@@ -436,11 +457,10 @@ Return data
   }
 @end verbatim
 
-TODO    see    Java
-getInventoryByType(JSONObject,  AbstractUser,  AbstractUser,  Room)  for
-discussion of TYPE-STRING; or @{ type: TYPE-STRING, withActive: BOOLEAN @}
-to  mask out  active items;  optional  @{ who:  LOGIN-NAME @}  to look  at
-someone else's inventory
+TODO see Java getInventoryByType(JSONObject, AbstractUser, AbstractUser,
+Room)  for   discussion  of   TYPE-STRING;  or  @{   type:  TYPE-STRING,
+withActive:  BOOLEAN @}  to  mask  out active  items;  optional @{  who:
+LOGIN-NAME @} to look at someone else's inventory
 
 u - The user whose inventory to be searched, who is the caller of this routine
 
@@ -482,27 +502,27 @@ The following planes exist in Tootsville:
 
 @item
 
-Tootanga
+Tootanga (Choerogyllum, @code{CHOR})
 
 @item
 
-Space
+Space (Orbit, @code{ORBIT})
 
 @item
 
-Moon
+Moon (@code{MOON})
 
 @item
 
-Other-Moon
+Other-Moon (@code{OTHM})
 
 @item
 
-Pink-Moon
+Pink-Moon (@code{PINK})
 
 @end itemize
 "
-  #("Tootanga" "Space" "Moon" "Other-Moon" "Pink-Moon"))
+  #("CHOR" "ORBIT" "MOON" "OTHM" "PINK"))
 
 (definfinity getServerTime (nil user recipient/s)
   "Send the server time to the client requesting it
@@ -511,7 +531,11 @@ For synchronization purposes.
 
 Sends a JSON object with a single property, serverTime, with the current
 time in milliseconds (give or take transit time). This is the Unix time,
-not the Universal time.")
+not the Universal time, and in milliseconds, not seconds."
+  (list 200
+        (list :|serverTime| (* (- (get-universal-time)
+                                  +unix-zero-in-universal-time+)
+                               1000))))
 (definfinity get-session-apple ((&rest d) user recipient/s)
   "Initialise a session key for stream or batch mode operations
 
@@ -519,14 +543,18 @@ Replies with @{ from: initSession, key: (OPAQUE-STRING) @}
 
 ")
 (definfinity get-store-item-info ((&rest d) user recipient/s)
-  "WRITEME: Document this method brpocock@@star-hope.org
+  "Get information about items in a store which can be purchased.
 
-jso - JavaScript array-style object where the key names are ignored, but the values are item ID's
+Since stores are walkable now, each item will generally be on its own.
+
+WRITEME: Document this method brpocock@@star-hope.org
+
+jso - JavaScript array-style object where the key names are ignored, but
+the values are item ID's
 
 "
   )
 (definfinity get-User-Lists (nil user recipient/s)
-  
   "Get the user's buddy list and ignore list.
 
 @verbatim
@@ -537,30 +565,44 @@ jso - no parameters needed
 
 u - The user whose buddy and ignore lists will be fetched
 
+@subsection Changes from 1.2
+
+Buddies on the buddy list can be starred, with attribute @code{starred: true}.
+
 "
   )
 (definfinity get-Wallet ((&rest d) user recipient/s)
-  
-  "
+  "Get the contents of the player's wallet (peanuts and fairy dust)
+
 WRITEME: Document this method brpocock@@star-hope.org
 
+@subsection Changes from 1.1 to 1.2
+
+Currencies were made explicit, allowing currencies other than peanuts to
+be potentially supported in future.
+
+@subsection Changes from 1.2 to 2.0
+
+Fairy Dust was added after 1.2. 
 
 "
   )
 (definfinity get-Zone-List (nil user recipient/s)
-  
   "Get a list of all Zones currently active/visible. 
 
-This returns \"Universe\" as the only Zone."
+This returns \"Universe\" as the only Zone.
+
+@subsection Changes from 1.2 to 2.0
+
+Zones no longer exist."
   #("Universe"))
 (definfinity give ((slot to) user recipient/s)
-  
-  "Give an item to another user
+  "Give an item to another user.
 
 XXX: notify the recipient using notifications (currently using a Message
 Box popup message)
 
-jso - @verb{| { slot: SLOT-NUMBER, to: USER-LOGIN } |}
+jso - @verb{| { slot: ITEM-UUID, to: TOOT-NAME } |}
 
 u - giver
 
@@ -574,15 +616,21 @@ AlreadyExistsException - if the event can't be started for some reason
 @verbatim
 
 { do: VERB (required)
-  x: DEST, y: DEST, z: DEST (each optional, but if x or y is given, both must be; z can be omitted)
+  x: DEST, y: DEST, z: DEST (each optional, but if one is given, all 3 must be)
 facing: FACING (optional)
 }
 @end verbatim
                                 
 u - the user doing something
+
+@subsection Changes from 1.2 to 2.0
+
+@code{z} can no longer be omitted if @code{x} or @code{y} are specified.
 ")
 (definfinity init-user-room ((room autoJoin) user recipient/s)
-  "
+  "Create a user's private room (in their house).
+
+
  
 Creates room  named user/user's  name/room — room  is the  room index
 number given in the JSON data as  ``room,'' it will always be zero right
@@ -607,10 +655,18 @@ already existing
 jso - { room: (room-number), autoJoin: (boolean) }
 @end verbatim
                                 
-u - The user whose house-room needs to be initialized")
+u - The user whose house-room needs to be initialized
+
+@subsection 410 Gone
+
+Removed in 2.0.
+
+User rooms are no longer needed nor supported.")
 
 (definfinity join ((room from) user recipient/s)
-  "Join a room.  On success, sends back the set  of room join events;
+  "Join a room.  
+
+On success, sends back the set  of room join events;
      but on failure, replies with  @{ from: roomJoin, status: false, err:
      ...@}
 
@@ -632,7 +688,11 @@ room.full
   Parameters:
   jso -  @{ room: MONIKER @} or @{ room: MONIKER, from: MONIKER @}
   
-u - the user joining the room") 
+u - the user joining the room
+
+@subsection 410 Gone
+
+Removed in 2.0.") 
 
 (definfinity login ((userName password zone) user recipient/s)
   "Notification of a new player in the game.
@@ -644,7 +704,9 @@ Response: logOK or @{ err: login.fail, msg: reason @}"
   )
 
 (definfinity logout ((&rest d) user recipient/s)
-  "Log out of this game session (or zone)
+  "Log out of this game session
+
+@subsection Changes from 1.2 to 2.0
 
 There was a bug in the Persephone client that caused it to explode if we
 logged it out before it received  & processed the logout message. So, we
@@ -659,7 +721,6 @@ no longer supported."
   Parameters:
   jso - @{ subject: STRING, body: STRING @}
   u - the user sending the feedback
-  room - the room in which the user is standing
 
   ")
 
@@ -683,13 +744,15 @@ Throws: org.json.JSONException -  Thrown if
 NotFoundException - Could not find a user with that name")
 
 (definfinity ping (nil user recipient/s)
-  "  Send a ping to the server to get back a pong. 
+  "Send a ping to the server to get back a pong. 
 
 This also updates the user's last-active timestamp, to prevent them from
 being idled offline."
   (setf (Toot-last-active *Toot*) (now))
-  (list 200 '(:|ping| "pong"
-              :|serverTime| (- (get-universal-time) +Unix-zero-in-universal-time+))))
+  (list 200 (list :|ping| "pong"
+                  :|serverTime| (* (- (get-universal-time)
+                                      +Unix-zero-in-universal-time+)
+                                   1000))))
 
 (definfinity prompt-reply ((id reply) user recipient/s)
   "promptReply(org.json.JSONObject jso,
@@ -1090,9 +1153,17 @@ as a string.
        jso - @{ buddy: LOGIN @}
        
 u - user who is requesting the addition
+
+@subsection Changes from 1.0 to 1.1
+
+The old system  allowed users to simply add anyone  to their buddy list;
+cv.   `INFINITY-ADD-TO-LIST'.   The   new   system   requires   mutually
+confirmed adding. AKA the Twitter vs. Facebook mechanisms.
 ")
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
-  "Send an arbitrary JSON packet to another user, or all of the users in a room, out of the band of communications.
+  "Send an arbitrary JSON packet to another user, or all of the users
+
+ Out of the band of communications.
  
 This is neither a public nor a private message in the chat context: just
 some additional data that is being provided.
@@ -1149,13 +1220,10 @@ some additional data that is being provided.
 
        This is used to compute the client's round-trip lag time.
 
-       jso - @{ serverTime: LONG milliseconds since epoch @}"
-  (list 200 '(:|serverTime| (- (get-universal-time) +Unix-time-in-Universal+))))
-
-(defun rgb-bytes->rgb (bytes)
-  (list (ldb (byte 8 0) bytes)
-        (ldb (byte 8 8) bytes)
-        (ldb (byte 8 16) bytes)))
+       jso - @{ serverTime: LONG milliseconds since Unix epoch @}"
+  (list 200 (list :|serverTime| (* 1000
+                                   (- (get-universal-time)
+                                      +Unix-time-in-Universal+)))))
 
 (definfinity set-avatar-color ((base extra) user recipient/s)
   "Set the avatar base and extra (pad) colours for the given user.
@@ -1169,8 +1237,12 @@ some additional data that is being provided.
        u - The user whose avatar colours are being set
        room - The room in which the user is standing 
        Throws:
-       org.json.JSONException - Thrown if the data cannot be interpreted from the JSON objects passed in, or conversely, if we can't encode a response into a JSON form 
-       SQLException - if the palettes can't be loaded"
+
+       org.json.JSONException - Thrown if the data cannot be interpreted
+       from  the JSON  objects passed  in,  or conversely,  if we  can't
+       encode a response into a JSON form
+       
+SQLException - if the palettes can't be loaded"
   (error "This requires Doodle's intervention now")
   (destructuring-bind (base-red base-green base-blue) (rgb-bytes->rgb base)
     (setf (Toot-base-color *Toot*) (color24-rgb base-red base-green base-blue)))
@@ -1189,13 +1261,22 @@ about ``which chair'')
 
        To remove an item from the room, send @{ slot: 123, remove: true @}
 
-       Parameters:
-       jso - @{ slot: #, x: #, y: #, facing: $ @} or @{ item: #, x: #, y: #, facing: $ @} or @{ slot: #, remove: true @}
+       Parameters: 
+ 
+jso - @{ slot:  #, x: #, y: #, facing:  $ @} or @{ item: #,  x: #, y: #,
+       facing: $ @} or @{ slot: #, remove: true @}
+
        u - The user calling this method
-       room - The room in which this user is standing 
-       Throws:
-       org.json.JSONException - Thrown if the data cannot be interpreted from the JSON objects passed in, or conversely, if we can't encode a response into a JSON form 
-       NotFoundException - if the furniture doesn't exist"
+       
+room - The room in which this user is standing 
+       
+Throws:
+       
+org.json.JSONException - Thrown  if the data cannot  be interpreted from
+the JSON objects passed in, or conversely, if we can't encode a response
+into a JSON form
+       
+NotFoundException - if the furniture doesn't exist"
   (cond 
     (remove
      (with-errors-as-http (400) (assert (and (null item) (null x) (null y) (null z))))
@@ -1223,8 +1304,7 @@ about ``which chair'')
 (definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
   "setUserVar
 
-       public static void "
-  "setUserVar(org.json.JSONObject jso,
+       public static void setUserVar(org.json.JSONObject jso,
                                   AbstractUser u,
                                   Room room)
        throws org.json.JSONException
@@ -1254,6 +1334,9 @@ about ``which chair'')
        org.json.JSONException - if something goes awry 
        PrivilegeRequiredException - if the user isn't a Developer
 
+@subsection 410 Gone
+
+Removed in 2.0. Zones no longer exist.
        ")
 
 (definfinity speak ((key speech) user recipient/s)
