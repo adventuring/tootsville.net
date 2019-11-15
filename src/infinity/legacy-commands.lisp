@@ -2,8 +2,9 @@
 
 ;;; legacy-commands.lisp is part of Tootsville
 ;;;
-;;; Copyright © 2008-2017, Bruce-Robert  Pocock; Copyright © 2018, 2019,
-;;; the Corporation for Inter-World Tourism and Adventuring (ciwta.org).
+;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
+;;; Res Interactive  LLC; Copyright  © 2018,  2019, the  Corporation for
+;;; Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;; This program is Free Software: you can redistribute it and/or modify
 ;;; it  under the  terms of  the GNU  Affero General  Public License  as
@@ -47,7 +48,7 @@
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
 (definfinity add-To-List (nil user recipient/s)
-  "add   a  user   to   a  buddy   list  or   ignore   list  
+  "add a user to a buddy list or ignore list (removed in 1.2)
 
 …using   the   traditional   (online-only,   no   notification   engine)
 mechanism    (using    out    of     band    methods).    Compare    vs.
@@ -55,7 +56,12 @@ requestBuddy `INFINITY-REQUEST-BUDDY'
 
 @subsection 410 Gone
 
-This was a legacy feature removed in Romance 1.2."
+This was a legacy feature removed in Romance 1.2.
+
+@subsection Changes from 1.1 to 1.2
+
+This function was replaced  with `INFINITY-REQUEST-BUDDY' — requestBuddy
+— q.v."
   (error 'legacy-gone))
 
 (definfinity click ((on x y z with) user recipient/s)
@@ -193,7 +199,22 @@ When the player has a house and wishes to add a room, they send
 
  @verb{| { index: roomIndex, connectTo: roomIndex, connectAt: pointMoniker } |}
 
-@subsection Changes from 1.2
+@subsection 201 Created
+
+A house or room was created as demanded
+
+@subsection 409 Conflict
+
+A house already exists  on that lot, or, a room  is already connected at
+the  given connection  point. The  request cannot  be completed  because
+something  already  exists  where  the new  construction  was  meant  to
+be placed.
+
+@subsection 404 Not Found
+
+The house ID or room connection point given was not found.
+
+@subsection Changes from 1.2 to 2.0
 
 In 1.2 adding a room required only an index.
 "
@@ -232,23 +253,52 @@ In 1.2 adding a room required only an index.
 
 Takes no parameters.
 
-Sends two  responses: a success  reply from \"doff\", then  total avatar
-  info from \"wardrobe\""
+This does not  un-equip an item held in the  @code{TRUNK}. This does not
+remove or  alter a Toot's pattern.  For non-Toot avatars, this  does not
+un-equip an item held in the @code{HAND}, @code{LHAND}, or @code{RHAND}.
+
+Sends two  responses: a success  reply from @code{doff}, then  total avatar 
+info from @code{wardrobe}. See `INFINITY-WARDROBE'.
+
+@subsection 200 OK
+
+All clothing items have been removed."
   ;; TODO dofff
   )
 (definfinity don ((slot color) user recipient/s)
-  "Don an item
+  "Don (or equip) an item
 
 JSON  object has  the  item UUID  number to  be  worn (clothes,  pivitz,
-trunk).  See `WEAR-SLOT-INFO'  for descriptions  of how  wear slots  are
-identified and  described. Note  that the appropriate  wear slot  can be
-determined from the item's template; see `ITEM-TEMPLATE-INFO'.
+trunk). 
 
-Response with total avatar info from @code{wardrobe}.
+See `WEAR-SLOT-INFO' for  descriptions of how wear  slots are identified
+and described.  Note that  the appropriate wear  slot can  be determined
+from the item's template; see `ITEM-TEMPLATE-INFO'.
+
+Response with total avatar info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
 Parameters: jso  - @verb{| {  slot: item-uuid }  |} 
 
-@subsection Changes from 1.2
+@subsection 200 OK
+
+The item has been donned or equipped.
+
+@subsection 404 Not Found
+
+The item UUID specified (by ``@code{slot}'') was not recognized.
+
+@subsection 403 Forbidden
+
+The item UUID specified was not owned by the player requesting to don it.
+
+@subsection 409 Conflict
+
+The  item  requested   cannot  be  equipped  by   the  player's  avatar.
+For  example, a  Toot  character  cannot equip  an  item which  requires
+a @code{HAND}  slot, since  Toots have  no fingers.  Items which  do not
+occupy a wear slot also cannot be equipped, e.g. a tree.
+
+@subsection Changes from 1.2 to 2.0
 
 Colors of  items can no  longer be changed  when donning them.  This was
 meant  for pattern  changing  in  1.2, which  must  now be  accomplished
@@ -256,6 +306,9 @@ in-game via Doodle.
 
 Patterns are no longer clothing items.
 
+Equipment  held  in the  @code{TRUNK}  is  now explicitly  supported  as
+a distinct  wear slot with specific  meaning (ie, the user  can activate
+that item).
 "
   (unless (null color)
     (error 'infinity-error :http-status 400 :memo :cannot-select-color))
@@ -284,19 +337,46 @@ Any JSON object, the contents of which will be returned to the caller.
 The user calling (to whom the response is sent)
 @end table
 
+@subsection 200 OK
+
+The response is echoed back to the user.
+
+@subsection Limitations
+
+The echo packet must be less  than 1,024 Unicode characters in length or
+it will be  truncated to 1,024 characters. No warning  will be issued to
+the user in the case of truncation.
 "
-  (list :|from| "echo" :|status| t :|You said| d))
+  (list :|from| "echo" :|status| t :|You said| (limit-string-length d 1024)))
 
 (definfinity end-Event ((moniker event-id score status) user recipient/s)
   "End an event started by `INFINITY-START-EVENT'
  
-This  method  terminates  an  event  (probably  a  fountain)  which  was
+This method terminates an event (probably  a fountain, in 2.0) which was
 initiated by startEvent.
 
 For fountains, the score is ignored,  and a random number from 1..100 is
 used  as  the effective  score.  Since  fountains  (should) have  a  1:1
 points:peanuts ratio, this will earn  the player 1..100 peanuts randomly
-per fountain visit.
+per fountain visit. Fountains do not respond with a @code{highScores} array.
+
+Input parameters are:
+@table @code
+@item moniker
+the event's moniker; 
+@item eventID
+the event ID to be ended; 
+@item score
+ the earned score, in points (not peanuts); 
+@item status
+one of ``@code{cxl}'' to cancel an event 
+ (in which case, @code{score} should be 0),
+ or ``@code{cmp}'' to complete an event 
+(@code{score} may be zero or more). 
+@end table
+
+
+@subsection 200 OK
 
 Response:  JSON sent  to user:  
 
@@ -317,17 +397,29 @@ earning no  high score omits the  \"gotHighScore\" attribute altogether;
 earning  the third  highest score  will return  instead @code{\"gotHighScore\":
 3}.
 
-Input parameters are:
-@verbatim
-{ moniker  = the event's moniker; 
- eventID = the event ID to be ended;
- score = the earned score, in points (not peanuts);
- status = one of \"cxl\" to cancel an event (in which case, score should be
-   0), or \"cmp\" to complete an event (score may be zero or more). }
-@end verbatim
+@subsection Changes from 1.0 to 1.1
 
+Added the @code{status} parameter. In 1.1, this was optional and defaulted to
+ @code{cmp}.
+
+@subsection Changes from 1.1 to 1.2
+
+Made the @code{status} parameter mandatory.
+
+@subsection Changes from 1.2 to 2.0
+
+In 1.0 - 1.2, the primary use of this was for out-of-world Flash minigames, 
+with the fountains as a secondary usage. In 2.0, this is used for fountains as 
+well as treasure chests (magic boxes, &c). 
+
+The Flash minigames would report a score, and a server-side table would scale 
+that score to an appropriate number of peanuts earned.
+
+Now, the @code{score} and @code{highScores} functionality is ignored and the
+caller should listen for a subsequent gift of peanuts, fairy dust, or an item.
 "
-  )
+  (error 'unimplemented))
+
 (definfinity finger ((&rest _+Toot-names) user recipient/s)
   "Get public info for a list of Toots.
 
@@ -340,6 +432,8 @@ Reply format:
 User public information is in the format of `TOOT-INFO', which should be
 a supserset  of what @code{AbstructUser.getPublicInfo()} used  to return
 in 1.2.
+
+
 
 jso - JSON object, with (ignored) keys  tied to values which must be the
 names of users."

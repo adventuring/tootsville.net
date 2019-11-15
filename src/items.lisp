@@ -2,8 +2,9 @@
 ;;;
 ;;;; src/items.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
-;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
+;;;; Copyright © 2008-2017 Bruce-Robert Pocock; © 2010, Res Interactive,
+;;;; LLC;  ©  2018,2019  The  Corporation for  Inter-World  Tourism  and
+;;;; Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
 ;;;; modify it under the terms of  the GNU Affero General Public License
@@ -163,50 +164,142 @@ be in the world, and not owned by any other player."
     (error 'unimplemented)))
 
 
+(defun item-owner (item)
+  ;;FIXME
+  )
+
+(defun item-equipped-p (item)
+  ;; FIXME
+  )
+
 (defun item-info (item)
   "Describe ITEM in a form suitable for JSON representation.
 
 The keys are:
 
 @table @code
-@item uuid
-The item's globally unique identifier
-@item baseColor
-If the item's avatar has a layer named \"Base\", it should be recolored to this 
+@item uuid, slot
+The item's globally unique identifier.
+The alias @code{slot} is a legacy name which is derprecated, and frankly,  
+confusing. (In Romance 1.x, the inventory was considered to have a sequence
+of integer inventory slots, into which items were inserted.)
+@item baseColor, color
+If the item's avatar has a layer named \"Base\", it should be recolored to this
 color.
 @item altColor
 If the item's avatar has a layer named \"Alt\", it should be recolored to this
 color.
 @item template
 The description of the item's template, as per `ITEM-TEMPLATE-INFO'.
-@item energy
+@item energy, health
 The amount of energy that this item has, if any. 
 @item avatarScale
 The scaling of the avatar in each of @code{x}, @code{y}, and @code{z} 
 dimentions.
-@item position
-The position of the avatar within the 200m cube: @code{x}, @code{y},
+@item rarity
+Always returns FIXME
+@item position and x,y,z
+The position of the avatar within the 200m cube
+identified by @code{location}: @code{x}, @code{y},
 and @code{z}.
+See `ITEM-X', `ITEM-Y', `ITEM-Z'.
+Note that these are subject to the physics engine and may not always be 
+current and accurate when obtained from the server.
 @item location
 The 200m cube in which the avatar is located, by @code{latitude},
-@code{longitude}, @code{altitude}, and @code{world}.
-@end table"
-  (list :|uuid| (item-uuid item)
-        :|baseColor| (item-base-color item)
-        :|altColor| (item-alt-color item)
-        :|template| (item-template-info (find-record 'item-template 
-                                                     :id (item-template item)))
-        :|energy| (item-energy item)
-        :|avatarScale| (list :|x| (item-avatar-scale-x item)
-                             :|y| (item-avatar-scale-y item)
-                             :|z| (item-avatar-scale-z item))
-        :|position| (list :|x| (item-x item)
-                          :|y| (item-y item)
-                          :|z| (item-z item))
-        :|location| (list :|latitude| (item-latitude item)
-                          :|longitude| (item-longitude item)
-                          :|altitude| (item-altitude item)
-                          :|world| (item-world item))))
+@code{longitude}, @code{altitude}, and @code{world}. 
+See `ITEM-LATITUDE', `ITEM-LONGITUDE', `ITEM-ALTITUDE', `ITEM-WORLD'
+@item itemType, title
+The name of the item's template. See `ITEM-TEMPLATE-NAME'
+@item itemID
+The unique ID of the item's template.
+See `ITEM-TEMPLATE-ID', `ITEM-TEMPLATE'
+@item inRoom
+Deprecated. Always returns ``@code{@@Tootsville}'' now.
+@item ownerID
+The UUID of the Toot who owns this item, if any. If there is no owner, 
+returns the string ``@code{-1}''.
+See `ITEM-OWNER'
+@item isActive
+If this item is equipped by its owner, then this value is @code{true}.
+See `ITEM-IS-EQUIPPED-P'
+@item equipType
+The name of the wear-slot into which this item can be worn, if any. 
+See `WEAR-SLOT-NAME' by way of `ITEM-TEMPLATE-WEAR-SLOT'
+by way of `ITEM-TEMPLATE'.
+@end table
+
+@subsection Changes from 1.2 to 2.0
+
+@itemize
+@item
+@code{inRoom} is no longer supported, in favor of @code{location}.
+@item
+@code{x}, @code{y}, and @code{z} may not always be correct as the item may be
+subject to the physics engine.
+@item
+As announced previously, @code{healthType} now is presented as 
+@code{continuous} or @code{dicrete} rather than @code{C} or @code{D}.
+@end itemize
+
+@subsection Deprecated
+
+@table @code
+@item slot
+Deprecated in favor of the less confusing and more direct name @code{uuid}.
+@item inRoom
+Already useless, use @code{location} instead.
+@item x,y,z
+Use the versions in @code{position} or obtain current data from the mesh.
+@item itemType, itemID, title
+Use the information in @code{template}; see `ITEM-TEMPLATE-INFO'
+@item color
+Use @code{baseColor}.
+@item rarity, facing
+These no longer have meaningful values.
+@item health, healthType
+Use @code{energy}, @code{template.energyType}
+@item equipType
+@end table
+"
+  (let ((item-template (find-record 'item-template 
+                                    :id (item-template item))))
+    (list :|uuid| (item-uuid item)
+          :|ownerID| (or (item-owner item) "-1")
+          :|baseColor| (item-base-color item)
+          :|altColor| (item-alt-color item)
+          :|template| (item-template-info item-template)
+          :|energy| (item-energy item)
+          :|avatarScale| (list :|x| (item-avatar-scale-x item)
+                               :|y| (item-avatar-scale-y item)
+                               :|z| (item-avatar-scale-z item))
+          :|position| (list :|x| (item-x item)
+                            :|y| (item-y item)
+                            :|z| (item-z item))
+          :|location| (list :|latitude| (item-latitude item)
+                            :|longitude| (item-longitude item)
+                            :|altitude| (item-altitude item)
+                            :|world| (item-world item))
+          :|isActive| (item-equipped-p item)
+          ;; DEPRECATED and may be removed in a future release
+          :|equipType| (wear-slot-name
+                        (find-record 'wear-slot
+                                     :id (item-template-wear-slot item-template)))
+          :|health| (item-energy item)
+          :|healthType| (if (eql :uncountable (item-template-energy-kind item-template))
+                            "continuous"
+                            "discrete")
+          :|rarity| FIXME
+          :|facing| "S"
+          :|color| (item-base-color item)
+          :|itemType| (item-template-name item-template)
+          :|title| (item-template-name item-template)
+          :|itemID| (item-template-id item-template)
+          :|slot| (item-uuid item)
+          :|inRoom| "@Tootsville"
+          :|x| (item-x item)
+          :|y| (item-y item)
+          :|z| (item-z item))))
 
 (defun item-template-info (template)
   "Information about the item TEMPLATE in a form suitable for JSON.

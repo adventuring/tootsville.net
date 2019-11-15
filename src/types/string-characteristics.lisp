@@ -79,3 +79,14 @@ itself returns true."
                      (char string (- i 2)))
          do (return-from three-chars-in-a-row-p i)))
   nil)
+
+
+
+(defun limit-string-length (string length)
+  "Returns up to LENGTH characters from STRING.
+
+If   STRING   is   less   than  LENGTH   characters   in   length,   the
+entire (original) string is returned."
+  (if (<= (length string) length)
+      string
+      (subseq string 0 length)))
