@@ -380,3 +380,5 @@ limitations under the License. |#
 
 
 
+(defun user-plane (&optional (user *user*))
+  (Toot-world (find-active-toot-for-user user)))

@@ -183,9 +183,8 @@ broadcast over other channels.
 The click event is being ignored; ITEM-ID was not an interesting item to
 the server.
 "
-  )
+  (error 'unimplemented))
 (definfinity create-user-house ((lot house index) user recipient/s)
-  
   "Either claim the user's house and lot, or add a room to their house.
 
 Data describing the user's lot.
@@ -265,6 +264,7 @@ info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 All clothing items have been removed."
   ;; TODO dofff
   )
+
 (definfinity don ((slot color) user recipient/s)
   "Don (or equip) an item
 
@@ -273,7 +273,8 @@ trunk).
 
 See `WEAR-SLOT-INFO' for  descriptions of how wear  slots are identified
 and described.  Note that  the appropriate wear  slot can  be determined
-from the item's template; see `ITEM-TEMPLATE-INFO'.
+from the  item's template; see  `ITEM-TEMPLATE-INFO'. For a list  of all
+wear slots, see `INFINITY-ENUMERATE-WEAR-SLOTS' (new in 2.0).
 
 Response with total avatar info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
@@ -282,6 +283,10 @@ Parameters: jso  - @verb{| {  slot: item-uuid }  |}
 @subsection 200 OK
 
 The item has been donned or equipped.
+
+@subsection 400 Bad Request
+
+The removed @code{color} attribute was submitted.
 
 @subsection 404 Not Found
 
@@ -302,7 +307,7 @@ occupy a wear slot also cannot be equipped, e.g. a tree.
 
 Colors of  items can no  longer be changed  when donning them.  This was
 meant  for pattern  changing  in  1.2, which  must  now be  accomplished
-in-game via Doodle.
+in-game via Doodle. The @code{color} parameter must be null.
 
 Patterns are no longer clothing items.
 
@@ -345,8 +350,7 @@ The response is echoed back to the user.
 
 The echo packet must be less  than 1,024 Unicode characters in length or
 it will be  truncated to 1,024 characters. No warning  will be issued to
-the user in the case of truncation.
-"
+the user in the case of truncation."
   (list :|from| "echo" :|status| t :|You said| (limit-string-length d 1024)))
 
 (definfinity end-Event ((moniker event-id score status) user recipient/s)
@@ -416,8 +420,7 @@ The Flash minigames would report a score, and a server-side table would scale
 that score to an appropriate number of peanuts earned.
 
 Now, the @code{score} and @code{highScores} functionality is ignored and the
-caller should listen for a subsequent gift of peanuts, fairy dust, or an item.
-"
+caller should listen for a subsequent gift of peanuts, fairy dust, or an item. "
   (error 'unimplemented))
 
 (definfinity finger ((&rest _+Toot-names) user recipient/s)
@@ -438,9 +441,11 @@ in 1.2.
 jso - JSON object, with (ignored) keys  tied to values which must be the
 names of users."
   (list 200
-        (coerce (loop for (_ Toot-name) on _+Toot-names by #'cddr
-                   collect (Toot-info Toot-name))
-                'vector)))
+        (list :|avatars| (loop for (_ Toot-name) on _+Toot-names by #'cddr
+                            for i from 0
+                            appending (list i (Toot-info Toot-name)))
+              :|from| "avatars"
+              :|status| t)))
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   "Send an in-world game's action
@@ -455,10 +460,14 @@ interpreted from the JSON objects passed  in, or conversely, if we can't
 encode a response into a JSON form
 
 "
-  )
+  (error 'unimplemented))
 (definfinity get-apple (nil user recipient/s)
-  "Get the apple to get into, or out of, $Eden"
-  )
+  "Get the apple to get into, or out of, $Eden. Unused.
+
+@subsection 410 Gone
+
+This command is no longer needed."
+  (error 'legacy-gone))
 
 (definfinity get-Avatars ((&rest _+user-names) user recipient/s)
   "Get avatar data for a list of (other) users. cv. `INFINITY-FINGER'
@@ -468,10 +477,8 @@ Parameters:
 jso - JSON object, with (ignored) keys  tied to values which must be the
 names of users. e.g. @{ 0: \"someUser\", 1: \"otherUser\" @}
 
-u - The calling user. The calling user's avatar data will not be returned.
-
-
-")
+u - The calling user. The calling user's avatar data will not be returned."
+  (error 'unimplemented))
 
 (definfinity get-color-palettes (nil user recipient/s)
   "getColorPalettes
@@ -484,7 +491,7 @@ and was removed in 1.2.
 returns palettes  in \"extraColors\",  \"baseColors\", \"patternColors\"
 in the JSON result object (from: \"getColorPalettes\")
 
-@subsection Note
+@subsection Changes from 1.1 to 1.2
 
 Not used in Tootsville any more.  The analogous palettes in Li'l Vampies
 and Empires  of the Air are  being replaced with algorithmic  checks, so
@@ -515,8 +522,45 @@ u — The user whose inventory to be searched
 "
   )
 (definfinity get-Inventory-By-Type ((type) user recipient/s)
-  
   "Get a subset of items from your own inventory
+
+The @code{type} can be one of two options.
+
+For legacy compatibility, the following list of @code{type} codes can be
+supplied. These may  be more convenient for the  front-end. Legacy users
+of  code sequences  beginning with  @code{#} or  @code{$} are  no longer
+supported, however.
+
+@table
+@item clothes
+All items which can be worn in any slot other than @code{TRUNK}, @code{HAND},
+ @code{LHAND} or @code{RHAND}, or @code{PIVITZ}
+@item pivitz
+Only Pivitz items
+@item patterns
+Ignored for backward-compatibility.
+@item furniture
+Any item which cannot be equipped in any way
+@item structure
+Ignored for backward-compatibility
+@item music
+Ignored for backward-compatibility
+@item tootsBook
+Ignored for backward-compatibility
+@item stationery
+Ignored in 2.0 but may be revived in 2.1
+@item accessories
+All items which can be equipped in @code{TRUNK} slot, or @code{HAND},
+ @code{LHAND} or @code{RHAND} (for non-Toot characters). 
+@end table
+
+In  addition,   @code{type}  can  be   a  string  containing   the  word
+@code{point} followed by a space and the moniker of an avatar attachment
+point,  in  which  case  all  items   which  can  be  equipped  to  that
+point (regardless  of valence)  are returned;  or, the  word @code{slot}
+followed by a space and the ID number of a specific wear-slot.
+
+
 
 Parameters:
 
@@ -636,7 +680,7 @@ not the Universal time, and in milliseconds, not seconds."
 @subsection 410 Gone
 
 This function is no longer needed."
-  (list 410 "Gone"))
+  (error 'legacy-gone))
 
 (definfinity get-store-item-info ((&rest jso) user recipient/s)
   "Get information about items in a store which can be purchased.
@@ -702,7 +746,7 @@ Fairy Dust was added after 1.2.
 @subsection 200 OK
 
 Returns the wallet info."
-  (list 200 (wallet-info (find-active-toot-for-user user))))
+  (list 200 (wallet-info *Toot*)))
 
 (definfinity get-Zone-List (nil user recipient/s)
   "Get a list of all Zones currently active/visible. 
@@ -748,7 +792,7 @@ receive items.
 
 "
   (gift-item (find-record 'item :uuid slot)
-             (find-active-toot-for-user user)
+             *Toot*
              (find-record 'Toot :name to)))
 
 (definfinity go ((do x y z facing) user recipient/s)
@@ -888,10 +932,26 @@ NotFoundException - Could not find a user with that name")
 (definfinity ping (nil user recipient/s)
   "Send a ping to the server to get back a pong. 
 
-This also updates the user's last-active timestamp, to prevent them from
-being idled offline."
+This also updates the user's last-active timestamp.
+
+@subsection 200 OK
+
+The response packet contains literally
+
+@table @code
+@item from
+@code{\"ping\"}
+@item status
+@code{true}
+@item ping
+@code{\"pong\"}
+@item serverTime
+The server's time as a Unix-epoch timestamp in milliseconds.
+@end table"
   (setf (Toot-last-active *Toot*) (now))
-  (list 200 (list :|ping| "pong"
+  (list 200 (list :|from| "ping"
+                  :|ping| "pong"
+                  :|status| t
                   :|serverTime| (* (- (get-universal-time)
                                       +Unix-zero-in-universal-time+)
                                    1000))))

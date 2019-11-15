@@ -7,7 +7,12 @@
          (json (jonathan.decode:parse json$)))
     (with-user ()
       (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
-        (list 200 () (funcall method json *user* (user-plane *user*)))))))
+        (funcall method json *user* (user-plane *user*))))))
+
+(defun infinity-error (code reason)
+  (throw 'infinity
+    (list code (list :|status| :false
+                     :|error| (symbol-munger:lisp->camel-case reason)))))
 
 (defmacro definfinity (name (lambda-list user-var plane-var) &body body)
   "Define an Infinity-mode “c” command NAME.
@@ -47,7 +52,30 @@ There are two main wire protocols; RESTful POSTs and gossipnet.
 
 @subsubsection RESTful POSTs 
 
-XXX WRITEME
+The REST POST interface is what you're really here to read about (on the
+server  side). A  POST  is  submitted with  a  JSON object  representing
+a command call.
+
+This request can  be submitted to either the dedicated  endpoint, or the
+general,   dispatching  endpoint.   The  dedicated   endpoint  will   be
+slightly faster.
+
+The   dedicated    endpoint   will    have   a    URL   of    the   form
+/world/infinity/command-name,  with  the   command  name  in  lower-case
+and hyphenated.
+
+The  dispatching   endpoint  is   /world/infinity.  Submitting   to  the
+dispatching endpoint requires a JSON object with two keys:
+
+@table @code
+@item c
+The command name, in camelCase
+@item d
+The data to be submitted to that command.
+@end table
+
+In the  case of the  dedicated endpoint,  only the contents  of @code{d}
+need to be submitted.
 
 @subsection Datagram constructions 
 
@@ -109,16 +137,17 @@ XXX WRITEME
        (defun ,infinity-name (d ,user-var ,plane-var)
          ,docstring
          (declare (ignorable ,user-var ,plane-var))
-         (destructuring-bind (,(first λ-list) ,@(mapcar (lambda (sym)
-                                                          (if (char= #\& (char (symbol-name sym) 0))
-                                                              sym
-                                                              (intern (symbol-munger:lisp->camel-case sym))))
-                                                        (rest λ-list)))
-             d
-           (let (,@(mapcar (lambda (var) (list var (intern (symbol-munger:lisp->camel-case var)))) (remove-if (lambda (sym)
-                                                                                                                (char= #\& (char (symbol-name sym) 0)))
-                                                                                                              (rest λ-list))))
-             ,@body)))
+         (catch 'infinity
+           (destructuring-bind (,(first λ-list) ,@(mapcar (lambda (sym)
+                                                            (if (char= #\& (char (symbol-name sym) 0))
+                                                                sym
+                                                                (intern (symbol-munger:lisp->camel-case sym))))
+                                                          (rest λ-list)))
+               d
+             (let (,@(mapcar (lambda (var) (list var (intern (symbol-munger:lisp->camel-case var)))) (remove-if (lambda (sym)
+                                                                                                                  (char= #\& (char (symbol-name sym) 0)))
+                                                                                                                (rest λ-list))))
+               ,@body))))
        (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name)) 
                           "application/json")
          ,docstring
@@ -138,3 +167,11 @@ XXX WRITEME
          ,docstring
          (let ((,user *user*) (,plane (user-plane *user*)))
            ,@body))))) 
+
+(defendpoint (POST "/world/infinity" "application/json")
+  (with-posted-json (c d)
+    (with-user ()
+      (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
+        (funcall (intern (concatenate 'string "INFINITY-"
+                                      (symbol-munger:camel-case->lisp-name c)))
+                 d *user* (user-plane *user*))))))
