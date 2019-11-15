@@ -171,6 +171,44 @@ be in the world, and not owned by any other player."
 (defun item-equipped-p (item)
   ;; FIXME
   )
+
+(defun item-template-can-trade-p (item-template)
+  "If true, this item can be traded, dropped, or give away.
+
+If false, once lodged into a player's inventory, it is stuck there forever.
+
+Item templates  have a property  `ITEM-TEMPLATE-TRADE' which can  be any
+of :Y,  :N, or :X. When  :Y, the item  can be traded, dropped,  or given
+away freely. This is the usual case and describes almost all items.
+
+Certain items cannot be dropped or  given away. These items have a TRADE
+value of  :N or :X.  The difference  between :N and  :X is that  an item
+with :N  as its TRADE  value is still  visible normally in  the player's
+inventory, and can be equipped if it's  such an item. An item with :X as
+its TRADE value will be invisible to  its owner, so it cannot be used in
+any way.
+"
+  (eql :y (item-template-trade item-template)))
+
+(defun item-template-visible-to-owner-p (item-template)
+  "If true, the owner of this item can tell that they own it.
+
+If false, the item is invisible to  its owner and @i{de facto} will also
+be untradeable (see `ITEM-TEMPLATE-CAN-TRADE-P' for a discussion)."
+  (not (eql :x (item-template-trade item-template))))
+
+
+
+(defmethod currency-name (code)
+  (:method (code (eql :x-tvpn))
+    "Tootsville Magic Peanuts")
+  (:method (code (eql :x-fadu))
+    "Fairy Dust"))
+
+(defmethod currency-symbol (code)
+  (:method (code (eql :x-tvpn)) "🥜")
+  (:method (code (eql :x-fadu)) "⁂"))
+
 
 (defun item-info (item)
   "Describe ITEM in a form suitable for JSON representation.
@@ -301,6 +339,66 @@ Use @code{energy}, @code{template.energyType}
           :|y| (item-y item)
           :|z| (item-z item))))
 
+(defun store-item-info (store-item)
+  "Describes a store item in JSON-compatible format.
+
+@table @code
+@item id
+The unique ID for this instance of this item at this store.
+@item title
+The title of the item; see `ITEM-TEMPLATE-NAME'.
+@item price
+The price to purchase an instance of this item. See `STORE-ITEM-PRICE'.
+@item currency
+The display name of the type of currency in which the price has been specified.
+Typically one of ``Tootsville Magic Peanuts'' or ``Fairy Dust''.
+See `CURRENCY-NAME' for `STORE-ITEM-CURRENCY'
+@item currCode
+The ISO-4217 currency code for @code{currency}. See
+  `STORE-ITEM-CURRENCY'.
+For Tootsville, we use @code{X-TVPN} for Tootsville Magic Peanuts, or
+@code{X-FADU} for Fairy Dust.
+@item currSym
+The display symbol for the currency. Tootsville Magic Peanuts use a peanut 
+emoji, while Fairy Dust uses an asterism. See `CURRENCY-SYMBOL'
+for `STORE-ITEM-CURRENCY'.
+@item qty
+The quantity of this item available. If zero, this item is not available.
+If an unlimited number of this item are available, this will be instead
+the Infinity sign as a literal string. See `STORE-ITEM-QTY'
+@item desc
+A description about the item. See `ITEM-TEMPLATE-DESCRIPTION'.
+@item template
+Information about the item's template; see `ITEM-TEMPLATE-INFO'.
+@end table
+
+@subsection Changes from 1.2 to 2.0
+
+@itemize
+@item
+Item templates are now distinct from store items.
+@item
+Added @code{template} and @code{qty}
+@item
+The Tootsville Magic Peanuts currency was previously
+ ``Tootsville@sup{TM} Peanuts'' and had a currency symbol of
+``þ'' (The Icelandic letter Thorn).
+@item
+Currency Codes are now uniformly ALL CAPS.
+@end itemize
+"
+  (let ((currency (store-item-currency store-item))
+        (item-template (find-reference store-item :item-template)))
+    (list :|id| (store-item-id store-item)
+          :|title| (item-template-name item-template)
+          :|qty| (or (store-item-qty store-item) "∞")
+          :|price| (store-item-price store-item)
+          :|currency| (currency-name currency)
+          :|currSym| (currency-symbol currency)
+          :|currCode| (string currency)
+          :|desc| (item-template-description item-template)
+          :|template| (item-template-info item-template))))
+
 (defun item-template-info (template)
   "Information about the item TEMPLATE in a form suitable for JSON.
 
@@ -396,3 +494,5 @@ mount point @code{point}, and affect valences from @code{min} through
         :|obstructs| (list :|point| (wear-slot-obstruct-point slot)
                            :|min| (wear-slot-obstruct-min slot)
                            :|max| (wear-slot-obstruct-max slot))))
+
+

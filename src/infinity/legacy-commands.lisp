@@ -631,23 +631,43 @@ not the Universal time, and in milliseconds, not seconds."
                                   +unix-zero-in-universal-time+)
                                1000))))
 (definfinity get-session-apple ((&rest d) user recipient/s)
-  "Initialise a session key for stream or batch mode operations
+  "Initialise a session key for stream or batch mode operations (Unused now)
 
-Replies with @{ from: initSession, key: (OPAQUE-STRING) @} 
+@subsection 410 Gone
 
-")
-(definfinity get-store-item-info ((&rest d) user recipient/s)
+This function is no longer needed."
+  (list 410 "Gone"))
+
+(definfinity get-store-item-info ((&rest jso) user recipient/s)
   "Get information about items in a store which can be purchased.
 
-Since stores are walkable now, each item will generally be on its own.
+Input:  jso -  JavaScript array-style  object  where the  key names  are
+insignificant, but the values are store item ID's
 
-WRITEME: Document this method brpocock@@star-hope.org
+The returned packet is @code{from: \"getStoreItemInfo\"} and contains an
+object @code{items}  with a matching set  of keys, but whose  values are
+objects in the form of `STORE-ITEM-INFO', qv.
 
-jso - JavaScript array-style object where the key names are ignored, but
-the values are item ID's
+@subsection Changes from 1.2 to 2.0
 
-"
-  )
+Additional information is returned in `STORE-ITEM-INFO' objects.
+
+@subsection 200 OK
+
+Returns the details about store items queried-for by the user.
+
+@subsection 404 Not Found
+
+If any item ID cannot be found, the entire query fails with a 404."
+  (list 200
+        (append (list :|from| "getStoreItemInfo"
+                      :|status| t)
+                (loop for (key id) on jso by #'cddr
+                   appending (list key 
+                                   (store-info 
+                                    (find-record 'store-item
+                                                 :id (parse-integer id))))))))
+
 (definfinity get-User-Lists (nil user recipient/s)
   "Get the user's buddy list and ignore list.
 
@@ -668,7 +688,7 @@ Buddies on the buddy list can be starred, with attribute @code{starred: true}.
 (definfinity get-Wallet ((&rest d) user recipient/s)
   "Get the contents of the player's wallet (peanuts and fairy dust)
 
-WRITEME: Document this method brpocock@@star-hope.org
+Returns information in the form `WALLET-INFO', qv.
 
 @subsection Changes from 1.1 to 1.2
 
@@ -677,10 +697,13 @@ be potentially supported in future.
 
 @subsection Changes from 1.2 to 2.0
 
-Fairy Dust was added after 1.2. 
+Fairy Dust was added after 1.2.
 
-"
-  )
+@subsection 200 OK
+
+Returns the wallet info."
+  (list 200 (wallet-info (find-active-toot-for-user user))))
+
 (definfinity get-Zone-List (nil user recipient/s)
   "Get a list of all Zones currently active/visible. 
 
@@ -689,7 +712,8 @@ This returns \"Universe\" as the only Zone.
 @subsection Changes from 1.2 to 2.0
 
 Zones no longer exist."
-  #("Universe"))
+  (list 200 (list 0 "Universe")))
+
 (definfinity give ((slot to) user recipient/s)
   "Give an item to another user.
 
@@ -700,10 +724,33 @@ jso - @verb{| { slot: ITEM-UUID, to: TOOT-NAME } |}
 
 u - giver
 
-AlreadyExistsException - if the event can't be started for some reason
+If the item  is currently equipped or being worn,  it will be unequipped
+as it is being given away.
+
+@subsection 412 Precondition Failed
+
+An item cannot be given if you do not possess it to begin with.
+
+@subsection 404 Not Found
+
+The item and the recipient must each exist.
+
+@subsection 403 Forbidden
+
+Certain items  cannot be  traded. This  includes gifting,  dropping, &c.
+See `ITEM-TEMPLATE-CAN-TRADE-P' for a discussion.
+
+@subsection Changes from 1.2 to 2.0
+
+Players used  to be unable  to gift items  to non-VIT members;  with the
+abolition  of   VIT  status,   everyone  is   very  important   and  can
+receive items.
 
 "
-  )
+  (gift-item (find-record 'item :uuid slot)
+             (find-active-toot-for-user user)
+             (find-record 'Toot :name to)))
+
 (definfinity go ((do x y z facing) user recipient/s)
   "go to a place and/or perform a gesture
 
@@ -734,6 +781,7 @@ the user. The  user calling this method  must be the owner  of the room.
 If the  user has not visited  his/her house before, this  will return an
 asynchronous \"make a  new house\" notification to do  the \"first run\"
 screen,  by sending  a  message of  type  
+
 @verbatim
 { \"from\":  \"initUserRoom\",
 \"status\": false, \"err\": \"showFirstRun\" }.

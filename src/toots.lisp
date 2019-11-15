@@ -132,7 +132,11 @@ Always white at present (2.0)."
                                   (and *user*
                                        (uuid:uuid= (person-uuid *user*)
                                                    (Toot-player Toot)))))
-  "Returns a JSON-compatible structure which describes a Toot or other character.
+  "Returns a JSON-compatible structure which describes TOOT.
+
+If PRIVATEP,  then private  information (normally  only visible  to that
+Toot's user) is returned; otherwise,  private information is dummied out
+or absent.
 
 This data is returned by various functions, including `INFINITY-FINGER' or
 `INFINITY-WARDROBE'.
@@ -329,12 +333,14 @@ This is deprecated in favor of @code{avatar}
                           2 (color24-name (Toot-pattern-color Toot))))))
 
 (defun find-active-Toot-for-user (&optional (user *user*))
+  "Returns the TOOT (if any) that USER is currently playing with."
   (when user
     (when-let (record (ignore-not-found (find-record 'player-Toot :player (person-uuid user))))
       (values (ignore-not-found (find-record 'Toot :uuid (player-Toot-Toot record)))
               record))))
 
 (defun link-active-Toot-to-user (Toot &optional (user *user*))
+  "Sets the Toot which the player USER is currently using to TOOT."
   (multiple-value-bind (old-Toot player-Toot) (find-active-Toot-for-user user)
     (when old-Toot
       (unless (Toot= Toot old-Toot)
@@ -342,4 +348,29 @@ This is deprecated in favor of @code{avatar}
   (make-record 'player-Toot :player (person-uuid user) :Toot (Toot-uuid Toot)))
 
 (defun every-Toot-name ()
+  "Enumerates the names of every Toot known to the system."
   (sort (mapcar #'Toot-name (find-records 'Toot)) #'string-lessp)) 
+
+(defun wallet-info (Toot)
+  "Returns JSON-type data about TOOT's wallet.
+
+This object contains
+
+@table @code
+@item walletOwner
+The Toot name whose wallet is being described
+@item currency
+An object containing an enumeration of currencies. Each key is a currency's 
+ISO symbol; each value is the amount of that currency which TOOT currently 
+possesses.
+@end table
+
+@subsection Changes from 1.2 to 2.0
+
+In 1.2, the only currency reported was X-TVPN, Tootsville Magic Peanuts.
+Now, we also report (at least) X-FADU, fairy dust.
+"
+  (list :|walletOwner| (Toot-name Toot)
+        :|currency| (list :x-tvpn (Toot-peanuts Toot)
+                          :x-fadu (Toot-fairy-dust Toot))))
+

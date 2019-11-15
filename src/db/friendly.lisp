@@ -134,6 +134,8 @@
 (defrecord item-template (:friendly "item_templates" :pull t)
   (id number)
   (name string)
+  (description string)
+  (trade keyword) ; Y/es, N/o, or X/hidden
   (default-base-color color24)
   (default-alt-color color24)
   (avatar string)
@@ -168,6 +170,13 @@
   (person uuid ref person)
   (Toot uuid ref Toot)
   (equipped keyword))
+
+(defrecord store-item (:friendly "store_items")
+  (id number)
+  (template number ref item-template)
+  (qty number)
+  (price number)
+  (currency keyword))
 
 
 (defrecord music (:friendly "music" :pull t)
@@ -234,3 +243,4 @@
   (latitude number)
   (longitude number)
   (terrain string))
+
