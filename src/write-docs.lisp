@@ -206,6 +206,10 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
           (dolist (symbol (sort (remove-duplicates symbols) #'string<))
             (write-docs-for-symbol symbol))))
       (terpri)
+      (let ((client-docs (asdf:system-relative-pathname :Tootsville
+                                                        "../tootsville.org/dist/doc.texi")))
+        (when (probe-file client-docs)
+          (princ (read-file-into-string client-docs))))
       (princ "@bye"))))
 
 (defun symbol-has-definition-p (symbol)
