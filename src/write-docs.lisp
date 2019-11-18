@@ -205,6 +205,9 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
               (push symbol symbols)))
           (dolist (symbol (sort (remove-duplicates symbols) #'string<))
             (write-docs-for-symbol symbol))))
+      (princ (read-file-into-string (asdf:system-relative-pathname 
+                                     :Tootsville
+                                     "src/doc/Conclusion.texi")))
       (terpri)
       (princ "@bye"))))
 
