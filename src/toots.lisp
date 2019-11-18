@@ -279,9 +279,9 @@ Deprecated in favor of @code{baseColor}, @code{patternColor}, @code{padColor}.
 @item avatarClass
  This is deprecated and will be removed in future. Its purpose is
 better served by other fields already in the structure.
-@table format
+@item format
 This is deprecated in favor of @code{avatar}
-@end itemize
+@end table
 "
   (let ((avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
     (list :|name| (Toot-name Toot)
