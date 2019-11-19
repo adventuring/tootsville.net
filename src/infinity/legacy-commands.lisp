@@ -495,7 +495,7 @@ in the JSON result object (from: \"getColorPalettes\")
 
 Not used in Tootsville any more.  The analogous palettes in Li'l Vampies
 and Empires  of the Air are  being replaced with algorithmic  checks, so
-this routine was removed in Appius 1.2.0.
+this routine was removed in Romance 1.2.0.
 
 @subsection Revival?
 
@@ -531,7 +531,7 @@ supplied. These may  be more convenient for the  front-end. Legacy users
 of  code sequences  beginning with  @code{#} or  @code{$} are  no longer
 supported, however.
 
-@table
+@table @code
 @item clothes
 All items which can be worn in any slot other than @code{TRUNK}, @code{HAND},
  @code{LHAND} or @code{RHAND}, or @code{PIVITZ}
@@ -636,29 +636,29 @@ NotFoundException - if the room requested doesn't exist
 
 The following planes exist in Tootsville:
 
-@itemize
+@table @code
 
-@item
+@item CHOR
 
-Tootanga (Choerogyllum, @code{CHOR})
+Tootanga (Choerogyllum)
 
-@item
+@item ORBIT
 
-Space (Orbit, @code{ORBIT})
+Space (Orbit)
 
-@item
+@item MOON
 
-Moon (@code{MOON})
+The Moon
 
-@item
+@item OTHM
 
-Other-Moon (@code{OTHM})
+The Other Moon
 
-@item
+@item PINK
 
-Pink-Moon (@code{PINK})
+The Pink Moon
 
-@end itemize
+@end table
 "
   #("CHOR" "ORBIT" "MOON" "OTHM" "PINK"))
 
@@ -679,7 +679,11 @@ not the Universal time, and in milliseconds, not seconds."
 
 @subsection 410 Gone
 
-This function is no longer needed."
+This function is no longer needed.
+
+@subsection New in 1.1
+
+This feature was added in Romance 1.1 and removed in 2.0"
   (error 'legacy-gone))
 
 (definfinity get-store-item-info ((&rest jso) user recipient/s)
@@ -1361,6 +1365,10 @@ u - user who is requesting the addition
 The old system  allowed users to simply add anyone  to their buddy list;
 cv.   `INFINITY-ADD-TO-LIST'.   The   new   system   requires   mutually
 confirmed adding. AKA the Twitter vs. Facebook mechanisms.
+
+@subsection New in 1.1
+
+This is new in Romance 1.1
 ")
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users
@@ -1615,18 +1623,21 @@ Note that for all fountains, use the magic moniker ``fountain''
 
 Calls back the user with either of:
 
-@table @code
-@item alreadyDone: true; status: false; err: \"event.alreadyDone\"
+@itemize
+@item 
+
+@code{alreadyDone: true; status: false; err: \"event.alreadyDone\"}
 
 This returns for fountains that  have already given peanuts today (where
 today started at midnight, database local time)
 
-@item eventID: (NUM),  filename: \"blah.swf\",  asVersion: @{ 2,  3, or  not @}, status: true
+@item
+@code{ eventID: (NUM),  filename: \"blah.swf\",  asVersion: @{ 2,  3, or  not @}, status: true}
 
 For successfully registered events. Must  be completed or canceled using
 `INFINITY-END-EVENT', qv
 
-@end table
+@end itemize
 ")
 
 (definfinity end-event ((moniker) user recipient/s)
