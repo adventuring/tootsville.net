@@ -52,8 +52,10 @@ be accepted."
 
 Returns a JSON object with UUID (for answering) and SDP description."
   (with-user ()
-    (or (dequeue-sdp-offer)
-        (v:warn :gossip "No offers available for requestor"))))
+    (if-let (offer (dequeue-sdp-offer))
+      (list 200 offer)
+      (progn (v:warn :gossip "No offers available for requestor")
+             (list 204 #())))))
 
 (defendpoint (post "/gossip/answers/:uuid" "application/sdp")
   "Post an answer to a received SDP block"
