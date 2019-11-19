@@ -286,8 +286,8 @@ This is deprecated in favor of @code{avatar}
   (let ((avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
     (list :|name| (Toot-name Toot)
           :|userName| (Toot-presentation-name Toot)
-          :|chatFG| (color24-name (Toot-chat-foreground Toot))
-          :|chatBG| (color24-name (Toot-chat-background Toot))
+          :|chatFG| (color24-name (Toot-chat-foreground-color Toot))
+          :|chatBG| (color24-name (Toot-chat-background-color Toot))
           :|uuid| (Toot-UUID Toot)
           :|note| (and privatep (or (Toot-note Toot) ""))
           :|avatar| avatar-moniker
