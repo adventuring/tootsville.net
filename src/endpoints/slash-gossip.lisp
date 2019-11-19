@@ -59,9 +59,9 @@ Returns a JSON object with UUID (for answering) and SDP description."
 
 (defendpoint (post "/gossip/answers/:uuid" "application/sdp")
   "Post an answer to a received SDP block"
-  (make-record 'gossip-initiation 
-               :uuid (uuid:make-uuid-from-string uuid)
-               :answer (raw-post-string))
+  (make-gossip-initiation 
+   :uuid (uuid:make-uuid-from-string uuid)
+   :answer (raw-post-string))
   (list 202 #()))
 
 (defendpoint (get "/gossip/answers/:uuid" "application/sdp" 31)
