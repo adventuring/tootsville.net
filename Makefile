@@ -123,7 +123,10 @@ quicklisp-manifest.tmp:	tootsville.asd \
 
 doc:	doc/Tootsville.texi
 
-doc/Tootsville.texi:	Tootsville
+../tootsville.org/dist/doc.texi:
+	$(MAKE) -C ../tootsville.org dist/doc.texi
+
+doc/Tootsville.texi:	Tootsville ../tootsville.org/dist/doc.texi
 	./Tootsville write-docs
 
 install:	tootsville.service Tootsville

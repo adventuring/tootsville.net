@@ -30,7 +30,7 @@ The document was typeset with
 @titlepage
 @title Tootsville Players' Guide
 @subtitle An introduction to Tootsville
-@author Bruce-Robert Pocock <brpocock@tootsville.org>
+@author Bruce-Robert Pocock <brpocock@@tootsville.org>
 @page
 @vskip 0pt plus 1filll
 @insertcopying

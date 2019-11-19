@@ -3,6 +3,9 @@
 (defvar *infinity-ops* nil)
 
 (defun call-infinity-from-rest (method)
+  "Call an Infinity-mode command METHOD from a REST call.
+
+Used to create the REST endpoints mapping to METHOD."
   (let* ((json$ (hunchentoot:post-parameters*))
          (json (jonathan.decode:parse json$)))
     (with-user ()
@@ -169,6 +172,9 @@ XXX WRITEME
            ,@body))))) 
 
 (defendpoint (POST "/world/infinity" "application/json")
+  "Dispatch an Infinity-mode JSON packet to its handler based on the @code{c} parameter.
+
+See `DEFINFINITY' for a detailed discussion of this mode of operation."
   (with-posted-json (c d)
     (with-user ()
       (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))

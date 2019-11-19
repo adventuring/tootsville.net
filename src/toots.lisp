@@ -113,7 +113,8 @@ Shouting and whispering should alter this color appropriately.
 
 Obtained via `TOOT-INFO'.
 
-Always black at present (2.0)."
+Always black at present (2.0).  This  should  not  be trusted  to  be
+a constant; it should be updated in a later release."
   (declare (ignore Toot))
   (color24-rgb 0 0 0))
 
@@ -124,7 +125,8 @@ Shouting and whispering should alter this color appropriately.
 
 Obtained via `TOOT-INFO'.
 
-Always white at present (2.0)."
+Always  white  at present  (2.0).  This  should  not  be trusted  to  be
+a constant; it should be updated in a later release."
   (declare (ignore Toot))
   (color24-rgb #xff #xff #xff))
 

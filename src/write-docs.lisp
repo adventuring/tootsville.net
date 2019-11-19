@@ -209,6 +209,10 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
                                      :Tootsville
                                      "src/doc/Conclusion.texi")))
       (terpri)
+      (let ((client-docs (asdf:system-relative-pathname :Tootsville
+                                                        "../tootsville.org/dist/doc.texi")))
+        (when (probe-file client-docs)
+          (princ (read-file-into-string client-docs))))
       (princ "@bye"))))
 
 (defun symbol-has-definition-p (symbol)
@@ -285,6 +289,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
       ("TεΧ" . "@TeX")
       ("TeΧ" . "@TeX")
       ("TeX" . "@TeX")
+      ("∞" . "Infinity")
       ("•" . "@bullet")
       ("…" . "@dots{}")
       ("€" . "@euro")
