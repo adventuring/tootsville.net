@@ -52,7 +52,7 @@ Adventuring (ciwta.org).
 Licensed  under the  terms of  the  GNU Affero  General Public  License,
 version 3.~%~%"
           (romance-ii-program-version)
-          *romance-ii-copyright-latest*))
+          (romance-ii-copyright-latest)))
 
 (defun version-info-list ()
   (ensure-site-name)
