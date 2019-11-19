@@ -66,13 +66,6 @@
 
 
 
-(defun split-plist (plist)
-  "Split a PLIST into two lists, of keys and values."
-  (loop for (key value) on plist by #'cddr
-     collect key into keys
-     collect value into values
-     finally (return (list keys values))))
-
 (defun build-simple-query (table columns)
   (format nil "SELECT * FROM `~a`~@[ WHERE ~{`~a`=?~^ AND ~}~];" table columns))
 
