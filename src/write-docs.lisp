@@ -284,6 +284,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
       ("TεΧ" . "@TeX")
       ("TeΧ" . "@TeX")
       ("TeX" . "@TeX")
+      ("∞" . "Infinity")
       ("•" . "@bullet")
       ("…" . "@dots{}")
       ("€" . "@euro")
