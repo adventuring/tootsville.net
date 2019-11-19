@@ -62,3 +62,6 @@
         (sleep (random 5))
         (return-from fetch-ice-credentials/xirsys (fetch-ice-credentials/xirsys)))
       (extract json :|v| :|iceServers|))))
+
+(defstruct gossip-initiation
+  uuid answer)
