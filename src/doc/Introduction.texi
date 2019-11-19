@@ -9,10 +9,15 @@ non-profit corporation  responsible for  the current development  of the
 Romance Ⅱ Game System, particularly,  for the flagship implementation of
 it in the form of Tootsville Ⅴ.
 
+For more information about CIWTA, visit the web site at 
 @url{https://www.ciwta.org/}
 
 
 @section What is Tootsville?
+
+Tootsville is a massively-multiplayer online rôle-playing game
+(MMORPG) in which players control colorful, elephant-like characters
+know as Toots.
 
 Tootsville was  the flagship product  which helped develop  the original
 Romance game system into such  a powerful suite. Its commercial sponsor,
@@ -20,7 +25,19 @@ Res  Interactive,   LLC,  was  later   shut  down  for   legal  reasons.
 The resurrected game  (with the permission of several  of Res's managing
 members) is now the flagship for the ongoing development of Romance Ⅱ.
 
+As such, Romance is highly and unapologetically targeted at present
+towards the needs of Tootsville.
+
 @section What is the Romance Game System?
+
+Romance is the name of the game system which runs Tootsville, and
+which could, in future, be adapted to run other games as well.
+
+The name ``Romance'' has a similar meaning to its usage in ``Romance
+Languages,'' i.e. it means made of Romans, not ``romantic.'' The
+original software modules of which Romance was made, and into which it
+will be subdivided again for purposes of modularity in the 2.0 series,
+are each named after a famous Roman.
 
 To be written. In brief:
 
@@ -28,7 +45,7 @@ Romance as in, ``made up of Romans''
 
 An MMO-RPG game system
 
-Aiming  to be  both comprehensive  and  flexible, where  things cacn  be
+Aiming  to be  both comprehensive  and  flexible, where  things can  be
 broken down to interact with arbitrary outside services and components
 
 Written in Common Lisp

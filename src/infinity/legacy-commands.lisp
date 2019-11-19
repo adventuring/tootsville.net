@@ -560,7 +560,7 @@ point,  in  which  case  all  items   which  can  be  equipped  to  that
 point (regardless  of valence)  are returned;  or, the  word @code{slot}
 followed by a space and the ID number of a specific wear-slot.
 
-
+FIXME — the following documentation has lies in it.
 
 Parameters:
 

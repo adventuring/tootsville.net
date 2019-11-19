@@ -205,6 +205,9 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
               (push symbol symbols)))
           (dolist (symbol (sort (remove-duplicates symbols) #'string<))
             (write-docs-for-symbol symbol))))
+      (princ (read-file-into-string (asdf:system-relative-pathname 
+                                     :Tootsville
+                                     "src/doc/Conclusion.texi")))
       (terpri)
       (let ((client-docs (asdf:system-relative-pathname :Tootsville
                                                         "../tootsville.org/dist/doc.texi")))
@@ -281,6 +284,8 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
       ("°" . "@ordm{}")
       ("ª" . "@ordf{}")
       ("©" . "@copyright")
+      ("\\(C\\)" . "@copyright")
+      ("—" . "---")
       ("TεΧ" . "@TeX")
       ("TeΧ" . "@TeX")
       ("TeX" . "@TeX")
@@ -289,9 +294,12 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
       ("…" . "@dots{}")
       ("€" . "@euro")
       ("°" . "@textdegree")
-      ("≤" . "@leq")
-      ("≥" . "@geq")
+      ("≤" . "@leq{}")
+      ("<=" . "@leq{}")
+      ("≥" . "@geq{}")
+      (">=" . "@geq{}")
       ("®" . "@registeredsymbol{}")
+      ("\\(R\\)" . "@registeredsymbol{}")
       ("→" . "@expansion{}")
       ("⇒" . "@result{}")
       ("≍" . "@equiv{}")
