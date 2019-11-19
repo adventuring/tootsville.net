@@ -27,13 +27,6 @@
 
 (in-package :Tootsville)
 
-(defun gossip-initiation-uri (initiation)
-  (etypecase initiation
-    (string (gossip-initiation-uri (uuid:make-uuid-from-string initiation)))
-    (uuid:uuid (format nil "/tootsville/gossip-exchange/~a" (uuid-to-uri initiation)))
-    (gossip-initiation (gossip-initiation-uri
-                        (gossip-initiation-uuid initiation)))))
-
 (defvar *ice-credentials* nil)
 
 (defun ice-url-to-urls (credential)
