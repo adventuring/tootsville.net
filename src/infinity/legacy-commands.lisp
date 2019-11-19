@@ -667,11 +667,13 @@ The Pink Moon
  
 For synchronization purposes.
 
-Sends a JSON object with a single property, serverTime, with the current
+Sends a JSON object with a property, @code{serverTime}, with the current
 time in milliseconds (give or take transit time). This is the Unix time,
 not the Universal time, and in milliseconds, not seconds."
   (list 200
-        (list :|serverTime| (* (- (get-universal-time)
+        (list :|from| "getServerTime"
+              :|status| t
+              :|serverTime| (* (- (get-universal-time)
                                   +unix-zero-in-universal-time+)
                                1000))))
 (definfinity get-session-apple ((&rest d) user recipient/s)
