@@ -87,18 +87,15 @@ There are three datagram kinds used in Infinity Mode.
 @enumerate
 
 @item
-
 The special @samp{logOK} packet type  is used only for acknowledging and
 promulgating login events through the grid. This actually dates back all
 the way to the SmartFox server's protocols, so it's an odd duck.
 
 @item
-
 Commands    that    instigate    an    action    are    identified    by
 a @samp{c} attribute.
 
 @item
-
 Commands that provide information about the world, usually as a reaction
 to another event,  are called Gatekeeper messages and  are identified by
 a @samp{from} attribute.

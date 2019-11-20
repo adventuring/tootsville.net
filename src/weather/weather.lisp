@@ -36,35 +36,46 @@
  ;;;
 
 (defun current-temp (x y z) ;; TODO
+  "The current ambient air temperature at X,Y,Z."
   (declare (ignore x y z))
   (let ((low 15) (high 20))
     (+ low (* (- high low) (sinus (get-universal-time) (* 18 60 60))))))
 
 (defun precipitation (x y z) ;; TODO
+  "The current precipitation at X,Y,Z"
   (declare (ignore x y z))
   (values 0 nil))
 
 (defun clouds (x y z) ;; TODO
+  "The current cloud cover at X,Y,Z"
   (declare (ignore x y z))
   (list nil))
 
 (defstruct wind-vector x-magnitude y-magnitude)
 
-(defun wind-x (wind-vector) (wind-vector-x-magnitude wind-vector))
-(defun wind-y (wind-vector) (wind-vector-y-magnitude wind-vector))
+(defun wind-x (wind-vector)
+  "The X component of WIND-VECTOR."
+  (wind-vector-x-magnitude wind-vector))
+(defun wind-y (wind-vector) 
+  "The Y component of WIND-VECTOR."
+  (wind-vector-y-magnitude wind-vector))
 (declaim (inline wind-x wind-y))
 
 (defun make-wind-vector-field ()
+  "Create the wind vector field for the entire island of Tootanga."
   (make-array '(800 600) 
               :element-type 'wind-vector 
               :initial-element (make-wind-vector)))
 
-(defvar *wind-vector-field* (make-wind-vector-field))
+(defvar *wind-vector-field* 
+  (make-wind-vector-field)
+  "The wind vector field for the entire island of Tootanga.")
 
-(defvar *humidity-field* 
+(defvar *humidity-field*
   (make-array '(800 600)
               :element-type 'float
-              :initial-element 0))
+              :initial-element 0)
+  "The humidity field for the entire island of Tootanga.")
 
 (defun tick-weather-day ()
   "@itemize

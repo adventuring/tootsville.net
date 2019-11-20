@@ -30,6 +30,9 @@
 ;;; Toot names
 
 (defun remove-repeats-for-Toot-name (string)
+  "Remove repeated characters from STRING.
+
+Removes letters that repeat more than twice in a row, or hyphens that occur more than once in a row."
   (regex-replace-all "--+"
                      (regex-replace-all "(.)\\1\\1+" string "\\1")
                      "-"))
@@ -99,8 +102,9 @@ The first character must be alphabetic
 @item
 There can not be two punctuation marks (or spaces) in a row
 
-@item
-There can not be three of the same character in a row
+@item 
+There can not be three of the same character in a row, or two hyphens in
+a row.
 
 @item
 There can not be more than three digits
@@ -129,6 +133,10 @@ leftmost digit must be after the rightmost non-digit character.
 
 
 (defun valid-child-code-p (code)
+  "Is CODE valid for a child code?
+
+It must  be made up completely  of `ALPHA-CHAR-P' characters and  be 4-6
+characters in length (inclusive)."
   (and (every #'alpha-char-p code)
        (<= 4 (length code) 6)
        (string= code (string-downcase code))))
