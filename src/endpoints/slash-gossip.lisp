@@ -58,7 +58,15 @@ Returns a JSON object with UUID (for answering) and SDP description."
              (list 204 #())))))
 
 (defendpoint (post "/gossip/answers/:uuid" "application/sdp")
-  "Post an answer to a received SDP block"
+  "Post an answer to a received SDP block.
+
+The client, having received an SDP offer, computes an SDP answer and posts it back to this endpoint.
+
+@subsection 202 Accepted
+The posted data has been accepted
+
+@subsection 404 Not Found
+The UUID given is not associated with an outstanding offer."
   (make-gossip-initiation 
    :uuid (uuid:make-uuid-from-string uuid)
    :answer (raw-post-string))

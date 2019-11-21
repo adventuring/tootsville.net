@@ -28,7 +28,7 @@
 (in-package :Tootsville)
 
 (defendpoint (get "/toots/:toot-name" "text/plain")
-  "Get public info about TOOT-NAME"
+    "Get public info about TOOT-NAME"
   (check-arg-type Toot-name Toot-name)
   (with-user ()
     (let ((Toot (find-Toot-by-name Toot-name)))
@@ -36,8 +36,25 @@
             (list :last-modified (header-time (Toot-last-active Toot)))
             (Toot-info Toot)))))
 
-(defendpoint (get "/toots/:toot-name" "application/json" 1)
-  "Get public info about TOOT-NAME"
+(defendpoint (get "/toots/:toot-name" "application/json")
+    "Get public info about TOOT-NAME
+
+TOOT-NAME is  the name of a  Toot or other character-type  avatar in the
+game. This endpoint  will return the public  information about TOOT-NAME
+in the format described by `TOOT-INFO'.
+
+
+@subsection 200 OK
+
+Note  that   the  HTTP   Last-Modified  header  will   be  set   to  the
+`TOOT-LAST-ACTIVE' time of the Toot character.
+
+The body of the response will  be the public information about TOOT-NAME
+in the form described at `TOOT-INFO'.
+
+@subsection 404 Not Found
+
+This is returned if TOOT-NAME does not name a character in the game."
   (check-arg-type Toot-name Toot-name)
   (with-user ()
     (let ((Toot (find-Toot-by-name Toot-name)))

@@ -185,7 +185,18 @@ Requires a body with fields to be changed, and their new values. TODO.
                                            (universal-to-timestamp 0)))))))))
 
 (defendpoint (get "/users/me/toots" "application/json" 1)
-  "Enumerate all Toot characters available to you."
+    "Enumerate all Toot characters available to you.
+
+@subsection 200 OK
+
+The   @code{Last-Modified}   header  will   be   set   to  the   maximum
+`TOOT-LAST-ACTIVE' time of any Toot in roster.
+
+The returned  body will have a  JSON object with one  key, @code{toots},
+which  in  turn contains  an  array  of  Toot  names, ordered  by  their
+`TOOT-LAST-ACTIVE' time, with the most recently used Toot listed first.
+
+"
   (with-user ()
     (list 200
           (list :Last-Modified (header-time
@@ -203,7 +214,10 @@ Requires a body with fields to be changed, and their new values. TODO.
                                                   (universal-to-timestamp 0)))))))))
 
 (defendpoint (get "/users/me/toots/:toot-name" "text/plain")
-  "Gives detailed information about your Toot character TOOT-NAME."
+    "Gives detailed information about your Toot character TOOT-NAME.
+
+This  text  information  is  an   English-like  rendering  of  the  same
+information as `TOOT-INFO' returns."
   (with-user ()
     (assert-my-character Toot-name)
     (let ((Toot (find-Toot-by-name Toot-name)))
@@ -212,7 +226,7 @@ Requires a body with fields to be changed, and their new values. TODO.
             (plist-to-English (Toot-info Toot))))))
 
 (defendpoint (get "/users/me/toots/:toot-name" "application/json")
-  "Gives detailed information about your Toot character TOOT-NAME.
+    "Gives detailed information about your Toot character TOOT-NAME.
 
 This Toot  must be owned by  you (the logged-in user).  You will receive
 details about your  own Toot, like inventory, that are  not available to
@@ -222,14 +236,23 @@ Requires player authentication.
 
 @subsection Status: 200 OK
 
+Returns  the  JSON information  as  per  `TOOT-INFO', including  private
+information that is only available to the owner.
+
+Note  that the  @code{Last-Modified} header  will be  set to  the Toot's
+`TOOT-LAST-ACTIVE' value.
+
 @subsection Status: 401 Authorization Required
 No user credentials were passed.
 
 @subsection Status: 403 Authorization Failed
-The user credentials presented were not recognized.
+
+The user  credentials presented  were not recognized,  or the  Toot name
+given is not your Toot.
 
 @subsection Status: 404 Not Found
 
+The Toot name given was not registered.
 "
   (with-user ()
     (assert-my-character Toot-name)
@@ -239,7 +262,7 @@ The user credentials presented were not recognized.
             (Toot-info Toot)))))
 
 (defendpoint (delete "/users/me/toots/:toot-name" "application/json")
-  "Permanently destroys the Toot character TOOT-NAME.
+    "Permanently destroys the Toot character TOOT-NAME.
 
 This Toot  must be owned by  you (the logged-in user).
 
@@ -285,7 +308,7 @@ main owner of. This is usually a child account.
     (error 'unimplemented)))
 
 (defendpoint (post "/users/me/play-with/:toot-name" "application/json")
-  "Begin playing with the Toot named TOOT-NAME.
+    "Begin playing with the Toot named TOOT-NAME.
 
 @table  @samp
 @item Toot-Name
@@ -295,6 +318,15 @@ The name of the Toot character to play with.
 @subsection Status: 200 OK 
 
 You are now in control of this Toot. The Toot's info will be returned.
+
+The returned body will be a JSON object with two keys;
+
+@table @code
+@item toot
+The Toot avatar information as returned by `TOOT-INFO'.
+@item player
+The player information returned by `PERSON-INFO'.
+@end table
 
 @subsection Status: 401 Authorization Required 
 
@@ -311,9 +343,7 @@ The Toot named does not exist.
 @subsection Status: 405 Not Allowed 
 
 The Toot named is  one that you have permission to use,  but are not the
-main owner of. This is usually a child account.
-
-"
+main owner of. This is usually a child account."
   (with-user ()
     (assert-my-character Toot-name)
     (let ((Toot (find-Toot-by-name Toot-name)))
