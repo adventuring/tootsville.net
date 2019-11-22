@@ -39,18 +39,54 @@ original software modules of which Romance was made, and into which it
 will be subdivided again for purposes of modularity in the 2.0 series,
 are each named after a famous Roman.
 
-To be written. In brief:
+Romance  has  a  few  technological   goals.  It  is  intended  to  be
+comprehensive and flexible enough to  handle a variety of game worlds,
+although it necessarily  has deep ties to Tootsville.  Romance also is
+based on  a model  in which peer-to-peer  communications are  used for
+real  time activities,  while  the central  servers  are reserved  for
+persisting the world's state while it is quiescent.
 
-Romance as in, ``made up of Romans''
+@section Technology Stack
 
-An MMO-RPG game system
+Romance is built up of the following technology stack:
 
-Aiming  to be  both comprehensive  and  flexible, where  things can  be
-broken down to interact with arbitrary outside services and components
+@itemize
+@item
+The  central REST  servers are  written  in Common  Lisp, compiled  to
+a   native  binary,   and  run   as   a  service   under  SystemD   in
+a non-privileged user account.
+@item
+The  client  and peer-to-peer  application  is  written in  JavaScript
+(ECMAScript 6 level), and compressed using the Google Closure Compiler
+into an optimized and minified form.
+@end itemize
 
-Written in Common Lisp
+@section Affiliated Services
 
-Accessed via JavaScript in web browsers with no plug-ins
+In the case of Tootsville, several affiliated services are used:
+
+@itemize
+@item
+Static  web servers  running  Apache serve  up  game assets,  compiled
+JavaScript, and other resources.
+@item
+Apache  servers operate  as load  balancers across  the back-end  game
+servers
+@item
+The Tootsbook blog is a WordPress installation
+@item
+The 
+@item
+The central database server is a MariaDB serve.
+@item
+Database references are cached via MemCacheD
+@end itemize
+
+@section Clusters
+
+
+
+@section AGPLv3
 
 AGPLv3
 

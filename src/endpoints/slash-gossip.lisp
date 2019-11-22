@@ -63,7 +63,7 @@ Returns a JSON object with UUID (for answering) and SDP description."
 The client, having received an SDP offer, computes an SDP answer and posts it back to this endpoint.
 
 @subsection 202 Accepted
-The posted data has been accepted
+The posted data has been accepted and will be relayed back to the offeror.
 
 @subsection 404 Not Found
 The UUID given is not associated with an outstanding offer."
@@ -75,7 +75,17 @@ The UUID given is not associated with an outstanding offer."
 (defendpoint (get "/gossip/answers/:uuid" "application/sdp" 31)
   "Read back the answer to an offer posted previously. 
 
-COMET-type call may sleep up to 30s"
+This is a COMET-type call which may sleep up to 30s.
+
+@subsection 204 No Content
+
+No Content is returned if the  offer has not yet been accepted. However,
+this will  not be  returned immediately;  the host will  wait up  to 30s
+before returning failure.
+
+@subsection 200 OK
+
+The SDP answer will be returned."
   (with-user ()
     (dotimes (_ 3000)
       (if-let ((record (find-record 'gossip-initiation 
