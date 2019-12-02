@@ -295,7 +295,7 @@ Avatar information is available through several channels.
 Fetch only the avatar information for a single Toot from this endpoint
 @item `INFINITY-FINGER'
 Fetch avatar information for a list of Toots.
-@end itemize
+@end table
 
 "
   (let ((avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
