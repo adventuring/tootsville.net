@@ -78,6 +78,7 @@ Quicklisp when called."
                                            source-dir)))))
 
 (defun sort-all-packages ()
+  "A list of all packages to be included in the documentation, in order."
   (list
    (find-package :Tootsville)
    (find-package :Chœrogryllum)
@@ -216,6 +217,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
       (princ "@bye"))))
 
 (defun symbol-has-definition-p (symbol)
+  "True if SYMBOL has some definition that we print in documentation."
   (or (fboundp symbol)
       (boundp symbol)
       (ignore-errors (find-class symbol))))
@@ -314,15 +316,25 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
   :documentation "Replacement sequences for TeΧinfo for special characters.")
 
 (defun maybe-make-hyperlink (text)
+  "If TEXT references a `SYMBOL-HAS-DEFINITION-P' symbol, make a reference.
+
+Lisp  docstrings  containing `quoted  strings'  which  are the  name  of
+a  symbol with  a definition  to be  documented will  be converted  into
+references to the appropriate node in the documentation."
   (let ((symbol (intern text)))
-    (if (or (fboundp symbol)
-            (boundp symbol))
+    (if (symbol-has-definition-p symbol)
         (format nil "@ref{~a::~a}"
                 (package-name (symbol-package symbol))
                 (symbol-name symbol))
         text)))
 
 (defun make-hyperlinks (string)
+  "Convert any `quoted references' in STRING into hyperlinks.
+
+Lisp  docstrings  containing `quoted  strings'  which  are the  name  of
+a  symbol with  a definition  to be  documented will  be converted  into
+references   to   the  appropriate   node   in   the  documentation   by
+`MAYBE-MAKE-HYPERLINK'."
   (regex-replace-all 
    "\`(.*)'" string
    (lambda (TARGET-STRING START END
@@ -333,6 +345,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
               (subseq target-string (1+ match-start) (1- match-end)))))))
 
 (defun clean-docs (docstring)
+  "Clean up the contents of DOCSTRING for inclusion into the documentation."
   (etypecase docstring
     (proper-list (mapcar #'clean-docs docstring))
     (number (format nil "~a" docstring))
@@ -345,6 +358,10 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
              (make-hyperlinks docstring)))))
 
 (defun pretty-function-lambda-list (symbol)
+  "Pretty-print an itemized list of the lambda list of SYMBOL's function.
+
+Separates  positional,  optional,  and   keyword  arguments,  and  makes
+a valiant effort towards &Rest arguments as well."
   (let ((λ-list (function-lambda-list symbol))
         (positionalp t)
         (optionalp nil)
@@ -411,12 +428,22 @@ has a default value of ~a"
       (format t "~%@end itemize~%"))))
 
 (defun write-docs-for-symbol (symbol)
+  "Write the documentation for any definitions associated with SYMBOL.
+
+Currently identifies functions, macros,  global constants, special vars,
+and types. This is, in effect, the TeΧinfo equivalent of `DESCRIBE'.
+
+In fact, in the package ``Common-Lisp,'' this function instead defers to
+`DESCRIBE' and performs  only minimal reformatting of  its output, since
+SBCL's documentation is written in such a style that not much additional
+styling is helpful."
   (format t "~%@vskip 48pt
 @node ~a::~a~2%@section ~a~%" 
           (package-name (symbol-package symbol))
           symbol 
           (clean-docs symbol))
   (when (eql (symbol-package symbol) (find-package :common-lisp))
+    ;; XXX would be nice to process `REFERENCES' in CL package docs
     (format t "~2%~a~2%"
             (regex-replace-pairs
              '(
@@ -440,7 +467,15 @@ has a default value of ~a"
             (macro-function symbol)
             (length (function-lambda-list symbol))
             (pretty-function-lambda-list symbol)
-            (clean-docs (documentation symbol 'function))))
+            (clean-docs (documentation symbol 'function)))
+    #+sbcl
+    (when-let (source-file (sb-kernel::debug-source-namestring
+                            (sb-c::debug-info-source 
+                             (sb-kernel:%code-debug-info
+                              (sb-kernel:fun-code-header
+                               (sb-kernel::%fun-fun
+                                (symbol-function symbol))))))) 
+      (format t "~&@vskip 18pt~%Source file: ~a~2%" (enough-namestring source-file))))
   (when (boundp symbol)
     (format t "~2% ~a names a ~:[special variable~;global constant~].~2%~a~2%"
             (clean-docs symbol)

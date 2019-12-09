@@ -60,7 +60,9 @@ See `+TOOT-BASE-COLOR-NAMES' for the list."
           :test #'string-equal))
 
 (deftype Toot-pad-color-name ()
-  "A color name that can be used for Toot foot pads and nose tip"
+  "A color name that can be used for Toot foot pads and nose tip.
+
+Formerly known as the ``extra color'' of the avatar."
   '(and string-designator
     (satisfies Toot-pad-color-name-p)))
 
@@ -117,10 +119,17 @@ See `+TOOT-BASE-COLOR-NAMES' for the list."
 
 (defun check-pattern-on-base-color (pattern-color base-color
                                     &key Toot-name pad-color pattern address)
+  "Ensure that the PATTERN-COLOR is allowed on the BASE-COLOR.
+
+TOOT-NAME,  PAD-COLOR,   PATTERN,  and  ADDRESS  are   used  to  provide
+additional error details.
+
+Provides restarts CHANGE-PATTERN-COLOR  and CHANGE-BASE-COLOR to correct
+any deficiencies."
   (tagbody do-over
      (restart-case
          (progn
-           (check-type base-color Toot-base-color-name "The name ofa Toot base color")
+           (check-type base-color Toot-base-color-name "The name of a Toot base color")
            (check-type pattern-color Toot-pattern-color-name "The name of a Toot pattern color")
            (when (equal pattern-color base-color)
              (error "A Toot may not have the same base and pattern color; currently, both are ~:(~a~)~
@@ -224,20 +233,37 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
         (list 0 0 c-max))))
 
 (defun color24-hue (color)
+  "The HSV Hue channel of COLOR.
+
+See `COLOR24-HSV'."
   (first (color24-hsv color)))
 
 (defun color24-saturation (color)
+  "The HSV Saturation channel of COLOR.
+
+See `COLOR24-HSV'."
   (second (color24-hsv color)))
 
 (defun color24-value (color)
+  "The HSV Value channel of COLOR.
+
+See `COLOR24-HSV'."
   (third (color24-hsv color)))
 
 (defun integer-to-color24 (number)
+  "Return a color represented by the 24-bit integer NUMBER.
+
+The upper 8  bits are the red  channel; the next 8 bits,  green; and the
+lowest 8 bits, the blue channel."
   (make-color24 :red (ldb (byte 8 16) number)
                 :green (ldb (byte 8 8) number)
                 :blue (ldb (byte 8 0) number)))
 
 (defun color24-to-integer (color)
+  "Return a 24-bit integer representing COLOR.
+
+The upper 8  bits are the red  channel; the next 8 bits,  green; and the
+lowest 8 bits, the blue channel."
   (+ (ash (color24-red color) 16)
      (ash (color24-green color) 8)
      (color24-blue color)))
@@ -274,7 +300,7 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
   :test 'equalp)
 
 (defun parse-color24 (color)
-  "Parse COLOR as a name for a color, or a hex 24-bit color value"
+  "Parse COLOR as a name for a color, or a hex 24-bit color value."
   (integer-to-color24
    (etypecase color
      (string (if-let (as (assoc (substitute #\- #\Space color)
@@ -284,12 +310,20 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
      (number color))))
 
 (defun color24-name (color)
+  "Given COLOR, return the name or hex string for it.
+
+If  COLOR is  a named  color  in `+COLOR24-VALUES+',  returns its  name.
+Otherwise, returns the 6-digit hex value, as per HTML or CSS."
   (let ((n (color24-to-integer color)))
     (if-let (as (assoc n +color24-values+))
       (cdr as)
       (format nil "~6,'0x" n))))
 
 (defmethod print-object ((object color24) stream)
+  "Print the COLOR24 in a readable format to STREAM.
+
+The output  format is  as a  call to `PARSE-COLOR24'  and can  be `READ'
+back in."
   (princ "(Parse-Color24 \"" stream)
   (princ (color24-name object) stream)
   (princ "\")" stream)
@@ -302,6 +336,12 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
   :test #'equalp)
 
 (defun rgb-bytes->rgb (bytes)
+  "Convert BYTES into a list of red, green, and blue values.
+
+BYTES is an  RGB triplet of 3 8-bit bytes,  like `COLOR24-TO-INTEGER' or
+`INTEGER-TO-COLOR24'  representation; i.e.  an integer  24 bits  long of
+which the upper 8  bits are the red channel, next 8  bits are green, and
+lower 8 bits are the blue channel."
   (list (ldb (byte 8 0) bytes)
         (ldb (byte 8 8) bytes)
         (ldb (byte 8 16) bytes)))

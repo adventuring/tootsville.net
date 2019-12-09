@@ -271,7 +271,8 @@ See also Deprecation section below.
 
 @subsection Deprecation
 
-The following elements are deprecated and will be removed in a future revision:
+The following  elements are deprecated and  will be removed in  a future
+revision:
 
 @table @code
 @item id
@@ -284,6 +285,18 @@ better served by other fields already in the structure.
 @item format
 This is deprecated in favor of @code{avatar}
 @end table
+
+@subsection Obtaining Toot Information
+
+Avatar information is available through several channels.
+
+@table @code
+@item /toots/@i{Toot-Name}
+Fetch only the avatar information for a single Toot from this endpoint
+@item `INFINITY-FINGER'
+Fetch avatar information for a list of Toots.
+@end table
+
 "
   (let ((avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
     (list :|name| (Toot-name Toot)

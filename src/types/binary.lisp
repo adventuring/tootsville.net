@@ -34,7 +34,7 @@
                            :element-type '(unsigned-byte 8))))
   "Convert INTEGER into VECTOR of (UNSIGNED-BYTE 8)
 
-If VECTOR is  supplied, it must be lon enough  to accept INTEGER without
+If VECTOR is supplied, it must  be long enough to accept INTEGER without
 growing. Otherwise,  the vector  of the minimum  length to  hold INTEGER
 will be constructed.
 
@@ -78,17 +78,26 @@ Swaps / characters for - characters to be more polite in an URI."
 
 
 (defun sha1-hex (string)
+  "Compute the SHA1 hash of STRING and return it as a string of hex digits."
   (ironclad:byte-array-to-hex-string
    (ironclad:digest-sequence :sha1
                              (trivial-utf-8:string-to-utf-8-bytes string))))
 
 (defun ensure-integer (value)
+  "Ensure that VALUE is an integer.
+
+Parse strings using PARSE-INTEGER.
+
+Round real numbers."
   (etypecase value
     (integer value)
     (real (round value))
     (string (parse-integer value))))
 
 (defun ensure-number (value)
+  "Ensure that VALUE is a number.
+
+Parse strings using PARSE-NUMBER."
   (etypecase value
     (number value)
     (string (parse-number value))))

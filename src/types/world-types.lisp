@@ -29,10 +29,12 @@
 (in-package :Tootsville)
 
 (defun world-moniker-p (moniker)
+  "cv. `MAP-PLACES'"
   (and (symbolp moniker)
        (member moniker '(:CHOR :MOON :OTHM :PINK :ORBIT))))
 
 (defun world-name (moniker)
+  "Give the printed string name of the world plane identified by the keyword MONIKER."
   (ecase moniker
     (:chor "Chœorgryllum")
     (:moon "The Moon")
@@ -41,6 +43,7 @@
     (:orbit "Orbit around Chœrogryllum")))
 
 (deftype world-moniker ()
+  "cv `MAP-PLACES'"
   '(satisfies world-moniker-p))
 
 (defconstant +moon-year+ 3600000)

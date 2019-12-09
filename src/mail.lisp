@@ -8,11 +8,13 @@
   (:report (lambda (c s)
              (declare (ignore c))
              (format s "There is no address that would receive this mail."))))
+
 (define-condition mail-error-permission-denied (mail-error)
   ()
   (:report (lambda (c s)
              (declare (ignore c))
              (format s "You are not allowed to send mail to this address."))))
+
 (define-condition mail-error-temp-failure (mail-error)
   ()
   (:report (lambda (c s)

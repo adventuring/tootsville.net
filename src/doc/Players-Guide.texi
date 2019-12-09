@@ -40,7 +40,10 @@ The document was typeset with
 @contents
 
 @ifnottex
-@node Top
+@menu
+@end menu
+
+@node Top, Introduction, (dir), (dir)
 @top Tootsville Players' Guide
 
 @insertcopying
@@ -50,17 +53,35 @@ The document was typeset with
 @menu
 @end menu
 
-@node
+@node Introduction
 @chapter* Introduction
 
+@node What is Tootsville?
 @section What is Tootsville?
 
-@node
+@node Getting Ready
 @section Getting Ready
 
-Requirements -- check the Wiki-Wiki
+In order  to play in Tootsville,  you'll need a computer  of some kind
+with certain minimum capabilities.
 
-@node
+You   can    find   these    requirements   in   the    Wiki-Wiki   at
+@url{https://wiki.tootsville.org/wiki/System_Requirements}
+
+You   can   also  test   your   system's   capabilities  by   visiting
+@url{https://play.tootsville.org/play/system-check/}
+
+For best results, we recommend playing using the latest version of the
+Mozilla Firefox@registered{} web browser. If  you have a different web
+browser, like Chrome or Edge, you can probably still play the game, or
+you can upgrade to Firefox by visiting @url{https://getfirefox.com/}
+
+There is also a  link on the main menu (the  menu accessed by clicking
+on the circled  T logo at the  top-left corner of the  game screen) to
+download   Firefox    if   you   begin   playing    the   game   using
+a different browser.
+
+@node Signing In
 @section Signing In
 
 You'll sign in to Tootsville using your Google account.
@@ -71,11 +92,12 @@ be asked to authorize Tootsville once.
 If you aren't yet signed in to your Google account, you'll have the
 opportunity to do so.
 
-Once you've signed in, you'll go directly to your Toot character.
+Once  you've signed  in, you'll  go  directly to  your Toot  character
+selection screen.
 
 @c Update all node entries with `C-c C-u C-n'.
 @c Insert new nodes with `C-c C-c n'.
-@node 
+@node Managing Toots, , Introduction, Top
 @chapter Managing Toots
 
 When you play in Tootsville, you'll take control of a Toot character
@@ -85,7 +107,13 @@ first Toot character.
 If you later decide you want to create another one, perhaps for a family
 member, you can also do so from the login screen.
 
-@node
+@menu
+* ::
+* ::
+* ::
+@end menu
+
+@node Creating a New Toot, , Managing Toots, Managing Toots
 @section Creating a New Toot
 
 Toot characters start off with a name and an appearance. We'll also give you
@@ -98,7 +126,7 @@ can join together word-parts with hyphens. Here are some Toot names:
 @item
 Flora
 @item
-NullPointerException
+Null-Pointer-Exception
 @item
 Codfish-Howie
 @end itemize
@@ -107,38 +135,85 @@ If you really want to include a number, it has to be the last part of a
 name. You can't name a Toot something like ``99luftballoons,'' but you could
 name them ``Luftballoons-99'' or so.
 
-Toot characters have some basic appearance settings, as well. You can choose
-the base color of your Toot's skin, the color of the pads of their feet (and
-``hands''), and the color of the pattern on their skin. You can also choose
-what pattern they will have.
+Toot characters have some basic  appearance settings, as well. You can
+choose the base  color of your Toot's  skin, the color of  the pads of
+their feet  and trunk,  and the  color of the  pattern on  their skin.
+You can also choose what pattern they will have.
 
-Once you've made these choices, you can immediately start playing as your
-Toot character.
+Once you've made  these choices, you can immediately  start playing as
+your Toot character.
 
 
-@node
+@node Toots for Children, , Creating a New Toot, Managing Toots
 @section Toots for Children
 
 WRITEME
 
-@node
+@node Sensitive Players,  , Toots for Children, Managing Toots
+@section Sensitive Players
+
+We  all know  in the  real world  that certain  topics of  conversation
+aren't appropriate to have around children; this is often summed up by
+saying, ``don't talk about sex, religion, or politics.''
+
+In  Tootsville, players  who  are  children or  who  have checked  the
+``sensitive  player'' box  on their  login screen  are presented  with
+a black diamond next to their name.
+
+When  a sensitive  player (who  may  be a  child) is  nearby, a  black
+diamond  will also  appear in  your chat  bar, to  remind you  to mind
+your language.
+
+If you decide you want to discuss adult topics, there are several bars
+in Tootsville  in which children  are not  allowed, and where  you can
+speak candidly about  any topic within reason. Of  course, hate speech
+will never be tolerated.
+
+@node Now That You're In Tootsville, Copying This Manual, Managing Toots, Top
 @chapter Now That You're In Tootsville
 
+WRITEME Now that you're in Tootsville
+
+@menu
+* ::
+* ::
+* ::
+* ::
+* ::
+* ::
+@end menu
+
+@node Wishing Wells, , Now That  You're In Tootsville, Now That You're In Tootsville
 @section Wishing Wells
 
+WRITEME Wishing wells
+
+@node Getting Around, , Wishing Wells, Now That You're In Tootsville
 @section Getting Around
 
+WRITEME Getting Around
+
+@node Building a House, , Getting Around, Now That You're In Tootsville
 @section Building a House
 
+WRITEME Building a house
+
+@node Shopping, , Building a House, Now That You're In Tootsville
 @section Shopping
 
+WRITEME Shopping
+
+@node Useful Tools, , Shopping, Now That You're In Tootsville
 @section Useful Tools
 
+WRITEME Useful Tools
+
+@node Troops and Operators,  , Useful Tools, Now That You're In Tootsville
 @section Troops and Operators
 
+WRITEME Troops and Operators
 
-
-@node Copying This Manual
+@node Copying This Manual, Index, Now That You're In Tootsville, Top
 @appendix Copying This Manual
 
 @menu
@@ -148,7 +223,7 @@ WRITEME
 @c Get fdl.texi from https://www.gnu.org/licenses/fdl.html
 @include fdl.texi
 
-@node Index
+@node Index,  , Copying This Manual, Top
 @unnumbered Index
 
 @printindex cp
