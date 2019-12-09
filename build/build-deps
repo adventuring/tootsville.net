@@ -10,6 +10,7 @@ joe
 mariadb-connector-c-devel
 openssl-devel
 readline-devel
+redhat-rpm-config
 rlwrap
 sbcl
 sharutils
