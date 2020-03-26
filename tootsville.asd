@@ -110,10 +110,10 @@ REST services for the front-end."
      (:file "weather/weather" :depends-on ("package-post"))
      (:file "version" :depends-on ("package-post" "config"))
      (:file "logging" :depends-on ("package-post" "version"))
-     (:file "write-docs" :depends-on ("package-post"))
+     (:file "write-docs-2" :depends-on ("package-post"))
      (:file "power-on-self-test" :depends-on ("package"))
      (:file "package-post" :depends-on ("power-on-self-test"))
-     (:file "command-line" :depends-on ("main" "logging" "write-docs"))
+     (:file "command-line" :depends-on ("main" "logging" "write-docs-2"))
      (:file "endpoint" :depends-on ("package-post"))
      (:file "web"
             :depends-on ("view" "players" "errors" "config" "endpoint"))

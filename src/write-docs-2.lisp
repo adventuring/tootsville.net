@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/write-docs.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018,2019  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -55,8 +55,8 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA."))))))
       (format s "~2&~:(~a~) names a ~(~a~):~2%~a" symbol kind docu))))
 
 (defun gather-all-symbols ()
-  (let (list) 
-    (do-all-symbols (symbol list) 
+  (let (list)
+    (do-all-symbols (symbol list)
       (when (member (symbol-package symbol)
                     (mapcar #'find-package '(Tootsville Rollbar Thread-pool-taskmaster Chœrogryllum)))
         (push symbol list)))))
@@ -68,7 +68,7 @@ Note that DECLT  is not usually compiled into the  binary by default, so
 this  may  have  to  download  DECLT  and/or  its  dependencies  through
 Quicklisp when called."
   (format *trace-output* "~& Writing documentation…")
-  
+
   (let ((source-dir (asdf:component-pathname (asdf:find-system :tootsville))))
     (ensure-directories-exist (merge-pathnames #p"doc/" source-dir))
     (with-output-to-file (docs (merge-pathnames #p"doc/Tootsville.texi"
@@ -194,7 +194,7 @@ Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
 preserved on all copies.
 
-@ignore 
+@ignore
 
 Permission is granted to process this  file through @TeX{} and print the
 results,  provided the  printed  document carries  a copying  permission
@@ -234,9 +234,9 @@ This manual is based upon materials taken from Declt 2.3.
 @node Top, Copying, (dir), (dir)
 @top The Book of Romance Ⅱ
 
-This is The Book of Romance Ⅱ, describing the Romance Ⅱ game core and 
-Tootsville Ⅴ in particular. This manual is generated from the docstrings found 
-in the Tootsville package. 
+This is The Book of Romance Ⅱ, describing the Romance Ⅱ game core and
+Tootsville Ⅴ in particular. This manual is generated from the docstrings found
+in the Tootsville package.
 
 @menu
 * Copying:: The GNU Affero General Public License
@@ -289,8 +289,8 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
       (format docs "
 
-              @node Conclusion, Indexes, Definitions, Top
-              @chapter Conclusion
+@node Conclusion, Indexes, Definitions, Top
+@chapter Conclusion
 
 
               ")
@@ -299,52 +299,52 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
              docs)
 
       (format docs "@node Indexes, , Conclusion, Top
-              @appendix Indexes
-              @menu
-              * Concept index::
-              * Function index::
-              * Variable index::
-              * Data type index::
-              @end menu
+@appendix Indexes
+@menu
+* Concept index::
+* Function index::
+* Variable index::
+* Data type index::
+@end menu
 
 
-              @c -------------
-              @c Concept index
-              @c -------------
-              @node Concept index, Function index, Indexes, Indexes
-              @appendixsec Concepts
-              @printindex cp
+@c -------------
+@c Concept index
+@c -------------
+@node Concept index, Function index, Indexes, Indexes
+@appendixsec Concepts
+@printindex cp
 
-              @page
-
-
-              @c --------------
-              @c Function index
-              @c --------------
-              @node Function index, Variable index, Concept index, Indexes
-              @appendixsec Functions
-              @printindex fn
-
-              @page
+@page
 
 
-              @c --------------
-              @c Variable index
-              @c --------------
-              @node Variable index, Data type index, Function index, Indexes
-              @appendixsec Variables
-              @printindex vr
+@c --------------
+@c Function index
+@c --------------
+@node Function index, Variable index, Concept index, Indexes
+@appendixsec Functions
+@printindex fn
 
-              @page
+@page
 
 
-              @c ---------------
-              @c Data type index
-              @c ---------------
-              @node Data type index, , Variable index, Indexes
-              @appendixsec Data types
-              @printindex tp
+@c --------------
+@c Variable index
+@c --------------
+@node Variable index, Data type index, Function index, Indexes
+@appendixsec Variables
+@printindex vr
 
-              @bye
+@page
 
-              "))))
+
+@c ---------------
+@c Data type index
+@c ---------------
+@node Data type index, , Variable index, Indexes
+@appendixsec Data types
+@printindex tp
+
+@bye
+
+"))))
