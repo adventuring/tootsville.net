@@ -187,7 +187,7 @@ The Book of Romance Ⅱfor Tootsville Ⅴ version ~a
 @quotation
 Copyright @copyright{} 2008-2017 Bruce-Robert Pocock
 
-Copyright @copyright{} 2018,2019 The Corporation for Inter-World Tourism
+Copyright @copyright{} 2018-2020 The Corporation for Inter-World Tourism
 and Adventuring @url{https://ciwta.org/}
 
 Permission is granted to make and distribute verbatim copies of this
