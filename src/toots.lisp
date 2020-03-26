@@ -220,6 +220,10 @@ See `TOOT-CHILD-CODE'
 @item sensitiveP
 True if the Toot represents a sensitive user or a child.
 See `PERSON-SENSITIVEP'
+@item scaling
+Scaling of the avatar in each of x, y, and z dimensions. See
+ `TOOT-AVATAR-SCALE-X', `TOOT-AVATAR-SCALE-Y',
+ and  `TOOT-AVATAR-SCALE-Z'
 @end table
 
 @subsection Changes from 1.0 to 1.1
@@ -230,6 +234,10 @@ same   as   @code{title};   @code{forVIT},   which  is   the   same   as
 @code{id}. The renamed fields were supported  under both names in 1.1 or
 1.2  based  on   the  setting  of  the   global  configuration  variable
 @code{org.starhope.appius.events.format1.0}.
+
+@subsection Changes from 1.1 to 1.2
+
+Added @code{scaling} for ``Magic Toots.''
 
 @subsection Changes from 1.2 to 2.0
 
@@ -328,6 +336,9 @@ Fetch avatar information for a list of Toots.
           :|equip| (apply #'vector
                           (mapcar #'Toot-item-info
                                   (Toot-inventory Toot privatep)))
+          :|scaling| (list :|x| (Toot-avatar-scale-x Toot)
+                           :|y| (Toot-avatar-scale-y Toot)
+                           :|z| (Toot-avatar-scale-z Toot))
           ;; DEPRECATED fields, can be removed in 2.1 or later
           :|id| (Toot-uuid Toot)
           :|avatarClass| (list :|id| (Toot-avatar Toot)
