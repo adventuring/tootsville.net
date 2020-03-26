@@ -469,7 +469,7 @@ styling is helpful."
             (pretty-function-lambda-list symbol)
             (clean-docs (documentation symbol 'function)))
     #+sbcl
-    (when-let (source-file (sb-kernel::debug-source-namestring
+    (when-let (source-file (sb-int:debug-source-namestring
                             (sb-c::debug-info-source 
                              (sb-kernel:%code-debug-info
                               (sb-kernel:fun-code-header
