@@ -165,7 +165,7 @@ is available."
                                           :ssl-certificate-file (ssl-certificate)
                                           :ssl-privatekey-file (ssl-private-key)
                                           :address host
-                                          :port (config :ssl :port)))))
+                                          :port (or port (config :ssl :port))))))
                  (setf (hunchentoot:acceptor-name ssl)
                        (format nil "Tootsville at ~a port ~d" host port))
                  (push ssl *acceptors*)))
