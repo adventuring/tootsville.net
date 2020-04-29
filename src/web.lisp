@@ -371,7 +371,7 @@ Used in generating HTTP headers."
   (defun constituentp (ch)
     "Is character CH a constituent character of a Lisp name (without quoting)?
 
-Accepts A-Z, 0-9, and these punctuation: -/!?%."
+Accepts A-Z, 0-9, any character above #xa0, and these punctuation: -/!?%."
     (let ((cc (char-code (char-upcase ch))))
       (or (< #xa0 cc)
           (<= (char-code #\A) cc (char-code #\Z))
