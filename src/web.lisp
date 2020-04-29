@@ -371,12 +371,12 @@ Used in generating HTTP headers."
   (defun constituentp (ch)
     "Is character CH a constituent character of a Lisp name (without quoting)?
 
-Accepts A-Z, 0-9, and these punctuation: -/!?."
+Accepts A-Z, 0-9, and these punctuation: -/!?%."
     (let ((cc (char-code (char-upcase ch))))
       (or (< #xa0 cc)
           (<= (char-code #\A) cc (char-code #\Z))
           (<= (char-code #\0) cc (char-code #\9))
-          (find ch "-/!?." :test #'char=))))
+          (find ch "-/!?%." :test #'char=))))
   
   (defun make-endpoint-function-name (method uri accept-type)
     "Create the name of the endpoint function for METHOD, URI, and ACCEPT-TYPE."
@@ -387,7 +387,7 @@ Accepts A-Z, 0-9, and these punctuation: -/!?."
                       (null #\?)
                       (string (name-for-content-type accept-type))
                       (symbol (name-for-content-type (string accept-type)))))))
-
+  
   (defun lambda-list-as-variables (λ-list)
     "Convert Λ-LIST into variables for an endpoint function."
     (if λ-list
