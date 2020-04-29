@@ -96,9 +96,7 @@ Relies upon `CONTENTS-TO-BYTES', qv"
     ((= 3 (length reply))
      (destructuring-bind (status headers contents) reply
        (check-type status http-response-status-number)
-       (assert (every (lambda (x)
-                        (or (stringp x) (symbolp x)))
-                      headers)
+       (assert (every (lambda (x) (or (stringp x) (symbolp x))) headers)
                (headers)
                "Headers should be given as strings or symbols; got ~s"
                headers)
@@ -143,7 +141,7 @@ Relies upon `CONTENTS-TO-BYTES', qv"
               temp
               (rest temp)))
         (list "index" extension)))
-
+  
   (defun without-sem (string)
     "The subset of STRING up to the first semicolon, if any."
     (if-let (sem (position #\; (the string string)))
