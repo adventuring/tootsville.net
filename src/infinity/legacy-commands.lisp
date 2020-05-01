@@ -423,27 +423,24 @@ Now, the @code{score} and @code{highScores} functionality is ignored and the
 caller should listen for a subsequent gift of peanuts, fairy dust, or an item. "
   (error 'unimplemented))
 
-(definfinity finger ((&rest _+Toot-names) user recipient/s)
+(definfinity finger ((&rest Toots-with-keys) user recipient/s)
   "Get public info for a list of Toots.
 
 Reply format:
 
 @verbatim
-{ from: avatars, status: true, avatars: { 0: { USER-INFO … }, … }
+{ from: avatars, status: true, avatars: { 0: { TOOT-INFO … }, … }
 @end verbatim
 
 User public information is in the format of `TOOT-INFO', which should be
 a supserset  of what @code{AbstructUser.getPublicInfo()} used  to return
 in 1.2.
 
-
-
 jso - JSON object, with (ignored) keys  tied to values which must be the
-names of users."
+names of Toots."
   (list 200
-        (list :|avatars| (loop for (_ Toot-name) on _+Toot-names by #'cddr
-                            for i from 0
-                            appending (list i (Toot-info Toot-name)))
+        (list :|avatars| (loop for (key Toot-name) on Toots-with-keys by #'cddr
+                            appending (list key (Toot-info (find-record 'toot  :name Toot-name))))
               :|from| "avatars"
               :|status| t)))
 
@@ -461,6 +458,7 @@ encode a response into a JSON form
 
 "
   (error 'unimplemented))
+
 (definfinity get-apple (nil user recipient/s)
   "Get the apple to get into, or out of, $Eden. Unused.
 

@@ -29,6 +29,11 @@
 
 
 
+(defvar *motd*
+  "Welcome to Tootsville! Let's make some noise!
+
+This is experimental server software for Tootsville V.")
+
 (defvar *acceptors* nil
   "The set of listening acceptors awaiting incoming connections.")
 
@@ -117,7 +122,7 @@ Presently only works in SBCL."
   (run-async (lambda () #+sbcl (sb-ext:gc))
              :name "Garbage Collection"))
 
-(defun start (&key (host "localhost") (port 5000) (fullp t))
+(defun start (&key (host "0.0.0.0") (port 5000) (fullp t))
   "Start a local Hunchentoot server on HOST and PORT.
 
 HOST is an address of a live interface; PORT may be a port number.

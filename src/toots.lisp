@@ -400,3 +400,5 @@ Now, we also report (at least) X-FADU, fairy dust.
         :|currency| (list :x-tvpn (Toot-peanuts Toot)
                           :x-fadu (Toot-fairy-dust Toot))))
 
+(defun toot-world (toot)
+  "Tootsville")

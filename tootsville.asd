@@ -119,11 +119,12 @@ REST services for the front-end."
             :depends-on ("view" "players" "errors" "config" "endpoint"))
      (:file "http-error" :depends-on ("web"))
      (:file "redirect" :depends-on ("web"))
-     (:file "ws")
      (:file "gossip" :depends-on ("db"))
      (:file "http-status-messages" :depends-on ("package-post"))
      (:file "acceptor" :depends-on ("types" "endpoint" "web" "auth"
                                             "http-status-messages"))
+     (:file "websockets" :depends-on ("acceptor"))
+     (:file "tcp-stream" :depends-on ("websockets"))
      (:file "main" :depends-on ("config" "view" "package-post" "acceptor"))
      (:module "db"
               :depends-on ("package-post")
@@ -169,4 +170,7 @@ REST services for the front-end."
       :components
       ((:file "infinity")
        (:file "legacy-commands" :depends-on ("infinity"))
-       (:file "legacy-ops" :depends-on ("infinity"))))))))
+       (:file "legacy-ops" :depends-on ("infinity"))
+       (:file "tootsville-commands" :depends-on ("infinity"))
+       (:file "new-commands-20" :depends-on ("infinity"))
+       (:file "new-commands-50" :depends-on ("infinity"))))))))

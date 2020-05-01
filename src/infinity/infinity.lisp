@@ -10,7 +10,27 @@ Used to create the REST endpoints mapping to METHOD."
          (json (jonathan.decode:parse json$)))
     (with-user ()
       (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
+        (v:info '(:infinity :rest) "REST request from ~a for command ~a" 
+                *user* method)
         (funcall method json *user* (user-plane *user*))))))
+
+(defun call-infinity-from-stream (json$)
+  "Call an Infinity-mode command from a stream of JSON$ packets.
+
+Used by the WebSockets and direct TCP stream handlers."
+  (let* ((json-full (jonathan.decode:parse json$))
+         (method (find-symbol (concatenate 'string "INFINITY-" 
+                                           (string-upcase (symbol-munger:camel-case->lisp-name (getf json-full :|c|))))
+                              :tootsville))
+         (data (getf json-full :|d|)))
+    (if (symbolp method)
+        (with-user ()
+          (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
+            (v:info '(:infinity :stream) "Stream request from ~a for command ~a" 
+                    *user* method)
+            (funcall method data *user* (user-plane *user*))))
+        (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
+                *user* (getf json-full :|c|)))))
 
 (defun infinity-error (code reason)
   (throw 'infinity
@@ -175,6 +195,7 @@ See `DEFINFINITY' for a detailed discussion of this mode of operation."
   (with-posted-json (c d)
     (with-user ()
       (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
-        (funcall (intern (concatenate 'string "INFINITY-"
-                                      (symbol-munger:camel-case->lisp-name c)))
+        (funcall (find-symbol (concatenate 'string "INFINITY-"
+                                           (string-upcase (symbol-munger:camel-case->lisp-name c)))
+                              :Tootsville)
                  d *user* (user-plane *user*))))))
