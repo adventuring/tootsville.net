@@ -442,6 +442,7 @@ names of Toots."
         (list :|avatars| (loop for (key Toot-name) on Toots-with-keys by #'cddr
                             appending (list key (Toot-info (find-record 'toot  :name Toot-name))))
               :|from| "avatars"
+              :|inRoom| "@Tootsville"
               :|status| t)))
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
@@ -1558,53 +1559,13 @@ Removed in 2.0. Zones no longer exist.
 
        Emotes are simply speech beginning with \"/\". A few are special-cased. WRITEME: which
 
-@verbatim
-	if (speech.contains (\",dumpthreads,\")) {
-			OpCommands.op_dumpthreads (new String [] {}, u, channel);
-			return;
-		}
-		if (speech.contains (\",credits,\")) {
-			OpCommands.z$z (u);
-			return;
-		}
-@end verbatim
-
        Commands are speech beginning with \"#\"
 
        Parameters:
        jso - @{ \"speech\": TEXT-TO-BE-SPOKEN @}
-       u - The user speaking
-       room - The room in which the speech occurs. 
-       Throws:
-       
-org.json.JSONException - Thrown  if the data cannot  be interpreted from
-the JSON objects passed in, or conversely, if we can't encode a response
-into a JSON form
 
-       NotFoundException - WRITEME
 
 @verbatim
-	switch (speech.charAt (0)) {
-			case '#':
-			OpCommands.exec (channel, u, speech);
-				return;
-			case '@':
-			Commands.speak_atMessage (u, channel, speech);
-				return;
-			case '$':
-			OpCommands.hook (channel, u, speech);
-				return;
-			case '~':
-				// no op… should have been handled by the client
-				return;
-			case '!':
-			case '%':
-			case '^':
-			case '&':
-			case '*':
-				// no op… reserved for future purposes
-				return;
-		}
 
 	private static String nonObnoxious (final String speech) {
 		return speech.replace (\"!!\", \"!\").replace (\",,\", \",\").replace (
@@ -1613,11 +1574,13 @@ into a JSON form
 @end verbatim
 
        "
+  (when (emptyp speech)
+    (return-from infinity-speak))
   (case (char speech 0)
     (#\~ (v:warn :speak "Received a client command ~a" speech)) ; TODO
     (#\# (v:warn :speak "operator command not handled ~a" speech)) ; TODO
     (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
-    (#\/ (v:warn :speak "emote not handled ~a" speech)) ; TODO
+    (#\/ (v:warn :speak "emote not handled ~a" speech))     ; TODO
     ((#\$ #\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX
     (otherwise 
      (when (search ",dumpthreads" speech)
@@ -1627,21 +1590,14 @@ into a JSON form
          (dump-credits)
          (let ((vol (when (member vol '("shout" "whisper") :test 'equal)
                       vol)))
-           (broadcast (list :|from| "pub" 
-                            :|u| (toot-name *toot*)
-                            :|t| speech
-                            :|x| vol
-                            :|id| (toot-uuid *toot*))))))))
+           (toot-speak speech :vol vol))))))
 
 (defun dump-credits ()
-  (broadcast (list :|from| "admin"
-                   :|status| t
-                   :|title| "Credits"
-                   :|label| "Credits"
-                   :|message| "Tootsville V by Bruce-Robert Pocock.
+  (private-admin-message "Credits" "Tootsville V by Bruce-Robert Pocock.
+<br>
 Special thanks to Ali Dolan, Mariaelisa Greenwood, Levi Mc Call, and Zephyr Salz.
-
-Tootsville IV by Gene Cronk, Robert Dawson, Eric Feiling, Tim Hays, Sean King, and Bruce-Robert Pocock.")))
+<br>
+Tootsville IV by Gene Cronk, Robert Dawson, Eric Feiling, Tim Hays, Sean King, Bruce-Robert Pocock, and Ed Winkelman."))
 
 (definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin an event. Might return an error. Uses Quæstor for the heavy lifting.

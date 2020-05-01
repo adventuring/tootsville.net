@@ -64,6 +64,12 @@
   "Broadcast MESSAGE to all ∞ Mode listeners connected."
   (ws-broadcast *infinity-websocket-resource* message))
 
+(defun unicast (message &optional (user *user*))
+  (ws-unicast *infinity-websocket-resource* message user))
+
+(defun unicast-to-toot (message toot)
+  (unicast message (find-record 'person :uuid (toot-player toot))))
+
 (defun ws-broadcast (res message)
   (let ((message (typecase message
                    (string message)
@@ -71,13 +77,30 @@
     (lparallel:pmapcar (lambda (peer)
                          (hunchensocket:send-text-message peer message))
                        (hunchensocket:clients res))
-    (v:info :stream "Broadcast to ~a: ~a" res message)))
+    (v:info :stream "Broadcast to ~a: ~:d character~:p" res (length message))))
+
+(defun ws-unicast (res message user)
+  (let ((message (typecase message
+                   (string message)
+                   (cons (jonathan:to-json message))
+                   (nil nil))))
+    (lparallel:pmapcar (lambda (peer)
+                         (when (and (user-account peer)
+                                    (uuid:uuid= (person-uuid (user-account peer))
+                                                (person-uuid user)))
+                           (hunchensocket:send-text-message peer message)
+                           (v:info :stream "Unicast to ~a: ~:d character~:p" peer (length message))))
+                       (hunchensocket:clients res))))
 
 (defmethod hunchensocket:client-connected ((res infinity-websocket-resource) user)
   (v:info :stream "WebSocket connection on ~a from ~a" res user))
 
 (defmethod hunchensocket:client-disconnected ((res infinity-websocket-resource) user)
-  (v:info :stream "WebSocket disconnection on ~a from ~a" res user))
+  (v:info :stream "WebSocket disconnection on ~a from ~a" res user)
+  (broadcast (list :|from| "bye"
+                   :|status| t
+                   :|u| (Toot-uuid *Toot*)
+                   :|n| (Toot-name *Toot*))))
 
 (defun ws-reply (message stream-user)
   (let ((text (jonathan.encode:to-json (lastcar message))))
@@ -106,30 +129,66 @@
       (progn (v:warn :auth "Unsupported ∞ JSON auth, ~s" json)
              nil)))
 
+(defun log-ok-message ()
+  (jonathan:to-json
+   (list :|_cmd| "logOK"
+         :|status| t
+         :|auth| "accepted auth, ∞ mode ℵ₀ protocol (Tootsville/5.0)"
+         :|greet| "Welcome to Tootsville! Let's make some noise."
+         :|motd| *motd*
+         :|userAccount| (person-info *user*))))
+
+(defun login-failed-message ()
+  (jonathan:to-json
+   (list :|_cmd| "logOK"
+         :|status| :false
+         :|auth| "rejected auth, ∞ mode ℵ₀ protocol (Tootsville/5.0)"
+         :|motd| *motd*
+         :|error| "Authentication attempt was rejected. Either your software is trying to\
+use the ∞ mode $Eden-CHAP login method, which is not currently supported by the \
+Tootsville 5 demo version, or it is submitting invalid credentials using mode ℵ₀.")))
+
+(defun user-join-message (&optional (user *user*) (room "@Tootsville"))
+  (list :|from| "joinOK"
+        :|status| t
+        :|uLs| (toot-name (player-toot user))
+        :|r| room))
+
 (defun websocket-authenticate (user auth$)
   (let ((auth (jonathan.decode:parse auth$)))
     (if-let (*user* (find-user-for-json auth))
       (progn (setf (user-account user) *user*)
-             (hunchensocket:send-text-message 
-              user 
-              (jonathan:to-json
-               (list :|_cmd| "logOK"
-                     :|status| t
-                     :|auth| "accepted auth, ∞ mode ℵ₀ protocol (Tootsville/5.0)"
-                     :|greet| "Welcome to Tootsville! Let's make some noise."
-                     :|motd| *motd*
-                     :|userAccount| (person-info *user*)))))
-      (hunchensocket:send-text-message 
-       user
-       (jonathan:to-json
-        (list :|_cmd| "logOK"
-              :|status| :false
-              :|auth| "rejected auth, ∞ mode ℵ₀ protocol (Tootsville/5.0)"
-              :|motd| *motd*
-              :|error| "Authentication attempt was rejected. Either your software is trying to\
-use the ∞ mode $Eden-CHAP login method, which is not currently supported by the \
-Tootsville 5 demo version, or it is submitting invalid credentials using mode ℵ₀."))))))
+             (hunchensocket:send-text-message user (log-ok-message)))
+      (hunchensocket:send-text-message user (login-failed-message)))))
 
 (defun listen-for-websockets ()
   (setf *websocket-server* (make-instance 'websocket-acceptor))
   (hunchentoot:start *websocket-server*))
+
+
+
+(defun admin-message (title message
+                      &key (label title))
+  (broadcast (list :|from| "admin"
+                   :|status| t
+                   :|title| title
+                   :|label| label
+                   :|message| message)))
+
+(defun private-admin-message (title message
+                              &key (label title)
+                                   (user *user*))
+  (let ((*user* user))
+    (unicast (list :|from| "admin"
+                   :|status| t
+                   :|title| title
+                   :|label| label
+                   :|message| message))))
+
+(defun toot-speak (speech &key (toot *toot*) vol)
+  (broadcast (list :|from| "pub" 
+                   :|u| (toot-name toot)
+                   :|t| speech
+                   :|x| vol
+                   :|id| (toot-uuid toot))))
+

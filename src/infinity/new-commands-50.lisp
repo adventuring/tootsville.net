@@ -63,15 +63,26 @@ This  list can  be reformatted  (into hash  values) and  passed back  to
                         :|player| (list :|uuid| (person-uuid *user*)
                                         :|name| (person-display-name *user*)
                                         :|email| (person-first-email *user*))))
+          (broadcast (user-join-message))
           (broadcast (list :|status| t
                            :|from| "avatars"
-                           :|avatars| (list 0 (Toot-info Toot)))))
+                           :|avatars| (list :|joined| (Toot-info Toot)))))
         (list 403
               (v:warn :toot-security "Attempt by ~a to access ~a" *user* Toot)
               (list :|status| nil
                     :|from| "playWith"
                     :|error| "Not your Toot")))
     (list 404
+          (v:warn :toot-security "Attempt by ~a to access non-existent ~a" *user* Toot)
           (list :|status|
                 :|from| "playWith"
                 :|error| "No such Toot"))))
+
+(definfinity wtl ((course facing) u r)
+  "Walk the line"
+  (broadcast (list :|status| t
+                   :|from| "wtl"
+                   :|course| course
+                   :|facing| facing
+                   :|u| (toot-uuid *toot*)
+                   :|n| (toot-name *toot*))))
