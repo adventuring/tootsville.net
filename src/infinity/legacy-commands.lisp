@@ -1549,12 +1549,12 @@ NotFoundException - if the furniture doesn't exist"
 Removed in 2.0. Zones no longer exist.
        ")
 
-(definfinity speak ((key speech) user recipient/s)
+(definfinity speak ((key speech vol) user recipient/s)
   "speak
 
-       Handle speech by the user. XXX This should be calling User.speak(Room, String) to do the dirty work: but, in fact, the reverse is currently true.
+       Handle speech by the user. 
 
-       Speech is public to all users in a room.
+       Speech is public to all users in a room/area
 
        Emotes are simply speech beginning with \"/\". A few are special-cased. WRITEME: which
 
@@ -1612,7 +1612,37 @@ into a JSON form
 	}
 @end verbatim
 
-       ")
+       "
+  (case (char speech 0)
+    (#\~ (v:warn :speak "Received a client command ~a" speech)) ; TODO
+    (#\# (v:warn :speak "operator command not handled ~a" speech)) ; TODO
+    (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
+    (#\/ (v:warn :speak "emote not handled ~a" speech)) ; TODO
+    ((#\$ #\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX
+    (otherwise 
+     (when (search ",dumpthreads" speech)
+       (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
+                (bt:all-threads)))
+     (if (equal ",credits" speech)
+         (dump-credits)
+         (let ((vol (when (member vol '("shout" "whisper") :test 'equal)
+                      vol)))
+           (broadcast (list :|from| "pub" 
+                            :|u| (toot-name *toot*)
+                            :|t| speech
+                            :|x| vol
+                            :|id| (toot-uuid *toot*))))))))
+
+(defun dump-credits ()
+  (broadcast (list :|from| "admin"
+                   :|status| t
+                   :|title| "Credits"
+                   :|label| "Credits"
+                   :|message| "Tootsville V by Bruce-Robert Pocock.
+Special thanks to Ali Dolan, Mariaelisa Greenwood, Levi Mc Call, and Zephyr Salz.
+
+Tootsville IV by Gene Cronk, Robert Dawson, Eric Feiling, Tim Hays, Sean King, and Bruce-Robert Pocock.")))
+
 (definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin an event. Might return an error. Uses Quæstor for the heavy lifting.
 

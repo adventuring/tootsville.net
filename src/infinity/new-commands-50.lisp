@@ -53,19 +53,19 @@ This  list can  be reformatted  (into hash  values) and  passed back  to
   "Choose a Toot as your active CHARACTER in the game. "
   (if-let (toot (find-record 'Toot :name character))
     (if (uuid:uuid= (toot-player toot) (person-uuid *user*))
-        (progn
-          (setf (player-toot *user*) Toot)
+        (prog2
+            (setf (player-toot *user*) Toot)
+            (list 200
+                  (list :|status| t
+                        :|from| "playWith"
+                        :|playWith| character
+                        :|uuid| (toot-uuid toot)
+                        :|player| (list :|uuid| (person-uuid *user*)
+                                        :|name| (person-display-name *user*)
+                                        :|email| (person-first-email *user*))))
           (broadcast (list :|status| t
                            :|from| "avatars"
-                           :|avatars| (list 0 (Toot-info Toot))))
-          (list 200
-                (list :|status| t
-                      :|from| "playWith"
-                      :|playWith| character
-                      :|uuid| (toot-uuid toot)
-                      :|player| (list :|uuid| (person-uuid *user*)
-                                      :|name| (person-display-name *user*)
-                                      :|email| (person-first-email user)))))
+                           :|avatars| (list 0 (Toot-info Toot)))))
         (list 403
               (v:warn :toot-security "Attempt by ~a to access ~a" *user* Toot)
               (list :|status| nil

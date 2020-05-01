@@ -23,14 +23,19 @@ Used by the WebSockets and direct TCP stream handlers."
                                            (string-upcase (symbol-munger:camel-case->lisp-name (getf json-full :|c|))))
                               :tootsville))
          (data (getf json-full :|d|)))
-    (if (symbolp method)
+    (if (and (symbolp method) (not (eql 'nil method)))
         (with-user ()
           (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
             (v:info '(:infinity :stream) "Stream request from ~a for command ~a" 
                     *user* method)
             (funcall method data *user* (user-plane *user*))))
-        (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
-                *user* (getf json-full :|c|)))))
+        (let ((c (or (getf json-full :|c|) "")))
+          (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
+                  *user* c)
+          (list :|from| "c"
+                :|status| :false
+                :|error| (format nil "Unrecognized command ~a" 
+                                 (subseq c 0 (min (length c) 100))))))))
 
 (defun infinity-error (code reason)
   (throw 'infinity

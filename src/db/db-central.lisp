@@ -63,6 +63,11 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
   (check-type name symbol)
   (cffi:translate-name-to-foreign (make-keyword (string name)) *package*))
 
+(defvar *utc-timezone*
+  (progn
+    (local-time:reread-timezone-repository)
+    (local-time:find-timezone-by-location-name "UTC")))
+
 (defgeneric column-save-value (value type)
   (:documentation "Convert VALUE into the database's representation of TYPE")
   (:method (value (type (eql :string)))
@@ -97,7 +102,7 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
                                (uuid:uuid-to-byte-array value)))
                          0 22))))
   (:method (value (type (eql :timestamp)))
-    (and value (substitute #\Space #\T (format-timestring nil value)))))
+    (and value (substitute #\Space #\Z (format-timestring nil value :timezone *utc-timezone*)))))
 
 (defgeneric column-load-value (value type)
   (:documentation "For a column of TYPE, interpret raw VALUE")
