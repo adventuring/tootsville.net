@@ -31,6 +31,12 @@
 
 (defvar *websocket-server*)
 
+(defmacro with-disconnect-catcher (() &body body)
+  `(handler-case
+       (progn ,@body)
+     (sb-int:broken-pipe (c)
+       (v:warn "Surprise disconnection on WebSocket ignored: ~a" c))))
+
 (defclass websocket-acceptor (hunchensocket:websocket-acceptor)
   ((hunchentoot::taskmaster
     :initform (make-instance 'thread-pool-taskmaster:thread-pool-taskmaster)))
@@ -70,12 +76,26 @@
 (defun unicast-to-toot (message toot)
   (unicast message (find-record 'person :uuid (toot-player toot))))
 
+(defun force-close-hunchensocket (client)
+  (with-slots (clients lock) *infinity-websocket-resource*
+    (bt:with-lock-held (lock)
+      (with-slots (write-lock) client
+        (bt:with-lock-held (write-lock)
+          (setq clients (remove client clients))
+          (setq write-lock nil)))))
+  (hunchensocket:client-disconnected *infinity-websocket-resource* client))
+
 (defun ws-broadcast (res message)
   (let ((message (typecase message
                    (string message)
                    (cons (jonathan:to-json message)))))
     (lparallel:pmapcar (lambda (peer)
-                         (hunchensocket:send-text-message peer message))
+                         (handler-bind
+                             ((sb-int:broken-pipe (lambda (c)
+                                                    (v:warn :stream "Disconnect detected on ~a for ~a"
+                                                            (stream-error-stream c) peer)
+                                                    (force-close-hunchensocket peer))))
+                           (hunchensocket:send-text-message peer message)))
                        (hunchensocket:clients res))
     (v:info :stream "Broadcast to ~a: ~:d character~:p" res (length message))))
 
@@ -104,14 +124,24 @@
 
 (defun ws-reply (message stream-user)
   (let ((text (jonathan.encode:to-json (lastcar message))))
-    (v:info :stream "Unicast text reply to ~a, ~:d character~:p" stream-user (length text))
-    (hunchensocket:send-text-message stream-user text)))
+    (unless (equal text "[]")
+      (v:info :stream "Unicast text reply to ~a, ~:d character~:p" stream-user (length text))
+      (hunchensocket:send-text-message stream-user text))))
 
 (defmethod hunchensocket:text-message-received ((res infinity-websocket-resource) user message)
   (if-let (*user* (user-account user))
     (ws-reply (call-infinity-from-stream message)
               user)
     (websocket-authenticate user message)))
+
+(defun who-is-connected ()
+  (remove-if #'null
+             (mapcar #'user-account 
+                     (hunchensocket:clients *infinity-websocket-resource*))))
+
+(defun connected-Toots ()
+  (remove-if #'null
+             (mapcar #'player-Toot (who-is-connected))))
 
 (defun find-user-for-json (json)
   (if (and json
@@ -148,10 +178,10 @@
 use the ∞ mode $Eden-CHAP login method, which is not currently supported by the \
 Tootsville 5 demo version, or it is submitting invalid credentials using mode ℵ₀.")))
 
-(defun user-join-message (&optional (user *user*) (room "@Tootsville"))
+(defun Toot-join-message (&optional (Toot *Toot*) (room "@Tootsville"))
   (list :|from| "joinOK"
         :|status| t
-        :|uLs| (toot-name (player-toot user))
+        :|uLs| (toot-name Toot)
         :|r| room))
 
 (defun websocket-authenticate (user auth$)

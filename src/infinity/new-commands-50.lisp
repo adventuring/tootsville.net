@@ -49,6 +49,11 @@ This  list can  be reformatted  (into hash  values) and  passed back  to
                                             (or (Toot-last-active Toot)
                                                 (universal-to-timestamp 0))))))))
 
+(defun plist-with-index (list)
+  (loop for i from 0
+     for el in list
+     appending (list i el)))
+
 (definfinity play-with ((character) u r)
   "Choose a Toot as your active CHARACTER in the game. "
   (if-let (toot (find-record 'Toot :name character))
@@ -63,7 +68,22 @@ This  list can  be reformatted  (into hash  values) and  passed back  to
                         :|player| (list :|uuid| (person-uuid *user*)
                                         :|name| (person-display-name *user*)
                                         :|email| (person-first-email *user*))))
-          (broadcast (user-join-message))
+          (broadcast (Toot-join-message))
+          (let ((everyone (connected-Toots)))
+            (dolist (Toot everyone)
+              (unicast (Toot-join-message Toot)))
+            (unicast (from-avatars (plist-with-index everyone))))
+          (dolist (key (hash-table-keys *transient-vars*))
+            (let* ((user (gethash key *transient-vars*))
+                   (wtl (getf user :wtl)))
+              (when wtl
+                (destructuring-bind (course . facing) wtl
+                  (unicast (list :|status| t
+                                 :|from| "wtl"
+                                 :|course| course
+                                 :|facing| facing
+                                 :|u| key
+                                 :|n| (toot-name (find-record 'Toot :UUID key))))))))
           (broadcast (list :|status| t
                            :|from| "avatars"
                            :|avatars| (list :|joined| (Toot-info Toot)))))
@@ -80,9 +100,11 @@ This  list can  be reformatted  (into hash  values) and  passed back  to
 
 (definfinity wtl ((course facing) u r)
   "Walk the line"
+  (set-transient :wtl (cons course facing))
   (broadcast (list :|status| t
                    :|from| "wtl"
                    :|course| course
                    :|facing| facing
                    :|u| (toot-uuid *toot*)
-                   :|n| (toot-name *toot*))))
+                   :|n| (toot-name *toot*)))
+  (list 204 nil))

@@ -439,11 +439,19 @@ in 1.2.
 jso - JSON object, with (ignored) keys  tied to values which must be the
 names of Toots."
   (list 200
-        (list :|avatars| (loop for (key Toot-name) on Toots-with-keys by #'cddr
-                            appending (list key (Toot-info (find-record 'toot  :name Toot-name))))
-              :|from| "avatars"
-              :|inRoom| "@Tootsville"
-              :|status| t)))
+        (from-Avatars Toots-with-keys)))
+
+(defun from-avatars (Toots-with-keys)
+  (list :|avatars| (loop for (key Toot) on Toots-with-keys by #'cddr
+                      appending (list key (Toot-info (etypecase Toot
+                                                       
+                                                       (Toot Toot)
+                                                       (string (find-record 'Toot  :name Toot))
+                                                       (uuid:uuid (find-record 'Toot :uuid Toot))))))
+        :|from| "avatars"
+        :|inRoom| "@Tootsville"
+        :|status| t))
+
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   "Send an in-world game's action
@@ -1487,7 +1495,17 @@ org.json.JSONException - Thrown  if the data cannot  be interpreted from
 the JSON objects passed in, or conversely, if we can't encode a response
 into a JSON form
        
-NotFoundException - if the furniture doesn't exist"
+NotFoundException - if the furniture doesn't exist
+
+Changes since 2.0:
+
+z position is required
+
+structural items no longer exist
+
+slot is the item's UUID
+
+"
   (cond 
     (remove
      (with-errors-as-http (400) (assert (and (null item) (null x) (null y) (null z))))

@@ -2,6 +2,17 @@
 
 (defvar *infinity-ops* nil)
 
+(defvar *transient-vars* (make-hash-table :test 'equalp))
+
+(defun set-transient (var value &optional (toot *Toot*))
+  (if-let (plist (gethash (Toot-uuid Toot) *transient-vars*))
+    (setf (gethash (Toot-uuid Toot) *transient-vars*) (list var value))
+    (setf (getf (gethash (Toot-uuid Toot) *transient-vars*) var) value)))
+
+(defun get-transient (var &optional (Toot *Toot*))
+  (if-let (plist (gethash (Toot-UUID Toot) *transient-vars*))
+    (getf plist var)))
+
 (defun call-infinity-from-rest (method)
   "Call an Infinity-mode command METHOD from a REST call.
 
@@ -14,13 +25,24 @@ Used to create the REST endpoints mapping to METHOD."
                 *user* method)
         (funcall method json *user* (user-plane *user*))))))
 
+(defmacro with-http-errors-as-infinity-errors ((command) &body body)
+  `(handler-case 
+       (progn ,@body)
+     (http-client-error (c)
+       (list :|status| :false
+             :|from| "c"
+             :|command| ,command
+             :|httpError| (http-status-code c)
+             :|error| (format nil "~a" c)))))
+
 (defun call-infinity-from-stream (json$)
   "Call an Infinity-mode command from a stream of JSON$ packets.
 
 Used by the WebSockets and direct TCP stream handlers."
   (let* ((json-full (jonathan.decode:parse json$))
+         (command (getf json-full :|c|))
          (method (find-symbol (concatenate 'string "INFINITY-" 
-                                           (string-upcase (symbol-munger:camel-case->lisp-name (getf json-full :|c|))))
+                                           (string-upcase (symbol-munger:camel-case->lisp-name command)))
                               :tootsville))
          (data (getf json-full :|d|)))
     (if (and (symbolp method) (not (eql 'nil method)))
@@ -28,7 +50,8 @@ Used by the WebSockets and direct TCP stream handlers."
           (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
             (v:info '(:infinity :stream) "Stream request from ~a for command ~a" 
                     *user* method)
-            (funcall method data *user* (user-plane *user*))))
+            (with-http-errors-as-infinity-errors (command)
+              (funcall method data *user* (user-plane *user*)))))
         (let ((c (or (getf json-full :|c|) "")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)
