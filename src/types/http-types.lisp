@@ -65,7 +65,8 @@ harmless  error   message  on  the  second   and  subsequent  attempts."
                      :initarg :http-status-code
                      :initarg :status-code
                      :initarg :status
-                     :reader http-status-code)))
+                     :reader http-status-code))
+  (:default-initargs :message (http-)))
 (defmethod print-object ((condition HTTP-client-error) stream)
   (format stream "HTTP error to report to client (code ~a)"
           (if (slot-boundp condition 'HTTP-status-code)

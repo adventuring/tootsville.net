@@ -306,7 +306,11 @@ Fetch avatar information for a list of Toots.
 @end table
 
 "
-  (let ((avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
+  (let* ((avatar-moniker (avatar-moniker (find-reference Toot :avatar)))
+         (transients (gethash (toot-uuid Toot) *transient-vars*))
+         (wtl (when transients (getf transients :wtl)))
+         (course (when wtl (car wtl)))
+         (facing (when wtl (cdr wtl))))
     (list :|name| (Toot-name Toot)
           :|userName| (Toot-presentation-name Toot)
           :|chatFG| (color24-name (Toot-chat-foreground-color Toot))
@@ -339,6 +343,8 @@ Fetch avatar information for a list of Toots.
           :|scaling| (list :|x| (Toot-avatar-scale-x Toot)
                            :|y| (Toot-avatar-scale-y Toot)
                            :|z| (Toot-avatar-scale-z Toot))
+          :|course| (or course (list :|n| 0))
+          :|facing| (or facing (list :|n| 0))
           ;; DEPRECATED fields, can be removed in 2.1 or later
           :|id| (Toot-uuid Toot)
           :|avatarClass| (list :|id| (Toot-avatar Toot)
@@ -400,3 +406,5 @@ Now, we also report (at least) X-FADU, fairy dust.
         :|currency| (list :x-tvpn (Toot-peanuts Toot)
                           :x-fadu (Toot-fairy-dust Toot))))
 
+(defun toot-world (toot)
+  "Tootsville")

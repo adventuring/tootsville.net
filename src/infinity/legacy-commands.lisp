@@ -423,29 +423,35 @@ Now, the @code{score} and @code{highScores} functionality is ignored and the
 caller should listen for a subsequent gift of peanuts, fairy dust, or an item. "
   (error 'unimplemented))
 
-(definfinity finger ((&rest _+Toot-names) user recipient/s)
+(definfinity finger ((&rest Toots-with-keys) user recipient/s)
   "Get public info for a list of Toots.
 
 Reply format:
 
 @verbatim
-{ from: avatars, status: true, avatars: { 0: { USER-INFO … }, … }
+{ from: avatars, status: true, avatars: { 0: { TOOT-INFO … }, … }
 @end verbatim
 
 User public information is in the format of `TOOT-INFO', which should be
 a supserset  of what @code{AbstructUser.getPublicInfo()} used  to return
 in 1.2.
 
-
-
 jso - JSON object, with (ignored) keys  tied to values which must be the
-names of users."
+names of Toots."
   (list 200
-        (list :|avatars| (loop for (_ Toot-name) on _+Toot-names by #'cddr
-                            for i from 0
-                            appending (list i (Toot-info Toot-name)))
-              :|from| "avatars"
-              :|status| t)))
+        (from-Avatars Toots-with-keys)))
+
+(defun from-avatars (Toots-with-keys)
+  (list :|avatars| (loop for (key Toot) on Toots-with-keys by #'cddr
+                      appending (list key (Toot-info (etypecase Toot
+                                                       
+                                                       (Toot Toot)
+                                                       (string (find-record 'Toot  :name Toot))
+                                                       (uuid:uuid (find-record 'Toot :uuid Toot))))))
+        :|from| "avatars"
+        :|inRoom| "@Tootsville"
+        :|status| t))
+
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   "Send an in-world game's action
@@ -461,6 +467,7 @@ encode a response into a JSON form
 
 "
   (error 'unimplemented))
+
 (definfinity get-apple (nil user recipient/s)
   "Get the apple to get into, or out of, $Eden. Unused.
 
@@ -1488,7 +1495,17 @@ org.json.JSONException - Thrown  if the data cannot  be interpreted from
 the JSON objects passed in, or conversely, if we can't encode a response
 into a JSON form
        
-NotFoundException - if the furniture doesn't exist"
+NotFoundException - if the furniture doesn't exist
+
+Changes since 2.0:
+
+z position is required
+
+structural items no longer exist
+
+slot is the item's UUID
+
+"
   (cond 
     (remove
      (with-errors-as-http (400) (assert (and (null item) (null x) (null y) (null z))))
@@ -1551,62 +1568,22 @@ NotFoundException - if the furniture doesn't exist"
 Removed in 2.0. Zones no longer exist.
        ")
 
-(definfinity speak ((key speech) user recipient/s)
+(definfinity speak ((key speech vol) user recipient/s)
   "speak
 
-       Handle speech by the user. XXX This should be calling User.speak(Room, String) to do the dirty work: but, in fact, the reverse is currently true.
+       Handle speech by the user. 
 
-       Speech is public to all users in a room.
+       Speech is public to all users in a room/area
 
        Emotes are simply speech beginning with \"/\". A few are special-cased. WRITEME: which
-
-@verbatim
-	if (speech.contains (\",dumpthreads,\")) {
-			OpCommands.op_dumpthreads (new String [] {}, u, channel);
-			return;
-		}
-		if (speech.contains (\",credits,\")) {
-			OpCommands.z$z (u);
-			return;
-		}
-@end verbatim
 
        Commands are speech beginning with \"#\"
 
        Parameters:
        jso - @{ \"speech\": TEXT-TO-BE-SPOKEN @}
-       u - The user speaking
-       room - The room in which the speech occurs. 
-       Throws:
-       
-org.json.JSONException - Thrown  if the data cannot  be interpreted from
-the JSON objects passed in, or conversely, if we can't encode a response
-into a JSON form
 
-       NotFoundException - WRITEME
 
 @verbatim
-	switch (speech.charAt (0)) {
-			case '#':
-			OpCommands.exec (channel, u, speech);
-				return;
-			case '@':
-			Commands.speak_atMessage (u, channel, speech);
-				return;
-			case '$':
-			OpCommands.hook (channel, u, speech);
-				return;
-			case '~':
-				// no op… should have been handled by the client
-				return;
-			case '!':
-			case '%':
-			case '^':
-			case '&':
-			case '*':
-				// no op… reserved for future purposes
-				return;
-		}
 
 	private static String nonObnoxious (final String speech) {
 		return speech.replace (\"!!\", \"!\").replace (\",,\", \",\").replace (
@@ -1614,7 +1591,32 @@ into a JSON form
 	}
 @end verbatim
 
-       ")
+       "
+  (when (emptyp speech)
+    (return-from infinity-speak))
+  (case (char speech 0)
+    (#\~ (v:warn :speak "Received a client command ~a" speech)) ; TODO
+    (#\# (v:warn :speak "operator command not handled ~a" speech)) ; TODO
+    (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
+    (#\/ (v:warn :speak "emote not handled ~a" speech))     ; TODO
+    ((#\$ #\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX
+    (otherwise 
+     (when (search ",dumpthreads" speech)
+       (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
+                (bt:all-threads)))
+     (if (equal ",credits" speech)
+         (dump-credits)
+         (let ((vol (when (member vol '("shout" "whisper") :test 'equal)
+                      vol)))
+           (toot-speak speech :vol vol))))))
+
+(defun dump-credits ()
+  (private-admin-message "Credits" "Tootsville V by Bruce-Robert Pocock.
+<br>
+Special thanks to Ali Dolan, Mariaelisa Greenwood, Levi Mc Call, and Zephyr Salz.
+<br>
+Tootsville IV by Gene Cronk, Robert Dawson, Eric Feiling, Tim Hays, Sean King, Bruce-Robert Pocock, and Ed Winkelman."))
+
 (definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin an event. Might return an error. Uses Quæstor for the heavy lifting.
 

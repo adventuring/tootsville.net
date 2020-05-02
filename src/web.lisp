@@ -96,9 +96,7 @@ Relies upon `CONTENTS-TO-BYTES', qv"
     ((= 3 (length reply))
      (destructuring-bind (status headers contents) reply
        (check-type status http-response-status-number)
-       (assert (every (lambda (x)
-                        (or (stringp x) (symbolp x)))
-                      headers)
+       (assert (every (lambda (x) (or (stringp x) (symbolp x))) headers)
                (headers)
                "Headers should be given as strings or symbols; got ~s"
                headers)
@@ -133,7 +131,29 @@ Relies upon `CONTENTS-TO-BYTES', qv"
             (length (the vector bytes)))
     bytes))
 
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
+  
+  (defun defendpoint/make-docstring 
+      (body method uri content-type λ-list how-slow-is-slow)
+    (concatenate 'string
+                 (if (and (consp body) (stringp (first body)))
+                     (first body)
+                     (format nil
+                             "Undocumented endpoint for ~a ~a → ~s"
+                             method uri content-type))
+                 (format nil "~2%@subsection Web Service Endpoint
+~2%This is a web service ~
+endpoint accessed by the HTTP method ~a at the URI template ~a. ~
+~:[The returned content-type is not specified.~;~
+It returns a content-type of ~:*~(~a~).~]~2%~
+~[~*There are no URI parameters.~
+~;~{~a~} is a parameter from the URI.~
+~:;The URI includes parameters: ~{~a~^, ~}.~]~
+~2%It will report a slow response if it takes longer than ~f seconds
+\(~:d milliseconds) to complete."
+                         method uri content-type (length λ-list) λ-list
+                         how-slow-is-slow (round (* 1000.0 how-slow-is-slow)))))
   
   (defun apply-extension-to-template (template extension)
     "Create a clone of TEMPLATE with EXTENSION."
@@ -143,13 +163,11 @@ Relies upon `CONTENTS-TO-BYTES', qv"
               temp
               (rest temp)))
         (list "index" extension)))
-
+  
   (defun without-sem (string)
     "The subset of STRING up to the first semicolon, if any."
-    (if-let (sem (position #\; (the string string)))
-      (subseq string 0 sem)
-      string))
-
+    (subseq string 0 (position #\; (the string string))))
+  
   (defun first-line (string)
     "The first line, or, up to 100 characters of STRING."
     (let ((newline (or (position #\newline (the string string)) 100)))
@@ -179,7 +197,7 @@ Relies upon `CONTENTS-TO-BYTES', qv"
                             (* 1.0 ,$elapsed))
                     (when (< ,how-slow-is-slow ,$elapsed)
                       (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
-
+  
   (defun after-slash (s)
     "Splits a string S at a slash. Useful for getting the end of a content-type.
 
@@ -254,8 +272,8 @@ This is basically just CHECK-TYPE for arguments passed by the user."
       :application/xhtml+xml "xhtml"
       :application/xml "xml"
       :application/zip "zip"
-      :audio/3gpp "3gp"            ; * same as video, use care
-      :audio/3gpp2 "3g2"           ; * same as audio, use care
+      :audio/3gpp "3gp"                 ; * same as video, use care
+      :audio/3gpp2 "3g2"                ; * same as audio, use care
       :audio/aac "aac"
       :audio/basic "au"
       :audio/midi "midi"
@@ -272,9 +290,6 @@ This is basically just CHECK-TYPE for arguments passed by the user."
       :image/jpeg "jpg"
       :image/jpeg "jpg"
       :image/png "png"
-      :image/png "png"
-      :image/png "png"
-      :image/svg "svg"
       :image/svg "svg"
       :image/tiff "tiff"
       :image/webp "webp"
@@ -356,12 +371,12 @@ Used in generating HTTP headers."
   (defun constituentp (ch)
     "Is character CH a constituent character of a Lisp name (without quoting)?
 
-Accepts A-Z, 0-9, and these punctuation: -/!?."
+Accepts A-Z, 0-9, any character above #xa0, and these punctuation: -/!?%."
     (let ((cc (char-code (char-upcase ch))))
       (or (< #xa0 cc)
           (<= (char-code #\A) cc (char-code #\Z))
           (<= (char-code #\0) cc (char-code #\9))
-          (find ch "-/!?." :test #'char=))))
+          (find ch "-/!?%." :test #'char=))))
   
   (defun make-endpoint-function-name (method uri accept-type)
     "Create the name of the endpoint function for METHOD, URI, and ACCEPT-TYPE."
@@ -372,7 +387,7 @@ Accepts A-Z, 0-9, and these punctuation: -/!?."
                       (null #\?)
                       (string (name-for-content-type accept-type))
                       (symbol (name-for-content-type (string accept-type)))))))
-
+  
   (defun lambda-list-as-variables (λ-list)
     "Convert Λ-LIST into variables for an endpoint function."
     (if λ-list
@@ -404,25 +419,7 @@ Accepts A-Z, 0-9, and these punctuation: -/!?."
            (λ-list (mapcar (lambda (s)
                              (intern (symbol-name s) (symbol-package fname)))
                            (remove-if-not #'symbolp template)))
-           (docstring (concatenate
-                       'string
-                       (if (and (consp body) (stringp (first body)))
-                           (first body)
-                           (format nil
-                                   "Undocumented endpoint for ~a ~a → ~s"
-                                   method uri content-type))
-                       (format nil "~2%@subsection Web Service Endpoint
-~2%This is a web service ~
-endpoint accessed by the HTTP method ~a at the URI template ~a. ~
-~:[The returned content-type is not specified.~;~
-It returns a content-type of ~:*~(~a~).~]~2%~
-~[~*There are no URI parameters.~
-~;~{~a~} is a parameter from the URI.~
-~:;The URI includes parameters: ~{~a~^, ~}.~]~
-~2%It will report a slow response if it takes longer than ~f seconds
-\(~:d milliseconds) to complete."
-                               method uri content-type (length λ-list) λ-list
-                               how-slow-is-slow (round (* 1000.0 how-slow-is-slow))))))
+           (docstring (defendpoint/make-docstring body method uri content-type λ-list how-slow-is-slow)))
       `(progn
          ,(defendpoint/make-endpoint-function
               :fname fname

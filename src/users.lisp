@@ -382,3 +382,25 @@ limitations under the License. |#
 
 (defun user-plane (&optional (user *user*))
   (Toot-world (find-active-toot-for-user user)))
+
+(defmethod print-object ((user person) s)
+  (format s "#<User ~a ~a>" (person-uuid user) (person-display-name user)))
+
+(defun url-to-string (url)
+  (etypecase url
+    (string url)
+    (puri:uri (with-output-to-string (s)
+                (puri:render-uri url s)))))
+
+(defun person-first-email (&optional (user *user*))
+  (when-let (first-mailto (first
+                           (sort
+                            (mapcar #'url-to-string
+                                    (mapcar #'person-link-url
+                                            (remove-if-not 
+                                             (lambda (link)
+                                               (and (eql :contact (person-link-rel link))
+                                                    (equal :mailto (puri:uri-scheme (person-link-url link)))))
+                                             (find-records 'person-link :person (person-uuid user)))))
+                            #'string<))) 
+    (subseq first-mailto 7 #| length of "mailto:" |#)))
