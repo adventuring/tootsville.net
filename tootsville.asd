@@ -172,6 +172,7 @@ REST services for the front-end."
       ((:file "infinity")
        (:file "legacy-commands" :depends-on ("infinity"))
        (:file "legacy-ops" :depends-on ("infinity"))
+       (:file "modern-ops" :depends-on ("infinity"))
        (:file "tootsville-commands" :depends-on ("infinity"))
        (:file "new-commands-20" :depends-on ("infinity"))
        (:file "new-commands-50" :depends-on ("infinity"))))))))
