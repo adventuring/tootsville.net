@@ -33,7 +33,7 @@
 
 
 (defsystem Tootsville
-  :version "0.4.8"
+  :version "0.6.1"
   :author "Bruce-Robert Pocock <BRPocock@ciwta.org>"
   :license "AGPL v3+"
   :bug-tracker "https://github.com/adventuring/tootsville.net/issues"
@@ -108,6 +108,7 @@ REST services for the front-end."
      (:file "terrain" :depends-on ("package-post"))
      (:file "world" :depends-on ("terrain" "weather/weather" "types"))
      (:file "weather/weather" :depends-on ("package-post"))
+     (:file "weather/sun-moon" :depends-on ("package-post"))
      (:file "version" :depends-on ("package-post" "config"))
      (:file "logging" :depends-on ("package-post" "version"))
      (:file "write-docs-2" :depends-on ("package-post"))

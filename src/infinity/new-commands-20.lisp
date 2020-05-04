@@ -66,3 +66,119 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
         (list :|status| t
               :|from| "wardrobe"
               :|wardrobe| (list :|avatar| (Toot-info Toot)))))
+
+(definfinity get-room-vars (nil u recipient/s)
+  "Returns room variables
+
+@subsection Room Environment
+
+These room  variables define the  general environment. 
+
+@table @code
+@item s
+
+The Sky. Consists of the background (sky) texture file as a URL, or, the
+position of a sky object such as the sun, a moon, or a cloud.
+
+@item f
+
+The Floor; no longer used in 5.0
+
+@item w 
+
+The Weather, or overlay artwork. Used to indicate precipitation.
+
+@end table
+
+@subsection 
+Room Objects
+
+@itemize
+@item item
+
+Placed items: key: “item” + Unique-ID = value: item-description \"~\"
+x-position \"~\" y-position \"~\" facing \"~\" z-position
+
+@item item2
+
+Placed items, new form: JSON object 
+
+@verbatim
+{ position: {  x: y: z: }, 
+  facing: radians,  
+  baseColor: color, 
+  altColor: color, 
+  energy: number, 
+  scale:  { x: y: z: }, 
+  world:  { world: lat: long: alt: },  
+  template:
+  { id:
+    name:
+    description: 
+    trade: [  Y N X  ], 
+    avatar:  
+    energyKind: 
+    energyMax: 
+    onZero: 
+    wearSlot: 
+    weight: } }
+
+@item furn
+
+User-positioned items: key: “furn”
+
+@item text
+
+Text items: key: \"text\" + unique-ID = value
+
+@end itemize
+
+@subsection Places
+
+Places are regions of the room  defined by polygonal outlines. These are
+held in Room Variables with names of the form \"zone\" plus an arbitrary
+identifier.  The  contents  of  the room  variable  are  a  @emph{key}
+followed by \":\" and a series of coördinates.
+
+Each coördinate pair is given as x,y,z in decimal, literally, like:
+\"100,0,200\". They are separated with \"~\". To stop one polygon and start
+on another, give \"~~\" with no coördinates between.
+
+The key of a Place specifies its purpose. The keys understood by the
+server include:
+
+@table @code
+
+@item grass
+
+@item tallGrass
+
+@item water
+
+@item unwalkable
+
+@item doormat
+
+@item parking
+
+@item driveway
+
+@item stairs
+
+@end table
+
+"
+  (let* ((pos (Toot-position *Toot*)))
+    (list 200
+          (concatenate 
+           'list
+           :|from| "roomVars"
+           :|s| ()
+           (mapcan (lambda (item)
+                     (list :|item2| (item-info item)))
+                   (find-records 'item
+                                 :world (elt pos 0)
+                                 :latitude (elt pos 1)
+                                 :longitude (elt pos 2)
+                                 :altitude (elt pos 3)))))))
+
