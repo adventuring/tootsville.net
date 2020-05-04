@@ -73,17 +73,6 @@ This  list can  be reformatted  (into hash  values) and  passed back  to
             (dolist (Toot everyone)
               (unicast (Toot-join-message Toot)))
             (unicast (from-avatars (plist-with-index everyone))))
-          (dolist (key (hash-table-keys *transient-vars*))
-            (let* ((user (gethash key *transient-vars*))
-                   (wtl (getf user :wtl)))
-              (when wtl
-                (destructuring-bind (course . facing) wtl
-                  (unicast (list :|status| t
-                                 :|from| "wtl"
-                                 :|course| course
-                                 :|facing| facing
-                                 :|u| key
-                                 :|n| (toot-name (find-record 'Toot :UUID key))))))))
           (broadcast (list :|status| t
                            :|from| "avatars"
                            :|avatars| (list :|joined| (Toot-info Toot)))))
@@ -97,14 +86,3 @@ This  list can  be reformatted  (into hash  values) and  passed back  to
           (list :|status|
                 :|from| "playWith"
                 :|error| "No such Toot"))))
-
-(definfinity wtl ((course facing) u r)
-  "Walk the line"
-  (set-transient :wtl (cons course facing))
-  (broadcast (list :|status| t
-                   :|from| "wtl"
-                   :|course| course
-                   :|facing| facing
-                   :|u| (toot-uuid *toot*)
-                   :|n| (toot-name *toot*)))
-  (list 204 nil))

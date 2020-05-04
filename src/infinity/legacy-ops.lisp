@@ -13,8 +13,7 @@
 The script name must be a function previously defined by @samp{#SCRIPT}
     
 "
-  
-  )
+  (error 'unimplemented))
 (define-operator-command addevent (words user plane) 
   "Add a GameEvent to a Zone
 
@@ -34,23 +33,25 @@ The script name must be a function previously defined by @samp{#SCRIPT}
     #addevent Tootlympics
 @end example
 "
-  
-  )
+  (error 'unimplemented))
 
-(define-operator-command agent (words user plane) "
+(define-operator-command agent (words user plane) 
+  "
 
     WRITEME: Document this method brpocock@@star-hope.org
 
     "
-                         
-                         )
-(define-operator-command askme (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command askme (words user plane) 
+  "
                      
 WRITEME
 "
-                         
-                         )
-(define-operator-command ban (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command ban (words user plane) 
+  "
                    
     Ban a user  permanently. Must have staff level 2  (MODERATOR) to use
     this command.
@@ -66,8 +67,8 @@ WRITEME
 @end example 
 
 See Also: `OPERATOR-KICK'"
-                         
-                         )
+  
+  (error 'unimplemented))
 (define-operator-command banhammer (words user plane) 
   "Ban an IP address from connecting.
 
@@ -85,8 +86,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 @samp{#-ip},   @samp{#user},    or   @samp{#list}.    For   @samp{#+ip},
 @samp{#-ip}, or @samp{#user}, an additional parameter is needed."
   
-  )
-(define-operator-command beam (words user plane) "
+  (error 'unimplemented))
+(define-operator-command beam (words user plane) 
+  "
                     throws org.json.JSONException,
                            PrivilegeRequiredException
 
@@ -106,9 +108,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         org.json.JSONException - if the data can't be formatted for some reason 
         PrivilegeRequiredException - if so
 "
-                         
-                         )
-(define-operator-command build (words user plane) "
+  (error 'unimplemented)
+  )
+(define-operator-command build (words user plane) 
+  "
 
     Create  a new  room  in  the current  zone.  Must  have staff  level
     8 (DEVELOPER) to use this command.
@@ -129,9 +132,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         u - The user invoking the operator command
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-                         
-                         )
-(define-operator-command census (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command census (words user plane) 
+  "
                       throws PrivilegeRequiredException
 
     Simply reference  a range of  users, for testing purposes.  Takes an
@@ -146,9 +150,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
     Throws:
         PrivilegeRequiredException - if someone other than God tries to call this routine
 "
-                         
-                         )
-(define-operator-command clearbadge (words user plane) "
+  (error 'unimplemented))
+(define-operator-command clearbadge (words user plane) 
+  "
 
     Clear badges off of the map interface. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -177,13 +181,13 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         u - The user invoking the operator command
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-                         
-                         )
-(define-operator-command clearcache (words user plane)"
+  (error 'unimplemented))
+(define-operator-command clearcache (words user plane)
+  "
                           throws com.whirlycott.cache.CacheException,
                                  PrivilegeRequiredException
 
-    Forcibly clear all cachÃ©s
+    Forcibly clear all cachés
 
     Parameters:
         words - none
@@ -193,9 +197,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         com.whirlycott.cache.CacheException - if the cachÃ© subsystem throws an exception 
         PrivilegeRequiredException - if (u) is not a developer
 "
-                         
-                         )
-(define-operator-command clearevent (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command clearevent (words user plane) 
+  "
 
     Clear a GameEvent from a Zone. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -215,9 +220,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
     See Also:
         op_addevent(String[], AbstractUser, Room), op_getevents(String[], AbstractUser, Room)
 "
-
-)
-(define-operator-command clearvar (words user plane) "
+  (error 'unimplemented)
+  )
+(define-operator-command clearvar (words user plane) 
+  "
 
     Clear a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -238,9 +244,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
     See Also:
         op_setvar(String[], AbstractUser, Room), op_getvar(String[], AbstractUser, Room)
 "
-
-)
-(define-operator-command cloneroom (words u plane)"
+  (error 'unimplemented))
+(define-operator-command cloneroom (words u plane)
+  "
                          throws PrivilegeRequiredException
 
     clone a room
@@ -252,9 +258,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
     Throws:
         PrivilegeRequiredException - if the user doesn't have Designer level privileges, at least
 "
-
-                         )
-(define-operator-command createroom (words user plane) "
+  (error 'unimplemented)
+  )
+(define-operator-command createroom (words user plane)
+  "
                           throws PrivilegeRequiredException,
                                  NotReadyException
 
@@ -268,9 +275,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         PrivilegeRequiredException - WRITEME 
         NotReadyException - WRITEME
 "
-
-)
-(define-operator-command dbcpinfo (words user plane) "
+  (error 'unimplemented)
+  )
+(define-operator-command dbcpinfo (words user plane)
+  "
                         throws PrivilegeRequiredException,
                                NotFoundException,
                                SQLException
@@ -292,9 +300,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         NotFoundException - WRITEME 
         SQLException - WRITEME
 "
-
-)
-(define-operator-command dress (words user plane) "
+  (error 'unimplemented)
+  )
+(define-operator-command dress (words user plane) 
+  "
                      throws NumberFormatException,
                             DataException
 
@@ -314,9 +323,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         DataException - if the colour is bad 
         NumberFormatException - if the colour is bad
 "
-                            
-)
-(define-operator-command drop (words user plane) "
+  (error 'unimplemented)
+  )
+(define-operator-command drop (words user plane)
+  "
 
     find an item in your inventory based upon the item ID # and destroy (drop) it
 
@@ -325,9 +335,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         u - the user dropping the item
         room - the room in which the user is standing
 "
-
-)
-(define-operator-command dropkick (words user plane) "
+  (error 'unimplemented)
+  )
+(define-operator-command dropkick (words user plane) 
+  "
 
     Silently remove the named user from the game by disconnection. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -342,9 +353,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         u - The user invoking the operator command
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
-)
-(define-operator-command dumpthreads (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command dumpthreads (words user plane)
+"
 
     Dump debugging information including all running threads to a server-side file. Must have staff level 1 (STAFF) to use this command.
 
@@ -361,7 +373,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command enablepathfinder (words user plane) "
+(define-operator-command enablepathfinder (words user plane)
+"
 
     Temporary test routine for testing pathfinders on users
 
@@ -372,7 +385,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command evacuate (words user plane) "
+(define-operator-command evacuate (words user plane)
+"
 
     Evacuate all users from your current Zone into another Zone. Will error if the Zone specified does not exist. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -389,7 +403,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command filter (words user plane) "
+(define-operator-command filter (words user plane)
+"
 
     Parameters:
         words - see op_testcensor(String[], AbstractUser, Room)
@@ -400,7 +415,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command finger (words user plane) "
+(define-operator-command finger (words user plane)
+  "
 
     Finger a user account. Return interesting details in an administrative message. Must have staff level 1 (STAFF) to use this command.
 
@@ -416,8 +432,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
 
-)
-(define-operator-command flush (words user plane) "
+  (error 'unimplemented))
+(define-operator-command flush (words user plane)
+  "
 
     Attempt to flush the pending database records to the database (if any). Reports back how many remain pending after the sweep. Does not affect the ongoing background sweep process, which will continue to run normally.
 
@@ -426,9 +443,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         u - operator
         room - ignored
 "
-
-                            )
-(define-operator-command game (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command game (words user plane)
+"
 
     Send a command into the operator command interpreter for a running game (if that game provides one)
 
@@ -441,7 +459,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getconfig (words user plane) "
+(define-operator-command getconfig (words user plane)
+"
 
     Get a Appius configuration variable. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -458,7 +477,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getevents (words user plane) "
+(define-operator-command getevents (words user plane)
+"
 
     List GameEvents in your current Zone. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -477,7 +497,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getmotd (words user plane) "
+(define-operator-command getmotd (words user plane)
+"
 
     Retrieve the current Message Of The Day as a server message
 
@@ -488,7 +509,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getschedule (words user plane) "
+(define-operator-command getschedule (words user plane)
+"
                            throws PrivilegeRequiredException
 
     WRITEME: Document this method brpocock@@star-hope.org
@@ -502,7 +524,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getschedulefor (words user plane) "
+(define-operator-command getschedulefor (words user plane)
+"
                               throws PrivilegeRequiredException,
                                      ClassNotFoundException
 
@@ -518,7 +541,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getuvar (words user plane) "
+(define-operator-command getuvar (words user plane)
+"
 
     Get a user variable. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -541,8 +565,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         op_setuvar(String[], AbstractUser, Room), op_getuvars(String[], AbstractUser, Room)
 "
 
-                         )
-(define-operator-command getuvars (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command getuvars (words user plane)
+"
 
     Get all user variables for a given user. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -566,7 +591,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getvar (words user plane) "
+(define-operator-command getvar (words user plane)
+"
 
     Get a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -587,7 +613,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command getvars (words user plane) "
+(define-operator-command getvars (words user plane)
+"
 
     Get all room variables. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -607,7 +634,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         op_setvar(String[], AbstractUser, Room), op_clearvar(String[], AbstractUser, Room), op_getvar(String[], AbstractUser, Room)
 "
 
-                              )
+                             (error 'unimplemented))
 (define-operator-command give (words u plane)"
                     throws NumberFormatException,
                     org.json.JSONException,
@@ -628,8 +655,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         AlreadyExistsException - WRITEME
 "
 
-                         )
-(define-operator-command givehead (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command givehead (words user plane)
+"
                         throws PrivilegeRequiredException
 
     Give an inventory item to a user. Must have staff level 1 (STAFF) to use this command.
@@ -653,7 +681,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
 )
-(define-operator-command goto (words user plane) "
+(define-operator-command goto (words user plane)
+"
                     throws PrivilegeRequiredException
 
     WRITEME: Document this method brpocock@@star-hope.org
@@ -666,8 +695,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         PrivilegeRequiredException - WRITEME
 "
 
-                           )
-(define-operator-command grant (words user plane) "
+                          (error 'unimplemented))
+(define-operator-command grant (words user plane)
+"
                      throws PrivilegeRequiredException
 
     Grant an item to a user. See op_givehead(String[], AbstractUser, Room)
@@ -680,8 +710,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
         PrivilegeRequiredException - if the user doesn't have sufficient privileges
 "
                          
-                         )
-(define-operator-command headcount (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command headcount (words user plane)
+"
 
     Get headcount information about the running system. Must have staff level 1 (STAFF) to use this command.
 
@@ -716,8 +747,9 @@ See Also:
         headcount_members(AbstractUser, Room)
 "
                          
-                         )
-(define-operator-command inv (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command inv (words user plane)
+"
                    throws PrivilegeRequiredException
 
     Get inventory  items for  a particular user.  By default,  this will
@@ -756,7 +788,8 @@ Throws:
 "
 
 )
-(define-operator-command kick (words user plane) "
+(define-operator-command kick (words user plane)
+"
                     throws NotFoundException
 
     Kick a user offline for a certain reason
@@ -795,8 +828,9 @@ Throws:
         op_warn(String[], AbstractUser, Room), op_ban(String[], AbstractUser, Room)
 "
 
-                           )
-(define-operator-command king (words user plane) "
+                          (error 'unimplemented))
+(define-operator-command king (words user plane)
+"
                     throws org.json.JSONException
 
     Apply  a  gift  membership  to   an  user.  Must  have  staff  level
@@ -817,7 +851,8 @@ Throws:
 "
 
 )
-(define-operator-command liftban (words user plane) "
+(define-operator-command liftban (words user plane)
+"
                        throws PrivilegeRequiredException,
                               NotFoundException
 
@@ -844,7 +879,8 @@ Throws:
 "
 
 )
-(define-operator-command loadlists (words user plane) "
+(define-operator-command loadlists (words user plane)
+"
 
     Reload the censorship lists. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -861,7 +897,8 @@ Throws:
 "
 
 )
-(define-operator-command mem (words user plane) "
+(define-operator-command mem (words user plane)
+"
 
     Display some memory usage and other debugging type information as an pop-up message. Must have Designer privileges to use this command.
 
@@ -877,8 +914,9 @@ Throws:
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
 
-                         )
-(define-operator-command metronome (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command metronome (words user plane)
+"
 
     Display information  about or  micromanage the metronome.  Must have
     staff level 8 (DEVELOPER) to use this command.
@@ -909,8 +947,9 @@ Throws:
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
 
-                                )
-(define-operator-command motd (words user plane) "
+                               (error 'unimplemented))
+(define-operator-command motd (words user plane)
+"
 
     Set the  message of the day.  Must have staff level  4 (DESIGNER) to
     use this command.
@@ -928,7 +967,8 @@ Throws:
 "
 
 )
-(define-operator-command mute (words user plane) "
+(define-operator-command mute (words user plane)
+"
 
     Parameters:
         words - The command parameters (whitespace-delimited list) provided after the # command name
@@ -939,7 +979,8 @@ Throws:
 "
 
 )
-(define-operator-command nuke (words user plane) "
+(define-operator-command nuke (words user plane)
+"
                     throws PrivilegeRequiredException
 
     Forcibly disconnect everyone in a room.
@@ -953,7 +994,8 @@ Throws:
 "
 
 )
-(define-operator-command parentapproves (words user plane) "
+(define-operator-command parentapproves (words user plane)
+"
                               throws PrivilegeRequiredException,
                                      GameLogicException,
                                      ForbiddenUserException,
@@ -975,7 +1017,8 @@ Throws:
 "
 
 )
-(define-operator-command ping (words user plane) "
+(define-operator-command ping (words user plane)
+"
 
     Ping the  server, to force  a neutral administrative  message reply.
     Must have staff level 1 (STAFF) to use this command.
@@ -993,7 +1036,8 @@ Throws:
 "
                            
 )
-(define-operator-command place (words user plane) "
+(define-operator-command place (words user plane)
+"
                      throws PrivilegeRequiredException
 
     Add a  Place to  a room.  This command supports  the basic  types of
@@ -1025,7 +1069,8 @@ Throws:
 "
 
 )
-(define-operator-command purgephysics (words user plane) "
+(define-operator-command purgephysics (words user plane)
+"
                             throws PrivilegeRequiredException
 
     WRITEME: Document this method brpocock@@star-hope.org
@@ -1038,8 +1083,9 @@ Throws:
         PrivilegeRequiredException - WRITEME
 "
 
-                         )
-(define-operator-command push (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command push (words user plane)
+"
 
     WRITEME
 
@@ -1049,8 +1095,9 @@ Throws:
         room - WRITEME
 "
                          
-                         )
-(define-operator-command put (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command put (words user plane)
+"
                    throws PrivilegeRequiredException
 
     WRITEME: Document this method brpocock@@star-hope.org
@@ -1063,8 +1110,9 @@ Throws:
         PrivilegeRequiredException - WRITEME
 "
 
-                         )
-(define-operator-command rc (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command rc (words user plane)
+"
                   throws PrivilegeRequiredException,
                          InstantiationException,
                          IllegalAccessException,
@@ -1086,7 +1134,8 @@ Throws:
 "
 
 )
-(define-operator-command reboot (words user plane) "
+(define-operator-command reboot (words user plane)
+"
 
     Forces appius to restart. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -1103,7 +1152,8 @@ Throws:
 "
 
 )
-(define-operator-command reloadconfig (words user plane) "
+(define-operator-command reloadconfig (words user plane)
+"
 
     Reloads configuration properties. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -1120,7 +1170,8 @@ Throws:
 "
 
 )
-(define-operator-command retire (words user plane) "
+(define-operator-command retire (words user plane)
+"
 
     Forces a  zone to retire.  This will disconnect anyone  currently in
     the zone.  Use #evacuate to  move users  to another zone.  Must have
@@ -1145,7 +1196,7 @@ room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
                          
-                         )
+                        (error 'unimplemented))
 (define-operator-command run (words
                               u r)"
   throws ClassNotFoundException,
@@ -1164,8 +1215,9 @@ This can be -1 under certain circumstances.
         IllegalAccessException - WRITEME
 "
 
-                              )
-(define-operator-command saveroomvars (words user plane) "
+                             (error 'unimplemented))
+(define-operator-command saveroomvars (words user plane)
+"
 
     WRITEME: Document this method brpocock@@star-hope.org
 
@@ -1176,7 +1228,8 @@ This can be -1 under certain circumstances.
 "
 
 )
-(define-operator-command scotty (words user plane) "
+(define-operator-command scotty (words user plane)
+"
                       throws org.json.JSONException,
                              PrivilegeRequiredException
 
@@ -1197,8 +1250,9 @@ This can be -1 under certain circumstances.
         PrivilegeRequiredException - if so
 "
                          
-                         )
-(define-operator-command setavatarcolors (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command setavatarcolors (words user plane)
+"
                                       
     Sets the  base an extra color  of a user's avatar.  Colors should be
     passed  in   HTML  format  (see   below).  Must  have   staff  level
@@ -1233,8 +1287,9 @@ This can be -1 under certain circumstances.
         Colour.Colour(String)
 "
                          
-                         )
-(define-operator-command setbadge (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command setbadge (words user plane)
+"
 
     Set the badge on  a room. Must have staff level  4 (DESIGNER) to use
     this command on another character. Staff level 2 (MODERATOR) can use
@@ -1270,8 +1325,9 @@ This can be -1 under certain circumstances.
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
                          
-                         )
-(define-operator-command setconfig (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command setconfig (words user plane)
+"
 
     Set a config property. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -1289,8 +1345,9 @@ This can be -1 under certain circumstances.
         op_getconfig(String[], AbstractUser, Room)
 "
                          
-                         )
-(define-operator-command setstafflevel (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command setstafflevel (words user plane)
+"
                              throws PrivilegeRequiredException,
                                     GameLogicException
 
@@ -1306,7 +1363,8 @@ This can be -1 under certain circumstances.
 "
 
 )
-(define-operator-command setuvar (words user plane) "
+(define-operator-command setuvar (words user plane)
+"
 
     Set a user variable. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -1328,7 +1386,8 @@ This can be -1 under certain circumstances.
 "
 
 )
-(define-operator-command setvar (words user plane) "
+(define-operator-command setvar (words user plane)
+"
 
     Set a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -1354,7 +1413,8 @@ This can be -1 under certain circumstances.
 "
 
 )
-(define-operator-command shanghai (words user plane) "
+(define-operator-command shanghai (words user plane)
+"
                         throws org.json.JSONException
 
     Force a client into a different room and zone
@@ -1368,7 +1428,8 @@ This can be -1 under certain circumstances.
 "
 
 )
-(define-operator-command shout (words user plane) "
+(define-operator-command shout (words user plane)
+  "
 
     Speak in another zone. This is intended for using operator commands in a remote zone, not normal chat messages. Must have staff level 2 (MODERATOR) to use this command.
 
@@ -1385,8 +1446,9 @@ This can be -1 under certain circumstances.
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
 
-                            )
-(define-operator-command spawnzone (words user plane) "
+  (error 'unimplemented))
+(define-operator-command spawnzone (words user plane)
+  "
 
     Create a new zone. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -1401,9 +1463,10 @@ This can be -1 under certain circumstances.
         u - The user invoking the operator command
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-                         
-                         )
-(define-operator-command speak (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command speak (words user plane)
+"
 
     Allows a user to speak. Must have staff level 2 (MODERATOR) to use this command.
 
@@ -1419,8 +1482,9 @@ This can be -1 under certain circumstances.
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
                          
-                         )
-(define-operator-command stfu (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command stfu (words user plane)
+"
 
     Silences a user. Must have staff level 2 (MODERATOR) to use this command.
 
@@ -1436,8 +1500,9 @@ This can be -1 under certain circumstances.
         room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
                          
-                         )
-(define-operator-command testcensor (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command testcensor (words user plane)
+"
 
     Test a message with the censor, displays the filter result.
 
@@ -1458,8 +1523,9 @@ room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
                          
-                         )
-(define-operator-command time (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command time (words user plane)
+"
 
     Displays a message  with the current time in  Eastern Standard Time.
     Must have staff level 1 (STAFF) to use this command.
@@ -1481,8 +1547,9 @@ room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
                          
-                         )
-(define-operator-command unbuild (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command unbuild (words user plane)
+"
                        throws NotFoundException
 
     Destroys a room. Must have staff level 8 (DEVELOPER) to use this command.
@@ -1507,8 +1574,9 @@ Throws:
         NotFoundException - if the room doesn't exist
 "
                          
-                         )
-(define-operator-command v (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command v (words user plane)
+"
                  throws org.json.JSONException,
                         NotFoundException
 
@@ -1549,8 +1617,9 @@ Throws:
         r - the room in which the user is standing
 "
                          
-                         )
-(define-operator-command wall (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command wall (words user plane)
+  "
 
     Sends an pop-up message to everyone in the zone. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -1570,9 +1639,14 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-                         
-                         )
-(define-operator-command wallops (words user plane) "
+  
+  (broadcast
+   (list :|from| "admin"
+         :|status| t
+         :|title| "Squawk!"
+         :|message| (format nil "~{~a~^ ~}" words))))
+(define-operator-command wallops (words user plane)
+"
 
     Sends an pop-up message to all  staff members in the zone. Must have
     staff level 2 (MODERATOR) to use this command.
@@ -1594,8 +1668,9 @@ room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
                          
-                         )
-(define-operator-command wallzones (words user plane) "
+                        (error 'unimplemented))
+(define-operator-command wallzones (words user plane)
+  "
 
     Sends an  pop-up message to  all everyone  in every zone.  Must have
     staff level 8 (DEVELOPER) to use this command.
@@ -1616,9 +1691,10 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-                         
-                         )
-(define-operator-command warn (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command warn (words user plane)
+  "
                     throws NotFoundException
 
     Warn a user about breaking a rule. Must have staff level 2 (MODERATOR) to use this command.
@@ -1660,9 +1736,10 @@ Throws:
     See Also:
         op_kick(String[], AbstractUser, Room), op_ban(String[], AbstractUser, Room)
 "
-                         
-                         )
-(define-operator-command whatis (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command whatis (words user plane)
+  "
                       throws NumberFormatException,
                              NotFoundException
 
@@ -1689,9 +1766,16 @@ Throws:
         NotFoundException - WRITEME 
         NumberFormatException - WRITEME
 "
-                         
-                         )
-(define-operator-command whereami (words user plane) "
+  (unless (= 1 (length words))
+    (return "Give exactly one template item ID"))
+  (let ((item-id (parse-integer (first words) :junk-allowed t)))
+    (unless (plusp item-id)
+      (return "Usage: #whatis <TEMPLATE ID #>"))
+    (let ((template (find-record 'item-template :id item-id)))
+      (return (format nil "~{~a: ~a~%<BR>~}"
+                      (item-template-info template))))))
+(define-operator-command whereami (words user plane)
+  "
 
     Return an administrative message with the  name of the Zone in which
     the player is currently standing. Must have staff level 1 (STAFF) to
@@ -1713,9 +1797,10 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-                         
-                         )
-(define-operator-command whereis (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command whereis (words user plane)
+  "
 
     Find  out in  what what  room a  character is  standing, if  s/he is
     logged in at the moment. Must  have staff level 2 (MODERATOR) to use
@@ -1747,9 +1832,10 @@ This can be -1 under certain circumstances.
 See Also:
         whereis_atRoom(AbstractUser, Room, String), whereis_everyone(AbstractUser, Room)
 "
-                         
-                         )
-(define-operator-command who (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command who (words user plane)
+  "
                    throws PrivilegeRequiredException,
                           NotFoundException
 
@@ -1781,9 +1867,10 @@ Throws:
         PrivilegeRequiredException - if the user calling isn't a staff member 
         NotFoundException - if the chosen room does not exist
 "
-                         
-                         )
-(define-operator-command whoami (words user plane) "
+  
+  (error 'unimplemented))
+(define-operator-command whoami (words user plane)
+  "
 
     Cause  the character  to speak  his/her  name in  the current  room.
     Appears as  dialogue in the  form: â€œHello, my name  is NAMEâ€.
@@ -1805,8 +1892,9 @@ words  - The  command  parameters  (whitespace-delimited list)  provided
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-                         )
-(define-operator-command whoareyou (words user plane) "
+  (error 'unimplemented))
+(define-operator-command whoareyou (words user plane)
+  "
 
     Ask  the  server who  it  is.  This  command should  return  version
     information on some of the critical classes used in the game server.
@@ -1828,8 +1916,9 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-                         )
-(define-operator-command zoom (words user plane) "
+  (error 'unimplemented))
+(define-operator-command zoom (words user plane)
+  "
 
     WRITEME: Document this method brpocock@@star-hope.org
 
@@ -1838,4 +1927,4 @@ This can be -1 under certain circumstances.
         u - WRITEME
         room - WRITEME
 "
-                         )
+  (error 'unimplemented))

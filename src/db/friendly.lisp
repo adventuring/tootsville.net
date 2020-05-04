@@ -160,6 +160,7 @@
   (x number)
   (y number)
   (z number)
+  (facing number)
   (latitude number)
   (longitude number)
   (altitude number)

@@ -209,11 +209,14 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode �
                               &key (label title)
                                    (user *user*))
   (let ((*user* user))
-    (unicast (list :|from| "admin"
-                   :|status| t
-                   :|title| title
-                   :|label| label
-                   :|message| message))))
+    (if *user*
+        (unicast (list :|from| "admin"
+                       :|status| t
+                       :|title| title
+                       :|label| label
+                       :|message| message))
+        (v:info :admin "Admin message to nobody: “~a”: “~a” (~a)"
+                title message label))))
 
 (defun toot-speak (speech &key (toot *toot*) vol)
   (broadcast (list :|from| "pub" 

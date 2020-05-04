@@ -67,6 +67,38 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
               :|from| "wardrobe"
               :|wardrobe| (list :|avatar| (Toot-info Toot)))))
 
+(defun sky-room-var ()
+  (list :|sun| 
+        (let ((xy (sun-position)))
+          (list :|x| (first xy)
+                :|y| (second xy)))
+        :|moon|
+        (let ((xyφ (moon-position :moon)))
+          (list :|x| (first xyφ)
+                :|y| (second xyφ)
+                :|φ| (third xyφ)))
+        :|othM|
+        (let ((xyφ (moon-position :othm)))
+          (list :|x| (first xyφ)
+                :|y| (second xyφ)
+                :|φ| (third xyφ)))
+        :|pink|
+        (let ((xyφ (moon-position :pink)))
+          (list :|x| (first xyφ)
+                :|y| (second xyφ)
+                :|φ| (third xyφ)))))
+
+(defun place-room-var (place)
+  (format nil "~a:~{~d,~d,~d~^~~~}"
+          (symbol-munger:lisp->camel-case (place-kind place))
+          (place-coords place)))
+
+(defun place-kind (place) :grass) ; TODO
+(defun place-coords (place) nil); TODO
+
+(defun places-at-position (world lat long alt)
+  nil)
+
 (definfinity get-room-vars (nil u recipient/s)
   "Returns room variables
 
@@ -168,17 +200,33 @@ server include:
 @end table
 
 "
-  (let* ((pos (Toot-position *Toot*)))
+  (let* ((world (Toot-world *Toot*))
+         (pos (Toot-position *Toot*))
+         (i 0) (j 0))
     (list 200
-          (concatenate 
-           'list
-           :|from| "roomVars"
-           :|s| ()
-           (mapcan (lambda (item)
-                     (list :|item2| (item-info item)))
-                   (find-records 'item
-                                 :world (elt pos 0)
-                                 :latitude (elt pos 1)
-                                 :longitude (elt pos 2)
-                                 :altitude (elt pos 3)))))))
+          (list :|from| "rv"
+                :|var|
+                (concatenate 
+                 'list
+                 (:|s| (sky-room-var)
+                   :|rad| t)
+                 (mapcan (lambda (item)
+                           (list (make-keyword
+                                  (format nil "item2~~~36r" (incf i)))
+                                 (item-info item)))
+                         (remove-if
+                          (lambda (item)
+                            (ignore-not-found 
+                              (find-record 'inventory-item
+                                           :item (item-uuid item))))
+                          (find-records 'item
+                                        :world world
+                                        :latitude (elt pos 0)
+                                        :longitude (elt pos 1)
+                                        :altitude (elt pos 2))))
+                 (mapcan (lambda (place)
+                           (list (make-keyword
+                                  (format nil "zone~~~36r"
+                                          (place-room-var place)))))
+                         (apply #'places-at-position world pos)))))))
 

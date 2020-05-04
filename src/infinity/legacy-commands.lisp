@@ -1568,6 +1568,20 @@ slot is the item's UUID
 Removed in 2.0. Zones no longer exist.
        ")
 
+(defun parse-operator-command (string)
+  (assert (char= (char string 0) #\#))
+  (let ((command (subseq string 1 (position #\Space string)))
+        (params (when-let (space (position #\Space string))
+                  (split-sequence #\Space (subseq string space)
+                                  :remove-empty-subseqs t))))
+    (if-let (sym (find-symbol (string-upcase command) :tootsville-user))
+      (if (and (fboundp sym) 
+               (= 2 (length (function-lambda-list sym)))
+               (eql '&rest (first (function-lambda-list sym))))
+          (apply sym params)
+          (error "Not a remote operator command"))
+      (error "Not an operator command"))))
+
 (definfinity speak ((key speech vol) user recipient/s)
   "speak
 
@@ -1593,10 +1607,11 @@ Removed in 2.0. Zones no longer exist.
 
        "
   (when (emptyp speech)
-    (return-from infinity-speak))
+    (return))
   (case (char speech 0)
     (#\~ (v:warn :speak "Received a client command ~a" speech)) ; TODO
-    (#\# (v:warn :speak "operator command not handled ~a" speech)) ; TODO
+    (#\# (parse-operator-command speech)
+         (return)) 
     (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
     (#\/ (v:warn :speak "emote not handled ~a" speech))     ; TODO
     ((#\$ #\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX

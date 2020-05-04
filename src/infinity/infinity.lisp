@@ -2,17 +2,6 @@
 
 (defvar *infinity-ops* nil)
 
-(defvar *transient-vars* (make-hash-table :test 'equalp))
-
-(defun set-transient (var value &optional (toot *Toot*))
-  (if-let (plist (gethash (Toot-uuid Toot) *transient-vars*))
-    (setf (gethash (Toot-uuid Toot) *transient-vars*) (list var value))
-    (setf (getf (gethash (Toot-uuid Toot) *transient-vars*) var) value)))
-
-(defun get-transient (var &optional (Toot *Toot*))
-  (if-let (plist (gethash (Toot-UUID Toot) *transient-vars*))
-    (getf plist var)))
-
 (defun call-infinity-from-rest (method)
   "Call an Infinity-mode command METHOD from a REST call.
 
@@ -185,17 +174,17 @@ XXX WRITEME
        (defun ,infinity-name (d ,user-var ,plane-var)
          ,docstring
          (declare (ignorable ,user-var ,plane-var))
-         (catch 'infinity
-           (destructuring-bind (,(first λ-list) ,@(mapcar (lambda (sym)
-                                                            (if (char= #\& (char (symbol-name sym) 0))
-                                                                sym
-                                                                (intern (symbol-munger:lisp->camel-case sym))))
-                                                          (rest λ-list)))
-               d
-             (let (,@(mapcar (lambda (var) (list var (intern (symbol-munger:lisp->camel-case var)))) (remove-if (lambda (sym)
-                                                                                                                  (char= #\& (char (symbol-name sym) 0)))
-                                                                                                                (rest λ-list))))
-               ,@body))))
+         (block nil (catch 'infinity
+                      (destructuring-bind (,(first λ-list) ,@(mapcar (lambda (sym)
+                                                                       (if (char= #\& (char (symbol-name sym) 0))
+                                                                           sym
+                                                                           (intern (symbol-munger:lisp->camel-case sym))))
+                                                                     (rest λ-list)))
+                          d
+                        (let (,@(mapcar (lambda (var) (list var (intern (symbol-munger:lisp->camel-case var)))) (remove-if (lambda (sym)
+                                                                                                                             (char= #\& (char (symbol-name sym) 0)))
+                                                                                                                           (rest λ-list))))
+                          ,@body)))))
        (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name)) 
                           "application/json")
          ,docstring
@@ -205,16 +194,23 @@ XXX WRITEME
   (:use :CL :CL-User :Bordeaux-Threads :Tootsville))
 
 (defmacro define-operator-command (command (words user plane) &body body)
-  (let ((docstring (when (stringp (first body)) (first body)))
+  (let ((docstring (if (stringp (first body)) (first body)
+                       (format nil "Undocumented operator command ~a" command)))
         (body (if (stringp (first body)) (rest body) body))
-        (command (if (find-symbol (string command) (find-package :CL))
+        (command (if (find-symbol (string command) :CL)
                      (concatenate 'string "*" (string command))
                      command)))
     `(progn
        (defun ,(intern (string command) (find-package :Tootsville-User)) (&rest ,words)
          ,docstring
+         (declare (ignorable ,words))
          (let ((,user *user*) (,plane (user-plane *user*)))
-           ,@body))))) 
+           (declare (ignorable ,user ,plane))
+           (let ((reply (block nil (progn ,@body))))
+             (when (stringp reply)
+               (private-admin-message
+                ,(concatenate 'string #(#\#) (string-downcase command))
+                reply)))))))) 
 
 (defendpoint (POST "/world/infinity" "application/json")
   "Dispatch an Infinity-mode JSON packet to its handler based on the @code{c} parameter.
