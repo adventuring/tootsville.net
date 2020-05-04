@@ -79,7 +79,7 @@
   (make-pathname :directory (list :absolute 
                                   "etc" "letsencrypt" "archive"
                                   (machine-instance))
-                 :name "privkey1"
+                 :name "fullchain1"
                  :type "pem"))
 
 (defun look-for-ssl-certs ()
