@@ -272,7 +272,7 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
               (asdf:component-version (asdf:find-system :Tootsville)))
       )
     (princ (alexandria:read-file-into-string
-            (merge-pathnames #p"src/doc/introduction.texi" source-dir))
+            (merge-pathnames #p"src/doc/Introduction.texi" source-dir))
            docs)
     (format docs "
 
@@ -295,9 +295,9 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
  ")
       (princ (alexandria:read-file-into-string
-              (merge-pathnames #p"src/doc/conclusion.texi" source-dir))
+              (merge-pathnames #p"src/doc/Conclusion.texi" source-dir))
              docs)
-
+      
       (format docs "@node Indexes, , Conclusion, Top
 @appendix Indexes
 @menu
