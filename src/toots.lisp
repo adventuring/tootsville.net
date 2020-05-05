@@ -306,11 +306,7 @@ Fetch avatar information for a list of Toots.
 @end table
 
 "
-  (let* ((avatar-moniker (avatar-moniker (find-reference Toot :avatar)))
-         (transients (gethash (toot-uuid Toot) *transient-vars*))
-         (wtl (when transients (getf transients :wtl)))
-         (course (when wtl (car wtl)))
-         (facing (when wtl (cdr wtl))))
+  (let* ((avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
     (list :|name| (Toot-name Toot)
           :|userName| (Toot-presentation-name Toot)
           :|chatFG| (color24-name (Toot-chat-foreground-color Toot))
