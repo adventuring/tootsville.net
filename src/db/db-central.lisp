@@ -285,8 +285,8 @@ ON DUPLICATE KEY UPDATE  ~
                  ',(caar columns) (,id-accessor object))
          (with-slots ,(mapcar #'car columns) object
            (cl-dbi:execute query
-                           ,@(mapcar #'column-save-mapping columns)
-                           ,@(mapcar #'column-save-mapping (rest columns)))))
+                           (list ,@(mapcar #'column-save-mapping columns)
+                                 ,@(mapcar #'column-save-mapping (rest columns))))))
        ,(when (string-equal (caar columns) "ID")
           `(setf (,id-accessor object) (get-last-insert-id))))
      object))
