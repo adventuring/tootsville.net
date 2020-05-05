@@ -339,6 +339,8 @@ allowing SystemD to start a new instance in case of a fatal error."
   (set-up-for-daemon/start-logging)
   (v:info :starting "Starting on host interface ~a port ~a" host port)
   (start :host host :port port)
+  (v:info :starting "Starting the WebSockets listener on port 5004")
+  (listen-for-websockets)
   (v:info :starting "Starting Swank")
   (start-swank)
   (loop
