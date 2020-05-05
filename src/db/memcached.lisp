@@ -51,7 +51,7 @@
                       (*print-readably* t)
                       (*print-pretty* nil)
                       (*print-right-margin* 120))
-                 (if-let (,$value (cl-memcached:mc-get-value ,$key))
+                 (if-let (,$value (memcached-get-key ,$key))
                    (apply #'values (read-from-string ,$value))
                    (progn
                      (v:warn :memcached "Cache miss on ~a" ,$key)
@@ -60,11 +60,12 @@
                                (length ,$VALUE)
                                (cl-memcached:mc-store ,$key
                                                       (trivial-utf-8:string-to-utf-8-bytes
-                                                       (format nil "~s" ,$value)
-                                                       :timeout ,timeout
-                                                       :command :replace)))
+                                                       (format nil "~s" ,$value))
+                                                      :timeout ,timeout
+                                                      :command :replace))
                        (apply #'values ,$value)))))
              (cl-memcached::memcached-server-unreachable (c)
+               (declare (ignore c))
                (,$body)))
            (progn
              (run-async #'connect-cache)
@@ -94,6 +95,10 @@
     (cl-memcached::memcached-server-unreachable (c)
       (warn (princ-to-string (the condition c))))))
 
+(defun memcached-get-key (key)
+  (when-let (value (cl-memcached:mc-get (list key)))
+    (map 'string #'code-char (lastcar (first value)))))
+
 (defpost memcached-random-number-test ()
   "Store and fetch a random number"
   (handler-case
@@ -102,7 +107,7 @@
                                                   (expt 2 63))))))
             (key (format nil "post.~a.~a" (machine-instance) (cluster-name))))
         (cl-memcached:mc-set key n)
-        (let ((m (cl-memcached:mc-get key)))
+        (let ((m (memcached-get-key key)))
           (assert (equal n m) ()
                   "MemCacheD did not return the random number (~x) for key ~a"
                   n key))
