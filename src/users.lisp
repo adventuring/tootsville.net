@@ -364,6 +364,7 @@ limitations under the License. |#
   :test #'list-of-string=)
 
 (defun person-info (&optional (user *user*))
+  "Creates a JSON-like PList of information about USER"
   (list :|uuid| (person-uuid user)
         :|displayName| (person-display-name user)
         :|patronP| (or (person-is-patron-p user) :false)
@@ -384,7 +385,11 @@ limitations under the License. |#
   (Toot-world (find-active-toot-for-user user)))
 
 (defmethod print-object ((user person) s)
-  (format s "#<User ~a ~a>" (person-uuid user) (person-display-name user)))
+  (format s "#<User ~a ~a ~a>" 
+          (person-uuid user) 
+          (person-display-name user)
+          (when-let (Toot (player-Toot user))
+            (Toot-name Toot))))
 
 (defun url-to-string (url)
   (etypecase url
@@ -393,6 +398,9 @@ limitations under the License. |#
                 (puri:render-uri url s)))))
 
 (defun person-first-email (&optional (user *user*))
+  "Gives one possible eMail address associated with USER.
+
+Uses the first, alphabetically speaking."
   (when-let (first-mailto (first
                            (sort
                             (mapcar #'url-to-string
