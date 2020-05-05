@@ -83,7 +83,7 @@
 (defun unicast (message &optional (user *user*))
   (ws-unicast *infinity-websocket-resource* message user))
 
-(defun unicast-to-toot (message toot)
+(defun unicast-to-toot (message &optional (toot *Toot*))
   (unicast message (find-record 'person :uuid (toot-player toot))))
 
 (defun force-close-hunchensocket (client)
@@ -140,8 +140,8 @@
 
 (defmethod hunchensocket:text-message-received ((res infinity-websocket-resource) user message)
   (if-let (*user* (user-account user))
-    (ws-reply (call-infinity-from-stream message)
-              user)
+      (ws-reply (call-infinity-from-stream message)
+                user)
     (websocket-authenticate user message)))
 
 (defun who-is-connected ()
