@@ -96,6 +96,7 @@ need to be expanded a great deal to increase confidence in these tests."
     (dolist (test *post-tests-queue*)
       (handler-case
           (funcall test)
+        (sb-kernel:redefinition-with-defun (c) nil)
         (warning (c)
           (v:error :power-on-self-test "~&WARNING: ~s~%~:*~A" c)
           (uiop/image:print-condition-backtrace c :stream *error-output*)
