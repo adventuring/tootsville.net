@@ -339,8 +339,6 @@ Fetch avatar information for a list of Toots.
           :|scaling| (list :|x| (Toot-avatar-scale-x Toot)
                            :|y| (Toot-avatar-scale-y Toot)
                            :|z| (Toot-avatar-scale-z Toot))
-          :|course| (or course (list :|n| 0))
-          :|facing| (or facing (list :|n| 0))
           ;; DEPRECATED fields, can be removed in 2.1 or later
           :|id| (Toot-uuid Toot)
           :|avatarClass| (list :|id| (Toot-avatar Toot)
