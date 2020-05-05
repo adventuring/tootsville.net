@@ -49,6 +49,12 @@
   (setf (slot-value acceptor 'hunchentoot::taskmaster)
         (make-instance 'thread-pool-taskmaster:thread-pool-taskmaster)))
 
+(defmethod initialize-instance :after
+    ((acceptor Tootsville-REST-SSL-acceptor) &rest initargs)
+  (declare (ignore initargs))
+  (setf (slot-value acceptor 'hunchentoot::taskmaster)
+        (make-instance 'thread-pool-taskmaster:thread-pool-taskmaster)))
+
 (defun not-found-if-null (thing)
   "If THING is null, then abort with a 404 Not Found."
   (unless thing
@@ -276,12 +282,54 @@ parameters."
           (handle-options-request uri-parts ua-accept)
           (handle-normal-request method uri-parts ua-accept)))))
 
+(defmethod hunchentoot:acceptor-dispatch-request
+    ((acceptor Tootsville-REST-SSL-acceptor) request)
+  (declare (optimize (speed 3) (safety 1) (space 0) (debug 1)))
+  (verbose:info :request "Dispatching request ~s via acceptor ~s"
+                request acceptor)
+  (let* ((hunchentoot:*request* request)
+         (*user* (find-user-for-headers (hunchentoot:header-in*
+                                         "X-Infinity-Auth")))
+         (*Toot* (find-active-Toot-for-user))
+         (method (hunchentoot:request-method*))
+         (uri-parts (split-sequence #\/
+                                    (namestring
+                                     (hunchentoot:request-pathname request))
+                                    :remove-empty-subseqs t))
+         (ua-accept (request-accept-types)))
+    (when (and (when-let (upgrade (hunchentoot:header-in* "Upgrade"))
+                 (equalp upgrade "websocket"))
+               (when-let (connection (hunchentoot:header-in* "Connection"))
+                 (equalp connection "Upgrade")))
+      (let ((sec-websocket-key (hunchentoot:header-in* "Sec-Websocket-Key"))
+            (sec-websocket-version (hunchentoot:header-in* "Sec-Websocket-Version")))
+        (unless (or (equal "13" sec-websocket-version)
+                    (find "13" (remove-if #'whitespacep (split-sequence #\, sec-websocket-version))
+                          :test #'equal))
+          (gracefully-report-http-client-error (make-condition 'bad-request)))
+        (handle-websocket-request sec-websocket-key)))
+    (with-http-conditions ()
+      (set-http-default-headers)
+      (if (eql :options method)
+          (handle-options-request uri-parts ua-accept)
+          (handle-normal-request method uri-parts ua-accept)))))
+
 (defmethod hunchentoot:acceptor-status-message
     ((acceptor Tootsville-REST-Acceptor) HTTP-status-code
      &rest _ &key &allow-other-keys)
   (declare (ignore _))
   (unless (wants-json-p) (call-next-method))
   (when (< (the fixnum HTTP-status-code) 400) (call-next-method))
+  
+  (gracefully-report-HTTP-client-error
+   (make-condition 'HTTP-client-error :status HTTP-status-code)))
 
+(defmethod hunchentoot:acceptor-status-message
+    ((acceptor Tootsville-REST-SSL-Acceptor) HTTP-status-code
+     &rest _ &key &allow-other-keys)
+  (declare (ignore _))
+  (unless (wants-json-p) (call-next-method))
+  (when (< (the fixnum HTTP-status-code) 400) (call-next-method))
+  
   (gracefully-report-HTTP-client-error
    (make-condition 'HTTP-client-error :status HTTP-status-code)))
