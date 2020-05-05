@@ -164,7 +164,7 @@ is available."
         hunchentoot:*log-lisp-backtraces-p* t
         hunchentoot:*log-lisp-warnings-p* t)
   (restart-case
-      (progn (when *enable-ssl-p*
+      (progn (when (enable-ssl-p)
                (let ((ssl (hunchentoot:start
                            (make-instance 'Tootsville-REST-SSL-Acceptor
                                           :ssl-certificate-file (ssl-certificate)
