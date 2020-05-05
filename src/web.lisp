@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/web.lisp is part of Tootsville
 ;;;
-;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -133,8 +133,8 @@ Relies upon `CONTENTS-TO-BYTES', qv"
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  
-  (defun defendpoint/make-docstring 
+
+  (defun defendpoint/make-docstring
       (body method uri content-type λ-list how-slow-is-slow)
     (concatenate 'string
                  (if (and (consp body) (stringp (first body)))
@@ -154,7 +154,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 \(~:d milliseconds) to complete."
                          method uri content-type (length λ-list) λ-list
                          how-slow-is-slow (round (* 1000.0 how-slow-is-slow)))))
-  
+
   (defun apply-extension-to-template (template extension)
     "Create a clone of TEMPLATE with EXTENSION."
     (if template
@@ -163,16 +163,16 @@ It returns a content-type of ~:*~(~a~).~]~2%~
               temp
               (rest temp)))
         (list "index" extension)))
-  
+
   (defun without-sem (string)
     "The subset of STRING up to the first semicolon, if any."
     (subseq string 0 (position #\; (the string string))))
-  
+
   (defun first-line (string)
     "The first line, or, up to 100 characters of STRING."
     (let ((newline (or (position #\newline (the string string)) 100)))
       (subseq string 0 (min newline 100 (length string)))))
-  
+
   (defun defendpoint/make-endpoint-function (&key fname content-type
                                                   λ-list docstring body
                                                   (how-slow-is-slow .03))
@@ -197,7 +197,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
                             (* 1.0 ,$elapsed))
                     (when (< ,how-slow-is-slow ,$elapsed)
                       (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
-  
+
   (defun after-slash (s)
     "Splits a string S at a slash. Useful for getting the end of a content-type.
 
@@ -205,7 +205,7 @@ Downcases the string. Returns entire string when there's no slash."
     (if (find #\/ (the string s))
         (subseq (string-downcase s) (1+ (or (position #\/ s) #|unreachable|# 0)))
         (string-downcase s)))
-  
+
   (defun check-arg-type-fail% (arg-name type arg-value name)
     (list 400
           (list :content-type "application/json")
@@ -214,12 +214,12 @@ Downcases the string. Returns entire string when there's no slash."
                         arg-name (or name
                                      (string-capitalize
                                       (symbol-munger:lisp->english type))))
-                :expected-type (or name 
+                :expected-type (or name
                                    (string-capitalize
                                     (symbol-munger:lisp->english type)))
                 :argument-name (symbol-munger:lisp->camel-case arg-name)
                 :provided-value (format nil "~s" arg-value))))
-  
+
   (defmacro check-arg-type (arg type &optional name)
     "Ensure that ARG  is of type TYPE, which is  called NAME. Signals back
 to an HTTP client with a 400 error if this assertion is untrue.
@@ -228,7 +228,7 @@ This is basically just CHECK-TYPE for arguments passed by the user."
     `(unless (typep ,arg ',type)
        (return-from endpoint
          (check-arg-type-fail% ',arg ',type ,arg ,name))))
-  
+
   (defvar *extensions-for-content-types*
     '(
       :application/ecmascript "es"
@@ -317,12 +317,12 @@ This is basically just CHECK-TYPE for arguments passed by the user."
       :video/x-sgi-movie "movie"
       :x-world/x-vrml "vrml"
       ))
-  
+
   (defun extension-for-content-type (content-type)
     "Get the canonically-preferred filename extension for CONTENT-TYPE."
     (getf *extensions-for-content-types*
           (make-keyword (string-upcase (without-sem content-type)))))
-  
+
   (defun name-for-content-type (content-type)
     "Get the name to be used in function names for CONTENT-TYPE.
 
@@ -330,7 +330,7 @@ Typically this is the file extension, but if none is known, it's the end
 of the CONTENT-TYPE after the slash."
     (or (extension-for-content-type content-type)
         (after-slash content-type)))
-  
+
   (defun atom-or-comma-list (value)
     "Return VALUE, possibly by turning it into a comma-delimited string.
 
@@ -346,7 +346,7 @@ Used in generating HTTP headers."
       ((atom value) value)
       ((= 1 (length value)) (first value))
       (t (format nil "~{~a~^, ~}" value))))
-  
+
   (defun add-charset (content-type)
     "Adds the ;charset=UTF-8 type to the end of text and JS/JSON CONTENT-TYPEs"
     (if (member content-type
@@ -356,7 +356,7 @@ Used in generating HTTP headers."
                 :test 'string=)
         (concatenate 'string content-type "; charset=utf-8")
         content-type))
-  
+
   (assert (equal (add-charset "text/html")
                  "text/html; charset=utf-8"))
   (assert (equal (add-charset "text/plain")
@@ -367,7 +367,7 @@ Used in generating HTTP headers."
                  "application/json; charset=utf-8"))
   (assert (equal (add-charset "image/png")
                  "image/png"))
-  
+
   (defun constituentp (ch)
     "Is character CH a constituent character of a Lisp name (without quoting)?
 
@@ -377,7 +377,7 @@ Accepts A-Z, 0-9, any character above #xa0, and these punctuation: -/!?%."
           (<= (char-code #\A) cc (char-code #\Z))
           (<= (char-code #\0) cc (char-code #\9))
           (find ch "-/!?%." :test #'char=))))
-  
+
   (defun make-endpoint-function-name (method uri accept-type)
     "Create the name of the endpoint function for METHOD, URI, and ACCEPT-TYPE."
     (intern (format nil "ENDPOINT-~a-~a→~a"
@@ -387,7 +387,7 @@ Accepts A-Z, 0-9, any character above #xa0, and these punctuation: -/!?%."
                       (null #\?)
                       (string (name-for-content-type accept-type))
                       (symbol (name-for-content-type (string accept-type)))))))
-  
+
   (defun lambda-list-as-variables (λ-list)
     "Convert Λ-LIST into variables for an endpoint function."
     (if λ-list
@@ -395,7 +395,7 @@ Accepts A-Z, 0-9, any character above #xa0, and these punctuation: -/!?%."
                               (list 'quote var))
                             λ-list))
         'nil))
-  
+
   (defun destroy-endpoint (method uri &optional content-type)
     (let ((instance (make-instance 'endpoint
                                    :function #'null
@@ -406,9 +406,9 @@ Accepts A-Z, 0-9, any character above #xa0, and these punctuation: -/!?%."
                                                     (string (string-upcase content-type))
                                                     (symbol (symbol-name content-type))))
                                    :slow 0)))
-      (remhash (endpoint-hash instance) *endpoints*) 
-      (remap-endpoints))) 
-  
+      (remhash (endpoint-hash instance) *endpoints*)
+      (remap-endpoints)))
+
   (defmacro defendpoint ((method uri &optional content-type (how-slow-is-slow .03))
                          &body body)
     "Define an HTTP endpoint to access URI via METHOD and return CONTENT-TYPE."
@@ -516,15 +516,15 @@ parameter object.
 For example,
 
 @lisp
-    (WITH-POSTED-JSON (FOO-BAR)
-          (BODY))
+ (WITH-POSTED-JSON (FOO-BAR)
+ (BODY))
 @end lisp
 
 … will  bind FOO-BAR  to the  value of  the key  \"fooBar\" in  the POST
 content, assuming it is a JSON object like
- 
+
 @verbatim
-   { \"fooBar\": \"value\" }
+ { \"fooBar\": \"value\" }
 @end verbatim
 
 In the event of a parse error, an HTTP 400 is returned."

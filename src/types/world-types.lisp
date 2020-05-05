@@ -1,9 +1,8 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; src/types/world-types.lisp    is    part    of
-;;;; Tootsville
+;;;; src/types/world-types.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -53,4 +52,3 @@
 (defconstant +moon-day+ (* 18 60 59))
 (defconstant +other-moon-day+ (* 2 18 60 58))
 (defconstant +pink-moon-day+ (* 8 18 60 56))
-

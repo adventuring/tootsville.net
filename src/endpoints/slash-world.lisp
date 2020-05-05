@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoints/slash-world.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -32,7 +32,7 @@
   (error 'unimplemented))
 
 (defendpoint (get "/world/tootanga/:latitude/:longitude/:altitude" "application/json")
-    "Get the information about the area near (LATITUDE,LONGITUDE,ALTITUDE)
+  "Get the information about the area near (LATITUDE,LONGITUDE,ALTITUDE)
 
 The terrain and objects in that area, characters, &c. will be returned.
 
@@ -43,26 +43,26 @@ Your character must be able to observe that general area. No peeking!
 
 
 (defendpoint (GET "/world/clock/date" "text/plain")
-    "Get the date on Chœrogryllum (pretty-printed date string)"
+  "Get the date on Chœrogryllum (pretty-printed date string)"
   (choerogryllum:date-string (get-universal-time)))
 
 (defendpoint (GET "/world/clock/date/long" "text/plain")
-    "Get the date on Chœrogryllum (pretty-printed date string)"
+  "Get the date on Chœrogryllum (pretty-printed date string)"
   (choerogryllum:date-string (get-universal-time)))
 
 (defendpoint (GET "/world/clock/date/abbrev" "text/plain")
-    "Get the date on Chœrogryllum (abbreviated date string)"
+  "Get the date on Chœrogryllum (abbreviated date string)"
   (choerogryllum:date-string (get-universal-time) :form :abbrev))
 
 (defendpoint (GET "/world/clock/time" "application/json")
-    "Get the date & time on Chœrogryllum as a JSON structure.
+  "Get the date & time on Chœrogryllum as a JSON structure.
 
 The returned object will have the following keys:
 
 @table @code
 @item sec
 Seconds into the minute
-@item min 
+@item min
 Minutes into the hour
 @item hour
 Hour of the day
@@ -102,7 +102,7 @@ Name of any holiday that occurs on this day
           :holiday (choerogryllum:holiday-on year month day))))
 
 (defendpoint (GET "/world/clock/time" "text/plain")
-    "Get the current time on Chœrogryllum (time string with seconds)
+  "Get the current time on Chœrogryllum (time string with seconds)
 
 Returns a string of Hours:Minutes:Seconds."
   (multiple-value-bind (sec min hour day month year weekday
@@ -200,10 +200,10 @@ See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
 Contains HTML fragments for each of the 12 months.
 
 See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
-  (list 200 () 
+  (list 200 ()
         (format nil "~{~a~%~^<br>~%~}"
                 (loop for month from 1 upto 12
-                   collecting (chœrogryllum::cal-month.html 
+                   collecting (chœrogryllum::cal-month.html
                                (parse-integer year) month)))))
 
 (defendpoint (GET "/world/clock/calendar/year/:year/month/:month" "text/html")
@@ -213,13 +213,13 @@ Produces  a  minimal  HTML  page framework  surrounding  a  single-month
 HTML calendar.
 
 See `CHOEROGRYLLUM::CAL-MONTH.HTML'."
-  (list 200 () 
+  (list 200 ()
         (format nil "<!DOCTYPE html><html>
 <head><meta charset=\"utf-8\">
 <title> Month ~d of Year ~d — Chœrogryllum Calendar </title></head>
 <body>~a</body></html>"
                 month year
-                (chœrogryllum::cal-month.html 
+                (chœrogryllum::cal-month.html
                  (parse-integer year) (parse-integer month)))))
 
 (defendpoint (GET "/world/clock/time/detailed" "text/plain")

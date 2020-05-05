@@ -3,7 +3,7 @@
 ;;; tootsville-commands.lisp is part of Tootsville
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
-;;; Res Interactive  LLC;   Copyright  © 2018-2020, the  Corporation for
+;;; Res  Interactive LLC;  Copyright  © 2018-2020,  the Corporation  for
 ;;; Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;; This program is Free Software: you can redistribute it and/or modify
@@ -34,11 +34,11 @@ Legacy documentation:
 
 Staff members can create a journal entry which is stored for
 review in a customer service application such as Joshua. Creating
-a ModeratorJournal object will parse for certain values such as 
+a ModeratorJournal object will parse for certain values such as
 [@@username].
 
      * param jso { \"entry\": TEXT }
-     
+
 @subsection Formerly Proprietary Extension
 
 This command was formerly a proprietary extension for Tootsville.com and
@@ -99,9 +99,9 @@ No longer used; always \"\"
 @item sentTime
 The date and time sent
 @item readTime
-The date and time first (previously) retrieved by the client. Messages will 
-be marked as read ``now'' when retrieved, but only after they are retrieved 
-for the first time. 
+The date and time first (previously) retrieved by the client. Messages will
+be marked as read ``now'' when retrieved, but only after they are retrieved
+for the first time.
 @item body
 The contents of the message.
 @end table
@@ -184,6 +184,3 @@ This command was formerly a proprietary extension for Tootsville.com and
 has now been re-created for the AGPL version of Romance.
 "
   (error 'unimplemented))
-
-
-

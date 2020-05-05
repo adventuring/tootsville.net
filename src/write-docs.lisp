@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/write-docs.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -55,7 +55,7 @@ Note that DECLT  is not usually compiled into the  binary by default, so
 this  may  have  to  download  DECLT  and/or  its  dependencies  through
 Quicklisp when called."
   (format *trace-output* "~& Writing documentation…")
-  
+
   (ql:quickload :net.didierverna.declt)
   (let ((source-dir (asdf:component-pathname (asdf:find-system :tootsville))))
     (inform-declt-of-agplv3)
@@ -104,7 +104,7 @@ Quicklisp when called."
 
 Draft Edition.
 
-Copyright @copyright{} ~d, the Corporation for Inter-World Tourism and 
+Copyright @copyright{} ~d, the Corporation for Inter-World Tourism and
 Adventuring.
 
 @quotation
@@ -148,7 +148,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
 @chapter Introduction
 ~a"
               (romance-ii-copyright-latest)
-              (read-file-into-string (asdf:system-relative-pathname 
+              (read-file-into-string (asdf:system-relative-pathname
                                       :Tootsville
                                       "src/doc/Introduction.texi")))
       (dolist (package (sort-all-packages))
@@ -157,7 +157,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
 @menu~%@end menu"
                 (clean-docs (package-name package)))
         (let ((overview (asdf:system-relative-pathname
-                         :Tootsville 
+                         :Tootsville
                          (format nil "src/doc/~a.texi"
                                  (string-downcase (package-name package))))))
           (when (probe-file overview)
@@ -206,7 +206,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
               (push symbol symbols)))
           (dolist (symbol (sort (remove-duplicates symbols) #'string<))
             (write-docs-for-symbol symbol))))
-      (princ (read-file-into-string (asdf:system-relative-pathname 
+      (princ (read-file-into-string (asdf:system-relative-pathname
                                      :Tootsville
                                      "src/doc/Conclusion.texi")))
       (terpri)
@@ -335,7 +335,7 @@ Lisp  docstrings  containing `quoted  strings'  which  are the  name  of
 a  symbol with  a definition  to be  documented will  be converted  into
 references   to   the  appropriate   node   in   the  documentation   by
 `MAYBE-MAKE-HYPERLINK'."
-  (regex-replace-all 
+  (regex-replace-all
    "\`(.*)'" string
    (lambda (TARGET-STRING START END
             MATCH-START MATCH-END
@@ -350,10 +350,10 @@ references   to   the  appropriate   node   in   the  documentation   by
     (proper-list (mapcar #'clean-docs docstring))
     (number (format nil "~a" docstring))
     (keyword (format nil "~s" docstring))
-    (symbol (regex-replace-pairs 
+    (symbol (regex-replace-pairs
              +teχinfo-accented-char-pairs+
              (string-capitalize docstring)))
-    (string (regex-replace-pairs 
+    (string (regex-replace-pairs
              +teχinfo-accented-char-pairs+
              (make-hyperlinks docstring)))))
 
@@ -369,9 +369,9 @@ a valiant effort towards &Rest arguments as well."
     (with-output-to-string (*standard-output*)
       (format t "~%@itemize")
       (loop for symbol in λ-list
-         do 
+         do
            (progn
-             (cond 
+             (cond
                ((eql symbol '&optional)
                 (setf optionalp t)
                 (format t "~%@end itemize
@@ -438,9 +438,9 @@ In fact, in the package ``Common-Lisp,'' this function instead defers to
 SBCL's documentation is written in such a style that not much additional
 styling is helpful."
   (format t "~%@vskip 48pt
-@node ~a::~a~2%@section ~a~%" 
+@node ~a::~a~2%@section ~a~%"
           (package-name (symbol-package symbol))
-          symbol 
+          symbol
           (clean-docs symbol))
   (when (eql (symbol-package symbol) (find-package :common-lisp))
     ;; XXX would be nice to process `REFERENCES' in CL package docs
@@ -470,11 +470,11 @@ styling is helpful."
             (clean-docs (documentation symbol 'function)))
     #+sbcl
     (when-let (source-file (sb-int:debug-source-namestring
-                            (sb-c::debug-info-source 
+                            (sb-c::debug-info-source
                              (sb-kernel:%code-debug-info
                               (sb-kernel:fun-code-header
                                (sb-kernel::%fun-fun
-                                (symbol-function symbol))))))) 
+                                (symbol-function symbol)))))))
       (format t "~&@vskip 18pt~%Source file: ~a~2%" (enough-namestring source-file))))
   (when (boundp symbol)
     (format t "~2% ~a names a ~:[special variable~;global constant~].~2%~a~2%"

@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/toots.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -149,7 +149,7 @@ This data is returned by various functions, including `INFINITY-FINGER' or
 @item name
 The name of the Toot character. See `TOOT-NAME'
 @item userName
-Also the name of the Toot character, in the form in which it should appear on 
+Also the name of the Toot character, in the form in which it should appear on
 an avatar label. Notably, this means that child or sensitive users will have a
 black diamond prefixed to the name.
 See `TOOT-PRESENTATION-NAME'
@@ -160,10 +160,10 @@ always be
 See `TOOT-AVATAR' to obtain the avatar's ID, and `AVATAR-MONIKER' to obtain
 the name from that ID.
 @item chatFG
-The foreground (text) color of this character's chat messages. 
+The foreground (text) color of this character's chat messages.
 See `TOOT-CHAT-FOREGROUND-COLOR'.
 @item chatBG
-The background color of the speech balloons behind the character's chat 
+The background color of the speech balloons behind the character's chat
 messages.
 See `TOOT-CHAT-BACKGROUND-COLOR'.
 @item avatarClass
@@ -179,13 +179,13 @@ See `TOOT-BASE-COLOR'
 The color for the avatars's pattern, if any. Sent as two identical values.
 See `TOOT-PATTERN-COLOR'
 @item avatarClass_E, padColor
-The color for the avatar's pad or ``extra'' color. 
+The color for the avatar's pad or ``extra'' color.
 Sent as two identical values.
 See `TOOT-PAD-COLOR'
 @item format
 Always the same as @code{avatar} now.
 @item colors
-The list of base, pattern, and extra color, a third time, as an array-like 
+The list of base, pattern, and extra color, a third time, as an array-like
 object; keys are @code{0} for base color, @code{1} for pad color,
 and @code{2} for pattern color.
 @item inRoom
@@ -254,12 +254,12 @@ different URL pattern.
 @item
 Prepend black diamonds to @code{userName} for children or sensitive users.
 @item
-Always returns white and black for @code{chatFG} and @code{chatBG}, as 
-``Magic Toot'' colors are not currently supported in 2.0; they may return in 
+Always returns white and black for @code{chatFG} and @code{chatBG}, as
+``Magic Toot'' colors are not currently supported in 2.0; they may return in
 2.1 or later.
 @item
-Added @code{baseColor}, @code{patternColor}, and @code{padColor} names in 
-parallel to existing, now deprecated, @code{colors} values. 
+Added @code{baseColor}, @code{patternColor}, and @code{padColor} names in
+parallel to existing, now deprecated, @code{colors} values.
 @item
 The  @code{avatarClass_B,P,E} values, which used to reflect default colors for
 an avatar model, are now just the Toot's current colors.
@@ -267,7 +267,7 @@ an avatar model, are now just the Toot's current colors.
 Added @code{uuid}, @code{childP},  @code{sensitiveP},
 and @code{lastSeen}
 @item
-When the requestor owns this Toot, added @code{note}, 
+When the requestor owns this Toot, added @code{note},
 @code{childCode}, @code{peanuts}, @code{fairyDust},
 @item
 @code{inRoom} always returns ``@@Tootsville''.
@@ -346,11 +346,11 @@ Fetch avatar information for a list of Toots.
                                :|filename| avatar-moniker
                                :|forFree| t
                                :|forPaid| :false)
-          
+
           :|format| avatar-moniker
-          
+
           :|avatarClass_B| (color24-name (Toot-base-color Toot))
-          
+
           :|avatarClass_P| (color24-name (Toot-pattern-color Toot))
           :|avatarClass_E| (color24-name (Toot-pad-color Toot))
           :|inRoom| "@Tootsville"
@@ -375,7 +375,7 @@ Fetch avatar information for a list of Toots.
 
 (defun every-Toot-name ()
   "Enumerates the names of every Toot known to the system."
-  (sort (mapcar #'Toot-name (find-records 'Toot)) #'string-lessp)) 
+  (sort (mapcar #'Toot-name (find-records 'Toot)) #'string-lessp))
 
 (defun wallet-info (Toot)
   "Returns JSON-type data about TOOT's wallet.
@@ -386,8 +386,8 @@ This object contains
 @item walletOwner
 The Toot name whose wallet is being described
 @item currency
-An object containing an enumeration of currencies. Each key is a currency's 
-ISO symbol; each value is the amount of that currency which TOOT currently 
+An object containing an enumeration of currencies. Each key is a currency's
+ISO symbol; each value is the amount of that currency which TOOT currently
 possesses.
 @end table
 

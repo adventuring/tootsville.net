@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoints/slash-meta-game.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -259,8 +259,8 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
                (decorate-method-html (getf endpoint :method))
                " <tt class=\"uri\">"
                (decorate-endpoint-template-html (format nil "~{/~a~}" (getf endpoint :template))
-                                             (remove-if-not #'symbolp (getf endpoint :template))
-                                             (getf endpoint :method))
+                                                (remove-if-not #'symbolp (getf endpoint :template))
+                                                (getf endpoint :method))
                "</tt> (→ "
                (string-downcase (getf endpoint :content-type))
                ") <br>"
@@ -418,7 +418,7 @@ key in the resulting Alist."
  This provides a browseable catalog of  web services that are provided by
  this machine or its siblings."
   (list 200 ()
-        (reduce 
+        (reduce
          (curry #'concatenate 'string)
          (flatten
           (list
@@ -438,7 +438,7 @@ key in the resulting Alist."
                                          :key (rcurry #'getf :method))
                                         #'string-lessp
                                         :key (lambda (r)
-                                               (format nil "~{/~a~}" 
+                                               (format nil "~{/~a~}"
                                                        (getf r :template))))))))
                    (sort (endpoints-prefixed (enumerate-endpoints))
                          #'string-lessp
@@ -472,8 +472,8 @@ The data  returned is  in the  JSON encoded form  of OpenAPI  3.0.0; see
                       (plist-hash-table
                        (mapcan #'path->openapi
                                (group-plists (enumerate-endpoints) :template)))
-                      :|components| #())))) 
-  
+                      :|components| #()))))
+
 (defendpoint (get "/meta-game/headers" "application/json")
   "This method returns to the user, the headers that reached the application server.
 

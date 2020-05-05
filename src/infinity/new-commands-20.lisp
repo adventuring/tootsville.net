@@ -3,7 +3,7 @@
 ;;; new-commands-20.lisp is part of Tootsville
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
-;;; Res Interactive  LLC;   Copyright  © 2018-2020, the  Corporation for
+;;; Res  Interactive LLC;  Copyright  © 2018-2020,  the Corporation  for
 ;;; Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;; This program is Free Software: you can redistribute it and/or modify
@@ -68,7 +68,7 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
               :|wardrobe| (list :|avatar| (Toot-info Toot)))))
 
 (defun sky-room-var ()
-  (list :|sun| 
+  (list :|sun|
         (let ((xy (sun-position)))
           (list :|x| (first xy)
                 :|y| (second xy)))
@@ -104,7 +104,7 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
 
 @subsection Room Environment
 
-These room  variables define the  general environment. 
+These room  variables define the  general environment.
 
 @table @code
 @item s
@@ -116,13 +116,13 @@ position of a sky object such as the sun, a moon, or a cloud.
 
 The Floor; no longer used in 5.0
 
-@item w 
+@item w
 
 The Weather, or overlay artwork. Used to indicate precipitation.
 
 @end table
 
-@subsection 
+@subsection
 Room Objects
 
 @itemize
@@ -133,27 +133,27 @@ x-position \"~\" y-position \"~\" facing \"~\" z-position
 
 @item item2
 
-Placed items, new form: JSON object 
+Placed items, new form: JSON object
 
 @verbatim
-{ position: {  x: y: z: }, 
-  facing: radians,  
-  baseColor: color, 
-  altColor: color, 
-  energy: number, 
-  scale:  { x: y: z: }, 
-  world:  { world: lat: long: alt: },  
-  template:
-  { id:
-    name:
-    description: 
-    trade: [  Y N X  ], 
-    avatar:  
-    energyKind: 
-    energyMax: 
-    onZero: 
-    wearSlot: 
-    weight: } }
+{ position: {  x: y: z: },
+ facing: radians,
+ baseColor: color,
+ altColor: color,
+ energy: number,
+ scale:  { x: y: z: },
+ world:  { world: lat: long: alt: },
+ template:
+ { id:
+ name:
+ description:
+ trade: [  Y N X  ],
+ avatar:
+ energyKind:
+ energyMax:
+ onZero:
+ wearSlot:
+ weight: } }
 
 @item furn
 
@@ -206,7 +206,7 @@ server include:
     (list 200
           (list :|from| "rv"
                 :|var|
-                (concatenate 
+                (concatenate
                  'list
                  (:|s| (sky-room-var)
                    :|rad| t)
@@ -216,7 +216,7 @@ server include:
                                  (item-info item)))
                          (remove-if
                           (lambda (item)
-                            (ignore-not-found 
+                            (ignore-not-found
                               (find-record 'inventory-item
                                            :item (item-uuid item))))
                           (find-records 'item
@@ -229,4 +229,3 @@ server include:
                                   (format nil "zone~~~36r"
                                           (place-room-var place)))))
                          (apply #'places-at-position world pos)))))))
-

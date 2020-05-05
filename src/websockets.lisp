@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/websockets.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -140,13 +140,13 @@
 
 (defmethod hunchensocket:text-message-received ((res infinity-websocket-resource) user message)
   (if-let (*user* (user-account user))
-      (ws-reply (call-infinity-from-stream message)
-                user)
+    (ws-reply (call-infinity-from-stream message)
+              user)
     (websocket-authenticate user message)))
 
 (defun who-is-connected ()
   (remove-if #'null
-             (mapcar #'user-account 
+             (mapcar #'user-account
                      (hunchensocket:clients *infinity-websocket-resource*))))
 
 (defun connected-Toots ()
@@ -165,7 +165,7 @@
           (assert (string-equal provider "Firebase"))
           (ensure-user-for-plist
            (check-firebase-id-token token))))
-      
+
       (progn (v:warn :auth "Unsupported ∞ JSON auth, ~s" json)
              nil)))
 
@@ -202,7 +202,7 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode �
       (hunchensocket:send-text-message user (login-failed-message)))))
 
 (defun listen-for-websockets ()
-  (setf *websocket-server* 
+  (setf *websocket-server*
         (make-instance (if (enable-ssl-p)
                            'websocket-ssl-acceptor
                            'websocket-acceptor)))
@@ -232,9 +232,8 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode �
                 title message label))))
 
 (defun toot-speak (speech &key (toot *toot*) vol)
-  (broadcast (list :|from| "pub" 
+  (broadcast (list :|from| "pub"
                    :|u| (toot-name toot)
                    :|t| speech
                    :|x| vol
                    :|id| (toot-uuid toot))))
-

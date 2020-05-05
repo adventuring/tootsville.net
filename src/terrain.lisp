@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/terrain.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -60,7 +60,7 @@
 @item Ocean
 @item Ice
 @item Moon
-@item Pink Moon 
+@item Pink Moon
 @item Moon Base
 @item City
 @item Farm
@@ -145,7 +145,7 @@ approximate/net altitude of each 200 by 200 meter area of the game.")
       (dotimes (iy 3)
         (setf (aref elevation ix iy)
               (aref (pngload:data *elevation-map*) (+ x-offset ix) (+ y-offset iy) 2)
-              
+
               (aref habitat ix iy)
               (habitat<-pixel
                (aref (pngload:data *habitat-map*) (+ x-offset ix) (+ y-offset iy) 0)
@@ -177,7 +177,7 @@ If no adjacent tile has yet been spawned, small chance of creating a new
          (tree (create-item
                 (item-template-id
                  (find-record
-                  'item-template 
+                  'item-template
                   :name (random-elt '("Decorative Plant"
                                       "Little Plant" "Plant" "Spider Plant"
                                       "Succulent Plant" "Yucca plant"))))))
@@ -315,13 +315,13 @@ Returns (LIST LATITUDE LONGITUDE)"
      for xj = dest-latitude
      do (setf (global-heightmap-corner xj yj) (global-heightmap-corner xi yi))))
 
-(defun generate-terrain-blank-edge-horz (start-latitude longitude 
+(defun generate-terrain-blank-edge-horz (start-latitude longitude
                                          end-latitude base-elevation)
   (loop for xi from start-latitude to end-latitude
      for yi = longitude
      do (setf (global-heightmap-corner xi yi) base-elevation)))
 
-(defun generate-terrain-blank-edge-vert (latitude start-longitude 
+(defun generate-terrain-blank-edge-vert (latitude start-longitude
                                          end-longitude base-elevation)
   (loop for yi from start-longitude to end-longitude
      for xi = latitude
@@ -440,12 +440,12 @@ Returns (LIST LATITUDE LONGITUDE)"
                                    (+ longitude (* yi scale) yj)
                                    shift))))))
     (smoothe-contour-200×200 latitude longitude)
-    
+
     ;; (format  *trace-output*   "~&  After  contour   randomization  on
     ;; ~D×~:*~D     square~p:"     scale      (floor     200     scale))
     ;; (dump-global-heightmap latitude longitude)
     )
-  
+
   (generate-terrain-contour 9-elevations habitat latitude longitude (1- step)))
 
 (defun dump-global-heightmap (latitude longitude)
@@ -477,12 +477,12 @@ Returns (LIST LATITUDE LONGITUDE)"
         (*global-heightmap-x% (1- latitude))
         (*global-heightmap-y% (1- longitude))
         (*features%))
-    (destructuring-bind (elevation habitat) 
+    (destructuring-bind (elevation habitat)
         (get-9-terrain-tiles latitude longitude)
       (verbose:info :terrain "~& Generating map at (~:d,~:d) ~
 in habitat ~:(~A~) with elevations ~S"
                     latitude longitude (aref habitat 1 1) elevation)
-      (let* ((contour (generate-terrain-contour elevation habitat 
+      (let* ((contour (generate-terrain-contour elevation habitat
                                                 latitude longitude 1))
              (features (generate-terrain-features contour (aref habitat 1 1)))))
       (format *trace-output* "~& Final rough map:")
@@ -490,7 +490,7 @@ in habitat ~:(~A~) with elevations ~S"
       ))
   ;; apply sea level
   ;; save to map database
-  
+
   )
 
 

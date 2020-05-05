@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/db/maria.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -237,22 +237,22 @@ Returns the values of BODY.
          (yield-mariadb-lock ,$lock)))))
 
 
-(define-condition cluster-wide-lock-condition 
+(define-condition cluster-wide-lock-condition
     (serious-condition)
   ())
 (define-condition cluster-wide-lock-not-locked
     (cluster-wide-lock-condition warning)
   ())
-(define-condition cluster-wide-lock-busy-warning 
+(define-condition cluster-wide-lock-busy-warning
     (cluster-wide-lock-condition warning)
   ())
-(define-condition cluster-wide-lock-error 
+(define-condition cluster-wide-lock-error
     (cluster-wide-lock-condition error)
   ())
-(define-condition cluster-wide-lock-busy-error 
+(define-condition cluster-wide-lock-busy-error
     (cluster-wide-lock-error)
   ())
-(define-condition cluster-wide-lock-not-ours 
+(define-condition cluster-wide-lock-not-ours
     (cluster-wide-lock-error)
   ())
 
@@ -299,7 +299,7 @@ LOCK-NAME is case-insensitive.
 "
   (let* ((query (cl-dbi:prepare *dbi-connection*
                                 "SELECT GET_LOCK(?, ?)"))
-         (result-set (cl-dbi:execute query lock-string 
+         (result-set (cl-dbi:execute query lock-string
                                      (case if-not-locked
                                        (:wait (or timeout 90))
                                        (otherwise 0)))))
@@ -308,10 +308,10 @@ LOCK-NAME is case-insensitive.
       (otherwise
        (ecase if-not-locked
          (:skip nil)
-         (:wait 
+         (:wait
           (if timeout
               (error 'cluster-wide-lock-busy-error)
-              (get-mariadb-lock lock-string 
+              (get-mariadb-lock lock-string
                                 :if-not-locked :wait :timeout nil)))
          (:error (error 'cluster-wide-lock-busy-error))
          (:warn (warn 'cluster-wide-lock-busy-warning)

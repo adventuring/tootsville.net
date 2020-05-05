@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/config.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -48,7 +48,7 @@
   "Whenever the configuration is loaded, these methods are called
  to allow “external” packages (which may not use this configuration mechanism)
  to apply settings."
-  
+
   (setf thread-pool-taskmaster:*developmentp* (config :taskmaster :devel)
         hunchentoot:*catch-errors-p* (config :hunchentoot :catch-errors)
         hunchentoot:*log-lisp-warnings-p* (config :hunchentoot :log-warnings)
@@ -56,25 +56,25 @@
         hunchentoot:*log-lisp-backtraces-p* (config :hunchentoot :log-backtraces)
         hunchentoot:*show-lisp-errors-p* (config :hunchentoot :show-errors)
         hunchentoot:*show-lisp-backtraces-p* (config :hunchentoot :show-backtraces))
-  
+
   (apply #'rollbar:configure (config :rollbar))
   (setf rollbar:*person-hook* #'get-rollbar-person)
   (rollbar:configure :environment (cluster-net-name)
                      :code-version #.(run-program "git rev-parse HEAD" :output :string)
                      :framework (romance-ii-program-name/version))
-  
+
   ;; TODO: Set site name from configuration
   )
 
 (defun ssl-private-key ()
-  (make-pathname :directory (list :absolute 
+  (make-pathname :directory (list :absolute
                                   "etc" "letsencrypt" "live"
                                   (machine-instance))
                  :name "privkey"
                  :type "pem"))
 
 (defun ssl-certificate ()
-  (make-pathname :directory (list :absolute 
+  (make-pathname :directory (list :absolute
                                   "etc" "letsencrypt" "live"
                                   (machine-instance))
                  :name "fullchain"

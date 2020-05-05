@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoint.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -65,12 +65,12 @@ are strings."
 
 (defvar *endpoints* (make-hash-table)
   "The hash-table of all endpoints currently defined.
- 
+
 There is also a list version  *ENDPOINT-LIST* which is preferred in some
 cases. Both should be updated together.")
 (defvar *endpoint-list* nil
   "A  list   version  of  *ENDPOINTS*  that   is  sometimes  preferable.
-  Both should be updated together.")
+ Both should be updated together.")
 
 (defmethod initialize-instance :after ((endpoint endpoint)
                                        &key template
@@ -139,7 +139,7 @@ Neither solution has yet been implemented."
        (equalp (endpoint-template a)
                (endpoint-template b))))
 
-(defmethod add-or-replace-endpoint (function method (uri string) 
+(defmethod add-or-replace-endpoint (function method (uri string)
                                     &optional content-type (how-slow-is-slow .03))
   ;; FIXME: This should be unified with the (TEMPLATE LIST) method.
   ;; FIXME: Like the (TEMPLATE LIST) method, bug WRT unreachable endpoints
@@ -155,10 +155,10 @@ Neither solution has yet been implemented."
     (setf (gethash (endpoint-hash instance) *endpoints*) instance)
     (remap-endpoints)))
 
-(defmethod add-or-replace-endpoint (function method (template list) 
+(defmethod add-or-replace-endpoint (function method (template list)
                                     &optional content-type (how-slow-is-slow .03))
   ;; FIXME: It's possible to create a duplicate/unreachable endpoint.
-  ;; 
+  ;;
   ;; This method @emph{should}  be changed to look for  an endpoint that
   ;; would  be matching  if  the variable  elements  of either  template
   ;; matched the constants in the same ordinal places.
@@ -205,7 +205,7 @@ run in production."
 
 (defun endpoint-close (endpoint method arity ua-accept)
   "Is the given ENDPOINT similar to METHOD ARITY UA-ACCEPT?
- 
+
 This is used to quickly filter endpoints using only fast integer `=' and
 symbol  `EQL'   comparisons,  so   that  the  more   expensive  template
 unification algorithm can run only on fewer, relatively similar URIs."

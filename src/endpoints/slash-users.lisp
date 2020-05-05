@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoints/slash-users.lisp is part of Tootsville
 ;;;
-;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -67,7 +67,7 @@ TODO: document this properly
 (defendpoint (put "/users/me" "application/json")
   "Makes changes to an user account.
 
-Input JSO: 
+Input JSO:
 @example
 { key: \"field\", newValue: \"x\" }
 @end example
@@ -100,7 +100,7 @@ XXX is there a better status for updates?
 
 @subsection Status: 405 Not Allowed
 
-@subsection Status: 422 
+@subsection Status: 422
 
 "
   (with-user ()
@@ -185,7 +185,7 @@ Requires a body with fields to be changed, and their new values. TODO.
                                            (universal-to-timestamp 0)))))))))
 
 (defendpoint (get "/users/me/toots" "application/json" 1)
-    "Enumerate all Toot characters available to you.
+  "Enumerate all Toot characters available to you.
 
 @subsection 200 OK
 
@@ -214,7 +214,7 @@ which  in  turn contains  an  array  of  Toot  names, ordered  by  their
                                                   (universal-to-timestamp 0)))))))))
 
 (defendpoint (get "/users/me/toots/:toot-name" "text/plain")
-    "Gives detailed information about your Toot character TOOT-NAME.
+  "Gives detailed information about your Toot character TOOT-NAME.
 
 This  text  information  is  an   English-like  rendering  of  the  same
 information as `TOOT-INFO' returns."
@@ -226,7 +226,7 @@ information as `TOOT-INFO' returns."
             (plist-to-English (Toot-info Toot))))))
 
 (defendpoint (get "/users/me/toots/:toot-name" "application/json")
-    "Gives detailed information about your Toot character TOOT-NAME.
+  "Gives detailed information about your Toot character TOOT-NAME.
 
 This Toot  must be owned by  you (the logged-in user).  You will receive
 details about your  own Toot, like inventory, that are  not available to
@@ -262,7 +262,7 @@ The Toot name given was not registered.
             (Toot-info Toot)))))
 
 (defendpoint (delete "/users/me/toots/:toot-name" "application/json")
-    "Permanently destroys the Toot character TOOT-NAME.
+  "Permanently destroys the Toot character TOOT-NAME.
 
 This Toot  must be owned by  you (the logged-in user).
 
@@ -275,29 +275,29 @@ prevent immediate impersonation).
 
 Requires player authentication.
 
-@subsection Status:  202 Toot  deletion in  progress 
+@subsection Status:  202 Toot  deletion in  progress
 
 The  Toot  will  be  deleted,  but   it  may  not  have  completed  yet.
 A subsequent, identical request can confirm.
 
-@subsection Status: 204 Toot deleted 
+@subsection Status: 204 Toot deleted
 
 The Toot has  been deleted. Repeated calls will return  the same status,
 for the duration of the name lock on the Toot.
 
-@subsection Status: 401 Authorization Required 
+@subsection Status: 401 Authorization Required
 
 No user credentials were passed.
 
-@subsection Status: 403 Authorization Failed 
+@subsection Status: 403 Authorization Failed
 
 The user credentials presented were not recognized.
 
-@subsection Status: 404 Not Found 
+@subsection Status: 404 Not Found
 
 The Toot named does not exist.
 
-@subsection Status: 405 Not Allowed 
+@subsection Status: 405 Not Allowed
 
 The Toot named is  one that you have permission to use,  but are not the
 main owner of. This is usually a child account.
@@ -308,14 +308,14 @@ main owner of. This is usually a child account.
     (error 'unimplemented)))
 
 (defendpoint (post "/users/me/play-with/:toot-name" "application/json")
-    "Begin playing with the Toot named TOOT-NAME.
+  "Begin playing with the Toot named TOOT-NAME.
 
 @table  @samp
 @item Toot-Name
 The name of the Toot character to play with.
 @end table
 
-@subsection Status: 200 OK 
+@subsection Status: 200 OK
 
 You are now in control of this Toot. The Toot's info will be returned.
 
@@ -328,19 +328,19 @@ The Toot avatar information as returned by `TOOT-INFO'.
 The player information returned by `PERSON-INFO'.
 @end table
 
-@subsection Status: 401 Authorization Required 
+@subsection Status: 401 Authorization Required
 
 No user credentials were passed.
 
-@subsection Status: 403 Authorization Failed 
+@subsection Status: 403 Authorization Failed
 
 The user credentials presented were not recognized.
 
-@subsection Status: 404 Not Found 
+@subsection Status: 404 Not Found
 
 The Toot named does not exist.
 
-@subsection Status: 405 Not Allowed 
+@subsection Status: 405 Not Allowed
 
 The Toot named is  one that you have permission to use,  but are not the
 main owner of. This is usually a child account."

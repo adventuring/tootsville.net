@@ -3,7 +3,7 @@
 ;;; legacy-commands.lisp is part of Tootsville
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
-;;; Res Interactive  LLC;   Copyright  © 2018-2020, the  Corporation for
+;;; Res  Interactive LLC;  Copyright  © 2018-2020,  the Corporation  for
 ;;; Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;; This program is Free Software: you can redistribute it and/or modify
@@ -31,8 +31,8 @@
 ;;;
 ;;; These options were in existence for Romance 1.1 and/or 1.2. Some are
 ;;; deprecated;   others   are  now   useless   and   report  as   much.
-;;; Removed options will return an HTTP  410 ``Gone'' message over REST or
-;;; the analogous reply over a stream connection.
+;;; Removed options will  return an HTTP 410 ``Gone''  message over REST
+;;; or the analogous reply over a stream connection.
 ;;;
 ;;; TODO a manual section explaining the differences under DEFINFINITY
 ;;;
@@ -149,7 +149,7 @@ if (ev.type == ev.MIDDLE_CLICK) mods += \"2\";
 if (ev.type == ev.RIGHT_CLICK) mods += \"3\";
 if (ev.type == ev.MOUSE_WHEEL)
 { if (ev.delta < 0) mods += \"-\";
-    if (ev.delta > 0) mods += \"+\"; }
+ if (ev.delta > 0) mods += \"+\"; }
 if (Keyboard.numLock) mods += \"N\";
 if (Keyboard.capsLock) mods += \"C\";
 @end verbatim
@@ -223,7 +223,7 @@ In 1.2 adding a room required only an index.
     (ecase (lot-ownership lot)
       (:public (error 'infinity-error :http-status 400 :memo :lot-is-public-property))
                                         ; TODO permission error, 403?
-      (:common  (error 'infinity-error :http-status 400 :memo :lot-is-common-property)) 
+      (:common  (error 'infinity-error :http-status 400 :memo :lot-is-common-property))
                                         ;  TODO permission error, 403?
       (:private
        (cond
@@ -239,12 +239,12 @@ In 1.2 adding a room required only an index.
           (unless (null house)
             (infinity-error 400 :did-you-want-house-or-room))
           (when (or (null index)
-                    (not (numberp index)) 
+                    (not (numberp index))
                     (zerop index)
                     (minusp index)
                     (> index 9))
             (infinity-error 400 :index-not-valid))
-          ;; TODO create room and affix to house 
+          ;; TODO create room and affix to house
           ))))))
 
 (definfinity dofff ((&rest d) user recipient/s)
@@ -256,7 +256,7 @@ This does not  un-equip an item held in the  @code{TRUNK}. This does not
 remove or  alter a Toot's pattern.  For non-Toot avatars, this  does not
 un-equip an item held in the @code{HAND}, @code{LHAND}, or @code{RHAND}.
 
-Sends two  responses: a success  reply from @code{doff}, then  total avatar 
+Sends two  responses: a success  reply from @code{doff}, then  total avatar
 info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
 @subsection 200 OK
@@ -269,7 +269,7 @@ All clothing items have been removed."
   "Don (or equip) an item
 
 JSON  object has  the  item UUID  number to  be  worn (clothes,  pivitz,
-trunk). 
+trunk).
 
 See `WEAR-SLOT-INFO' for  descriptions of how wear  slots are identified
 and described.  Note that  the appropriate wear  slot can  be determined
@@ -278,7 +278,7 @@ wear slots, see `INFINITY-ENUMERATE-WEAR-SLOTS' (new in 2.0).
 
 Response with total avatar info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
-Parameters: jso  - @verb{| {  slot: item-uuid }  |} 
+Parameters: jso  - @verb{| {  slot: item-uuid }  |}
 
 @subsection 200 OK
 
@@ -321,7 +321,7 @@ that item).
   )
 (definfinity echo ((&rest d) user recipient/s)
   "Echoes back the supplied JSON (or ActionScript) object to the client.
- 
+
 This method exists solely for testing purposes.
 
 Sends response containing:
@@ -355,7 +355,7 @@ the user in the case of truncation."
 
 (definfinity end-Event ((moniker event-id score status) user recipient/s)
   "End an event started by `INFINITY-START-EVENT'
- 
+
 This method terminates an event (probably  a fountain, in 2.0) which was
 initiated by startEvent.
 
@@ -367,30 +367,30 @@ per fountain visit. Fountains do not respond with a @code{highScores} array.
 Input parameters are:
 @table @code
 @item moniker
-the event's moniker; 
+the event's moniker;
 @item eventID
-the event ID to be ended; 
+the event ID to be ended;
 @item score
- the earned score, in points (not peanuts); 
+ the earned score, in points (not peanuts);
 @item status
-one of ``@code{cxl}'' to cancel an event 
+one of ``@code{cxl}'' to cancel an event
  (in which case, @code{score} should be 0),
- or ``@code{cmp}'' to complete an event 
-(@code{score} may be zero or more). 
+ or ``@code{cmp}'' to complete an event
+(@code{score} may be zero or more).
 @end table
 
 
 @subsection 200 OK
 
-Response:  JSON sent  to user:  
+Response:  JSON sent  to user:
 
-@verbatim 
+@verbatim
 { ended:  event ID,
-  peanuts: number  of  peanuts earned,
-  highScores: array of  scores, indexed by position on the
-     high score  list (1..24), each  of which  contains: { points:  number of
-     points  scored by  the  high-scoring  user; userName:  the  name of  the
-     user }, 
+ peanuts: number  of  peanuts earned,
+ highScores: array of  scores, indexed by position on the
+ high score  list (1..24), each  of which  contains: { points:  number of
+ points  scored by  the  high-scoring  user; userName:  the  name of  the
+ user },
  totalPeanuts: user's new total peanut balance }
 @end verbatim
 
@@ -412,11 +412,11 @@ Made the @code{status} parameter mandatory.
 
 @subsection Changes from 1.2 to 2.0
 
-In 1.0 - 1.2, the primary use of this was for out-of-world Flash minigames, 
-with the fountains as a secondary usage. In 2.0, this is used for fountains as 
-well as treasure chests (magic boxes, &c). 
+In 1.0 - 1.2, the primary use of this was for out-of-world Flash minigames,
+with the fountains as a secondary usage. In 2.0, this is used for fountains as
+well as treasure chests (magic boxes, &c).
 
-The Flash minigames would report a score, and a server-side table would scale 
+The Flash minigames would report a score, and a server-side table would scale
 that score to an appropriate number of peanuts earned.
 
 Now, the @code{score} and @code{highScores} functionality is ignored and the
@@ -444,7 +444,7 @@ names of Toots."
 (defun from-avatars (Toots-with-keys)
   (list :|avatars| (loop for (key Toot) on Toots-with-keys by #'cddr
                       appending (list key (Toot-info (etypecase Toot
-                                                       
+
                                                        (Toot Toot)
                                                        (string (find-record 'Toot  :name Toot))
                                                        (uuid:uuid (find-record 'Toot :uuid Toot))))))
@@ -514,9 +514,9 @@ to be separately maintained in the client and server both."
 (definfinity get-Inventory ((&rest d) user recipient/s)
   "get all inventory for an user (themself) — both active and inactive
 
-Returns a set of items as 
+Returns a set of items as
 @verbatim
-inv: { 0: { id: 123, isActive: boolean }, ... } 
+inv: { 0: { id: 123, isActive: boolean }, ... }
 @end verbatim
 
 furniture with  placement data  will also  have x,  y, and  facing vars.
@@ -558,7 +558,7 @@ Ignored for backward-compatibility
 Ignored in 2.0 but may be revived in 2.1
 @item accessories
 All items which can be equipped in @code{TRUNK} slot, or @code{HAND},
- @code{LHAND} or @code{RHAND} (for non-Toot characters). 
+ @code{LHAND} or @code{RHAND} (for non-Toot characters).
 @end table
 
 In  addition,   @code{type}  can  be   a  string  containing   the  word
@@ -571,7 +571,7 @@ FIXME — the following documentation has lies in it.
 
 Parameters:
 
-jso    -       type:    TYPE-STRING     — 
+jso    -       type:    TYPE-STRING     —
 JSON object has the type of item from the strings in the config file.
 
 OR, you can specify  an item type by passing # plus its  ID, or a string
@@ -581,10 +581,10 @@ pass \"#2:3\"
 OR, you  can specify  a list  of item  type strings  using '$'  plus the
 string identifiers divided by ':', e.g. \"$Pants:Shirts\"
 
-Returns a  set of items  as 
+Returns a  set of items  as
 @verbatim
 inv:  { 0: {  id: 123, isActive:  boolean },
-                ... } 
+ ... }
 @end verbatim
 — furniture with placement data  will also have x, y, and facing
 vars. Other attributes are \"from\":\"inventory\", \"type\": matching the type
@@ -594,12 +594,12 @@ You can also supply withActive: false to screen out active items.
 Return data
 
 @verbatim
-  { from: inventory, for: USER-LOGIN, type: TYPE-STRING,
-    inv: {
-     #: { ITEM-INFO },
-      #: { ITEM-INFO } …
-    }
-  }
+ { from: inventory, for: USER-LOGIN, type: TYPE-STRING,
+ inv: {
+ #: { ITEM-INFO },
+ #: { ITEM-INFO } …
+ }
+ }
 @end verbatim
 
 TODO see Java getInventoryByType(JSONObject, AbstractUser, AbstractUser,
@@ -613,7 +613,7 @@ u - The user whose inventory to be searched, who is the caller of this routine
   )
 (definfinity get-Online-Users ((in-room) user recipient/s)
   "Get a list of users in a Zone, or in a Room.
- 
+
 This is an administrative function, only available to staff members.
 
 Parameters:
@@ -624,10 +624,10 @@ in that room. Otherwise, all users in the Zone will be returned.
 
 u - The caller's ID. Must have staff privileges.
 
-room - The room from which the caller is making the extension call: ignored. 
+room - The room from which the caller is making the extension call: ignored.
 Throws:
 
-org.json.JSONException - if the JSON data can't be processed, in or out. 
+org.json.JSONException - if the JSON data can't be processed, in or out.
 
 PrivilegeRequiredException    -    if     the    user    doesn't    have
 STAFF_LEVEL_STAFF_MEMBER
@@ -671,7 +671,7 @@ The Pink Moon
 
 (definfinity getServerTime (nil user recipient/s)
   "Send the server time to the client requesting it
- 
+
 For synchronization purposes.
 
 Sends a JSON object with a property, @code{serverTime}, with the current
@@ -720,8 +720,8 @@ If any item ID cannot be found, the entire query fails with a 404."
         (append (list :|from| "getStoreItemInfo"
                       :|status| t)
                 (loop for (key id) on jso by #'cddr
-                   appending (list key 
-                                   (store-info 
+                   appending (list key
+                                   (store-info
                                     (find-record 'store-item
                                                  :id (parse-integer id))))))))
 
@@ -762,7 +762,7 @@ Returns the wallet info."
   (list 200 (wallet-info *Toot*)))
 
 (definfinity get-Zone-List (nil user recipient/s)
-  "Get a list of all Zones currently active/visible. 
+  "Get a list of all Zones currently active/visible.
 
 This returns \"Universe\" as the only Zone.
 
@@ -814,11 +814,11 @@ receive items.
 @verbatim
 
 { do: VERB (required)
-  x: DEST, y: DEST, z: DEST (each optional, but if one is given, all 3 must be)
+ x: DEST, y: DEST, z: DEST (each optional, but if one is given, all 3 must be)
 facing: FACING (optional)
 }
 @end verbatim
-                                
+
 u - the user doing something
 
 @subsection Changes from 1.2 to 2.0
@@ -829,7 +829,7 @@ u - the user doing something
   "Create a user's private room (in their house).
 
 
- 
+
 Creates room  named user/user's  name/room — room  is the  room index
 number given in the JSON data as  ``room,'' it will always be zero right
 now  as  all users  have  single-room  houses.  This will  populate  all
@@ -837,7 +837,7 @@ furniture-type items for that room onto a set of room variables owned by
 the user. The  user calling this method  must be the owner  of the room.
 If the  user has not visited  his/her house before, this  will return an
 asynchronous \"make a  new house\" notification to do  the \"first run\"
-screen,  by sending  a  message of  type  
+screen,  by sending  a  message of  type
 
 @verbatim
 { \"from\":  \"initUserRoom\",
@@ -853,7 +853,7 @@ already existing
 @verbatim
 jso - { room: (room-number), autoJoin: (boolean) }
 @end verbatim
-                                
+
 u - The user whose house-room needs to be initialized
 
 @subsection 410 Gone
@@ -863,41 +863,41 @@ Removed in 2.0.
 User rooms are no longer needed nor supported.")
 
 (definfinity join ((room from) user recipient/s)
-  "Join a room.  
+  "Join a room.
 
 On success, sends back the set  of room join events;
-     but on failure, replies with  @{ from: roomJoin, status: false, err:
-     ...@}
+ but on failure, replies with  @{ from: roomJoin, status: false, err:
+ ...@}
 
-  NOTE the inconsistency: the command is  join, but the reply comes from
-  roomJoin
+ NOTE the inconsistency: the command is  join, but the reply comes from
+ roomJoin
 
 zone.notFound
-  The user is not in a Zone
-  
-room.noMoniker
-  No room moniker was given to be joined
-  
-room.notFound
-  The room moniker does not refer to an actual room in this Zone
-  
-room.full
-  The room is too full (too many users)
+ The user is not in a Zone
 
-  Parameters:
-  jso -  @{ room: MONIKER @} or @{ room: MONIKER, from: MONIKER @}
-  
+room.noMoniker
+ No room moniker was given to be joined
+
+room.notFound
+ The room moniker does not refer to an actual room in this Zone
+
+room.full
+ The room is too full (too many users)
+
+ Parameters:
+ jso -  @{ room: MONIKER @} or @{ room: MONIKER, from: MONIKER @}
+
 u - the user joining the room
 
 @subsection 410 Gone
 
-Removed in 2.0.") 
+Removed in 2.0.")
 
 (definfinity login ((userName password zone) user recipient/s)
   "Notification of a new player in the game.
 
-    Parameters:
-        jso - @{ userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE @}
+ Parameters:
+ jso - @{ userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE @}
 
 Response: logOK or @{ err: login.fail, msg: reason @}"
   )
@@ -914,14 +914,14 @@ of wasted wait time after it, which had ought to be enough time. This is
 no longer supported."
   )
 
-(definfinity mail-customer-service ((&rest d) user recipient/s) 
+(definfinity mail-customer-service ((&rest d) user recipient/s)
   "  send an eMail to customer service (feedback)
 
-  Parameters:
-  jso - @{ subject: STRING, body: STRING @}
-  u - the user sending the feedback
+ Parameters:
+ jso - @{ subject: STRING, body: STRING @}
+ u - the user sending the feedback
 
-  ")
+ ")
 
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Handle looking at other user's inventories
@@ -931,19 +931,19 @@ the  inventory   @};  optional   \"type\":  to   filter  by   type.  (see
 getInventoryByType(JSONObject,  AbstractUser,  AbstractUser,  Room)  for
 details)
 
-u  - The  user requesting  the inventory 
+u  - The  user requesting  the inventory
 
 room  - The  room in
-  which the  request occurs 
- 
+ which the  request occurs
+
 Throws: org.json.JSONException -  Thrown if
-  the data  cannot be interpreted  from the  JSON objects passed  in, or
-  conversely,  if  we   can't  encode  a  response  into   a  JSON  form
-  
+ the data  cannot be interpreted  from the  JSON objects passed  in, or
+ conversely,  if  we   can't  encode  a  response  into   a  JSON  form
+
 NotFoundException - Could not find a user with that name")
 
 (definfinity ping (nil user recipient/s)
-  "Send a ping to the server to get back a pong. 
+  "Send a ping to the server to get back a pong.
 
 This also updates the user's last-active timestamp.
 
@@ -971,175 +971,175 @@ The server's time as a Unix-epoch timestamp in milliseconds.
 
 (definfinity prompt-reply ((id reply) user recipient/s)
   "promptReply(org.json.JSONObject jso,
-                                   AbstractUser u,
-                                   Room room)
-  throws org.json.JSONException
+ AbstractUser u,
+ Room room)
+ throws org.json.JSONException
 
-  Server initiates prompt with:
+ Server initiates prompt with:
 
 @verbatim
 
-  { \"from\" : \"prompt\",
-    \"id\" : $ID,
-    \"label\" : $LABEL, 
-    \"label_en_US\" : $LABEL,
-    \"title\" : $TITLE,
-    [ \"attachUser\" : $AVATAR_LABEL || \"attachItem\" : $ITEM_ID ] ,
-    \"msg\" : $TEXT,
-    \"replies\" :
-    {  $TOKEN :
-        { \"label\" : $BUTTON_LABEL,
-          \"label_en_US\" : $BUTTON_LABEL,
-          \"type\" : $BUTTON_TYPE },
-        [ … ]
-        }
-  }
-  
+ { \"from\" : \"prompt\",
+ \"id\" : $ID,
+ \"label\" : $LABEL,
+ \"label_en_US\" : $LABEL,
+ \"title\" : $TITLE,
+ [ \"attachUser\" : $AVATAR_LABEL || \"attachItem\" : $ITEM_ID ] ,
+ \"msg\" : $TEXT,
+ \"replies\" :
+ {  $TOKEN :
+ { \"label\" : $BUTTON_LABEL,
+ \"label_en_US\" : $BUTTON_LABEL,
+ \"type\" : $BUTTON_TYPE },
+ [ … ]
+ }
+ }
+
 @end verbatim
 
-  Where:
+ Where:
 
-  $ID = arbitrary string with no \0 representing this question uniquely.
-  This is not an user-visible string.
+ $ID = arbitrary string with no \0 representing this question uniquely.
+ This is not an user-visible string.
 
-  $LABEL  =  concatenated to  the  window  title,  but  can be  used  to
-  special-case / theme dialogs in future for certain purposes
+ $LABEL  =  concatenated to  the  window  title,  but  can be  used  to
+ special-case / theme dialogs in future for certain purposes
 
-  $TITLE = dialog title
+ $TITLE = dialog title
 
-  Only one of either  ``attachUser'' or ``attachItem'' will be
-  included. $AVATAR_LABEL is the full avatar label of the user/avatar to
-  which  the prompt  should  be attached  —  including ``$''  and
-  instance ID, if necessary — where $ITEM_ID is the room variable item
-  ID for a placed item in the room.
+ Only one of either  ``attachUser'' or ``attachItem'' will be
+ included. $AVATAR_LABEL is the full avatar label of the user/avatar to
+ which  the prompt  should  be attached  —  including ``$''  and
+ instance ID, if necessary — where $ITEM_ID is the room variable item
+ ID for a placed item in the room.
 
-  $TEXT = message text, may have  \n, will often need word-wrapping, and
-  ideally might make use of scroll bars
+ $TEXT = message text, may have  \n, will often need word-wrapping, and
+ ideally might make use of scroll bars
 
-  The \"replies\"  assoc-array is of  arbitrary length â‰¥ 2,  where the
-  key to each item is a $TOKEN,  again an arbitrary string without \0 to
-  represent this response uniquely. This is not an user-visible string.
+ The \"replies\"  assoc-array is of  arbitrary length â‰¥ 2,  where the
+ key to each item is a $TOKEN,  again an arbitrary string without \0 to
+ represent this response uniquely. This is not an user-visible string.
 
-  $BUTTON_LABEL = the text to display. In future, the client may want to
-  special-case specific text  to use icons or something:  e.g. \"OK\" will
-  always be sent as precisely \"OK\" in English locale.
+ $BUTTON_LABEL = the text to display. In future, the client may want to
+ special-case specific text  to use icons or something:  e.g. \"OK\" will
+ always be sent as precisely \"OK\" in English locale.
 
-  $BUTTON_TYPE  = the  type of  the  button for  theming purposes  only.
-  This is from the enumerated set [ \"aff\" | \"neg\" | \"neu\" ];
+ $BUTTON_TYPE  = the  type of  the  button for  theming purposes  only.
+ This is from the enumerated set [ \"aff\" | \"neg\" | \"neu\" ];
 
-  aff = affirmative button, e.g. green button
+ aff = affirmative button, e.g. green button
 
-  neg = negative button, e.g. red button
+ neg = negative button, e.g. red button
 
-  neu = neutral button, e.g. purple button
+ neu = neutral button, e.g. purple button
 
-  To  simplify future  i18n/l10n efforts,  the $LABEL  and $BUTTON_LABEL
-  will always be sent twice. The user's current language version will be
-  in  the \"label\"  properties. The  versions of  those strings  in the
-  \"en_US\"  locale will  always be  in the  \"label_en_US\" properties.
-  For purposes of theming and such, the label_en_US properties should be
-  considered; the  \"label\" properties, however, should  always be used
-  in presentation to the end-user.
+ To  simplify future  i18n/l10n efforts,  the $LABEL  and $BUTTON_LABEL
+ will always be sent twice. The user's current language version will be
+ in  the \"label\"  properties. The  versions of  those strings  in the
+ \"en_US\"  locale will  always be  in the  \"label_en_US\" properties.
+ For purposes of theming and such, the label_en_US properties should be
+ considered; the  \"label\" properties, however, should  always be used
+ in presentation to the end-user.
 
-  Example:
+ Example:
 @verbatim
 
-  { \"from\": \"prompt\", \"status\": \"true\",
-  \"id\": \"fountain/tootSquare/Ã¾=?/x'deadbeef'\",
-  \"label\": \"Fountain\", \"label_en_US\": \"Fountain\",
-  \"title\": \"Make a Wish?\", \"msg\": \"Do you want to make a wish on the Toot Square fountain?\",
-  \"replies\":
-  { \"yes\": { \"label\": \"Make a Wish!\", \"label_en_US\": \"Make a Wish!\", \"type\": \"aff\" },
-  \"no\": { \"label\": \"Not now\", \"label_en_US\": \"Not now\", \"type\": \"neg\" }
-  }
-  }
-  
-@end verbatim 
+ { \"from\": \"prompt\", \"status\": \"true\",
+ \"id\": \"fountain/tootSquare/Ã¾=?/x'deadbeef'\",
+ \"label\": \"Fountain\", \"label_en_US\": \"Fountain\",
+ \"title\": \"Make a Wish?\", \"msg\": \"Do you want to make a wish on the Toot Square fountain?\",
+ \"replies\":
+ { \"yes\": { \"label\": \"Make a Wish!\", \"label_en_US\": \"Make a Wish!\", \"type\": \"aff\" },
+ \"no\": { \"label\": \"Not now\", \"label_en_US\": \"Not now\", \"type\": \"neg\" }
+ }
+ }
 
-  The client's response is a bit simpler:
-@verbatim
-  { \"c\": \"promptReply\", \"d\": { \"id\": $ID, \"reply\": $TOKEN } } 
 @end verbatim
 
-  e.g.
+ The client's response is a bit simpler:
+@verbatim
+ { \"c\": \"promptReply\", \"d\": { \"id\": $ID, \"reply\": $TOKEN } }
+@end verbatim
+
+ e.g.
 
 @verbatim
-  { \"c\":\"promptReply\", \"d\": { \"id\":  \"fountain/tootSquare/Ã¾=?/x'deadbeef'\", \"reply\": \"yes\" } }
+ { \"c\":\"promptReply\", \"d\": { \"id\":  \"fountain/tootSquare/Ã¾=?/x'deadbeef'\", \"reply\": \"yes\" } }
 @end verbatim
-  
 
-  As a special-case, for the reply only, the special $TOKEN of \"close\"
-  should  be  sent  if  the  user dismissed  the  dialog  box  with  the
-  close button.
 
-  I'd suggest  that the  GUI attach anonymous  functions with  the reply
-  packets  already constructed  to the  various dialog  box controls  at
-  creation  time,   rather  than   trying  to   manage  some   queue  of
-  pending prompts.
+ As a special-case, for the reply only, the special $TOKEN of \"close\"
+ should  be  sent  if  the  user dismissed  the  dialog  box  with  the
+ close button.
 
-  To handle user expectations, it would be best to display the button in
-  a \"down\" state  until receiving the server's  acknowledgement of the
-  \"promptReply\" and disallow multiple-clicking in the window.
+ I'd suggest  that the  GUI attach anonymous  functions with  the reply
+ packets  already constructed  to the  various dialog  box controls  at
+ creation  time,   rather  than   trying  to   manage  some   queue  of
+ pending prompts.
 
-  The server will respond with
+ To handle user expectations, it would be best to display the button in
+ a \"down\" state  until receiving the server's  acknowledgement of the
+ \"promptReply\" and disallow multiple-clicking in the window.
+
+ The server will respond with
 
 @verbatim
-  { \"from\": \"promptReply\", \"status\": \"true\", \"id\": $ID }
+ { \"from\": \"promptReply\", \"status\": \"true\", \"id\": $ID }
 @end verbatim
-  
 
-  For debugging purposes, the server may reply with
+
+ For debugging purposes, the server may reply with
 
 @verbatim
-  { \"from\": \"promptReply\", \"status\": \"false\", \"err\": $ERR }
+ { \"from\": \"promptReply\", \"status\": \"false\", \"err\": $ERR }
 @end verbatim
-  
 
-  Where $ERR  will be a  brief description of  the problem. e.g.  $ERR =
-  \"reply.notFound\" might represent a reply button that was not a valid
-  $TOKEN from  the \"prompt\"  command nor  the special  case \"close\".
-  $ERR =  \"id.notFound\" might represent a  reply to a prompt  that was
-  not (recently) asked.
 
-  A prompt  ID is not valid  across sessions; pending prompts  should be
-  auto-closed   on  logout.   Prompts   can,   however,  remain   active
-  indefinitely, even across room joins.
+ Where $ERR  will be a  brief description of  the problem. e.g.  $ERR =
+ \"reply.notFound\" might represent a reply button that was not a valid
+ $TOKEN from  the \"prompt\"  command nor  the special  case \"close\".
+ $ERR =  \"id.notFound\" might represent a  reply to a prompt  that was
+ not (recently) asked.
 
-  Optional implementation:  the server may cancel  an outstanding prompt
-  request by sending a packet with the following properties:
+ A prompt  ID is not valid  across sessions; pending prompts  should be
+ auto-closed   on  logout.   Prompts   can,   however,  remain   active
+ indefinitely, even across room joins.
 
-  from: prompt
-  status: true
-  cancel: $ID
+ Optional implementation:  the server may cancel  an outstanding prompt
+ request by sending a packet with the following properties:
 
-  Client  applications may  choose to  dismiss the  prompt automatically
-  upon  receiving such  a packet.  Failure  to do  so is  not an  error,
-  however, later  attempting to reply  to a canceled prompt  will return
-  status:  false, err:  id.notFound. Clients  must accept  a cancelation
-  packet silently if they do not process it.
+ from: prompt
+ status: true
+ cancel: $ID
 
-  Parameters:
-  jso - in the form @{ id: $ID, reply: $TOKEN @}, as detailed above
+ Client  applications may  choose to  dismiss the  prompt automatically
+ upon  receiving such  a packet.  Failure  to do  so is  not an  error,
+ however, later  attempting to reply  to a canceled prompt  will return
+ status:  false, err:  id.notFound. Clients  must accept  a cancelation
+ packet silently if they do not process it.
 
-  u - the user replying to a prompt
-  
-room - the room in which the user is standing (unimportant) 
-  
+ Parameters:
+ jso - in the form @{ id: $ID, reply: $TOKEN @}, as detailed above
+
+ u - the user replying to a prompt
+
+room - the room in which the user is standing (unimportant)
+
 Throws:
-  org.json.JSONException - for really bad syntax errors")
+ org.json.JSONException - for really bad syntax errors")
 
 (definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
-  jso - To remove a buddy: @{ buddy: (name) @};
- 
+ jso - To remove a buddy: @{ buddy: (name) @};
+
 or to attend to someone who had previously been ignored: @{ ignore: (name) @}
 
-  u - The user whose buddy list or ignore list will be updated
-  ")
+ u - The user whose buddy list or ignore list will be updated
+ ")
 
 (definfinity report-bug ((info) user recipient/s)
-  "This method allows the client to ``phone home'' to report a bug. 
+  "This method allows the client to ``phone home'' to report a bug.
 
 The bug  report itself is  just a giant  string embedded in  the ``bug''
 element,  but  a ``cause''  element  will  be  treated as  the  subject.
@@ -1149,224 +1149,224 @@ a certain limit (typically 4KiB), so  it's most helpful to keep it short
 backtrace (with as much detail as  possible), rather than a complete log
 trace or something.
 
-  The suggested usage  is to include the exception  itself as ``cause,''
-  the backtrace up to a maximum of  1KiB, a log backtrace up to its last
-  1KiB as ``bug,''  and as much machine-formatted  system information as
-  possible in the ``info'' object. Fields of ``info''
+ The suggested usage  is to include the exception  itself as ``cause,''
+ the backtrace up to a maximum of  1KiB, a log backtrace up to its last
+ 1KiB as ``bug,''  and as much machine-formatted  system information as
+ possible in the ``info'' object. Fields of ``info''
 
-  As many fields as possible, limit the contents to a reasonable length though…
+ As many fields as possible, limit the contents to a reasonable length though…
 
-  Note that the keys listed are strings, so e.g.:
-
-@verbatim
-  info [\"navigator.language\"] = navigator.language;
-  info [\"navigator.product\"] = navigator.product; 
-@end verbatim
-
-  ActionScript example:
+ Note that the keys listed are strings, so e.g.:
 
 @verbatim
-  var info:Object = {
-  \"flash.sys.ime\": flash.system.System.ime,
-  \"flash.sys.totalMemory\": flash.system.System.totalMemory,
-  \"flash.sys.useCodePage\": flash.system.System.useCodePage
-  };
-  // imperfect but close
-  for ( var key in flash.system.Capabilities ) {
-  info[\"flash.sysCap.\" + key] = flash.system.Capabilities[key];
-  }
+ info [\"navigator.language\"] = navigator.language;
+ info [\"navigator.product\"] = navigator.product;
 @end verbatim
-  
+
+ ActionScript example:
+
+@verbatim
+ var info:Object = {
+ \"flash.sys.ime\": flash.system.System.ime,
+ \"flash.sys.totalMemory\": flash.system.System.totalMemory,
+ \"flash.sys.useCodePage\": flash.system.System.useCodePage
+ };
+ // imperfect but close
+ for ( var key in flash.system.Capabilities ) {
+ info[\"flash.sysCap.\" + key] = flash.system.Capabilities[key];
+ }
+@end verbatim
+
 @table @samp
 
 @item navigator.language
-  JavaScript: navigator.language
-  @item navigator.product
-  JavaScript: navigator.product
-  @item navigator.appVersion
-  JavaScript: navigator.appVersion
-  @item navigator.platform
-  JavaScript: navigator.platform
-  @item navigator.vendor
-  JavaScript: navigator.vendor
-  @item navigator.appCodeName
-  JavaScript: navigator.appCodeName
-  @item navigator.cookieEnabled
-  JavaScript: navigator.cookieEnabled
-  @item navigator.appName
-  JavaScript: navigator.appName
-  @item navigator.productSub
-  JavaScript: navigator.productSub
-  @item navigator.userAgent
-  JavaScript: navigator.userAgent
-  @item navigator.vendorSub
-  JavaScript: navigator.vendorSub
-  @item screen.height
-  JavaScript: screen.height; ActionScript: flash.system.Capabilities.screenResolutionX
-  @item screen.width
-  JavaScript: screen.width; ActionScript: flash.system.Capabilities.screenResolutionY
-  @item screen.availHeight
-  JavaScript: screen.availHeight; ActionScript: flash.display.Stage.fullScreenHeight
-  @item screen.availWidth
-  JavaScript: screen.availWidth; ActionScript: flash.display.Stage.fullScreenWidth
-  @item window.outerHeight
-  JavaScript: window.outerheight note case
-  @item window.outerWidth
-  JavaScript: window.outerwidth note case
-  @item window.innerHeight
-  JavaScript: window.innerheight note case
-  @item window.innerWidth
-  JavaScript: window.innerwidth note case
-  @item window.windowName
-  JavaScript: the window.name property of the highest parent of this window (frame); e.g.
+ JavaScript: navigator.language
+ @item navigator.product
+ JavaScript: navigator.product
+ @item navigator.appVersion
+ JavaScript: navigator.appVersion
+ @item navigator.platform
+ JavaScript: navigator.platform
+ @item navigator.vendor
+ JavaScript: navigator.vendor
+ @item navigator.appCodeName
+ JavaScript: navigator.appCodeName
+ @item navigator.cookieEnabled
+ JavaScript: navigator.cookieEnabled
+ @item navigator.appName
+ JavaScript: navigator.appName
+ @item navigator.productSub
+ JavaScript: navigator.productSub
+ @item navigator.userAgent
+ JavaScript: navigator.userAgent
+ @item navigator.vendorSub
+ JavaScript: navigator.vendorSub
+ @item screen.height
+ JavaScript: screen.height; ActionScript: flash.system.Capabilities.screenResolutionX
+ @item screen.width
+ JavaScript: screen.width; ActionScript: flash.system.Capabilities.screenResolutionY
+ @item screen.availHeight
+ JavaScript: screen.availHeight; ActionScript: flash.display.Stage.fullScreenHeight
+ @item screen.availWidth
+ JavaScript: screen.availWidth; ActionScript: flash.display.Stage.fullScreenWidth
+ @item window.outerHeight
+ JavaScript: window.outerheight note case
+ @item window.outerWidth
+ JavaScript: window.outerwidth note case
+ @item window.innerHeight
+ JavaScript: window.innerheight note case
+ @item window.innerWidth
+ JavaScript: window.innerwidth note case
+ @item window.windowName
+ JavaScript: the window.name property of the highest parent of this window (frame); e.g.
 @verbatim
-  var topWindow = window.parent;
-  for (; topWindow.parent != topWindow; topWindow = topWindow.parent)
-                                        ;
-       info [\"window.windowName\"] = topWindow.name;
+ var topWindow = window.parent;
+ for (; topWindow.parent != topWindow; topWindow = topWindow.parent)
+ ;
+ info [\"window.windowName\"] = topWindow.name;
 @end verbatim
 
-       @item flash.sys.totalMemory
-       ActionScript: flash.system.System.totalMemory
-       @item flash.sys.ime
-       ActionScript: flash.system.System.ime
-       @item flash.sys.useCodePage
-       ActionScript: flash.system.System.useCodePage
-       @item flash.sysCap.avHardwareDisable
-       ActionScript: flash.system.Capabilities.avHardwareDisable
-       @item flash.sysCap.hasAccessibility
-       ActionScript: flash.system.Capabilities.hasAccessibility
-       @item flash.sysCap.hasAudio
-       ActionScript: flash.system.Capabilities.hasAudio
-       @item flash.sysCap.hasAudioEncoder
-       ActionScript: flash.system.Capabilities.hasAudioEncoder
-       @item flash.sysCap.hasEmbeddedVideo
-       ActionScript: flash.system.Capabilities.hasEmbeddedVideo
-       @item flash.sysCap.hasIME
-       ActionScript: flash.system.Capabilities.hasIME
-       @item flash.sysCap.hasMP3
-       ActionScript: flash.system.Capabilities.hasMP3
-       @item flash.sysCap.hasPrinting
-       ActionScript: flash.system.Capabilities.hasPrinting
-       @item flash.sysCap.hasScreenBroadcast
-       ActionScript: flash.system.Capabilities.hasScreenBroadcast
-       @item flash.sysCap.hasScreenPlayback
-       ActionScript: flash.system.Capabilities.hasScreenPlayback
-       @item flash.sysCap.hasStreamingAudio
-       ActionScript: flash.system.Capabilities.hasStreamingAudio
-       @item flash.sysCap.hasStreamingVideo
-       ActionScript: flash.system.Capabilities.hasStreamingVideo
-       @item flash.sysCap.hasTLS
-       ActionScript: flash.system.Capabilities.hasTLS
-       @item flash.sysCap.hasVideoEncoder
-       ActionScript: flash.system.Capabilities.hasVideoEncoder
-       @item flash.sysCap.isDebugger
-       ActionScript: flash.system.Capabilities.isDebugger
-       @item flash.sysCap.isEmbeddedInAcrobat
-       ActionScript: flash.system.Capabilities.isEmbeddedInAcrobat
-       @item flash.sysCap.language
-       ActionScript: flash.system.Capabilities.language
-       @item flash.sysCap.localFileReadDisable
-       ActionScript: flash.system.Capabilities.localFileReadDisable
-       @item flash.sysCap.manufacturer
-       ActionScript: flash.system.Capabilities.manufacturer
-       @item flash.sysCap.os
-       ActionScript: flash.system.Capabilities.os
-       @item flash.sysCap.pixelAspectRatio
-       ActionScript: flash.system.Capabilities.pixelAspectRatio
-       @item flash.sysCap.playerType
-       ActionScript: flash.system.Capabilities.playerType
-       @item flash.sysCap.screenColor
-       ActionScript: flash.system.Capabilities.screenColor
-       @item flash.sysCap.screenDPI
-       ActionScript: flash.system.Capabilities.screenDPI
-       @item flash.sysCap.version
-       ActionScript: flash.system.Capabilities.version
-       @item flash.displayState
-       ActionScript: if flash.display.Stage.displayState == FULL_SCREEN_INTERACTIVE, then \"fullScreen\"; for NORMAL, return \"window\".
-       @item flash.frameRate
-       ActionScript: flash.display.Stage.frameRate
-       @item flash.quality
-       ActionScript: flash.display.Stage.quality
-       @item flash.scaleMode
-       ActionScript: flash.display.Stage.scaleMode
+ @item flash.sys.totalMemory
+ ActionScript: flash.system.System.totalMemory
+ @item flash.sys.ime
+ ActionScript: flash.system.System.ime
+ @item flash.sys.useCodePage
+ ActionScript: flash.system.System.useCodePage
+ @item flash.sysCap.avHardwareDisable
+ ActionScript: flash.system.Capabilities.avHardwareDisable
+ @item flash.sysCap.hasAccessibility
+ ActionScript: flash.system.Capabilities.hasAccessibility
+ @item flash.sysCap.hasAudio
+ ActionScript: flash.system.Capabilities.hasAudio
+ @item flash.sysCap.hasAudioEncoder
+ ActionScript: flash.system.Capabilities.hasAudioEncoder
+ @item flash.sysCap.hasEmbeddedVideo
+ ActionScript: flash.system.Capabilities.hasEmbeddedVideo
+ @item flash.sysCap.hasIME
+ ActionScript: flash.system.Capabilities.hasIME
+ @item flash.sysCap.hasMP3
+ ActionScript: flash.system.Capabilities.hasMP3
+ @item flash.sysCap.hasPrinting
+ ActionScript: flash.system.Capabilities.hasPrinting
+ @item flash.sysCap.hasScreenBroadcast
+ ActionScript: flash.system.Capabilities.hasScreenBroadcast
+ @item flash.sysCap.hasScreenPlayback
+ ActionScript: flash.system.Capabilities.hasScreenPlayback
+ @item flash.sysCap.hasStreamingAudio
+ ActionScript: flash.system.Capabilities.hasStreamingAudio
+ @item flash.sysCap.hasStreamingVideo
+ ActionScript: flash.system.Capabilities.hasStreamingVideo
+ @item flash.sysCap.hasTLS
+ ActionScript: flash.system.Capabilities.hasTLS
+ @item flash.sysCap.hasVideoEncoder
+ ActionScript: flash.system.Capabilities.hasVideoEncoder
+ @item flash.sysCap.isDebugger
+ ActionScript: flash.system.Capabilities.isDebugger
+ @item flash.sysCap.isEmbeddedInAcrobat
+ ActionScript: flash.system.Capabilities.isEmbeddedInAcrobat
+ @item flash.sysCap.language
+ ActionScript: flash.system.Capabilities.language
+ @item flash.sysCap.localFileReadDisable
+ ActionScript: flash.system.Capabilities.localFileReadDisable
+ @item flash.sysCap.manufacturer
+ ActionScript: flash.system.Capabilities.manufacturer
+ @item flash.sysCap.os
+ ActionScript: flash.system.Capabilities.os
+ @item flash.sysCap.pixelAspectRatio
+ ActionScript: flash.system.Capabilities.pixelAspectRatio
+ @item flash.sysCap.playerType
+ ActionScript: flash.system.Capabilities.playerType
+ @item flash.sysCap.screenColor
+ ActionScript: flash.system.Capabilities.screenColor
+ @item flash.sysCap.screenDPI
+ ActionScript: flash.system.Capabilities.screenDPI
+ @item flash.sysCap.version
+ ActionScript: flash.system.Capabilities.version
+ @item flash.displayState
+ ActionScript: if flash.display.Stage.displayState == FULL_SCREEN_INTERACTIVE, then \"fullScreen\"; for NORMAL, return \"window\".
+ @item flash.frameRate
+ ActionScript: flash.display.Stage.frameRate
+ @item flash.quality
+ ActionScript: flash.display.Stage.quality
+ @item flash.scaleMode
+ ActionScript: flash.display.Stage.scaleMode
 @end table
 
 @verbatim
 
-       // ActionScript example
-       function systemReport:Object () {
-       return {
-       \"screen\": {
-       \"height\": flash.system.Capabilities.screenResolutionX,
-       \"width\": flash.system.Capabilities.screenResolutionY,
-       \"availHeight\": flash.display.Stage.fullScreenHeight,
-       \"availWidth\": flash.display.Stage.fullScreenWidth,
-       },
-       \"flash\": {
-       \"sys\": {
-       \"totalMemory\": flash.system.System.totalMemory,
-       \"ime\": flash.system.System.ime,
-       \"useCodePage\": flash.system.System.useCodePage,
-       },
-       \"sysCap\": {
-       \"avHardwareDisable\": flash.system.Capabilities.avHardwareDisable,
-       \"hasAccessibility\": flash.system.Capabilities.hasAccessibility,
-       \"hasAudio\": flash.system.Capabilities.hasAudio,
-       \"hasAudioEncoder\": flash.system.Capabilities.hasAudioEncoder,
-       \"hasEmbeddedVideo\": flash.system.Capabilities.hasEmbeddedVideo,
-       \"hasIME\": flash.system.Capabilities.hasIME,
-       \"hasMP3\": flash.system.Capabilities.hasMP3,
-       \"hasPrinting\": flash.system.Capabilities.hasPrinting,
-       \"hasScreenBroadcast\": flash.system.Capabilities.hasScreenBroadcast,
-       \"hasScreenPlayback\": flash.system.Capabilities.hasScreenPlayback,
-       \"hasStreamingAudio\": flash.system.Capabilities.hasStreamingAudio,
-       \"hasStreamingVideo\": flash.system.Capabilities.hasStreamingVideo,
-       \"hasTLS\": flash.system.Capabilities.hasTLS,
-       \"hasVideoEncoder\": flash.system.Capabilities.hasVideoEncoder,
-       \"isDebugger\": flash.system.Capabilities.isDebugger,
-       \"isEmbeddedInAcrobat\": flash.system.Capabilities.isEmbeddedInAcrobat,
-       \"language\": flash.system.Capabilities.language,
-       \"localFileReadDisable\": flash.system.Capabilities.localFileReadDisable,
-       \"manufacturer\": flash.system.Capabilities.manufacturer,
-       \"os\": flash.system.Capabilities.os,
-       \"pixelAspectRatio\": flash.system.Capabilities.pixelAspectRatio,
-       \"playerType\": flash.system.Capabilities.playerType,
-       \"screenColor\": flash.system.Capabilities.screenColor,
-       \"screenDPI\": flash.system.Capabilities.screenDPI,
-       \"version\": flash.system.Capabilities.version
-       },
-       \"displayState\": ( flash.display.Stage.displayState == FULL_SCREEN_INTERACTIVE ? \"fullScreen\" : \"window\" ),
-       \"frameRate\": flash.display.Stage.frameRate,
-       \"quality\": flash.display.Stage.quality,
-       \"scaleMode\": flash.display.Stage.scaleMode
-       }
-       };
-       }
+ // ActionScript example
+ function systemReport:Object () {
+ return {
+ \"screen\": {
+ \"height\": flash.system.Capabilities.screenResolutionX,
+ \"width\": flash.system.Capabilities.screenResolutionY,
+ \"availHeight\": flash.display.Stage.fullScreenHeight,
+ \"availWidth\": flash.display.Stage.fullScreenWidth,
+ },
+ \"flash\": {
+ \"sys\": {
+ \"totalMemory\": flash.system.System.totalMemory,
+ \"ime\": flash.system.System.ime,
+ \"useCodePage\": flash.system.System.useCodePage,
+ },
+ \"sysCap\": {
+ \"avHardwareDisable\": flash.system.Capabilities.avHardwareDisable,
+ \"hasAccessibility\": flash.system.Capabilities.hasAccessibility,
+ \"hasAudio\": flash.system.Capabilities.hasAudio,
+ \"hasAudioEncoder\": flash.system.Capabilities.hasAudioEncoder,
+ \"hasEmbeddedVideo\": flash.system.Capabilities.hasEmbeddedVideo,
+ \"hasIME\": flash.system.Capabilities.hasIME,
+ \"hasMP3\": flash.system.Capabilities.hasMP3,
+ \"hasPrinting\": flash.system.Capabilities.hasPrinting,
+ \"hasScreenBroadcast\": flash.system.Capabilities.hasScreenBroadcast,
+ \"hasScreenPlayback\": flash.system.Capabilities.hasScreenPlayback,
+ \"hasStreamingAudio\": flash.system.Capabilities.hasStreamingAudio,
+ \"hasStreamingVideo\": flash.system.Capabilities.hasStreamingVideo,
+ \"hasTLS\": flash.system.Capabilities.hasTLS,
+ \"hasVideoEncoder\": flash.system.Capabilities.hasVideoEncoder,
+ \"isDebugger\": flash.system.Capabilities.isDebugger,
+ \"isEmbeddedInAcrobat\": flash.system.Capabilities.isEmbeddedInAcrobat,
+ \"language\": flash.system.Capabilities.language,
+ \"localFileReadDisable\": flash.system.Capabilities.localFileReadDisable,
+ \"manufacturer\": flash.system.Capabilities.manufacturer,
+ \"os\": flash.system.Capabilities.os,
+ \"pixelAspectRatio\": flash.system.Capabilities.pixelAspectRatio,
+ \"playerType\": flash.system.Capabilities.playerType,
+ \"screenColor\": flash.system.Capabilities.screenColor,
+ \"screenDPI\": flash.system.Capabilities.screenDPI,
+ \"version\": flash.system.Capabilities.version
+ },
+ \"displayState\": ( flash.display.Stage.displayState == FULL_SCREEN_INTERACTIVE ? \"fullScreen\" : \"window\" ),
+ \"frameRate\": flash.display.Stage.frameRate,
+ \"quality\": flash.display.Stage.quality,
+ \"scaleMode\": flash.display.Stage.scaleMode
+ }
+ };
+ }
 @end verbatim
-       
+
 jso - Must contain a  single string attribute named ``bug.'' Should
 contain  an  attribute  named   ``info''  with  system  information
 key-value pairs (see  above). May also have a  subject of ``cause''
 as a string.
 
-       u - The user reporting the bug.
-       
-       ")
+ u - The user reporting the bug.
+
+ ")
 
 (definfinity report-user ((user-Name) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
-        @{ userName = user to be reported @}
-       
-       ")
+ @{ userName = user to be reported @}
+
+ ")
 (definfinity request-buddy ((buddy) user recipient/s)
   "Request adding a user to your buddy list (mutual-add) using the notification-based system
 
 (Added in 1.1)
 
-       jso - @{ buddy: LOGIN @}
-       
+ jso - @{ buddy: LOGIN @}
+
 u - user who is requesting the addition
 
 @subsection Changes from 1.0 to 1.1
@@ -1383,63 +1383,63 @@ This is new in Romance 1.1
   "Send an arbitrary JSON packet to another user, or all of the users
 
  Out of the band of communications.
- 
+
 This is neither a public nor a private message in the chat context: just
 some additional data that is being provided.
 
 
-       @{ sender: sender, from: outOfBand, status: true, body: @{JSON@} @}
+ @{ sender: sender, from: outOfBand, status: true, body: @{JSON@} @}
 
-       Adds \"roomTitle\"  to body if  body contains \"room\"  and title
-       can be determined
+ Adds \"roomTitle\"  to body if  body contains \"room\"  and title
+ can be determined
 
-       Add  @samp{\"sendRoomList\":  \"true\"}  to give  the  user  an
-       updated  room list  as well.  (Necessary for  invitations to  new
-       rooms.) Inviting to houses …
+ Add  @samp{\"sendRoomList\":  \"true\"}  to give  the  user  an
+ updated  room list  as well.  (Necessary for  invitations to  new
+ rooms.) Inviting to houses …
 
 @verbatim
-       initUserRoom { room: 0, autoJoin: false }
-       { from: initUserRoom, status: true, moniker: ROOM-MONIKER } ** OK
+ initUserRoom { room: 0, autoJoin: false }
+ { from: initUserRoom, status: true, moniker: ROOM-MONIKER } ** OK
 
-       =>  { from:  initUserRoom, status:  false, err:  exists, moniker:
-       ROOM-MONIKER } ** OK
+ =>  { from:  initUserRoom, status:  false, err:  exists, moniker:
+ ROOM-MONIKER } ** OK
 
-       => {  from: initUserRoom, status:  false, err: showFirstRun  } **
-       ERR (player does not have that room)
+ => {  from: initUserRoom, status:  false, err: showFirstRun  } **
+ ERR (player does not have that room)
 
-       sendOutOfBandMessage   {  to:   USER-LOGIN,   body:  {   locType:
-       \"house\", type: \"invite\", room: MONIKER } }
+ sendOutOfBandMessage   {  to:   USER-LOGIN,   body:  {   locType:
+ \"house\", type: \"invite\", room: MONIKER } }
 
-       {  from:  outOfBand,  sender:  YOUR-LOGIN,  status:  true,  body:
-       { locType: \"house\", type: \"invite\", room: MONIKER, roomTitle:
-       USER-VISIBLE-NAME } }
+ {  from:  outOfBand,  sender:  YOUR-LOGIN,  status:  true,  body:
+ { locType: \"house\", type: \"invite\", room: MONIKER, roomTitle:
+ USER-VISIBLE-NAME } }
 @end verbatim
-       for user houses, roomTitle will be like \"BlackDaddyNerd's House\"
+ for user houses, roomTitle will be like \"BlackDaddyNerd's House\"
 
-       Parameters:
+ Parameters:
 
-       jso - To send to one user:  @{ to: userName, body: @{JSON@} @}, or to
-       broadcast to the entire room: @{ toRoom: true, body: @{JSON@} @}
+ jso - To send to one user:  @{ to: userName, body: @{JSON@} @}, or to
+ broadcast to the entire room: @{ toRoom: true, body: @{JSON@} @}
 
-       u - The sender of the out-of-band-message
+ u - The sender of the out-of-band-message
 
-       room -  The room in which  the sender is standing.  Necessary for
-       the toRoom version of this method.
+ room -  The room in which  the sender is standing.  Necessary for
+ the toRoom version of this method.
 
-       Throws:
+ Throws:
 
-       org.json.JSONException - Thrown if the data cannot be interpreted
-       from  the JSON  objects passed  in,  or conversely,  if we  can't
-       encode a response into a JSON form
+ org.json.JSONException - Thrown if the data cannot be interpreted
+ from  the JSON  objects passed  in,  or conversely,  if we  can't
+ encode a response into a JSON form
 
-       ") 
+ ")
 
 (definfinity server-time ((server-time) u r )
   "Accept  the client's  notification of  a server-time  adjustment.
 
-       This is used to compute the client's round-trip lag time.
+ This is used to compute the client's round-trip lag time.
 
-       jso - @{ serverTime: LONG milliseconds since Unix epoch @}"
+ jso - @{ serverTime: LONG milliseconds since Unix epoch @}"
   (list 200 (list :|serverTime| (* 1000
                                    (- (get-universal-time)
                                       +Unix-time-in-Universal+)))))
@@ -1447,20 +1447,20 @@ some additional data that is being provided.
 (definfinity set-avatar-color ((base extra) user recipient/s)
   "Set the avatar base and extra (pad) colours for the given user.
 
-       Colour numbers  are given in  X'RRGGBB' form  as an integer  — to
-       compute one from byte (0..255) RGB values, do ( red << 16 & green
-       << 8 & blue )
+ Colour numbers  are given in  X'RRGGBB' form  as an integer  — to
+ compute one from byte (0..255) RGB values, do ( red << 16 & green
+ << 8 & blue )
 
-       Parameters:
-       jso - @{ \"base\": (colour number), \"extra\": (colour number) @}
-       u - The user whose avatar colours are being set
-       room - The room in which the user is standing 
-       Throws:
+ Parameters:
+ jso - @{ \"base\": (colour number), \"extra\": (colour number) @}
+ u - The user whose avatar colours are being set
+ room - The room in which the user is standing
+ Throws:
 
-       org.json.JSONException - Thrown if the data cannot be interpreted
-       from  the JSON  objects passed  in,  or conversely,  if we  can't
-       encode a response into a JSON form
-       
+ org.json.JSONException - Thrown if the data cannot be interpreted
+ from  the JSON  objects passed  in,  or conversely,  if we  can't
+ encode a response into a JSON form
+
 SQLException - if the palettes can't be loaded"
   (error "This requires Doodle's intervention now")
   (destructuring-bind (base-red base-green base-blue) (rgb-bytes->rgb base)
@@ -1469,7 +1469,7 @@ SQLException - if the palettes can't be loaded"
     (setf (Toot-pad-color *Toot*) (color24-rgb pad-red pad-green pad-blue))))
 
 (definfinity set-furniture ((item slot x y z facing remove) user recipient/s)
-  "Set or change a furniture item. 
+  "Set or change a furniture item.
 
 To add  a structural item  to the room,  put item: 123  without anything
 else.  To place  furniture  on  the floor,  also  add  attributes x,  y,
@@ -1478,23 +1478,23 @@ and facing.
 To  change furniture,  replace item:  with slot:  (to avoid  ambiguities
 about ``which chair'')
 
-       To remove an item from the room, send @{ slot: 123, remove: true @}
+ To remove an item from the room, send @{ slot: 123, remove: true @}
 
-       Parameters: 
- 
+ Parameters:
+
 jso - @{ slot:  #, x: #, y: #, facing:  $ @} or @{ item: #,  x: #, y: #,
-       facing: $ @} or @{ slot: #, remove: true @}
+ facing: $ @} or @{ slot: #, remove: true @}
 
-       u - The user calling this method
-       
-room - The room in which this user is standing 
-       
+ u - The user calling this method
+
+room - The room in which this user is standing
+
 Throws:
-       
+
 org.json.JSONException - Thrown  if the data cannot  be interpreted from
 the JSON objects passed in, or conversely, if we can't encode a response
 into a JSON form
-       
+
 NotFoundException - if the furniture doesn't exist
 
 Changes since 2.0:
@@ -1506,7 +1506,7 @@ structural items no longer exist
 slot is the item's UUID
 
 "
-  (cond 
+  (cond
     (remove
      (with-errors-as-http (400) (assert (and (null item) (null x) (null y) (null z))))
      (remove-furniture% slot))
@@ -1519,54 +1519,54 @@ slot is the item's UUID
        (place-furniture% slot x y z facing)))
     (t (error 'http-client-error :status 400))))
 
-(definfinity set-room-var ((&rest key+value-pairs) user recipient/s) 
+(definfinity set-room-var ((&rest key+value-pairs) user recipient/s)
   "Set a room variable or set of room variables.
 
-       Parameters:
-       jso - key-value pair(s) for room variable(s) to be set
-       u - the user requesting the change
-       room - the room to which the variable(s) are associated 
-       Throws:
-       org.json.JSONException - if the packet is malformed 
-       PrivilegeRequiredException - if a non-privileged user attempts to set a room variable.") 
+ Parameters:
+ jso - key-value pair(s) for room variable(s) to be set
+ u - the user requesting the change
+ room - the room to which the variable(s) are associated
+ Throws:
+ org.json.JSONException - if the packet is malformed
+ PrivilegeRequiredException - if a non-privileged user attempts to set a room variable.")
 
 (definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
   "setUserVar
 
-       public static void setUserVar(org.json.JSONObject jso,
-                                  AbstractUser u,
-                                  Room room)
-       throws org.json.JSONException
+ public static void setUserVar(org.json.JSONObject jso,
+ AbstractUser u,
+ Room room)
+ throws org.json.JSONException
 
-       Set user variable(s)
-       Input: @{ key : value @} (one or more)
+ Set user variable(s)
+ Input: @{ key : value @} (one or more)
 
-       Parameters:
-       jso - user variable(s) to set
-       u - the user setting them
-       room - the room in which the user is standing 
-       Throws:
-       org.json.JSONException - if the JSO can't be decoded
+ Parameters:
+ jso - user variable(s) to set
+ u - the user setting them
+ room - the room in which the user is standing
+ Throws:
+ org.json.JSONException - if the JSO can't be decoded
 
-       ")
+ ")
 
 (definfinity spawn-zone ((&rest d) user recipient/s)
   "spawnZone
 
-       Spawn an additional zone.
+ Spawn an additional zone.
 
-       Parameters:
-       jso - JSON object, containing an associative array whose values are zones to be spawned
-       u - The caller responsible
-       room - Where is the caller? 
-       Throws:
-       org.json.JSONException - if something goes awry 
-       PrivilegeRequiredException - if the user isn't a Developer
+ Parameters:
+ jso - JSON object, containing an associative array whose values are zones to be spawned
+ u - The caller responsible
+ room - Where is the caller?
+ Throws:
+ org.json.JSONException - if something goes awry
+ PrivilegeRequiredException - if the user isn't a Developer
 
 @subsection 410 Gone
 
 Removed in 2.0. Zones no longer exist.
-       ")
+ ")
 
 (defun parse-operator-command (string)
   (assert (char= (char string 0) #\#))
@@ -1575,7 +1575,7 @@ Removed in 2.0. Zones no longer exist.
                   (split-sequence #\Space (subseq string space)
                                   :remove-empty-subseqs t))))
     (if-let (sym (find-symbol (string-upcase command) :tootsville-user))
-      (if (and (fboundp sym) 
+      (if (and (fboundp sym)
                (= 2 (length (function-lambda-list sym)))
                (eql '&rest (first (function-lambda-list sym))))
           (apply sym params)
@@ -1585,37 +1585,37 @@ Removed in 2.0. Zones no longer exist.
 (definfinity speak ((key speech vol) user recipient/s)
   "speak
 
-       Handle speech by the user. 
+ Handle speech by the user.
 
-       Speech is public to all users in a room/area
+ Speech is public to all users in a room/area
 
-       Emotes are simply speech beginning with \"/\". A few are special-cased. WRITEME: which
+ Emotes are simply speech beginning with \"/\". A few are special-cased. WRITEME: which
 
-       Commands are speech beginning with \"#\"
+ Commands are speech beginning with \"#\"
 
-       Parameters:
-       jso - @{ \"speech\": TEXT-TO-BE-SPOKEN @}
+ Parameters:
+ jso - @{ \"speech\": TEXT-TO-BE-SPOKEN @}
 
 
 @verbatim
 
-	private static String nonObnoxious (final String speech) {
-		return speech.replace (\"!!\", \"!\").replace (\",,\", \",\").replace (
-				\"....\", \"...\").replace (\"??\", \"?\");
-	}
+ private static String nonObnoxious (final String speech) {
+ return speech.replace (\"!!\", \"!\").replace (\",,\", \",\").replace (
+ \"....\", \"...\").replace (\"??\", \"?\");
+ }
 @end verbatim
 
-       "
+ "
   (when (emptyp speech)
     (return))
   (case (char speech 0)
     (#\~ (v:warn :speak "Received a client command ~a" speech)) ; TODO
     (#\# (parse-operator-command speech)
-         (return)) 
+         (return))
     (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
     (#\/ (v:warn :speak "emote not handled ~a" speech))     ; TODO
     ((#\$ #\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX
-    (otherwise 
+    (otherwise
      (when (search ",dumpthreads" speech)
        (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
                 (bt:all-threads)))
@@ -1643,7 +1643,7 @@ Note that for all fountains, use the magic moniker ``fountain''
 Calls back the user with either of:
 
 @itemize
-@item 
+@item
 
 @code{alreadyDone: true; status: false; err: \"event.alreadyDone\"}
 
@@ -1662,40 +1662,40 @@ For successfully registered events. Must  be completed or canceled using
 (definfinity end-event ((moniker) user recipient/s)
   "Attempt to end an event begun by `INFINITY-START-EVENT'
 
-       Parameters:
-       
+ Parameters:
+
 jso - JSON payload from the caller. Data: moniker = event moniker.
-       
+
 u - The caller = the user performing the event
-       
+
 room - The  caller's room. For fountains, we'll use  this room's moniker
 to figure out which fountain is which
-       
+
 Throws:
-       
+
 org.json.JSONException - if  JSON data can't be put into  a response, or
 gotten out of a command.
-       
+
 SQLException  - probably  means that  the moniker  is bad,  but I'm  not
 really doing much to validate it here
 
-       ")
+ ")
 (definfinity use-equipment ((|t| x y z on) user recipient/s)
   "useEquipment
 
-       WRITEME: Document this method brpocock@@star-hope.org
+ WRITEME: Document this method brpocock@@star-hope.org
 
-       Parameters:
-       
+ Parameters:
+
 jso - @{ t: slot-type-char, x: target-x, y: target-y, z: target-z, [ on: target-name ] @}
-       
+
 u - WRITEME
-       
-r - WRITEME 
-       
+
+r - WRITEME
+
 Throws:
-       
+
 org.json.JSONException - WRITEME
 
 t ∈ 1,2 for primary or secondary item
-       ")
+ ")

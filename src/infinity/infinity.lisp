@@ -3,7 +3,7 @@
 ;;; src/infinity/infinity.lisp is part of Tootsville
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
-;;; Res Interactive  LLC;   Copyright  © 2018-2020, the  Corporation for
+;;; Res  Interactive LLC;  Copyright  © 2018-2020,  the Corporation  for
 ;;; Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;; This program is Free Software: you can redistribute it and/or modify
@@ -39,12 +39,12 @@ Used to create the REST endpoints mapping to METHOD."
          (json (jonathan.decode:parse json$)))
     (with-user ()
       (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
-        (v:info '(:infinity :rest) "REST request from ~a for command ~a" 
+        (v:info '(:infinity :rest) "REST request from ~a for command ~a"
                 *user* method)
         (funcall method json *user* (user-plane *user*))))))
 
 (defmacro with-http-errors-as-infinity-errors ((command) &body body)
-  `(handler-case 
+  `(handler-case
        (progn ,@body)
      (http-client-error (c)
        (list :|status| :false
@@ -59,14 +59,14 @@ Used to create the REST endpoints mapping to METHOD."
 Used by the WebSockets and direct TCP stream handlers."
   (let* ((json-full (jonathan.decode:parse json$))
          (command (getf json-full :|c|))
-         (method (find-symbol (concatenate 'string "INFINITY-" 
+         (method (find-symbol (concatenate 'string "INFINITY-"
                                            (string-upcase (symbol-munger:camel-case->lisp-name command)))
                               :tootsville))
          (data (getf json-full :|d|)))
     (if (and (symbolp method) (not (eql 'nil method)))
         (with-user ()
           (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
-            (v:info '(:infinity :stream) "Stream request from ~a for command ~a" 
+            (v:info '(:infinity :stream) "Stream request from ~a for command ~a"
                     *user* method)
             (with-http-errors-as-infinity-errors (command)
               (funcall method data *user* (user-plane *user*)))))
@@ -75,7 +75,7 @@ Used by the WebSockets and direct TCP stream handlers."
                   *user* c)
           (list :|from| "c"
                 :|status| :false
-                :|error| (format nil "Unrecognized command ~a" 
+                :|error| (format nil "Unrecognized command ~a"
                                  (subseq c 0 (min (length c) 100))))))))
 
 (defun infinity-error (code reason)
@@ -88,7 +88,7 @@ Used by the WebSockets and direct TCP stream handlers."
 
 And now, let's talk about the Infinity Mode protocol.
 
-@subsection History of Infinity Mode 
+@subsection History of Infinity Mode
 
 In the Beginning,  Tootsville used a commercial  program called SmartFox
 Server as  its chat server. There  were many problems with  this, and it
@@ -115,11 +115,11 @@ which is a particular kind of infinity  that is not as big as some other
 kinds  of  infinity, as  silly  as  that mathematical  construction  may
 sound (yes, that's real maths).
 
-@subsection Wire protocols 
+@subsection Wire protocols
 
 There are two main wire protocols; RESTful POSTs and gossipnet.
 
-@subsubsection RESTful POSTs 
+@subsubsection RESTful POSTs
 
 The REST POST interface is what you're really here to read about (on the
 server  side). A  POST  is  submitted with  a  JSON object  representing
@@ -146,7 +146,7 @@ The data to be submitted to that command.
 In the  case of the  dedicated endpoint,  only the contents  of @code{d}
 need to be submitted.
 
-@subsection Datagram constructions 
+@subsection Datagram constructions
 
 There are three datagram kinds used in Infinity Mode.
 
@@ -170,18 +170,18 @@ a @samp{from} attribute.
 
 XXX WRITEME
 
-@subsection logOK datagrams 
+@subsection logOK datagrams
 
 XXX WRITEME
 
-@subsection Command datagrams 
+@subsection Command datagrams
 
 Command  datagrams  may be  processed  through  either  a REST  POST  or
 the Gossipnet. These represent an action or enquiry that a client is making.
 
 XXX WRITEME
 
-@subsection Gatekeeper datagrams 
+@subsection Gatekeeper datagrams
 
 Gatekeeper datagrams are found either as the response to a REST POST, or
 distributed along the Gossipnet. These  represent the state of the world
@@ -214,7 +214,7 @@ XXX WRITEME
                                                                                                                              (char= #\& (char (symbol-name sym) 0)))
                                                                                                                            (rest λ-list))))
                           ,@body)))))
-       (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name)) 
+       (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name))
                           "application/json")
          ,docstring
          (call-infinity-from-rest  ',infinity-name )))))
@@ -239,7 +239,7 @@ XXX WRITEME
              (when (stringp reply)
                (private-admin-message
                 ,(concatenate 'string #(#\#) (string-downcase command))
-                reply)))))))) 
+                reply))))))))
 
 (defendpoint (POST "/world/infinity" "application/json")
   "Dispatch an Infinity-mode JSON packet to its handler based on the @code{c} parameter.

@@ -108,9 +108,9 @@
 
 
 
-     	Ⓣ Let's play in Tootsville!
+ Ⓣ Let's play in Tootsville!
 
-   	♪Let's make some noise! ♪
+ ♪Let's make some noise! ♪
 
 
 " *query-io*)

@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/weather/sun-moon.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -30,7 +30,7 @@
 (defun sun-position (&optional (time (get-universal-time)))
   "The position (X,Y) of the sun as a list of 2 elements"
   (multiple-value-bind (sec min hour) (chœrogryllum:decode*-universal-time time)
-    (let ((θ (- (* 2 PI 
+    (let ((θ (- (* 2 PI
                    (/ (+ hour (/ min 60) (/ sec 360)) 18))
                 (/ PI 2))))
       (list (* 2000 (/ (cos θ) 2))
@@ -52,5 +52,5 @@
                      2
                      PI)
                   (/ PI 2))))
-        (list (* 1900 (/ (sin θ) 2)) 
+        (list (* 1900 (/ (sin θ) 2))
               (* 1900 (/ (cos θ) 2)))))))

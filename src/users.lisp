@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/users.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -324,11 +324,11 @@ limitations under the License. |#
     (ignore-not-found (find-record 'Toot :UUID (player-Toot-Toot p-t-link)))))
 
 (defun (setf player-toot) (Toot person)
-  (if-let (p-t-link (ignore-not-found 
+  (if-let (p-t-link (ignore-not-found
                       (find-record 'player-Toot :player (person-uuid person))))
     (progn (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
            (save-record p-t-link))
-    (save-record (make-record 'player-Toot :player (person-uuid person) 
+    (save-record (make-record 'player-Toot :player (person-uuid person)
                               :Toot (Toot-uuid Toot))))
   (setf (Toot-last-active Toot) (now))
   (save-record Toot)
@@ -385,8 +385,8 @@ limitations under the License. |#
   (Toot-world (find-active-toot-for-user user)))
 
 (defmethod print-object ((user person) s)
-  (format s "#<User ~a ~a ~a>" 
-          (person-uuid user) 
+  (format s "#<User ~a ~a ~a>"
+          (person-uuid user)
           (person-display-name user)
           (when-let (Toot (player-Toot user))
             (Toot-name Toot))))
@@ -405,10 +405,10 @@ Uses the first, alphabetically speaking."
                            (sort
                             (mapcar #'url-to-string
                                     (mapcar #'person-link-url
-                                            (remove-if-not 
+                                            (remove-if-not
                                              (lambda (link)
                                                (and (eql :contact (person-link-rel link))
                                                     (equal :mailto (puri:uri-scheme (person-link-url link)))))
                                              (find-records 'person-link :person (person-uuid user)))))
-                            #'string<))) 
+                            #'string<)))
     (subseq first-mailto 7 #| length of "mailto:" |#)))

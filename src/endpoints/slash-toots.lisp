@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoints/slash-toots.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -28,7 +28,7 @@
 (in-package :Tootsville)
 
 (defendpoint (get "/toots/:toot-name" "text/plain")
-    "Get public info about TOOT-NAME"
+  "Get public info about TOOT-NAME"
   (check-arg-type Toot-name Toot-name)
   (with-user ()
     (let ((Toot (find-Toot-by-name Toot-name)))
@@ -37,7 +37,7 @@
             (Toot-info Toot)))))
 
 (defendpoint (get "/toots/:toot-name" "application/json")
-    "Get public info about TOOT-NAME
+  "Get public info about TOOT-NAME
 
 TOOT-NAME is  the name of a  Toot or other character-type  avatar in the
 game. This endpoint  will return the public  information about TOOT-NAME
@@ -60,7 +60,7 @@ This is returned if TOOT-NAME does not name a character in the game."
     (let ((Toot (find-Toot-by-name Toot-name)))
       (list 200
             `(:last-modified ,(header-time))
-            (Toot-info Toot 
+            (Toot-info Toot
                        (UUID:UUID= (person-uuid *user*) (Toot-player Toot)))))))
 
 (defendpoint (put "/toots/:toot-name" "application/json")
@@ -86,7 +86,7 @@ This is returned if TOOT-NAME does not name a character in the game."
   "Create a new Toot.
 
 Input JSON must have the following fields:
-     name, baseColor, padColor, pattern, patternColor, tShirtColor
+ name, baseColor, padColor, pattern, patternColor, tShirtColor
 
 Responds with 201 (Created); or 409 (Conflict)  if the name is in use or
 for some other reason the value can't  be entered; 422 if the Toot name,
@@ -149,4 +149,3 @@ is malformed.)"
                       :toot (Toot-uuid Toot)
                       :equipped :y))
         (list 201 (Toot-uuid Toot))))))
-

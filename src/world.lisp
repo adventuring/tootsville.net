@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/world.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;    ©   2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -59,10 +59,10 @@
   ;; XXX for now …
   (unless (eql world :chor)
     (return-from world-mistp t))
-  
+
   (when (= latitude longitude altitude 0)
     (return-from world-mistp nil))
-  
+
   (ignore-not-found
     (find-record 'terrain-height
                  :world world :latitude latitude :longitude longitude)))
@@ -70,7 +70,7 @@
 (defun describe-world (latitude longitude altitude world)
   "Describe the world at LATITUDE, LONGITUDE, ALTITUDE in WORLD.
 
-Returns a PList with :TERRAIN and :FURNITURE. 
+Returns a PList with :TERRAIN and :FURNITURE.
 
 :TERRAIN  contains a  201×201  grid of  1m corners  of  a 200×200  meter
 space (that is, the entire  space at LATITUDE, LONGITUDE at ALTITUDE=0).
@@ -79,10 +79,10 @@ If ALTITUDE is not zero, the :TERRAIN is omitted.
 :FURNITURE contains a list of item descriptions as per `ITEMS-AT', which
 are as per `ITEM-INFO'."
   (when (world-mistp latitude longitude altitude world)
-    (if (zerop altitude) 
+    (if (zerop altitude)
         (spawn-terrain world latitude longitude)
         (error 'unimplemented)))
-  (list 
+  (list
    :terrain (make-array '(200 200) :element-type 'fixnum :initial-element 0)
    :furniture (items-at latitude longitude altitude world)))
 

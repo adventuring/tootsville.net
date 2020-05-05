@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/db/db-central.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -76,20 +76,20 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
     (and value (string value)))
   (:method (value (type (eql :yornp)))
     (if value "Y" "N"))
-  (:method (value (type (eql :number))) 
+  (:method (value (type (eql :number)))
     value)
-  (:method (value (type (eql :json))) 
+  (:method (value (type (eql :json)))
     (and value
          (with-output-to-string (*standard-output*)
            (%to-json value))))
-  (:method (value (type (eql :uri))) 
+  (:method (value (type (eql :uri)))
     (and value (etypecase value
                  (puri:uri (puri:render-uri value nil))
                  (string value))))
-  (:method (value (type (eql :color24))) 
+  (:method (value (type (eql :color24)))
     (and value (format nil "~6,'0x"
                        (color24-to-integer value))))
-  (:method (value (type (eql :uuid))) 
+  (:method (value (type (eql :uuid)))
     (etypecase value
       (null nil)
       (string (subseq (the string

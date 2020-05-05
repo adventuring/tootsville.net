@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/auth/auth-firebase.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -131,7 +131,7 @@ aaaaa
       ;; FIXME: JWT verification
       #+ (or) (multiple-value-bind (payload-claims payload-header)
                   (handler-bind
-                      ((cljwt-custom:invalid-rs256-signature 
+                      ((cljwt-custom:invalid-rs256-signature
                         (lambda (c)
                           (invoke-restart 'continue))))
                     (cljwt-custom:verify token
@@ -145,20 +145,20 @@ aaaaa
         (assert (> (gethash "exp" header) (timestamp-to-unix (now))) (token)
                 "Credential token has expired"))
       (when (gethash "iat" header)
-        (assert (< (gethash "iat" header) (timestamp-to-unix (now))) 
+        (assert (< (gethash "iat" header) (timestamp-to-unix (now)))
                 (token)
                 "Credential token will be issued in the future. ~
-        You must be punished for violating causality."))
+ You must be punished for violating causality."))
       (when (gethash "auth_time" header)
         (assert (< (gethash "auth_time" header) (timestamp-to-unix (now)))
                 (token)
                 "Credential token  is from  a future  user authentication. ~
-           You must be punished for violating causality."))
+ You must be punished for violating causality."))
       (assert (string= (gethash "aud" header)
                        (config :firebase :project-id))
               (token)
               "Credential  token  was  not  for   us  (we  are  not  ~
-         its audience)")
+ its audience)")
       (let ((credentials
              (list :credentials (append (hash-table-plist (extract claims "firebase" "identities"))
                                         (list "firebase" (list (gethash "sub" claims))))

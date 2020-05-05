@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/main.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -144,12 +144,12 @@ is available."
     (connect-databases)
     (power-on-self-test)
     (background-gc))
-  
+
   (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")
   (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp"))
-  
+
   (setf hunchentoot:*hunchentoot-default-external-format* :utf-8)
-  
+
   (when-let ((previous (find-acceptor host port)))
     (restart-case (error "Server is already running on ~a port ~a" host port)
       (stop-previous ()
@@ -254,7 +254,7 @@ process's PID."
 
 (defvar *verbose-logging-lock* (make-lock "Verbose logging lock")
   "A lock used to prevent the Verbose library from cross-talking over itself.
- 
+
 When multiple threads try to write at the same time, you can get partial
 messages mixed together in a confusing way. This lock prevents that from
 occurring when  we use our definition  of `VERBOSE:FORMAT-MESSAGE' which
@@ -326,7 +326,7 @@ them all."
     (sleep 1)))
 
 (defparameter *trace-output-heartbeat-time* 90
-  "A  thread  listing   is  dumped  every  *TRACE-OUTPUT-HEARTBEAT-TIME* 
+  "A  thread  listing   is  dumped  every  *TRACE-OUTPUT-HEARTBEAT-TIME*
 seconds into the verbose log.")
 
 (defun start-production (&key host port)

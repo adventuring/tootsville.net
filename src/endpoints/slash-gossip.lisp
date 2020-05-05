@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoints/slash-gossip.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -39,7 +39,7 @@ The offer URI will  be needed to retrieve the answer  to your offer from
 whatever peer  may accept it. There  is no guarantee that  an offer will
 be accepted."
   (with-user ()
-    (let ((uri 
+    (let ((uri
            (format nil "/gossip/answers/~a"
                    (enqueue-sdp-offer (jonathan.decode:parse
                                        (raw-post-string))))))
@@ -67,13 +67,13 @@ The posted data has been accepted and will be relayed back to the offeror.
 
 @subsection 404 Not Found
 The UUID given is not associated with an outstanding offer."
-  (make-gossip-initiation 
+  (make-gossip-initiation
    :uuid (uuid:make-uuid-from-string uuid)
    :answer (raw-post-string))
   (list 202 #()))
 
 (defendpoint (get "/gossip/answers/:uuid" "application/sdp" 31)
-  "Read back the answer to an offer posted previously. 
+  "Read back the answer to an offer posted previously.
 
 This is a COMET-type call which may sleep up to 30s.
 
@@ -88,12 +88,9 @@ before returning failure.
 The SDP answer will be returned."
   (with-user ()
     (dotimes (_ 3000)
-      (if-let ((record (find-record 'gossip-initiation 
+      (if-let ((record (find-record 'gossip-initiation
                                     :uuid (uuid:make-uuid-from-string uuid))))
         (return-from endpoint (list 200 () (gossip-initiation-answer record)))
         (sleep 1/100)))
     (v:info :gossip "No answer to offer ~a" uuid)
     (list 204 #())))
-
-
-

@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/endpoints/gossip/alexa/alexa.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -36,7 +36,7 @@
     (setf (puri:uri-host uri) (string-downcase (puri:uri-host uri)))
     (loop for old = (regex-replace-all
                      "\\+" (puri:render-uri uri nil) "%20")
-         
+
        then new
        for new =(regex-replace
                  "^(https?)://([\\w\\.]+)/(([^/]+/)*?)(\\.?/)(.*)$"

@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/weather/weather.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -83,18 +83,18 @@
 (defun wind-x (wind-vector)
   "The X component of WIND-VECTOR."
   (wind-vector-x-magnitude wind-vector))
-(defun wind-y (wind-vector) 
+(defun wind-y (wind-vector)
   "The Y component of WIND-VECTOR."
   (wind-vector-y-magnitude wind-vector))
 (declaim (inline wind-x wind-y))
 
 (defun make-wind-vector-field ()
   "Create the wind vector field for the entire island of Tootanga."
-  (make-array '(800 600) 
-              :element-type 'wind-vector 
+  (make-array '(800 600)
+              :element-type 'wind-vector
               :initial-element (make-wind-vector)))
 
-(defvar *wind-vector-field* 
+(defvar *wind-vector-field*
   (make-wind-vector-field)
   "The wind vector field for the entire island of Tootanga.")
 
@@ -114,8 +114,8 @@ Senecalensis, Elephas,  and Tethytheria --  peaking at the 15th  of each
 third month. Thus,  the least chance of precipitation is  around the 1st
 of the second month of each  quarter -- 1 Dugon, Hyrodamalis, Luxodonta,
 and Dendrohyrax
- 
-@item 
+
+@item
 
 Winter precipitation  (from about 1  Tehytheria to about 30  Dugon) will
 tend to be  coming from the mountains  to the sea, and  bring snow, with
@@ -144,7 +144,7 @@ affected at all by precipitation during the spring and autumn months.
 
 (defun ensure-weather-kernel ()
   (or *weather-kernel*
-      (setf *weather-kernel* (lparallel:make-kernel 
+      (setf *weather-kernel* (lparallel:make-kernel
                               (min 1 (1- (processor-count)))))))
 
 (defun tick-weather-minute ()
@@ -171,8 +171,8 @@ affected at all by precipitation during the spring and autumn months.
     (let ((pixmap (make-array '(800 600) :element-type '(unsigned-byte 8) :initial-element 0)))
       (lparallel:pmap (lambda (x)
                         (dotimes (y 600)
-                          (setf (aref pixmap x y) 
-                                (min #xff 
+                          (setf (aref pixmap x y)
+                                (min #xff
                                      (max 0
                                           (round
                                            (* #x100

@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/setup.lisp is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -28,7 +28,8 @@
 (cl:in-package :cl-user)
 (require :asdf)
 
-;; bug in recent ASDF or what? Don't know, don't care; this fixes it for now.
+;; bug in  recent ASDF or  what? Don't know,  don't care; this  fixes it
+;; for now.
 #.(unless (find-package "ASDF/INTERFACE")
     (defpackage asdf/interface))
 (unless (fboundp 'asdf/interface::operation-forced)
@@ -110,4 +111,3 @@
 (format *trace-output* "~&Setup script completed; ready to load.~4%")
 
 (setf *setup* t)
-
