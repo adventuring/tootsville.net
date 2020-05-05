@@ -70,16 +70,16 @@
 
 (defun ssl-private-key ()
   (make-pathname :directory (list :absolute 
-                                  "etc" "letsencrypt" "archive"
+                                  "etc" "letsencrypt" "live"
                                   (machine-instance))
-                 :name "privkey1"
+                 :name "privkey"
                  :type "pem"))
 
 (defun ssl-certificate ()
   (make-pathname :directory (list :absolute 
-                                  "etc" "letsencrypt" "archive"
+                                  "etc" "letsencrypt" "live"
                                   (machine-instance))
-                 :name "fullchain1"
+                 :name "fullchain"
                  :type "pem"))
 
 (defun look-for-ssl-certs ()
