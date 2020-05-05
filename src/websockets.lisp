@@ -45,6 +45,16 @@
     :message-log-destination (config :log :websocket :message)
     :port 5004))
 
+(defclass websocket-ssl-acceptor (hunchensocket:websocket-ssl-acceptor)
+  ((hunchentoot::taskmaster
+    :initform (make-instance 'thread-pool-taskmaster:thread-pool-taskmaster)))
+  (:default-initargs
+   :access-log-destination (config :log :websocket :access)
+    :message-log-destination (config :log :websocket :message)
+    :port 5004
+    :ssl-certificate-file (ssl-certificate)
+    :ssl-privatekey-file (ssl-private-key)))
+
 (defclass infinity-websocket-resource (hunchensocket:websocket-resource)
   ()
   (:default-initargs :client-class 'stream-user))
@@ -192,7 +202,10 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode â„
       (hunchensocket:send-text-message user (login-failed-message)))))
 
 (defun listen-for-websockets ()
-  (setf *websocket-server* (make-instance 'websocket-acceptor))
+  (setf *websocket-server* 
+        (make-instance (if (enable-ssl-p)
+                           'websocket-ssl-acceptor
+                           'websocket-acceptor)))
   (hunchentoot:start *websocket-server*))
 
 

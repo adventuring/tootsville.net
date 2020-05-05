@@ -164,24 +164,25 @@ is available."
         hunchentoot:*log-lisp-backtraces-p* t
         hunchentoot:*log-lisp-warnings-p* t)
   (restart-case
-      (progn (when (enable-ssl-p)
-               (let ((ssl (hunchentoot:start
-                           (make-instance 'Tootsville-REST-SSL-Acceptor
-                                          :ssl-certificate-file (ssl-certificate)
-                                          :ssl-privatekey-file (ssl-private-key)
-                                          :address host
-                                          :port (or port (config :ssl :port))))))
-                 (setf (hunchentoot:acceptor-name ssl)
-                       (format nil "Tootsville at ~a port ~d" host port))
-                 (push ssl *acceptors*)))
-             (let ((acceptor (hunchentoot:start
-                              (make-instance 'Tootsville-REST-Acceptor
-                                             :address host
-                                             :port port))))
-               (setf (hunchentoot:acceptor-name acceptor)
-                     (format nil "Tootsville Non-TLS at ~a port ~d"
-                             host port))
-               (push acceptor *acceptors*)))
+      (progn (if (enable-ssl-p)
+                 (let ((ssl (hunchentoot:start
+                             (make-instance 'Tootsville-REST-SSL-Acceptor
+                                            :ssl-certificate-file (ssl-certificate)
+                                            :ssl-privatekey-file (ssl-private-key)
+                                            :address host
+                                            :port (or port (config :ssl :port))))))
+                   (setf (hunchentoot:acceptor-name ssl)
+                         (format nil "Tootsville at ~a port ~d" host port))
+                   (push ssl *acceptors*))
+                 (let ((acceptor (hunchentoot:start
+                                  (make-instance 'Tootsville-REST-Acceptor
+                                                 :address host
+                                                 :port port))))
+                   (setf (hunchentoot:acceptor-name acceptor)
+                         (format nil "Tootsville Non-TLS at ~a port ~d"
+                                 host port))
+                   (push acceptor *acceptors*)))
+             (listen-for-websockets))
     (change-port (port*)
       :report "Use a different port"
       (start :host host :port port*))
@@ -339,8 +340,6 @@ allowing SystemD to start a new instance in case of a fatal error."
   (set-up-for-daemon/start-logging)
   (v:info :starting "Starting on host interface ~a port ~a" host port)
   (start :host host :port port)
-  (v:info :starting "Starting the WebSockets listener on port 5004")
-  (listen-for-websockets)
   (v:info :starting "Starting Swank")
   (start-swank)
   (loop
