@@ -208,6 +208,11 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode â„
                            'websocket-acceptor)))
   (hunchentoot:start *websocket-server*))
 
+(defun stop-listening-for-websockets ()
+  (when *websocket-server*
+    (hunchentoot:stop *websocket-server*)
+    (setf *websocket-server* nil)))
+
 
 
 (defun admin-message (title message
