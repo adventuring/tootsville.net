@@ -31,11 +31,16 @@
 
 (defvar *websocket-server*)
 
-(defmacro with-disconnect-catcher (() &body body)
+(defmacro with-websocket-disconnections ((client) &body body)
   `(handler-case
        (progn ,@body)
      (sb-int:broken-pipe (c)
-       (v:warn "Surprise disconnection on WebSocket ignored: ~a" c))))
+       (v:warn :stream "Disconnect detected on ~a for ~a"
+               (stream-error-stream c) ,client)
+       (force-close-hunchensocket ,client))
+     (error (c)
+       (v:error :stream "Error ~a sending ~:d character~:p to ~:a"
+                c (length message) ,client))))
 
 (defclass websocket-acceptor (hunchensocket:websocket-acceptor)
   ((hunchentoot::taskmaster
@@ -90,7 +95,9 @@ currently ignored."
 
 (defun unicast (message &optional (user *user*))
   "Send MESSAGE directly to USER (which may be a Person or Toot)"
-  (ws-unicast message (user-stream user)))
+  (let ((client (user-stream user)))
+    (with-websocket-disconnections (client)
+      (ws-unicast message client))))
 
 (defun streams-near (&optional (Toot *Toot*))
   "Find the streams assocated with users whose Toots are near TOOT."
@@ -135,15 +142,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
     (lparallel:pmapcar
      (lambda (client)
        (unless (eql client except)
-         (handler-case
-             (hunchensocket:send-text-message client message)
-           (sb-int:broken-pipe (c)
-             (v:warn :stream "Disconnect detected on ~a for ~a"
-                     (stream-error-stream c) client)
-             (force-close-hunchensocket client))
-           (error (c)
-             (v:error :stream "Error ~a sending ~:d character~:p to ~:a"
-                      c (length message) client)))))
+         (with-websocket-disconnections (client)
+           (hunchensocket:send-text-message client message))))
      (hunchensocket:clients res))
     (v:info :stream "Broadcast to ~a: ~:d character~:p" res (length message))))
 
@@ -242,7 +242,8 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode â„
   "Send joinOK message for TOOT"
   (list :|from| "joinOK"
         :|status| t
-        :|uLs| (toot-name Toot)
+        :|uLs| (toot-uuid Toot)
+        :|n| (toot-name Toot)
         :|r| world))
 
 (defun ws-kick (client)

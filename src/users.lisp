@@ -397,8 +397,9 @@ limitations under the License. |#
               "(No name)")
           (when-let (Toot (ignore-not-found (player-Toot user)))
             (Toot-name Toot))
-          (when (person-is-patron-p user)
-            " (*Patron)" "")))
+          (or (when (person-is-patron-p user)
+                " (*Patron)")
+              "")))
 
 (defun url-to-string (url)
   (etypecase url
