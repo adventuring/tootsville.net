@@ -93,6 +93,12 @@ a constant; it should be updated in a later release."
   (declare (ignore Toot))
   (color24-rgb 0 0 0))
 
+(defun ensure-Toot (Toot)
+  (etypecase Toot
+    (Toot Toot)
+    (string (find-record 'Toot :name Toot))
+    (uuid:uuid (find-record 'Toot :uuid Toot))))
+
 (defun Toot-chat-background-color (Toot)
   "The background color of a Toot's speech balloon in normal speech.
 
@@ -281,7 +287,8 @@ Fetch avatar information for a list of Toots.
 @end table
 
 "
-  (let* ((avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
+  (let* ((Toot (ensure-Toot Toot))
+         (avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
     (list :|name| (Toot-name Toot)
           :|userName| (Toot-presentation-name Toot)
           :|chatFG| (color24-name (Toot-chat-foreground-color Toot))
@@ -328,7 +335,7 @@ Fetch avatar information for a list of Toots.
 
           :|avatarClass_P| (color24-name (Toot-pattern-color Toot))
           :|avatarClass_E| (color24-name (Toot-pad-color Toot))
-          :|inRoom| "@Tootsville"
+          :|inRoom| (Toot-world Toot)
           :|colors| (list 0 (color24-name (Toot-base-color Toot))
                           1 (color24-name (Toot-pad-color Toot))
                           2 (color24-name (Toot-pattern-color Toot))))))
@@ -380,3 +387,4 @@ Now, we also report (at least) X-FADU, fairy dust.
 
 (defun Toot-position (toot)
   (list 0 0 0)) ; TODO
+

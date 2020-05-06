@@ -308,10 +308,6 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
   )
 (define-operator-command dbcpinfo (words user plane)
   "
- throws PrivilegeRequiredException,
- NotFoundException,
- SQLException
-
  Get DBCP information. Must have staff level 8 (DEVELOPER) to use this command.
 
  Syntax for use
@@ -319,15 +315,6 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
  Examples
  #dbcpinfo
-
- Parameters:
- words - ignored
- u - user requesting the info
- room - the room in which the user is standng
- Throws:
- PrivilegeRequiredException - WRITEME
- NotFoundException - WRITEME
- SQLException - WRITEME
 "
   (error 'unimplemented)
   )
@@ -382,14 +369,13 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
+  
   (error 'unimplemented))
 (define-operator-command dumpthreads (words user plane)
   "
 
  Dump debugging information including all running threads to a server-side file. Must have staff level 1 (STAFF) to use this command.
-
- Syntax for use
+yntax for use
  #dumpthreads
 
  Examples
@@ -400,8 +386,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
-  )
+  (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
+           (all-threads))
+  (format nil "Dumped names of ~:d thread~:p" (length (all-threads))))
 (define-operator-command enablepathfinder (words user plane)
   "
 
@@ -444,6 +431,11 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
 
   )
+(defun json-to-html (json)
+  (with-output-to-string (s)
+    (doplist (key value json)
+        (format s "~%<div><strong>~a</strong>: &nbsp; ~a</div>" key value))))
+
 (define-operator-command finger (words user plane)
   "
 
@@ -460,20 +452,14 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
+  (json-to-html (Toot-info (first words))))
 
-  (error 'unimplemented))
 (define-operator-command flush (words user plane)
   "
-
- Attempt to flush the pending database records to the database (if any). Reports back how many remain pending after the sweep. Does not affect the ongoing background sweep process, which will continue to run normally.
-
- Parameters:
- words - optionally, a single integer defining how many records to attempt to flush. Defaults to 100.
- u - operator
- room - ignored
+Historically, this flushed the database write cache. Now, instead, it flushes the
+database reading MemCacheD servers.
 "
-
-  (error 'unimplemented))
+  (cl-memcached:mc-flush-all))
 (define-operator-command game (words user plane)
   "
 
@@ -489,23 +475,18 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
   )
 (define-operator-command getconfig (words user plane)
-  "
-
- Get a Appius configuration variable. Must have staff level 8 (DEVELOPER) to use this command.
+  "Reads a configuration key. All WORDS are expected to be the keywords
+on the path to the config value.
 
  Syntax for use
  #getconfig [PROPERTY]
 
  Examples
- #getconfig org.starhope.appius.requireBeta
+ #getconfig :taskmaster :devel
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
+ "
+  (apply #'config (mapcar #'make-keyword (mapcar #'string-upcase words))))
 
-  )
 (define-operator-command getevents (words user plane)
   "
 
@@ -527,17 +508,9 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
   )
 (define-operator-command getmotd (words user plane)
-  "
+  "Retrieve the current Message Of The Day as a server message."
+  *motd*)
 
- Retrieve the current Message Of The Day as a server message
-
- Parameters:
- words - ignored
- u - user placing request
- room - room in which the user is standing
-"
-
-  )
 (define-operator-command getschedule (words user plane)
   "
  throws PrivilegeRequiredException
@@ -551,7 +524,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  Throws:
  PrivilegeRequiredException - WRITEME
 "
-
+  
   )
 (define-operator-command getschedulefor (words user plane)
   "
@@ -568,7 +541,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  PrivilegeRequiredException - if the user doesn't have at least moderator privilege level
  ClassNotFoundException - is the class requested can't be found (probably a typo)
 "
-
+  
   )
 (define-operator-command getuvar (words user plane)
   "
@@ -586,14 +559,10 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  #getuvar mouser d
  #getuvar #me d
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
  See Also:
  op_setuvar(String[], AbstractUser, Room), op_getuvars(String[], AbstractUser, Room)
 "
-
+  
   (error 'unimplemented))
 (define-operator-command getuvars (words user plane)
   "
@@ -618,7 +587,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  See Also:
  op_setuvar(String[], AbstractUser, Room), op_getuvar(String[], AbstractUser, Room)
 "
-
+  
   )
 (define-operator-command getvar (words user plane)
   "

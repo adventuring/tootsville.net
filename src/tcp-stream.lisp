@@ -29,5 +29,82 @@
 
 
 
-(defun start-tcp-listener (&optional (port 2773))
+(defvar *tcp-listener* nil)
+(defvar *tcp-clients* (make-hash-table :test 'equalp))
+
+(defstruct tcp-client
+  socket
+  buffer
+  expected-length
+  user)
+
+(defun tcp-unicast (message tcp-client)
+  (format (usocket:socket-stream tcp-client) 
+          "~36r~a" (length message) message))
+
+(defun tcp-format-error (tcp-client)
+  (write-char #\EM tcp-client))
+
+(defun tcp-stream-authenticate (client auth$)
+  "Private server-to-server messaging authentication.
+
+Tunnelled   over   SSH,   so   a   simple   non-cryptographically-secure
+authentication is all that's performed here.
+
+TODO: This is not implemented."
+  (declare (ignore auth$))
+  (tcp-format-error client)
   (error 'unimplemented))
+
+(defun tcp-reply (message tcp-client)
+  (tcp-unicast message tcp-client))
+
+(defun tcp-process-packet (packet tcp-client)
+  (if-let (*user* (tcp-client-user tcp-client))
+    (tcp-reply (call-infinity-from-stream packet)
+               tcp-client)
+    (tcp-stream-authenticate tcp-client packet)))
+
+(defun tcp-socket-input (tcp-client)
+  (block nil
+    (with-slots (socket expected-length buffer) tcp-client
+      (let ((soh (read-char (usocket:socket-stream socket))))
+        (unless (char= soh #\SOH)
+          (return (tcp-format-error tcp-client))))
+      (let ((length ""))
+        (loop for char = (read-char (usocket:socket-stream socket))
+           until (or (char= #\STX char)
+                     (> (length length) 3)) ; #36rZZZ ≈ 45½k
+           do (appendf length char))
+        (let ((len (parse-integer length :radix 36)))
+          (setf expected-length len
+                buffer (make-array len :element-type 'character))))
+      (loop for i from 0 below expected-length
+         do (setf (aref buffer i) (read-char (usocket:socket-stream socket))))
+      (let ((etx (read-char (usocket:socket-stream socket))))
+        (unless (char= etx #\ETX)
+          (return (tcp-format-error tcp-client))))
+      (tcp-process-packet buffer tcp-client))))
+
+(defun find-client-for-socket (socket)
+  (gethash (usocket:get-peer-address socket) *tcp-clients*))
+
+(defun start-tcp-listener (&optional (host "::1") (port 2773))
+  (setf *tcp-listener* (usocket:socket-listen host port :backlog 256))
+  (loop
+     (lparallel::pmapcar 
+      (lambda (socket) 
+        (if (eq socket *tcp-listener*)
+            (let ((client (usocket:socket-accept socket
+                                                 :element-type 'character)))
+              (setf (gethash (usocket:get-peer-address socket)
+                             *tcp-clients*)
+                    (make-tcp-client 
+                     :socket client
+                     :buffer nil
+                     :expected-length nil
+                     :user nil))
+              (v:info :stream "TCP connection from ~a" client))
+            (handler-case
+                (tcp-socket-input (find-client-for-socket socket)))))
+      (usocket:wait-for-input (cons *tcp-listener* *tcp-clients*) :ready-only t))))

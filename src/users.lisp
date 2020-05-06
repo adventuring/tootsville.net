@@ -105,7 +105,6 @@ come from a trusted authentication provider like Google Firebase)."
                                    (first links)))
                    (find-reference link :person))))
              (progn
-               (cerror "Create new user" "Going to create a new user")
                (make-record
                 'person
                 :display-name (or (getf plist :name)
@@ -222,8 +221,6 @@ come from a trusted authentication provider like Google Firebase)."
 
 (defun player-Toots (&optional (player *user*))
   (find-records 'Toot :player (person-uuid player)))
-
-
 
 (defun find-player-or-die ()
   "Ensure that a recognized player is connected."
@@ -385,11 +382,23 @@ limitations under the License. |#
   (Toot-world (find-active-toot-for-user user)))
 
 (defmethod print-object ((user person) s)
-  (format s "#<User ~a ~a ~a>"
+  (format s "#<User ~a ~a (~a)~a>"
           (person-uuid user)
-          (person-display-name user)
-          (when-let (Toot (player-Toot user))
-            (Toot-name Toot))))
+          (or (person-display-name user)
+              (and (or (person-given-name user)
+                       (person-surname user))
+                   (format nil "~a ~a"
+                           (or (person-given-name user)
+                               (case (person-gender user)
+                                 (:m "Mr")
+                                 (:f "Ms")
+                                 (otherwise "Mx")))
+                           (or (person-surname user) "")))
+              "(No name)")
+          (when-let (Toot (ignore-not-found (player-Toot user)))
+            (Toot-name Toot))
+          (when (person-is-patron-p user)
+            " (*Patron)" "")))
 
 (defun url-to-string (url)
   (etypecase url

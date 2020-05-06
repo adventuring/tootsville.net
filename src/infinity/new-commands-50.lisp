@@ -39,15 +39,19 @@ this user.
 
 This  list can  be reformatted  (into hash  values) and  passed back  to
 `INFINITY-FINGER' for details."
-  (list 200
-        (list :|status| t
-              :|from| "tootList"
-              :|toots| (mapcar #'Toot-name
-                               (sort (player-Toots)
-                                     #'timestamp>
-                                     :key (lambda (Toot)
-                                            (or (Toot-last-active Toot)
-                                                (universal-to-timestamp 0))))))))
+  (if-let (player-Toots (player-Toots))
+    (list 200
+          (list :|status| t
+                :|from| "tootList"
+                :|toots| (mapcar #'Toot-name
+                                 (sort player-Toots
+                                       #'timestamp>
+                                       :key (lambda (Toot)
+                                              (or (Toot-last-active Toot)
+                                                  (universal-to-timestamp 0)))))))
+    (list 200
+          (list :|status| :false
+                :|from| "tootList"))))
 
 (defun plist-with-index (list)
   (loop for i from 0

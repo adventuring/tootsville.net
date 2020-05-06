@@ -148,6 +148,8 @@ Uses MemCache when available."
               (with-memcached-query (*db* q values)
                 (let* ((query (cl-dbi:prepare tootsville::*dbi-connection* q))
                        (result-set (progn (v:info :db "SELECT: ~a ~s" (dbi.driver:query-sql query) values)
+                                          (when (emptyp (dbi.driver:query-sql query))
+                                            (cerror "Continue" "Blank query"))
                                           (cl-dbi:execute query values))))
                   (cl-dbi:fetch-all result-set)))))
           (let ((q (format nil "SELECT * FROM `~a`" table)))

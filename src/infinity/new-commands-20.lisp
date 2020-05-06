@@ -1,5 +1,3 @@
-(in-package :Tootsville)
-
 ;;; new-commands-20.lisp is part of Tootsville
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
@@ -26,8 +24,11 @@
 ;;;; Oakland Park, FL 33307-3095
 ;;; USA
 
+(in-package :Tootsville)
 
-;; This file contains commands which were added in 2.0
+;; This file contains  commands which were added in 1.2/2.0  --- some of
+;; these  were previously  proprietary  extensions by  Tootsville /  Res
+;; Interactive, LLC.
 
 (definfinity enumerate-wear-slots (nil u recipient/s)
   "Enumerates all possible wear slots for any avatar.
@@ -204,6 +205,8 @@ server include:
          (pos (Toot-position *Toot*))
          (i 0) (j 0))
     (list 200
+          ;; TODO  ---  create  an  hash table  rather  than  interning
+          ;; a bunch of garbage as keywords
           (list :|from| "rv"
                 :|var|
                 (concatenate
@@ -231,7 +234,22 @@ server include:
                          (apply #'places-at-position world pos)))))))
 
 (definfinity wtl ((course facing) u r)
-  "Walk the Line"
+  "Walk the Line
+
+Users send  a ``wtl''  packet when  they're moving  in a  straight line;
+while  other  (arc)  shapes   were  considered,  they're  not  currently
+supported. Each ``wtl'' packet has a  start and end point, a start time,
+and a  speed; this  course is  enough information  for other  clients to
+determine where along the line (linear interpolation) the walker is now.
+
+Usage:  {  c:  wtl,  d:  {  course: {  startPosition:  {  x:  y:  z:  },
+endPosition: { x: y: z: }, speed: }, facing: }}
+
+In return, all observers receive these ``wtl'' packets back
+
+Return: { from: \"wtl\", status: true, course: {}, facing:, u: UUID, n: NAME }
+
+"
   (broadcast (list :|from| "wtl"
                    :|status| t
                    :|course| course

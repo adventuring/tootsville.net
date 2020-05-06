@@ -58,10 +58,11 @@
                      (let ((,$value (multiple-value-list (,$body))))
                        (v:warn :memcached "Caching ~:d values: ~a"
                                (length ,$VALUE)
-                               (cl-memcached:mc-store ,$key
-                                                      (trivial-utf-8:string-to-utf-8-bytes (format nil "~s" ,$value))
-                                                      :timeout ,timeout
-                                                      :command :replace))
+                               (cl-memcached:mc-store
+                                ,$key
+                                (trivial-utf-8:string-to-utf-8-bytes (format nil "~s" ,$value))
+                                :timeout ,timeout
+                                :command :set))
                        (apply #'values ,$value)))))
              (cl-memcached::memcached-server-unreachable (c)
                (declare (ignore c))

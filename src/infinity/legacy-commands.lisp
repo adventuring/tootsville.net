@@ -442,17 +442,15 @@ names of Toots."
         (from-Avatars Toots-with-keys)))
 
 (defun from-avatars (Toots-with-keys)
-  (list :|avatars| (loop for (key Toot) on Toots-with-keys by #'cddr
-                      appending (list (make-keyword (princ-to-string key))
-                                      (Toot-info (etypecase Toot
-
-                                                   (Toot Toot)
-                                                   (string (find-record 'Toot  :name Toot))
-                                                   (uuid:uuid (find-record 'Toot :uuid Toot))))))
-        :|from| "avatars"
-        :|inRoom| "@Tootsville"
-        :|status| t))
-
+  (let ((hash (make-hash-table :test 'equal)))
+    (list :|avatars| 
+          (loop for (key Toot) on Toots-with-keys by #'cddr
+             do (setf (gethash (princ-to-string key) hash)
+                      (Toot-info (ensure-Toot Toot)))
+             return hash)
+          :|from| "avatars"
+          :|inRoom| "@Tootsville"
+          :|status| t)))
 
 (definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   "Send an in-world game's action
