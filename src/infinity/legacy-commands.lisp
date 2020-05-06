@@ -443,11 +443,12 @@ names of Toots."
 
 (defun from-avatars (Toots-with-keys)
   (list :|avatars| (loop for (key Toot) on Toots-with-keys by #'cddr
-                      appending (list key (Toot-info (etypecase Toot
+                      appending (list (make-keyword (princ-to-string key))
+                                      (Toot-info (etypecase Toot
 
-                                                       (Toot Toot)
-                                                       (string (find-record 'Toot  :name Toot))
-                                                       (uuid:uuid (find-record 'Toot :uuid Toot))))))
+                                                   (Toot Toot)
+                                                   (string (find-record 'Toot  :name Toot))
+                                                   (uuid:uuid (find-record 'Toot :uuid Toot))))))
         :|from| "avatars"
         :|inRoom| "@Tootsville"
         :|status| t))
@@ -1579,8 +1580,11 @@ Removed in 2.0. Zones no longer exist.
                (= 2 (length (function-lambda-list sym)))
                (eql '&rest (first (function-lambda-list sym))))
           (apply sym params)
-          (error "Not a remote operator command"))
-      (error "Not an operator command"))))
+          (private-admin-message 
+           (concatenate 'string "Can't run #" command) 
+           "Not a remote operator command"))
+      (private-admin-message "Can't do that"
+                             "Not an operator command"))))
 
 (definfinity speak ((key speech vol) user recipient/s)
   "speak

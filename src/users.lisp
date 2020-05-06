@@ -27,7 +27,7 @@
 
 (in-package :Tootsville)
 
-
+
 
 (defvar *user* nil
   "The currently-signed-in user, if any")
@@ -159,14 +159,14 @@ come from a trusted authentication provider like Google Firebase)."
                                           :rating :pg
                                           :default :identicon))))
 
-
+
 
 (defmacro with-user (() &body body)
   `(progn (unless *user*
             (error 'unidentified-player-error))
           ,@body))
 
-
+
 
 ;;; User details
 
@@ -206,7 +206,7 @@ come from a trusted authentication provider like Google Firebase)."
         (cons :|face|        (user-face user))
         (cons :|uuid|        (user-id user))))
 
-
+
 (defun player-childp (&optional (player *user*))
   (or (< (or (when-let (dob (person-date-of-birth player)) (legal-age dob))
              (person-age player)
@@ -223,7 +223,7 @@ come from a trusted authentication provider like Google Firebase)."
 (defun player-Toots (&optional (player *user*))
   (find-records 'Toot :player (person-uuid player)))
 
-
+
 
 (defun find-player-or-die ()
   "Ensure that a recognized player is connected."
@@ -234,7 +234,7 @@ come from a trusted authentication provider like Google Firebase)."
 \"note\":\"You are not signed in to the web services\",
 \"login\":\"https://play.Tootsville.org/login/\"}"))
 
-
+
 
 (defun assert-my-character (Toot-name &optional (user *user*))
   "Signal a security error if TOOT-NAME is not owned by USER"
@@ -244,26 +244,26 @@ come from a trusted authentication provider like Google Firebase)."
                        :name Toot-name)
     (error 'not-your-Toot-error :name Toot-name)))
 
-
+
 
 ;;; Copied from CL-Gravatar, but fixed for my version of Drakma (newer?)
 
 ;;; TODO: post patch upstream
 
 #| CL-Gravatar
-
-Copyright 2011 Greg Pfeil <greg@technomadic.org>
-
-Licensed under the Apache License,  Version 2.0 (the "License"); you may
-not use this file except in  compliance with the License. You may obtain
-a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless  required by  applicable law  or agreed  to in  writing, software
-distributed  under the  License  is  distributed on  an  "AS IS"  BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See  the License  for the  specific language  governing permissions  and
+                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
+Copyright 2011 Greg Pfeil <greg@technomadic.org> ;
+                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
+Licensed under the Apache License,  Version 2.0 (the "License"); you may ;
+not use this file except in  compliance with the License. You may obtain ;
+a copy of the License at               ;
+                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
+http://www.apache.org/licenses/LICENSE-2.0 ;
+                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
+Unless  required by  applicable law  or agreed  to in  writing, software ;
+distributed  under the  License  is  distributed on  an  "AS IS"  BASIS, ;
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. ;
+See  the License  for the  specific language  governing permissions  and ;
 limitations under the License. |#
 
 (define-constant +gravatar-base-uri+ (puri:uri "https://secure.gravatar.com/")
@@ -294,7 +294,7 @@ limitations under the License. |#
                               parameters
                               :utf-8 #'drakma:url-encode))
                      +gravatar-base-uri+)))
-
+
 
 (defun person-is-patron-p (person)
   ;; just me ☹
@@ -310,14 +310,14 @@ limitations under the License. |#
                                     (person-display-name person))
                 :|email| (user-email)))))
 
-
+
 
 (defun player-alert (person &rest message)
   ;; TODO
   (v:info :alert "Player Alert for person ~a; message ~{~a~^ ~}"
           (person-display-name person) message))
 
-
+
 
 (defun player-Toot (&optional (person *user*))
   (when-let (p-t-link (find-record 'player-Toot :player (person-uuid person)))
@@ -334,7 +334,7 @@ limitations under the License. |#
   (save-record Toot)
   Toot)
 
-
+
 
 (defun person-age* (&optional (user *user*))
   (or (when-let (dob (person-date-of-birth user))
@@ -379,7 +379,7 @@ limitations under the License. |#
         :|dateOfBirth| (person-date-of-birth user)
         :|age| (person-age* user)))
 
-
+
 
 (defun user-plane (&optional (user *user*))
   (Toot-world (find-active-toot-for-user user)))

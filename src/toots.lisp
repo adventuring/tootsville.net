@@ -39,36 +39,11 @@
 (defun Toot-childp (Toot)
   (and (not (emptyp (Toot-child-code Toot))) t))
 
-(defun Toot-item-info (inv)
-  (let* ((item (find-reference inv :item))
-         (template (find-reference item :template)))
-    (list :|equipped| (inventory-item-equipped inv)
-          :|uuid| (item-uuid item)
-          :|baseColor| (item-base-color item)
-          :|energy| (item-energy item)
-          :|template| (item-template-id template)
-          :|name| (item-template-name template)
-          :|defaultBaseColor| (item-template-default-base-color template)
-          :|avatar| (item-template-avatar template)
-          :|energyKind| (item-template-energy-kind template)
-          :|onZero| (item-template-on-zero template)
-          :|wearSlot| (item-template-wear-slot template)
-          :|weight| (item-template-weight template))))
-
 (defun inventory-item-equipped-p (item)
   "Is the inventory item equipped at all?"
   (ecase (inventory-item-equipped item)
     ((:Y :A) t)
     ((:N :nil) nil)))
-
-(defun Toot-inventory (Toot &optional (privatep
-                                       (and *user*
-                                            (uuid:uuid= (person-uuid *user*)
-                                                        (Toot-player Toot)))))
-  (remove-if (lambda (item)
-               (and privatep
-                    (not (inventory-item-equipped-p item))))
-             (find-records 'inventory-item :Toot (Toot-uuid Toot))))
 
 (defun Toot-peanuts (Toot)
   "How many magic peanuts does TOOT have?"
@@ -334,8 +309,8 @@ Fetch avatar information for a list of Toots.
           :|clothes| (Toot-clothes+pattern Toot)
           :|gameItem| (Toot-equipped-item Toot)
           :|equip| (apply #'vector
-                          (mapcar #'Toot-item-info
-                                  (Toot-inventory Toot privatep)))
+                          (mapcar #'item-info
+                                  (Toot-inventory Toot :privatep privatep)))
           :|scaling| (list :|x| (Toot-avatar-scale-x Toot)
                            :|y| (Toot-avatar-scale-y Toot)
                            :|z| (Toot-avatar-scale-z Toot))

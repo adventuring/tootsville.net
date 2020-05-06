@@ -29,6 +29,8 @@
 
 (in-package :Tootsville)
 
+(defconstant +builder-toot-hard-hat-template+ 2494)
+
 (define-operator-command $ (words user plane)
   "Execute a command script
 

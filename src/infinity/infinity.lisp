@@ -235,11 +235,15 @@ XXX WRITEME
          (declare (ignorable ,words))
          (let ((,user *user*) (,plane (user-plane *user*)))
            (declare (ignorable ,user ,plane))
-           (let ((reply (block nil (progn ,@body))))
-             (when (stringp reply)
-               (private-admin-message
-                ,(concatenate 'string #(#\#) (string-downcase command))
-                reply))))))))
+           (if (and *Toot*
+                    (Toot-has-item-p +builder-Toot-hard-hat-template+ *Toot*))
+               (let ((reply (block nil (progn ,@body))))
+                 (when (stringp reply)
+                   (private-admin-message
+                    ,(concatenate 'string #(#\#) (string-downcase command))
+                    reply)))
+               (private-admin-message "Builders Only"
+                                      "That command is only for Builder Toots.")))))))
 
 (defendpoint (POST "/world/infinity" "application/json")
   "Dispatch an Infinity-mode JSON packet to its handler based on the @code{c} parameter.

@@ -41,6 +41,7 @@
                  :avatar-scale-y (item-template-avatar-scale-y template)
                  :avatar-scale-z (item-template-avatar-scale-z template)
                  :x 0 :y 0 :z 0
+                 :facing 0
                  :latitude 0 :longitude 0 :altitude -1000
                  :world :chor)))
 
@@ -48,13 +49,14 @@
   "Create a new instance of TEMPLATE-ID and give it to RECIPIENT."
   (let ((item (create-item template-id))
         (player (etypecase recipient
-                  (Toot (Toot-player recipient))
-                  (string (Toot-player (find-record 'Toot :name recipient)))
+                  (Toot (find-reference recipient :player))
+                  (string (find-reference (find-record 'Toot :name recipient)
+                                          :player))
                   (person recipient)))
-        (Toot  (etypecase recipient
-                 (Toot recipient)
-                 (string (find-record 'Toot :name recipient))
-                 (person nil))))
+        (Toot (etypecase recipient
+                (Toot recipient)
+                (string (find-record 'Toot :name recipient))
+                (person nil))))
     (player-alert player :inventory :get item)
     (make-record 'inventory-item
                  :item (item-uuid item)
@@ -212,3 +214,14 @@ be in the world, and not owned by any other player."
         :|scale| (list :|x| (item-template-avatar-scale-x template)
                        :|y| (item-template-avatar-scale-y template)
                        :|z| (item-template-avatar-scale-z template))))
+
+
+
+(defun Toot-inventory (&optional (Toot *Toot*)
+                       &key privatep)
+  (mapcar (lambda (i-i-i)
+            (find-record 'item :uuid (inventory-item-item i-i-i))) 
+          (find-records 'inventory-item :Toot (Toot-UUID Toot))))
+
+(defun Toot-has-item-p (item-template-id &optional (Toot *Toot*))
+  (member item-template-id (mapcar #'item-template (Toot-inventory Toot))))

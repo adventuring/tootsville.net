@@ -229,3 +229,12 @@ server include:
                                   (format nil "zone~~~36r"
                                           (place-room-var place)))))
                          (apply #'places-at-position world pos)))))))
+
+(definfinity wtl ((course facing) u r)
+  "Walk the Line"
+  (broadcast (list :|from| "wtl"
+                   :|status| t
+                   :|course| course
+                   :|facing| facing
+                   :|u| (Toot-uuid *Toot*)
+                   :|n| (Toot-name *Toot*))))

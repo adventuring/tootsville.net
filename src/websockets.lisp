@@ -87,12 +87,13 @@
   (unicast message (find-record 'person :uuid (toot-player toot))))
 
 (defun force-close-hunchensocket (client)
-  (with-slots (clients lock) *infinity-websocket-resource*
-    (bt:with-lock-held (lock)
-      (with-slots (write-lock) client
-        (bt:with-lock-held (write-lock)
-          (setq clients (remove client clients))
-          (setq write-lock nil)))))
+  (ignore-errors
+    (with-slots (clients lock) *infinity-websocket-resource*
+      (bt:with-lock-held (lock)
+        (with-slots (write-lock) client
+          (bt:with-lock-held (write-lock)
+            (setq clients (remove client clients))
+            (setq write-lock nil))))))
   (hunchensocket:client-disconnected *infinity-websocket-resource* client))
 
 (defun ws-broadcast (res message)
@@ -114,23 +115,24 @@
                    (string message)
                    (cons (jonathan:to-json message))
                    (nil nil))))
-    (lparallel:pmapcar (lambda (peer)
-                         (when (and (user-account peer)
-                                    (uuid:uuid= (person-uuid (user-account peer))
-                                                (person-uuid user)))
-                           (hunchensocket:send-text-message peer message)
-                           (v:info :stream "Unicast to ~a: ~:d character~:p" peer (length message))))
-                       (hunchensocket:clients res))))
+    (dolist (peer (hunchensocket:clients res))
+      (when (and (user-account peer)
+                 (uuid:uuid= (person-uuid (user-account peer))
+                             (person-uuid user)))
+        (hunchensocket:send-text-message peer message)
+        (v:info :stream "Unicast to ~a: ~:d character~:p" peer (length message))
+        (return-from ws-unicast)))))
 
 (defmethod hunchensocket:client-connected ((res infinity-websocket-resource) user)
   (v:info :stream "WebSocket connection on ~a from ~a" res user))
 
 (defmethod hunchensocket:client-disconnected ((res infinity-websocket-resource) user)
   (v:info :stream "WebSocket disconnection on ~a from ~a" res user)
-  (broadcast (list :|from| "bye"
-                   :|status| t
-                   :|u| (Toot-uuid *Toot*)
-                   :|n| (Toot-name *Toot*))))
+  (when *Toot*
+    (broadcast (list :|from| "bye"
+                     :|status| t
+                     :|u| (Toot-uuid *Toot*)
+                     :|n| (Toot-name *Toot*)))))
 
 (defun ws-reply (message stream-user)
   (let ((text (jonathan.encode:to-json (lastcar message))))
@@ -165,7 +167,7 @@
           (assert (string-equal provider "Firebase"))
           (ensure-user-for-plist
            (check-firebase-id-token token))))
-
+      
       (progn (v:warn :auth "Unsupported âˆž JSON auth, ~s" json)
              nil)))
 
@@ -194,11 +196,28 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode â„
         :|uLs| (toot-name Toot)
         :|r| room))
 
+(defun ws-kick (client)
+  (unicast (list :|from| "admin"
+                 :|status| t
+                 :|title| "Whoops!"
+                 :|message| "You've signed in from another location.")
+           *user*)
+  (unicast (list :|from| "goToWeb"
+                 :|status| t
+                 :|url| "https://Tootsville.org/")
+           *user*)
+  (force-close-hunchensocket client))
+
 (defun websocket-authenticate (user auth$)
   (let ((auth (jonathan.decode:parse auth$)))
     (if-let (*user* (find-user-for-json auth))
-      (progn (setf (user-account user) *user*)
-             (hunchensocket:send-text-message user (log-ok-message)))
+      (progn 
+        (dolist (client (hunchensocket:clients *infinity-websocket-resource*))
+          (when-let (account (user-account client))
+            (when (uuid:uuid= (person-uuid account) (person-uuid *user*))
+              (ws-kick client))))
+        (setf (user-account user) *user*)
+        (hunchensocket:send-text-message user (log-ok-message)))
       (hunchensocket:send-text-message user (login-failed-message)))))
 
 (defun listen-for-websockets ()
