@@ -1682,7 +1682,7 @@ We no longer have zones, but we can have server paritings
          (dump-credits)
          (let ((vol (when (member vol '("shout" "whisper") :test 'equal)
                       vol)))
-           (toot-speak speech :vol vol))))))
+           (toot-speak speech :Toot *Toot* :vol vol))))))
 
 (define-constant +credits+
     "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.

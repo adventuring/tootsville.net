@@ -100,6 +100,34 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
 (defun places-at-position (world lat long alt)
   nil)
 
+(defun local-room-vars ()
+  (let* ((world (Toot-world *Toot*))
+         (pos (Toot-position *Toot*))
+         (i 0))
+    ;; TODO  ---  create  an  hash table  rather  than  interning
+    ;; a bunch of garbage as keywords
+    (list :|from| "rv"
+          :|status| t
+          :|rad| t
+          :|var|
+          (concatenate
+           'list
+           (list :|s| (sky-room-var))
+           (mapcan (lambda (item)
+                     (list (make-keyword
+                            (format nil "item2~~~36r" (incf i)))
+                           (item-info item)))
+                   (find-records 'item
+                                 :world world
+                                 :latitude (elt pos 0)
+                                 :longitude (elt pos 1)
+                                 :altitude (elt pos 2)))
+           (mapcan (lambda (place)
+                     (list (make-keyword
+                            (format nil "zone~~~36r"
+                                    (place-room-var place)))))
+                   (apply #'places-at-position world pos))))))
+
 (definfinity get-room-vars (nil u recipient/s)
   "Returns room variables
 
@@ -132,7 +160,7 @@ Room Objects
 Placed items: key: “item” + Unique-ID = value: item-description \"~\"
 x-position \"~\" y-position \"~\" facing \"~\" z-position
 
-@item item2
+@item itm2
 
 Placed items, new form: JSON object
 
@@ -201,32 +229,7 @@ server include:
 @end table
 
 "
-  (let* ((world (Toot-world *Toot*))
-         (pos (Toot-position *Toot*))
-         (i 0) (j 0))
-    (list 200
-          ;; TODO  ---  create  an  hash table  rather  than  interning
-          ;; a bunch of garbage as keywords
-          (list :|from| "rv"
-                :|var|
-                (concatenate
-                 'list
-                 (list :|s| (sky-room-var)
-                       :|rad| t)
-                 (mapcan (lambda (item)
-                           (list (make-keyword
-                                  (format nil "item2~~~36r" (incf i)))
-                                 (item-info item)))
-                         (find-records 'item
-                                       :world world
-                                       :latitude (elt pos 0)
-                                       :longitude (elt pos 1)
-                                       :altitude (elt pos 2)))
-                 (mapcan (lambda (place)
-                           (list (make-keyword
-                                  (format nil "zone~~~36r"
-                                          (place-room-var place)))))
-                         (apply #'places-at-position world pos)))))))
+  (list 200 (local-room-vars)))
 
 (definfinity wtl ((course facing) u r)
   "Walk the Line
@@ -310,6 +313,7 @@ Performs announcement of the player to the world and other bookkeeping."
                    :|from| "avatars"
                    :|inRoom| (Toot-world Toot)
                    :|avatars| (list :|joined| (Toot-info Toot))))
+  (unicast (local-room-vars))
   (list 200 (from-avatars (plist-with-index (connected-toots)))))
 
 (definfinity play-with ((character) u r)
