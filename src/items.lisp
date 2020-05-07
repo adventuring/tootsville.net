@@ -43,7 +43,7 @@
                  :x 0 :y 0 :z 0
                  :facing 0
                  :latitude 0 :longitude 0 :altitude -1000
-                 :world :chor)))
+                 :world :inv)))
 
 (defun grant-item (template-id recipient)
   "Create a new instance of TEMPLATE-ID and give it to RECIPIENT."
@@ -225,3 +225,12 @@ be in the world, and not owned by any other player."
 
 (defun Toot-has-item-p (item-template-id &optional (Toot *Toot*))
   (member item-template-id (mapcar #'item-template (Toot-inventory Toot))))
+
+
+
+(defun store-info (store-item)
+  (list :|id| (store-item-id store-item)
+        :|template| (item-template-info (find-reference store-item :template))
+        :|qty| (store-item-qty store-item)
+        :|price| (store-item-price store-item)
+        :|currency| (store-item-currency store-item)))

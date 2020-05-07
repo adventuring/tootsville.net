@@ -78,9 +78,7 @@ there are additional rules in `POTENTIAL-TOOT-NAME-P' which limit
 the string as a whole."
   (and (characterp character)
        (or (alphanumericp character)
-           (char= #\- character)
-           (char= #\' character)
-           (char= #\space character))))
+           (char= #\- character))))
 
 (defun potential-Toot-name-p (Toot-name)
   "Could TOOT-NAME be allowed as a Toot name?
@@ -93,8 +91,7 @@ Toot names must be:
 From three to 32 characters in length, inclusive.
 
 @item
-Characters must be  `POTENTIAL-TOOT-NAME-CHARACTER-P', ie, alphanumeric,
-a space, apostrophe, or hyphen.
+Characters must be  `POTENTIAL-TOOT-NAME-CHARACTER-P', ie, alphanumeric, or hyphen.
 
 @item
 The first character must be alphabetic

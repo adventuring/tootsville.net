@@ -364,3 +364,36 @@ Hopefully you've already tested the changes?"
                             (make-thread n :name (symbol-munger:lisp->english n)))
                           '(connect-cache connect-maria)))
     (assert (join-thread thread))))
+
+
+
+(defun double-@ (string)
+  (etypecase string
+    (cons (double-@ (format nil "~{~a~^, ~}" string)))
+    (string (regex-replace "([@{}])" string "@\\1"))))
+
+(defun describe-system (system s)
+  (format s "~2%@subsection{System ~:(~a~)}" (double-@ (asdf:component-name system)))
+  (when-let (description (asdf:system-description system))
+    (format s "~2% ~a" (double-@ description)))
+  (when-let (author (asdf:system-author system)) 
+    (format s "~2%Author: ~a" (double-@ author)))
+  (when-let (maintainer (asdf:system-maintainer system))
+    (format s "~2%Maintainer: ~a" (double-@ maintainer)))
+  (when-let (license (asdf:system-license system))
+    (format s "~2%License: ~a" (double-@ license))))
+
+(defun all-credits ()
+  (let ((systems-seen (list))
+        (systems (list (asdf:find-system :Tootsville))))
+    (with-output-to-string (s)
+      (loop 
+         (when (emptyp systems)
+           (return-from all-credits (get-output-stream-string s)))
+         (let ((system (pop systems)))
+           (pushnew system systems-seen :test 'equalp)
+           (describe-system system s)
+           (dolist (other-system (mapcar #'asdf:find-system
+                                         (asdf:component-sideway-dependencies system)))
+             (unless (member other-system systems-seen)
+               (pushnew other-system systems :test 'equalp))))))))

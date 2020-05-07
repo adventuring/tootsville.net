@@ -71,8 +71,8 @@
 
 (defrecord contact (:friendly "contacts")
   (uuid uuid)
-  (owner uuid ref person)
-  (contact uuid ref person)
+  (owner uuid ref Toot)
+  (contact uuid ref Toot)
   (starredp yornp)
   (added timestamp)
   (last-used timestamp))

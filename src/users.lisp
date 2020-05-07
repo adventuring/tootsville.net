@@ -135,6 +135,8 @@ come from a trusted authentication provider like Google Firebase)."
       (update-gravatar person email))
     (v:info :login "Person for session is ~a (~a)"
             (person-display-name person) (person-uuid person))
+    (incf (gethash (uuid:uuid-to-byte-array (person-uuid person))
+                   *infinity-users* 0))
     person))
 
 (defun update-gravatar (person email)
@@ -248,19 +250,19 @@ come from a trusted authentication provider like Google Firebase)."
 ;;; TODO: post patch upstream
 
 #| CL-Gravatar
-                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
-Copyright 2011 Greg Pfeil <greg@technomadic.org> ;
-                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
-Licensed under the Apache License,  Version 2.0 (the "License"); you may ;
-not use this file except in  compliance with the License. You may obtain ;
-a copy of the License at               ;
-                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
-http://www.apache.org/licenses/LICENSE-2.0 ;
-                                        ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
-Unless  required by  applicable law  or agreed  to in  writing, software ;
-distributed  under the  License  is  distributed on  an  "AS IS"  BASIS, ;
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. ;
-See  the License  for the  specific language  governing permissions  and ;
+
+Copyright 2011 Greg Pfeil <greg@technomadic.org> 
+
+Licensed under the Apache License,  Version 2.0 (the "License") you may 
+not use this file except in  compliance with the License. You may obtain 
+a copy of the License at               
+
+http://www.apache.org/licenses/LICENSE-2.0 
+
+Unless  required by  applicable law  or agreed  to in  writing, software 
+distributed  under the  License  is  distributed on  an  "AS IS"  BASIS, 
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+See  the License  for the  specific language  governing permissions  and 
 limitations under the License. |#
 
 (define-constant +gravatar-base-uri+ (puri:uri "https://secure.gravatar.com/")
@@ -268,6 +270,7 @@ limitations under the License. |#
   :documentation "Why would we ever _not_ use SSL?")
 
 (defun gravatar-hash (email)
+  "Computes the Gravatar hash of an EMAIL address."
   (string-downcase (format nil "~{~2,'0x~}"
                            (coerce (md5:md5sum-sequence
                                     (string-downcase (string-trim '(#\space)
@@ -294,15 +297,19 @@ limitations under the License. |#
 
 
 (defun person-is-patron-p (person)
+  "Returns true if PERSON is a patron of CIWTA.
+
+Currently just me."
   ;; just me ☹
   (string= (uuid-to-uri (person-uuid person)) "SAsJFzx6TRO1W6pWEFxeAA=="))
 
 (defun get-rollbar-person (&optional (person *user*))
+  "Return PERSON information for Rollbar error reporting"
   (when person
     (list :|person|
           (list :|uid| (princ-to-string (person-uuid person))
                 :|username| (format nil "~@[Toot: ~a, ~]Person: ~a"
-                                    (when-let (Toot (player-Toot person))
+                                    (when-let (Toot (ignore-not-found (player-Toot person)))
                                       (ignore-not-found (Toot-name Toot)))
                                     (person-display-name person))
                 :|email| (user-email)))))
@@ -310,17 +317,21 @@ limitations under the License. |#
 
 
 (defun player-alert (person &rest message)
-  ;; TODO
-  (v:info :alert "Player Alert for person ~a; message ~{~a~^ ~}"
-          (person-display-name person) message))
+  "Sends an asynchronous notification alert MESSAGE to PERSON"
+  (when-let (client (user-stream person))
+    (unicast (list :|from| "alert"
+                   :|status| t
+                   :|alert| message)
+             person)))
 
 
 
 (defun player-Toot (&optional (person *user*))
+  "Find the Toot which PERSON is playing as (or was most recently)"
   (when-let (p-t-link (find-record 'player-Toot :player (person-uuid person)))
     (ignore-not-found (find-record 'Toot :UUID (player-Toot-Toot p-t-link)))))
 
-(defun (setf player-toot) (Toot person)
+(defun (setf player-Toot) (Toot person)
   (if-let (p-t-link (ignore-not-found
                       (find-record 'player-Toot :player (person-uuid person))))
     (progn (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
@@ -334,15 +345,18 @@ limitations under the License. |#
 
 
 (defun person-age* (&optional (user *user*))
+  "Get a person's age in years."
   (or (when-let (dob (person-date-of-birth user))
         (timestamp-whole-year-difference (now) dob))
       (person-age user)))
 
 (defun reasonable-name-char-p (char)
+  "Is CHAR a character that can reasonably appear in a person's name?"
   (or (alpha-char-p char)
       (find char "-'`\",.()‘’“” " :test #'char=)))
 
 (defun reasonable-name-p (name)
+  "Does NAME appear to be a reasonable name for a person?"
   (and (every #'reasonable-name-char-p name)
        (not (emptyp name))))
 
@@ -361,7 +375,32 @@ limitations under the License. |#
   :test #'list-of-string=)
 
 (defun person-info (&optional (user *user*))
-  "Creates a JSON-like PList of information about USER"
+  "Creates a JSON-like PList of information about USER.
+
+Its contents are:
+
+@table @code
+@item uuid
+The person's UUID
+@item displayName
+The person's name, formatted for display.
+@item patronP
+True if this person is a patron of the CIWTA project.
+@item gender
+One of ☿ (unknown/other),♀ (female), or ♂ (male).
+@item givenName
+The person's given name.
+@item surname
+The person's surname.
+@item language
+The person's spoken language
+@item sensitiveP
+If true, this is a Sensitive Player
+@item dateOfBirth
+The person's date of birth, in an ISO format string
+@item age
+The person's age in years
+@end table"
   (list :|uuid| (person-uuid user)
         :|displayName| (person-display-name user)
         :|patronP| (or (person-is-patron-p user) :false)
@@ -379,6 +418,7 @@ limitations under the License. |#
 
 
 (defun user-plane (&optional (user *user*))
+  "Find the world in which USER's Toot is playing."
   (Toot-world (find-active-toot-for-user user)))
 
 (defmethod print-object ((user person) s)
@@ -402,6 +442,7 @@ limitations under the License. |#
               "")))
 
 (defun url-to-string (url)
+  "Converts URL to a string, if it is not already."
   (etypecase url
     (string url)
     (puri:uri (with-output-to-string (s)
@@ -422,3 +463,22 @@ Uses the first, alphabetically speaking."
                                              (find-records 'person-link :person (person-uuid user)))))
                             #'string<)))
     (subseq first-mailto 7 #| length of "mailto:" |#)))
+
+
+
+(defun sign-in-local (email)
+  "Set *USER* to the user with EMAIL globally."
+  (if-let (links (person-links-to-email email))
+    (if (= 1 (length links))
+        (setf *user* (find-reference (first links) :person))
+        (error "Multiple users share email ~a" email))
+    (error "No users have email ~a" email)))
+
+(defun sign-in-local-Toot (Toot)
+  "Set *TOOT* to the Toot named TOOT."
+  (setf *Toot* (find-record 'Toot :name Toot)))
+
+
+
+(defun builder-Toot-p (&optional (Toot *Toot*))
+  (Toot-has-item-p +builder-Toot-hard-hat-template+ *Toot*))

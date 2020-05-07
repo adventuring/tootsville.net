@@ -59,6 +59,10 @@ TODO: This is not implemented."
 (defun tcp-reply (message tcp-client)
   (tcp-unicast message tcp-client))
 
+(defun tcp-broadcast (message)
+  ;; TODO
+  )
+
 (defun tcp-process-packet (packet tcp-client)
   (if-let (*user* (tcp-client-user tcp-client))
     (tcp-reply (call-infinity-from-stream packet)

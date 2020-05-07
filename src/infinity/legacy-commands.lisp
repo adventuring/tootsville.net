@@ -47,7 +47,7 @@
   "Alias for `INFINITY-SET-FURNITURE', q.v."
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
-(definfinity add-To-List (nil user recipient/s)
+(definfinity add-to-list (nil user recipient/s)
   "add a user to a buddy list or ignore list (removed in 1.2)
 
 …using   the   traditional   (online-only,   no   notification   engine)
@@ -319,6 +319,7 @@ that item).
     (error 'infinity-error :http-status 400 :memo :cannot-select-color))
   ;; TODO don
   )
+
 (definfinity echo ((&rest d) user recipient/s)
   "Echoes back the supplied JSON (or ActionScript) object to the client.
 
@@ -353,7 +354,7 @@ it will be  truncated to 1,024 characters. No warning  will be issued to
 the user in the case of truncation."
   (list :|from| "echo" :|status| t :|You said| (limit-string-length d 1024)))
 
-(definfinity end-Event ((moniker event-id score status) user recipient/s)
+(definfinity end-event ((moniker event-id score status) user recipient/s)
   "End an event started by `INFINITY-START-EVENT'
 
 This method terminates an event (probably  a fountain, in 2.0) which was
@@ -452,7 +453,7 @@ names of Toots."
           :|inRoom| "@Tootsville"
           :|status| t)))
 
-(definfinity game-Action ((&rest more-params &key action &allow-other-keys) user recipient/s)
+(definfinity game-action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   "Send an in-world game's action
 
 WRITEME  — basically  similar  to an  sendOutOfBandMessage(JSONObject,
@@ -475,7 +476,7 @@ encode a response into a JSON form
 This command is no longer needed."
   (error 'legacy-gone))
 
-(definfinity get-Avatars ((&rest _+user-names) user recipient/s)
+(definfinity get-avatars ((&rest _+user-names) user recipient/s)
   "Get avatar data for a list of (other) users. cv. `INFINITY-FINGER'
 
 Parameters:
@@ -510,7 +511,7 @@ during character creation, rather than  using hard-coded lists that have
 to be separately maintained in the client and server both."
   (error 'legacy-gone))
 
-(definfinity get-Inventory ((&rest d) user recipient/s)
+(definfinity get-inventory ((&rest d) user recipient/s)
   "get all inventory for an user (themself) — both active and inactive
 
 Returns a set of items as
@@ -609,8 +610,19 @@ LOGIN-NAME @} to look at someone else's inventory
 u - The user whose inventory to be searched, who is the caller of this routine
 
 "
-  )
-(definfinity get-Online-Users ((in-room) user recipient/s)
+  (string-case type
+    ("clothes")
+    ;; All items which can be worn in any slot other than @code{TRUNK}, @code{HAND},
+    ;; @code{LHAND} or @code{RHAND}, or @code{PIVITZ}
+    ("pivitz")
+    ("furniture")
+    ("stationery")
+    ("accessories")
+    ;; All items which can be equipped in @code{TRUNK} slot, or @code{HAND},
+    ;; @code{LHAND} or @code{RHAND} (for non-Toot characters).
+    ))
+
+(definfinity get-online-users ((in-room) user recipient/s)
   "Get a list of users in a Zone, or in a Room.
 
 This is an administrative function, only available to staff members.
@@ -634,7 +646,15 @@ STAFF_LEVEL_STAFF_MEMBER
 NotFoundException - if the room requested doesn't exist
 
 "
-  )
+  (if (builder-Toot-p)
+      (list 200 (list :|from| "get-online-users"
+                      :|status| t
+                      :|inRoom| "@Tootsville"
+                      :|toots| (connected-toots)))
+      (list 403 (list :|from| "get-online-users"
+                      :|status| :false
+                      :|error| "That is a Builder Toot command"))))
+
 (definfinity get-Room-List (nil user recipient/s)
   "Get a list of all ``well known'' Rooms currently active/visible.
 
@@ -668,7 +688,7 @@ The Pink Moon
 "
   #("CHOR" "ORBIT" "MOON" "OTHM" "PINK"))
 
-(definfinity getServerTime (nil user recipient/s)
+(definfinity get-server-time (nil user recipient/s)
   "Send the server time to the client requesting it
 
 For synchronization purposes.
@@ -682,6 +702,7 @@ not the Universal time, and in milliseconds, not seconds."
               :|serverTime| (* (- (get-universal-time)
                                   +unix-zero-in-universal-time+)
                                1000))))
+
 (definfinity get-session-apple ((&rest d) user recipient/s)
   "Initialise a session key for stream or batch mode operations (Unused now)
 
@@ -715,16 +736,26 @@ Returns the details about store items queried-for by the user.
 @subsection 404 Not Found
 
 If any item ID cannot be found, the entire query fails with a 404."
-  (list 200
-        (append (list :|from| "getStoreItemInfo"
-                      :|status| t)
-                (loop for (key id) on jso by #'cddr
-                   appending (list key
-                                   (store-info
+  (let ((hash (make-hash-table :test 'equal)))
+    (setf (gethash "from" hash) "getStoreItemInfo"
+          (gethash "status" hash) t)
+    (loop for (key id) on jso by #'cddr
+       do (setf (gethash key hash) (store-info
                                     (find-record 'store-item
-                                                 :id (parse-integer id))))))))
+                                                 :id (parse-integer id)))))
+    (list 200 hash)))
 
-(definfinity get-User-Lists (nil user recipient/s)
+(defun Toot-buddy-list (&optional (Toot *Toot*))
+  (mapcar 
+   (lambda (contact)
+     (list :|id| (contact-uuid contact)
+           :|n| (Toot-name (find-reference contact :contact))
+           :|starredP| (contact-starredp contact)
+           :|added| (contact-added contact)
+           :|lastUsed| (contact-last-used contact)))
+   (find-records 'contact :owner (Toot-UUID Toot))))
+
+(definfinity get-user-lists (nil user recipient/s)
   "Get the user's buddy list and ignore list.
 
 @verbatim
@@ -740,7 +771,11 @@ u - The user whose buddy and ignore lists will be fetched
 Buddies on the buddy list can be starred, with attribute @code{starred: true}.
 
 "
-  )
+  (list 200 (list :|from| "getUserLists"
+                  :|status| t
+                  :|buddyList| (Toot-buddy-list)
+                  :|ignoreList| #())))
+
 (definfinity get-Wallet ((&rest d) user recipient/s)
   "Get the contents of the player's wallet (peanuts and fairy dust)
 
@@ -823,7 +858,8 @@ u - the user doing something
 @subsection Changes from 1.2 to 2.0
 
 @code{z} can no longer be omitted if @code{x} or @code{y} are specified.
-")
+"
+  (error 'unimplemented))
 (definfinity init-user-room ((room autoJoin) user recipient/s)
   "Create a user's private room (in their house).
 
@@ -859,7 +895,8 @@ u - The user whose house-room needs to be initialized
 
 Removed in 2.0.
 
-User rooms are no longer needed nor supported.")
+User rooms are no longer needed nor supported."
+  (error 'unimplemented))
 
 (definfinity join ((room from) user recipient/s)
   "Join a room.
@@ -890,7 +927,8 @@ u - the user joining the room
 
 @subsection 410 Gone
 
-Removed in 2.0.")
+Removed in 2.0."
+  (error 'unimplemented))
 
 (definfinity login ((userName password zone) user recipient/s)
   "Notification of a new player in the game.
@@ -899,7 +937,7 @@ Removed in 2.0.")
  jso - @{ userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE @}
 
 Response: logOK or @{ err: login.fail, msg: reason @}"
-  )
+  (error 'unimplemented))
 
 (definfinity logout ((&rest d) user recipient/s)
   "Log out of this game session
@@ -911,7 +949,7 @@ logged it out before it received  & processed the logout message. So, we
 waited for the expected lag time to expire and then throw 2 full seconds
 of wasted wait time after it, which had ought to be enough time. This is
 no longer supported."
-  )
+  (error 'unimplemented))
 
 (definfinity mail-customer-service ((&rest d) user recipient/s)
   "  send an eMail to customer service (feedback)
@@ -920,15 +958,14 @@ no longer supported."
  jso - @{ subject: STRING, body: STRING @}
  u - the user sending the feedback
 
- ")
+ "
+  (error 'unimplemented))
 
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Handle looking at other user's inventories
 
 Parameters: jso -  @{\"who\": the login name  of the user of  whom to get
-the  inventory   @};  optional   \"type\":  to   filter  by   type.  (see
-getInventoryByType(JSONObject,  AbstractUser,  AbstractUser,  Room)  for
-details)
+the  inventory   @};  optional   \"type\":  to   filter  by   type.  (see `INFINITY-GET-INVENTORY-BY-TYPE' for details)
 
 u  - The  user requesting  the inventory
 
@@ -939,9 +976,10 @@ Throws: org.json.JSONException -  Thrown if
  the data  cannot be interpreted  from the  JSON objects passed  in, or
  conversely,  if  we   can't  encode  a  response  into   a  JSON  form
 
-NotFoundException - Could not find a user with that name")
+NotFoundException - Could not find a user with that name"
+  (error 'unimplemented))
 
-(definfinity ping (nil user recipient/s)
+(definfinity ping ((ping-started) user recipient/s)
   "Send a ping to the server to get back a pong.
 
 This also updates the user's last-active timestamp.
@@ -957,16 +995,24 @@ The response packet contains literally
 @code{true}
 @item ping
 @code{\"pong\"}
+@item pingStarted
+see below
 @item serverTime
 The server's time as a Unix-epoch timestamp in milliseconds.
-@end table"
-  (setf (Toot-last-active *Toot*) (now))
-  (list 200 (list :|from| "ping"
-                  :|ping| "pong"
-                  :|status| t
-                  :|serverTime| (* (- (get-universal-time)
-                                      +Unix-zero-in-universal-time+)
-                                   1000))))
+@end table
+
+If  the  user sends  a  @code{pingStarted}  value,  it is  replied  back
+unchanged; otherwise, @code{pingStarted} is replied with the server-time
+as well.
+"
+  (let ((java-now (* (- (get-universal-time)
+                        +Unix-zero-in-universal-time+)
+                     1000)))
+    (list 200 (list :|from| "ping"
+                    :|ping| "pong"
+                    :|status| t
+                    :|pingStarted| (or ping-started java-now)
+                    :|serverTime| java-now))))
 
 (definfinity prompt-reply ((id reply) user recipient/s)
   "promptReply(org.json.JSONObject jso,
@@ -1125,7 +1171,8 @@ The server's time as a Unix-epoch timestamp in milliseconds.
 room - the room in which the user is standing (unimportant)
 
 Throws:
- org.json.JSONException - for really bad syntax errors")
+ org.json.JSONException - for really bad syntax errors" 
+  (error 'unimplemented))
 
 (definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
@@ -1135,7 +1182,8 @@ Throws:
 or to attend to someone who had previously been ignored: @{ ignore: (name) @}
 
  u - The user whose buddy list or ignore list will be updated
- ")
+ "
+  (error 'unimplemented))
 
 (definfinity report-bug ((info) user recipient/s)
   "This method allows the client to ``phone home'' to report a bug.
@@ -1351,14 +1399,17 @@ as a string.
 
  u - The user reporting the bug.
 
- ")
+ "
+  (error 'unimplemented))
 
 (definfinity report-user ((user-Name) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
  @{ userName = user to be reported @}
 
- ")
+ "
+  (error 'unimplemented))
+
 (definfinity request-buddy ((buddy) user recipient/s)
   "Request adding a user to your buddy list (mutual-add) using the notification-based system
 
@@ -1377,61 +1428,67 @@ confirmed adding. AKA the Twitter vs. Facebook mechanisms.
 @subsection New in 1.1
 
 This is new in Romance 1.1
-")
+"
+  (unicast (list :|from| "buddyRequest"
+                 :|status| t
+                 :|sender| (Toot-name *Toot*)
+                 :|signature| "FIXME")))
+
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users
 
- Out of the band of communications.
+                 Out of the band of communications.
 
-This is neither a public nor a private message in the chat context: just
-some additional data that is being provided.
+                 This is neither a public nor a private message in the chat context: just
+                 some additional data that is being provided.
 
 
- @{ sender: sender, from: outOfBand, status: true, body: @{JSON@} @}
+                 @{ sender: sender, from: outOfBand, status: true, body: @{JSON@} @}
 
- Adds \"roomTitle\"  to body if  body contains \"room\"  and title
- can be determined
+                 Adds \"roomTitle\"  to body if  body contains \"room\"  and title
+                 can be determined
 
- Add  @samp{\"sendRoomList\":  \"true\"}  to give  the  user  an
- updated  room list  as well.  (Necessary for  invitations to  new
- rooms.) Inviting to houses …
+                 Add  @samp{\"sendRoomList\":  \"true\"}  to give  the  user  an
+                 updated  room list  as well.  (Necessary for  invitations to  new
+                                                          rooms.) Inviting to houses …
 
-@verbatim
- initUserRoom { room: 0, autoJoin: false }
- { from: initUserRoom, status: true, moniker: ROOM-MONIKER } ** OK
+                 @verbatim
+                 initUserRoom { room: 0, autoJoin: false }
+                 { from: initUserRoom, status: true, moniker: ROOM-MONIKER } ** OK
 
- =>  { from:  initUserRoom, status:  false, err:  exists, moniker:
- ROOM-MONIKER } ** OK
+                 =>  { from:  initUserRoom, status:  false, err:  exists, moniker:
+                 ROOM-MONIKER } ** OK
 
- => {  from: initUserRoom, status:  false, err: showFirstRun  } **
- ERR (player does not have that room)
+                 => {  from: initUserRoom, status:  false, err: showFirstRun  } **
+                 ERR (player does not have that room)
 
- sendOutOfBandMessage   {  to:   USER-LOGIN,   body:  {   locType:
- \"house\", type: \"invite\", room: MONIKER } }
+                 sendOutOfBandMessage   {  to:   USER-LOGIN,   body:  {   locType:
+                 \"house\", type: \"invite\", room: MONIKER } }
 
- {  from:  outOfBand,  sender:  YOUR-LOGIN,  status:  true,  body:
- { locType: \"house\", type: \"invite\", room: MONIKER, roomTitle:
- USER-VISIBLE-NAME } }
-@end verbatim
- for user houses, roomTitle will be like \"BlackDaddyNerd's House\"
+                 {  from:  outOfBand,  sender:  YOUR-LOGIN,  status:  true,  body:
+                 { locType: \"house\", type: \"invite\", room: MONIKER, roomTitle:
+                 USER-VISIBLE-NAME } }
+                 @end verbatim
+                 for user houses, roomTitle will be like \"BlackDaddyNerd's House\"
 
- Parameters:
+                 Parameters:
 
- jso - To send to one user:  @{ to: userName, body: @{JSON@} @}, or to
- broadcast to the entire room: @{ toRoom: true, body: @{JSON@} @}
+                 jso - To send to one user:  @{ to: userName, body: @{JSON@} @}, or to
+                 broadcast to the entire room: @{ toRoom: true, body: @{JSON@} @}
 
- u - The sender of the out-of-band-message
+                 u - The sender of the out-of-band-message
 
- room -  The room in which  the sender is standing.  Necessary for
- the toRoom version of this method.
+                 room -  The room in which  the sender is standing.  Necessary for
+                 the toRoom version of this method.
 
- Throws:
+                 Throws:
 
- org.json.JSONException - Thrown if the data cannot be interpreted
- from  the JSON  objects passed  in,  or conversely,  if we  can't
- encode a response into a JSON form
+                 org.json.JSONException - Thrown if the data cannot be interpreted
+                 from  the JSON  objects passed  in,  or conversely,  if we  can't
+                 encode a response into a JSON form
 
- ")
+                 "
+  (error 'unimplemented))
 
 (definfinity server-time ((server-time) u r )
   "Accept  the client's  notification of  a server-time  adjustment.
@@ -1439,7 +1496,9 @@ some additional data that is being provided.
  This is used to compute the client's round-trip lag time.
 
  jso - @{ serverTime: LONG milliseconds since Unix epoch @}"
-  (list 200 (list :|serverTime| (* 1000
+  (list 200 (list :|from| "serverTime"
+                  :|status| t
+                  :|serverTime| (* 1000
                                    (- (get-universal-time)
                                       +Unix-time-in-Universal+)))))
 
@@ -1527,7 +1586,8 @@ slot is the item's UUID
  room - the room to which the variable(s) are associated
  Throws:
  org.json.JSONException - if the packet is malformed
- PrivilegeRequiredException - if a non-privileged user attempts to set a room variable.")
+ PrivilegeRequiredException - if a non-privileged user attempts to set a room variable."
+  (error 'unimplemented))
 
 (definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
   "setUserVar
@@ -1547,27 +1607,24 @@ slot is the item's UUID
  Throws:
  org.json.JSONException - if the JSO can't be decoded
 
- ")
+ "
+  (error 'unimplemented))
 
 (definfinity spawn-zone ((&rest d) user recipient/s)
   "spawnZone
 
  Spawn an additional zone.
 
- Parameters:
- jso - JSON object, containing an associative array whose values are zones to be spawned
- u - The caller responsible
- room - Where is the caller?
- Throws:
- org.json.JSONException - if something goes awry
- PrivilegeRequiredException - if the user isn't a Developer
+ 
+@subsection Implementation in 5.0
 
-@subsection 410 Gone
+We no longer have zones, but we can have server paritings 
 
-Removed in 2.0. Zones no longer exist.
- ")
+ "
+  (error 'unimplemented))
 
 (defun parse-operator-command (string)
+  "Parse an operator command in STRING (beginning with #)"
   (assert (char= (char string 0) #\#))
   (let ((command (subseq string 1 (position #\Space string)))
         (params (when-let (space (position #\Space string))
@@ -1627,12 +1684,21 @@ Removed in 2.0. Zones no longer exist.
                       vol)))
            (toot-speak speech :vol vol))))))
 
+(define-constant +credits+
+    "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
+
+Special thanks to  Ali Dolan, Mariaelisa Greenwood,  Maureen Kenny, Levi
+Mc Call, and Zephyr Salz.
+
+Tootsville  IV  by  Brandon  Booker, Gene  Cronk,  Robert  Dawson,  Eric
+Feiling,  Tim  Hays,  Sean  King, Mark  Mc  Corkle,  Cassandra  Nichols,
+Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC.
+"
+  :test 'equal)
+
 (defun dump-credits ()
-  (private-admin-message "Credits" "Tootsville V by Bruce-Robert Pocock.
-<br>
-Special thanks to Ali Dolan, Mariaelisa Greenwood, Levi Mc Call, and Zephyr Salz.
-<br>
-Tootsville IV by Gene Cronk, Robert Dawson, Eric Feiling, Tim Hays, Sean King, Bruce-Robert Pocock, and Ed Winkelman."))
+  "Send +CREDIT+ as a private admin message. Response to the ,credits user utterance."
+  (private-admin-message "Credits" +credits+))
 
 (definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin an event. Might return an error. Uses Quæstor for the heavy lifting.
@@ -1659,7 +1725,8 @@ For successfully registered events. Must  be completed or canceled using
 `INFINITY-END-EVENT', qv
 
 @end itemize
-")
+"
+  (error 'unimplemented))
 
 (definfinity end-event ((moniker) user recipient/s)
   "Attempt to end an event begun by `INFINITY-START-EVENT'
@@ -1681,7 +1748,8 @@ gotten out of a command.
 SQLException  - probably  means that  the moniker  is bad,  but I'm  not
 really doing much to validate it here
 
- ")
+ "
+  (error 'unimplemented))
 (definfinity use-equipment ((|t| x y z on) user recipient/s)
   "useEquipment
 
@@ -1700,4 +1768,5 @@ Throws:
 org.json.JSONException - WRITEME
 
 t ∈ 1,2 for primary or secondary item
- ")
+ "
+  (error 'unimplemented))

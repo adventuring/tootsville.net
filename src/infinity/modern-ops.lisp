@@ -41,3 +41,13 @@
   (broadcast (list :|from| "newScript"
                    :|status| t
                    :|script| (first words))))
+
+(define-operator-command ws-stats (words u r)
+  (format nil "This server is ~a.~2%~a"
+          (machine-instance) (ws-stats)))
+(define-operator-command ws-bandwidth-by-source (words u r)
+  (format nil "This server is ~a.~2%~a"
+          (machine-instance) (ws-bandwidth-by-source)))
+(define-operator-command infinity-stats (words u r)
+  (format nil "This server is ~a.~2%~a"
+          (machine-instance) (infinity-stats)))

@@ -137,6 +137,7 @@ is malformed.)"
                           :x 0 :y 0 :z 0
                           :latitude 0 :longitude 0 :altitude 0
                           :world :chor
+                          :facing 0
                           :avatar-scale-x 1.0
                           :avatar-scale-y 1.0
                           :avatar-scale-z 1.0)))
@@ -148,4 +149,8 @@ is malformed.)"
                       :person (person-uuid *user*)
                       :toot (Toot-uuid Toot)
                       :equipped :y))
-        (list 201 (Toot-uuid Toot))))))
+        (play-with-Toot Toot)
+        (list 201 (list :|from| "newToot"
+                        :|status| t
+                        :|id| (princ-to-string (Toot-uuid Toot))
+                        :|name| (Toot-name Toot)))))))

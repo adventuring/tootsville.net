@@ -382,9 +382,29 @@ Now, we also report (at least) X-FADU, fairy dust.
         :|currency| (list :x-tvpn (Toot-peanuts Toot)
                           :x-fadu (Toot-fairy-dust Toot))))
 
-(defun Toot-world (toot)
+(defun Toot-world (Toot)
   :chor) ; TODO
 
-(defun Toot-position (toot)
+(defun Toot-position (Toot)
   (list 0 0 0)) ; TODO
 
+(defun rename-Toot (Toot new-name)
+  (assert (potential-Toot-name-p new-name) (new-name)
+          "~a is not in the format of a Toot name" new-name)
+  (let ((old-name (Toot-name Toot)))
+    (handler-case
+        (progn 
+          (setf (Toot-name Toot) new-name)
+          (save-record Toot))
+      (dbi.error:dbi-database-error (c)
+        (let ((c$ (format nil "~a" c)))
+          (if (and (search "Duplicate entry" c$)
+                   (search "unique_name" c$))
+              (progn
+                (setf (Toot-name Toot) old-name)
+                (error "Name already in use: can't rename ~a as ~a" old-name new-name))
+              (signal c)))))))
+
+(defun destroy-Toot (Toot)
+  (cerror "Continue" "About to destroy the Toot ~a for all time." Toot)
+  (destroy-record Toot))

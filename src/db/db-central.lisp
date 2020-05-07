@@ -310,7 +310,7 @@ ON DUPLICATE KEY UPDATE  ~
                                          table
                                          (lisp-to-db-name (caar columns))))))
          (with-slots (,(caar columns)) object
-           (cl-dbi:execute q ,(column-save-mapping (car columns))))
+           (cl-dbi:execute q (list ,(column-save-mapping (car columns)))))
          (let ((rows (cl-dbi:row-count *dbi-connection*)))
            (when (zerop rows)
              (signal 'update-nil))

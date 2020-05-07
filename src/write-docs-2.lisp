@@ -58,15 +58,12 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA."))))))
   (let (list)
     (do-all-symbols (symbol list)
       (when (member (symbol-package symbol)
-                    (mapcar #'find-package '(Tootsville Rollbar Thread-pool-taskmaster Chœrogryllum)))
+                    (mapcar #'find-package '(Tootsville Tootsville-User Dreamhost
+                                             Rollbar Thread-pool-taskmaster Chœrogryllum)))
         (push symbol list)))))
 
 (defun write-docs ()
-  "Write out the documentation in TeΧinfo format using DECLT.
-
-Note that DECLT  is not usually compiled into the  binary by default, so
-this  may  have  to  download  DECLT  and/or  its  dependencies  through
-Quicklisp when called."
+  "Write out the documentation in TeΧinfo format."
   (format *trace-output* "~& Writing documentation…")
 
   (let ((source-dir (asdf:component-pathname (asdf:find-system :tootsville))))
@@ -79,11 +76,11 @@ Quicklisp when called."
 @c Tootsville.texi — Reference manual
 @setfilename Tootsville.info
 @documentencoding UTF-8
-@settitle The Book of Romance Ⅱ for Tootsville Ⅴ
+@settitle The Book of Romance II for Tootsville V
 @letterpaper
 @setchapternewpage odd
 @documentdescription
-The Book of Romance Ⅱfor Tootsville Ⅴ version ~a
+The Book of Romance II for Tootsville V version ~a
 @c Lisp files
 @macro lispfileindex{name}
 @cindex @t{\name\}
@@ -180,7 +177,7 @@ The Book of Romance Ⅱfor Tootsville Ⅴ version ~a
 
 @dircategory Common Lisp
 @direntry
-* Tootsville: (Tootsville). The Book of Romance Ⅱ for Tootsville Ⅴ
+* Tootsville: (Tootsville). The Book of Romance II for Tootsville V
 @end direntry
 
 @copying
@@ -199,7 +196,7 @@ preserved on all copies.
 Permission is granted to process this  file through @TeX{} and print the
 results,  provided the  printed  document carries  a copying  permission
 notice identical to this one except for the removal of this paragraph
-(this paragraph not being relevant to the printed manual).
+\(this paragraph not being relevant to the printed manual).
 
 @end ignore
 
@@ -215,8 +212,8 @@ except that this permission notice may be translated as well.
 @end copying
 
 @titlepage
-@title The Book of Romance Ⅱ
-@subtitle A reference manual for Tootsville Ⅴ, version ~:*~a.
+@title The Book of Romance II
+@subtitle A reference manual for Tootsville V, version ~:*~a.
 
 @author Bruce-Robert Pocock <@email{BRPocock@@ciwta.org}>
 
@@ -232,18 +229,18 @@ This manual is based upon materials taken from Declt 2.3.
 
 @ifnottex
 @node Top, Copying, (dir), (dir)
-@top The Book of Romance Ⅱ
+@top The Book of Romance II
 
-This is The Book of Romance Ⅱ, describing the Romance Ⅱ game core and
-Tootsville Ⅴ in particular. This manual is generated from the docstrings found
-in the Tootsville package.
+This is The Book of Romance II, describing the Romance II game core and
+Tootsville V in particular. This manual is generated from the docstrings found
+in the Tootsville package and supporting packages.
 
 @menu
 * Copying:: The GNU Affero General Public License
 * Introduction:: What Tootsville Ⅴ (Romance Ⅱ) is all about
 * Definitions:: The symbols documentation
 * Conclusion:: Time to go
-* Indexes:: Concepts, functions, variables and data types
+* Indices:: Concepts, functions, variables and data types
 @end menu
 
 @insertcopying
@@ -270,81 +267,104 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 @node Introduction, Definitions, Copying, Top
 @chapter Introduction ~2%"
               (asdf:component-version (asdf:find-system :Tootsville)))
-      )
-    (princ (alexandria:read-file-into-string
-            (merge-pathnames #p"src/doc/Introduction.texi" source-dir))
-           docs)
-    (format docs "
+      (princ (alexandria:read-file-into-string
+              (merge-pathnames #p"src/doc/Introduction.texi" source-dir))
+             docs)
+      (format docs "
 
 @node Definitions, Conclusion, Introduction, Top
 @chapter Definitions
 
 @menu
 ")
-    (let ((defs (gather-all-symbols)))
-      (format docs "~{~%* ~a::~}" defs)
-      (format docs "@end menu~2% ")
-      (dolist (symbol defs)
-        (write-documentation symbol docs))
-
+      
+      (let ((defs (gather-all-symbols)))
+        (format docs "~{~%* ~a::~}" defs)
+        (format docs "@end menu~2% ")
+        (dolist (symbol defs)
+          (write-documentation symbol docs)))
+      
       (format docs "
 
-@node Conclusion, Indexes, Definitions, Top
-@chapter Conclusion
+@node Credits, Conclusion, Definitions, Top
+@chapter Credits
+
+Tootsville is built upon a plethora of software. This is an attempt to convey at least a partial enumeration of the credits.
+
+First, the most noticeable:
+
+~a
+
+~a
+
+@subsection{The Steel Bank Common Lisp compiler}
+
+@verbatim
+~a
+@end verbatim
+ "
+              +credits+
+              (all-credits)
+              (read-file-into-string "/usr/share/doc/sbcl/CREDITS"))
+      
+      (format docs "
+
+                                     @node Conclusion, Indices, Credits, Top
+                                     @chapter Conclusion
 
 
- ")
+                                     ")
       (princ (alexandria:read-file-into-string
               (merge-pathnames #p"src/doc/Conclusion.texi" source-dir))
              docs)
       
-      (format docs "@node Indexes, , Conclusion, Top
-@appendix Indexes
-@menu
-* Concept index::
-* Function index::
-* Variable index::
-* Data type index::
-@end menu
+      (format docs "@node Indices, , Conclusion, Top
+                                     @appendix Indices
+                                     @menu
+                                     * Concept index::
+                                     * Function index::
+                                     * Variable index::
+                                     * Data type index::
+                                     @end menu
 
 
-@c -------------
-@c Concept index
-@c -------------
-@node Concept index, Function index, Indexes, Indexes
-@appendixsec Concepts
-@printindex cp
+                                     @c -------------
+                                     @c Concept index
+                                     @c -------------
+                                     @node Concept index, Function index, Indices, Indices
+                                     @appendixsec Concepts
+                                     @printindex cp
 
-@page
-
-
-@c --------------
-@c Function index
-@c --------------
-@node Function index, Variable index, Concept index, Indexes
-@appendixsec Functions
-@printindex fn
-
-@page
+                                     @page
 
 
-@c --------------
-@c Variable index
-@c --------------
-@node Variable index, Data type index, Function index, Indexes
-@appendixsec Variables
-@printindex vr
+                                     @c --------------
+                                     @c Function index
+                                     @c --------------
+                                     @node Function index, Variable index, Concept index, Indices
+                                     @appendixsec Functions
+                                     @printindex fn
 
-@page
+                                     @page
 
 
-@c ---------------
-@c Data type index
-@c ---------------
-@node Data type index, , Variable index, Indexes
-@appendixsec Data types
-@printindex tp
+                                     @c --------------
+                                     @c Variable index
+                                     @c --------------
+                                     @node Variable index, Data type index, Function index, Indices
+                                     @appendixsec Variables
+                                     @printindex vr
 
-@bye
+                                     @page
 
-"))))
+
+                                     @c ---------------
+                                     @c Data type index
+                                     @c ---------------
+                                     @node Data type index, , Variable index, Indices
+                                     @appendixsec Data types
+                                     @printindex tp
+
+                                     @bye
+
+                                     "))))

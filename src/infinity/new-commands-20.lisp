@@ -66,7 +66,7 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
   (list 200
         (list :|status| t
               :|from| "wardrobe"
-              :|wardrobe| (list :|avatar| (Toot-info Toot)))))
+              :|wardrobe| (list :|avatar| (Toot-info *Toot*)))))
 
 (defun sky-room-var ()
   (list :|sun|
@@ -211,22 +211,17 @@ server include:
                 :|var|
                 (concatenate
                  'list
-                 (:|s| (sky-room-var)
-                   :|rad| t)
+                 (list :|s| (sky-room-var)
+                       :|rad| t)
                  (mapcan (lambda (item)
                            (list (make-keyword
                                   (format nil "item2~~~36r" (incf i)))
                                  (item-info item)))
-                         (remove-if
-                          (lambda (item)
-                            (ignore-not-found
-                              (find-record 'inventory-item
-                                           :item (item-uuid item))))
-                          (find-records 'item
-                                        :world world
-                                        :latitude (elt pos 0)
-                                        :longitude (elt pos 1)
-                                        :altitude (elt pos 2))))
+                         (find-records 'item
+                                       :world world
+                                       :latitude (elt pos 0)
+                                       :longitude (elt pos 1)
+                                       :altitude (elt pos 2)))
                  (mapcan (lambda (place)
                            (list (make-keyword
                                   (format nil "zone~~~36r"
@@ -242,12 +237,20 @@ supported. Each ``wtl'' packet has a  start and end point, a start time,
 and a  speed; this  course is  enough information  for other  clients to
 determine where along the line (linear interpolation) the walker is now.
 
-Usage:  {  c:  wtl,  d:  {  course: {  startPosition:  {  x:  y:  z:  },
+Usage: 
+ 
+@verbatim
+{  c:  wtl,  d:  {  course: {  startPosition:  {  x:  y:  z:  },
 endPosition: { x: y: z: }, speed: }, facing: }}
+@end verbatim
 
 In return, all observers receive these ``wtl'' packets back
 
-Return: { from: \"wtl\", status: true, course: {}, facing:, u: UUID, n: NAME }
+Return: 
+
+@verbatim
+{ from: \"wtl\", status: true, course: {}, facing:, u: UUID, n: NAME }
+@end verbatim
 
 "
   (broadcast (list :|from| "wtl"
@@ -256,3 +259,70 @@ Return: { from: \"wtl\", status: true, course: {}, facing:, u: UUID, n: NAME }
                    :|facing| facing
                    :|u| (Toot-uuid *Toot*)
                    :|n| (Toot-name *Toot*))))
+
+(defun toot-list-message ()
+  (if-let (player-Toots (player-Toots))
+    (list 200
+          (list :|status| t
+                :|from| "tootList"
+                :|toots| (mapcar #'Toot-info
+                                 (sort player-Toots
+                                       #'timestamp>
+                                       :key (lambda (Toot)
+                                              (or (Toot-last-active Toot)
+                                                  (universal-to-timestamp 0)))))))
+    (list 200
+          (list :|status| :false
+                :|from| "tootList"))))
+
+(definfinity toot-list (nil u recipient/s)
+  "Enumerates all Toots owned by the user.
+
+@subsection 200 OK
+
+Returns  an object  with  @code{status: true,  from: \"tootList\"},  and
+a key @code{toots} under  which is the list of Toots  owned by the user.
+Each Toot object is as per `TOOT-INFO', q.v."
+  (toot-list-message))
+
+(defun plist-with-index (list)
+  (loop for i from 0
+     for el in list
+     appending (list i el)))
+
+(defun play-with-Toot (Toot)
+  "Set up the *USER* to play with Toot object TOOT.
+
+Performs announcement of the player to the world and other bookkeeping."
+  (setf (player-toot *user*) Toot)
+  (setf (Toot-last-active Toot) (get-universal-time))
+  (unicast
+   (list :|status| t
+         :|from| "playWith"
+         :|playWith| (Toot-name Toot)
+         :|uuid| (Toot-UUID Toot)
+         :|player| (list :|uuid| (person-uuid *user*)
+                         :|name| (person-display-name *user*)
+                         :|email| (person-first-email *user*))))
+  (broadcast (Toot-join-message Toot) :except *user*)
+  (broadcast (list :|status| t
+                   :|from| "avatars"
+                   :|inRoom| (Toot-world Toot)
+                   :|avatars| (list :|joined| (Toot-info Toot))))
+  (list 200 (from-avatars (plist-with-index (connected-toots)))))
+
+(definfinity play-with ((character) u r)
+  "Choose a Toot as your active CHARACTER in the game. "
+  (if-let (Toot (find-record 'Toot :name character))
+    (if (uuid:uuid= (toot-player toot) (person-uuid *user*))
+        (play-with-Toot Toot)
+        (list 403
+              (v:warn :toot-security "Attempt by ~a to access ~a" *user* Toot)
+              (list :|status| :false
+                    :|from| "playWith"
+                    :|error| "Not your Toot")))
+    (list 404
+          (v:warn :toot-security "Attempt by ~a to access non-existent ~a" *user* character)
+          (list :|status| :false
+                :|from| "playWith"
+                :|error| "No such Toot"))))

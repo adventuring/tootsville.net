@@ -31,6 +31,10 @@
 
 (defvar *infinity-ops* nil)
 
+(defvar *infinity-stream-requests* 0)
+(defvar *infinity-rest-requests* 0)
+(defvar *infinity-users* (make-hash-table :test 'equalp))
+
 (defun call-infinity-from-rest (method)
   "Call an Infinity-mode command METHOD from a REST call.
 
@@ -41,6 +45,7 @@ Used to create the REST endpoints mapping to METHOD."
       (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
         (v:info '(:infinity :rest) "REST request from ~a for command ~a"
                 *user* method)
+        (incf *infinity-rest-requests*)
         (funcall method json *user* (user-plane *user*))))))
 
 (defmacro with-http-errors-as-infinity-errors ((command) &body body)
@@ -53,24 +58,40 @@ Used to create the REST endpoints mapping to METHOD."
              :|httpError| (http-status-code c)
              :|error| (format nil "~a" c)))))
 
-(defun call-infinity-from-stream (json$)
+(defun average (list)
+  (/ (reduce #'+ list) (length list)))
+
+(defun infinity-stats ()
+  (format nil "Infinity commands:
+Handled ~:d stream request~:p and ~:d REST request~:p; total of ~:d request~:p, for a total of ~:d user~:p.
+
+Average user connected ~:d time~:p; 
+most active user connected ~:d time~:p."
+          *infinity-stream-requests* *infinity-rest-requests*
+          (+ *infinity-stream-requests* *infinity-rest-requests*)
+          (hash-table-count *infinity-users*)
+          (floor (average (hash-table-values *infinity-users*)))
+          (reduce #'max (hash-table-values *infinity-users*))))
+
+(defun call-infinity-from-stream (json)
   "Call an Infinity-mode command from a stream of JSON$ packets.
 
 Used by the WebSockets and direct TCP stream handlers."
-  (let* ((json-full (jonathan.decode:parse json$))
-         (command (getf json-full :|c|))
+  (let* ((command (getf json :|c|))
          (method (find-symbol (concatenate 'string "INFINITY-"
                                            (string-upcase (symbol-munger:camel-case->lisp-name command)))
                               :tootsville))
-         (data (getf json-full :|d|)))
+         (data (getf json :|d|)))
     (if (and (symbolp method) (not (eql 'nil method)))
         (with-user ()
           (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
             (v:info '(:infinity :stream) "Stream request from ~a for command ~a"
                     *user* method)
+            (setf (Toot-last-active *Toot*) (now))
+            (incf *infinity-stream-requests*)
             (with-http-errors-as-infinity-errors (command)
               (funcall method data *user* (user-plane *user*)))))
-        (let ((c (or (getf json-full :|c|) "")))
+        (let ((c (or (getf json :|c|) "")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)
           (list :|from| "c"
@@ -172,14 +193,53 @@ XXX WRITEME
 
 @subsection logOK datagrams
 
-XXX WRITEME
+The login  process should be documented  at `WEBSOCKET-AUTHENTICATE' for
+WebSockets, `TCP-STREAM-AUTHENTICATE' for direct TCP/IP server-to-server
+streams,   and  `Tootsville.Gossip.createConnection'   for  peer-to-peer
+WebRTC connections.
 
 @subsection Command datagrams
 
 Command  datagrams  may be  processed  through  either  a REST  POST  or
 the Gossipnet. These represent an action or enquiry that a client is making.
 
-XXX WRITEME
+Command datagrams are  identified by a @code{c} key,  which provides the
+command name in @samp{lowerFirstCamelCase}.  This command name is mapped
+to a function named @code{INFINITY-COMMAND-NAME} in hyphenated form.
+
+Command  datagrams  usually have  a  @code{d}  key which  provides  some
+additional data or parameters to the requested command.
+
+In addition, there may be some of the following. Note that UUID's are the UUID's @emph{of a Toot character}, never the person who ``owns'' that Toot.
+
+@table @code
+
+@item r
+
+Recipient. This can be an UUID  for a direct peer-to-peer command, or is
+more often  just @code{$World}  for the game  server or  @code{$All} for
+all listeners.
+
+@item a
+
+Author. The UUID of the originator of the packet.
+
+@item u
+
+User. The UUID  of the user who requested this  packet; usually the same
+as @code{a}/Author.
+
+@item s
+
+Signature. Proof that the packet originated with @code{a}/Author.
+
+@item v
+
+Via. The history trail of a forwarded packet.
+
+@end table
+
+WRITEME
 
 @subsection Gatekeeper datagrams
 
@@ -187,7 +247,14 @@ Gatekeeper datagrams are found either as the response to a REST POST, or
 distributed along the Gossipnet. These  represent the state of the world
 at a certain point in time.
 
-XXX WRITEME
+Every   Gatekeeper   datagram   contains  the   keys   @code{from}   and
+@code{status}.  The @code{from}  value uniquely  identifies the  type of
+packet and determines what other  fields accompany it. The @code{status}
+value  is a  Boolean, and  while  its meaning  varies by  packet, it  is
+usually a good guess that if @code{status} is not @code{true}, there has
+been some kind of request error and data is not available.
+
+For a complete enumeration 
 
 "
   (let ((legacy-name (symbol-munger:lisp->camel-case (string name)))
@@ -235,8 +302,7 @@ XXX WRITEME
          (declare (ignorable ,words))
          (let ((,user *user*) (,plane (user-plane *user*)))
            (declare (ignorable ,user ,plane))
-           (if (and *Toot*
-                    (Toot-has-item-p +builder-Toot-hard-hat-template+ *Toot*))
+           (if (and *Toot* (builder-Toot-p *Toot*))
                (let ((reply (block nil (progn ,@body))))
                  (when (stringp reply)
                    (private-admin-message
