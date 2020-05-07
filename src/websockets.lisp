@@ -201,9 +201,13 @@ Active Clients (~:d secs): ~:d (~:d%)."
   "Broadcast MESSAGE to all ∞ Mode listeners connected who are near NEAR.
 
 NEAR is a Toot  character who is the epicenter of  the message, which is
-currently ignored."
+currently ignored.
+
+EXCEPT is  a user  or Toot who  does not need  to receive  the broadcast
+message (usually the originator)"
   (declare (ignore near))
-  (ws-broadcast *infinity-websocket-resource* message :except except)
+  (ws-broadcast *infinity-websocket-resource* message 
+                :except (user-stream except))
   (tcp-broadcast message))
 
 (defun unicast (message &optional (user *user*))
@@ -221,6 +225,9 @@ currently ignored."
 
 (defmethod user-stream ((null null))
   nil)
+
+(defmethod user-stream ((client ws-client))
+  client)
 
 (defmethod user-stream ((user person))
   "Find the stream associated with USER"
@@ -305,7 +312,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   "Send a reply MESSAGE to a WebSocket WS-CLIENT from an Infinity handler."
   (ws-bandwidth-record message)
   (let ((text (ensure-message-is-characters (lastcar message))))
-    (unless (or (equal text "") (equal text "[]"))
+    (unless (zerop (length text))
       (v:info :stream "Unicast text reply to ~a, ~:d character~:p" 
               ws-client (length text))
       (incf *ws-chars-unicast* (length text))

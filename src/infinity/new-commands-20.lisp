@@ -258,7 +258,8 @@ Return:
                    :|course| course
                    :|facing| facing
                    :|u| (Toot-uuid *Toot*)
-                   :|n| (Toot-name *Toot*))))
+                   :|n| (Toot-name *Toot*))
+             :except *user*))
 
 (defun toot-list-message ()
   (if-let (player-Toots (player-Toots))
