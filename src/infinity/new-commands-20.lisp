@@ -115,7 +115,7 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
            (list :|s| (sky-room-var))
            (mapcan (lambda (item)
                      (list (make-keyword
-                            (format nil "item2~~~36r" (incf i)))
+                            (format nil "itm2~~~36r" (incf i)))
                            (item-info item)))
                    (find-records 'item
                                  :world world
@@ -165,7 +165,8 @@ x-position \"~\" y-position \"~\" facing \"~\" z-position
 Placed items, new form: JSON object
 
 @verbatim
-{ position: {  x: y: z: },
+{ uuid:
+ position: {  x: y: z: },
  facing: radians,
  baseColor: color,
  altColor: color,
@@ -183,6 +184,7 @@ Placed items, new form: JSON object
  onZero:
  wearSlot:
  weight: } }
+@end verbatim
 
 @item furn
 
@@ -279,7 +281,7 @@ inventory back-and-forth later."
                                        :key (lambda (Toot)
                                               (or (Toot-last-active Toot)
                                                   (universal-to-timestamp 0)))))))
-    (list 200
+    (list 404
           (list :|status| :false
                 :|from| "tootList"))))
 
