@@ -265,6 +265,10 @@ Return:
              :except *user*))
 
 (defun toot-list-message ()
+  "Send a player (user) their list of Toots.
+
+Used primarily  in the  login process.  Might also  be used  for gifting
+inventory back-and-forth later."
   (if-let (player-Toots (player-Toots))
     (list 200
           (list :|status| t

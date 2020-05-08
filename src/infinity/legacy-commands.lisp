@@ -746,14 +746,31 @@ If any item ID cannot be found, the entire query fails with a 404."
     (list 200 hash)))
 
 (defun Toot-buddy-list (&optional (Toot *Toot*))
-  (mapcar 
-   (lambda (contact)
-     (list :|id| (contact-uuid contact)
-           :|n| (Toot-name (find-reference contact :contact))
-           :|starredP| (contact-starredp contact)
-           :|added| (contact-added contact)
-           :|lastUsed| (contact-last-used contact)))
-   (find-records 'contact :owner (Toot-UUID Toot))))
+  (concatenate 
+   'list
+   (mapcar
+    (lambda (a-Toot)
+      (list :|id| (Toot-uuid a-Toot)
+            :|n| (Toot-name a-Toot)
+            :|starredP| t))
+    (remove-if (lambda (a-Toot)
+                 (equal (Toot-name a-Toot)
+                        (Toot-name Toot)))
+               (sort (player-Toots)
+                     #'timestamp>
+                     :key (lambda (a-Toot)
+                            (or (Toot-last-active a-Toot)
+                                (universal-to-timestamp 0))))))
+   (mapcar 
+    (lambda (contact)
+      (list :|id| (contact-uuid contact)
+            :|n| (Toot-name (find-reference contact :contact))
+            :|starredP| (contact-starredp contact)
+            :|added| (contact-added contact)
+            :|lastUsed| (contact-last-used contact)))
+    (sort
+     (find-records 'contact :owner (Toot-UUID Toot))
+     #'< :key #'contact-last-used))))
 
 (definfinity get-user-lists (nil user recipient/s)
   "Get the user's buddy list and ignore list.
