@@ -154,20 +154,20 @@ Active Clients (~:d secs): ~:d (~:d%)."
                 c (length message) ,client))))
 
 (defclass websocket-acceptor (hunchensocket:websocket-acceptor)
-  ((hunchentoot::taskmaster
-    :initform (make-instance 'thread-pool-taskmaster:thread-pool-taskmaster)))
+  ()
   (:default-initargs
    :access-log-destination (config :log :websocket :access)
     :message-log-destination (config :log :websocket :message)
     :port 5004))
 
 (defclass websocket-ssl-acceptor (hunchensocket:websocket-ssl-acceptor)
-  ((hunchentoot::taskmaster
-    :initform (make-instance 'thread-pool-taskmaster:thread-pool-taskmaster)))
+  ()
   (:default-initargs
    :access-log-destination (config :log :websocket :access)
     :message-log-destination (config :log :websocket :message)
     :port 5004
+    :request-class 'hunchensocket::websocket-request
+    :reply-class 'hunchensocket::websocket-reply
     :ssl-certificate-file (ssl-certificate)
     :ssl-privatekey-file (ssl-private-key)))
 
@@ -182,8 +182,7 @@ Active Clients (~:d secs): ~:d (~:d%)."
 (defmethod print-object ((user ws-client) s)
   (format s "#<WS-Client from ~a~:[ without user~;~:* for ~a~]>"
           (when (slot-boundp user 'hunchensocket::input-stream)
-            (slot-value (slot-value user 'hunchensocket::input-stream)
-                        'sb-impl::name))
+            (princ-to-string (slot-value user 'hunchensocket::input-stream)))
           (when (slot-boundp user 'user)
             (user-account user))))
 
