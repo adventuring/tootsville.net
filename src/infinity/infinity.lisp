@@ -99,11 +99,6 @@ Used by the WebSockets and direct TCP stream handlers."
                 :|error| (format nil "Unrecognized command ~a"
                                  (subseq c 0 (min (length c) 100))))))))
 
-(defun infinity-error (code reason)
-  (throw 'infinity
-    (list code (list :|status| :false
-                     :|error| (symbol-munger:lisp->camel-case reason)))))
-
 (defmacro definfinity (name (lambda-list user-var plane-var) &body body)
   "Define an Infinity-mode “c” command NAME.
 

@@ -266,6 +266,16 @@ Return:
                    :|n| (Toot-name *Toot*))
              :except *user*))
 
+(definfinity wtl-4 ((u course facing) u r)
+  "Walk the Line indirect refresher from observer"
+  (broadcast (list :|from| "wtl"
+                   :|status| t
+                   :|course| course
+                   :|facing| facing
+                   :|u| (Toot-uuid (find-record 'Toot :name u))
+                   :|n| u)
+             :except *user*))
+
 (defun toot-list-message ()
   "Send a player (user) their list of Toots.
 
@@ -304,8 +314,9 @@ Each Toot object is as per `TOOT-INFO', q.v."
   "Set up the *USER* to play with Toot object TOOT.
 
 Performs announcement of the player to the world and other bookkeeping."
-  (setf (player-toot *user*) Toot)
-  (setf (Toot-last-active Toot) (get-universal-time))
+  (setf (player-toot *user*) Toot
+        (Toot-last-active Toot) (get-universal-time))
+  (save-record Toot)
   (unicast
    (list :|status| t
          :|from| "playWith"
