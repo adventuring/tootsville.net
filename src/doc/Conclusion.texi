@@ -1,5 +1,3 @@
-@node Conclusion
-@chapter Conclusion
 
 @node AGPL v3 License
 @section AGPL v3 License

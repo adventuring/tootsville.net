@@ -68,9 +68,9 @@ TODO: document this properly
   "Makes changes to an user account.
 
 Input JSO:
-@example
+@verbatim
 { key: \"field\", newValue: \"x\" }
-@end example
+@end verbatim
 
 Fields and value formats:
 

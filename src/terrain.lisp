@@ -50,25 +50,44 @@
   "The various kinds of habitat that exist in the world.
 
 @table @b
+
 @item Shaddow
+
 @item Rocky
+
 @item Swamp
+
 @item Grassland
+
 @item Desert
+
 @item Savannah
+
 @item Forest
+
 @item Ocean
+
 @item Ice
+
 @item Moon
+
 @item Pink Moon
+
 @item Moon Base
+
 @item City
+
 @item Farm
+
 @item Manatee City
+
 @item Beachside
+
 @item Space
+
 @item Asteroid Field
-@end itemize"
+
+@end table"
   '(member :shaddow :rocky :swamp :grassland
     :desert :savannah :forest :ocean :ice
     :moon :pink-moon :moon-base :city :farm
@@ -78,16 +97,27 @@
   "A symbol representing one of the planes in which the game takes place.
 
 @table @code
+
 @item CHOR
+
 Choerogryllum
+
 @item MOON
+
 The Moon
+
 @item OTHM
+
 The Other Moon
+
 @item PINK
+
 The Pink Moon
+
 @item ORBIT
+
 In space, in transit between Choerogryllum and The Moon.
+
 @end table"
   '(member :chor :moon :othm :pink :orbit))
 

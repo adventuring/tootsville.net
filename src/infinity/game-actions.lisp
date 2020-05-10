@@ -81,7 +81,7 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME', `GAME-ACTION-START-SPORTS-BALL-TIMER'
 (defun game-action-join-card-game (action)
   "Start playing a card game.
 
-@subsection{Overview of Card Games}
+@subsection Overview of Card Games
 
 Playing cards on a card table uses a special camera view to show the
 table top, and a pop-over layer to show the cards in the local
@@ -103,7 +103,7 @@ hand (`GAME-ACTION-CARD-GAME-ARRANGE').
 There are no particular rules of any card game enforced. Players are
 free to do whatever they like with the cards.
 
-@subsection{Joining a Card Game}
+@subsection Joining a Card Game
 
 The ACTION passed references a card table. If that card table already
 has 4 players, this player can only become an observer. Otherwise, the
@@ -224,11 +224,11 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 This action takes a bowling lane as an argument. The lane is reset and
 the scoreboard is wiped clear.
 
-@subsection{Overview of Bowling}
+@subsection Overview of Bowling
 
 WRITEME
 
-@subsection{Bowling gameAction actions}
+@subsection Bowling gameAction actions
 
 @itemize
 
@@ -254,7 +254,7 @@ WRITEME
 
 @end itemize
 
-@subsection{Starting a Bowling Game}
+@subsection Starting a Bowling Game
 
 WRITEME"
   (error 'unimplemented))

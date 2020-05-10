@@ -49,7 +49,9 @@ along with this program; if not,  write to the Free Software Foundation,
 Inc., 675 Mass Ave, Cambridge, MA 02139, USA."))))))
 
 (defun write-documentation (symbol s)
-  (format s "~2&@node ~a~%@section ~:*~:(~a~)~%" symbol)
+  (format s "~2&@node ~a::~a~%@section ~:(~a~)~%"
+         (package-name (symbol-package symbol)) (symbol-name symbol)
+         (symbol-name symbol))
   (dolist (kind '(function variable structure type setf))
     (when-let (docu (documentation symbol kind))
       (format s "~2&~:(~a~) names a ~(~a~):~2%~a" symbol kind docu))))
@@ -77,10 +79,10 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA."))))))
 @setfilename Tootsville.info
 @documentencoding UTF-8
 @settitle The Book of Romance II for Tootsville V
-@letterpaper
 @setchapternewpage odd
 @documentdescription
 The Book of Romance II for Tootsville V version ~a
+@end documentdescription
 @c Lisp files
 @macro lispfileindex{name}
 @cindex @t{\name\}
@@ -280,7 +282,7 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
       
       (let ((defs (gather-all-symbols)))
         (format docs "~{~%* ~a::~}" defs)
-        (format docs "@end menu~2% ")
+        (format docs "~&@end menu~2% ")
         (dolist (symbol defs)
           (write-documentation symbol docs)))
       
@@ -297,7 +299,7 @@ First, the most noticeable:
 
 ~a
 
-@subsection{The Steel Bank Common Lisp compiler}
+@subsection The Steel Bank Common Lisp compiler
 
 @verbatim
 ~a
@@ -309,62 +311,62 @@ First, the most noticeable:
       
       (format docs "
 
-                                     @node Conclusion, Indices, Credits, Top
-                                     @chapter Conclusion
+@node Conclusion, Indices, Credits, Top
+@chapter Conclusion
 
 
-                                     ")
+")
       (princ (alexandria:read-file-into-string
               (merge-pathnames #p"src/doc/Conclusion.texi" source-dir))
              docs)
       
       (format docs "@node Indices, , Conclusion, Top
-                                     @appendix Indices
-                                     @menu
-                                     * Concept index::
-                                     * Function index::
-                                     * Variable index::
-                                     * Data type index::
-                                     @end menu
+@appendix Indices
+@menu
+* Concept index::
+* Function index::
+* Variable index::
+* Data type index::
+@end menu
 
 
-                                     @c -------------
-                                     @c Concept index
-                                     @c -------------
-                                     @node Concept index, Function index, Indices, Indices
-                                     @appendixsec Concepts
-                                     @printindex cp
+@c -------------
+@c Concept index
+@c -------------
+@node Concept index, Function index, Indices, Indices
+@appendixsec Concepts
+@printindex cp
 
-                                     @page
-
-
-                                     @c --------------
-                                     @c Function index
-                                     @c --------------
-                                     @node Function index, Variable index, Concept index, Indices
-                                     @appendixsec Functions
-                                     @printindex fn
-
-                                     @page
+@page
 
 
-                                     @c --------------
-                                     @c Variable index
-                                     @c --------------
-                                     @node Variable index, Data type index, Function index, Indices
-                                     @appendixsec Variables
-                                     @printindex vr
+@c --------------
+@c Function index
+@c --------------
+@node Function index, Variable index, Concept index, Indices
+@appendixsec Functions
+@printindex fn
 
-                                     @page
+@page
 
 
-                                     @c ---------------
-                                     @c Data type index
-                                     @c ---------------
-                                     @node Data type index, , Variable index, Indices
-                                     @appendixsec Data types
-                                     @printindex tp
+@c --------------
+@c Variable index
+@c --------------
+@node Variable index, Data type index, Function index, Indices
+@appendixsec Variables
+@printindex vr
 
-                                     @bye
+@page
 
-                                     "))))
+
+@c ---------------
+@c Data type index
+@c ---------------
+@node Data type index, , Variable index, Indices
+@appendixsec Data types
+@printindex tp
+
+@bye
+
+"))))

@@ -151,10 +151,9 @@ The Weather, or overlay artwork. Used to indicate precipitation.
 
 @end table
 
-@subsection
-Room Objects
+@subsection Room Objects
 
-@itemize
+@table @code
 @item item
 
 Placed items: key: “item” + Unique-ID = value: item-description \"~\"
@@ -194,7 +193,7 @@ User-positioned items: key: “furn”
 
 Text items: key: \"text\" + unique-ID = value
 
-@end itemize
+@end table
 
 @subsection Places
 

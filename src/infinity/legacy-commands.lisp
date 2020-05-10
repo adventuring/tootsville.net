@@ -1457,57 +1457,57 @@ This is new in Romance 1.1
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users
 
-                 Out of the band of communications.
+Out of the band of communications.
 
-                 This is neither a public nor a private message in the chat context: just
-                 some additional data that is being provided.
+This is neither a public nor a private message in the chat context: just
+some additional data that is being provided.
 
 
-                 @{ sender: sender, from: outOfBand, status: true, body: @{JSON@} @}
+@{ sender: sender, from: outOfBand, status: true, body: @{JSON@} @}
 
-                 Adds \"roomTitle\"  to body if  body contains \"room\"  and title
-                 can be determined
+Adds \"roomTitle\"  to body if  body contains \"room\"  and title
+can be determined
 
-                 Add  @samp{\"sendRoomList\":  \"true\"}  to give  the  user  an
-                 updated  room list  as well.  (Necessary for  invitations to  new
-                                                          rooms.) Inviting to houses …
+Add  @samp{\"sendRoomList\":  \"true\"}  to give  the  user  an
+updated  room list  as well.  (Necessary for  invitations to  new
+       rooms.) Inviting to houses …
 
-                 @verbatim
-                 initUserRoom { room: 0, autoJoin: false }
-                 { from: initUserRoom, status: true, moniker: ROOM-MONIKER } ** OK
+@verbatim
+initUserRoom { room: 0, autoJoin: false }
+{ from: initUserRoom, status: true, moniker: ROOM-MONIKER } ** OK
 
-                 =>  { from:  initUserRoom, status:  false, err:  exists, moniker:
-                 ROOM-MONIKER } ** OK
+=>  { from:  initUserRoom, status:  false, err:  exists, moniker:
+ROOM-MONIKER } ** OK
 
-                 => {  from: initUserRoom, status:  false, err: showFirstRun  } **
-                 ERR (player does not have that room)
+=> {  from: initUserRoom, status:  false, err: showFirstRun  } **
+ERR (player does not have that room)
 
-                 sendOutOfBandMessage   {  to:   USER-LOGIN,   body:  {   locType:
-                 \"house\", type: \"invite\", room: MONIKER } }
+sendOutOfBandMessage   {  to:   USER-LOGIN,   body:  {   locType:
+\"house\", type: \"invite\", room: MONIKER } }
 
-                 {  from:  outOfBand,  sender:  YOUR-LOGIN,  status:  true,  body:
-                 { locType: \"house\", type: \"invite\", room: MONIKER, roomTitle:
-                 USER-VISIBLE-NAME } }
-                 @end verbatim
-                 for user houses, roomTitle will be like \"BlackDaddyNerd's House\"
+{  from:  outOfBand,  sender:  YOUR-LOGIN,  status:  true,  body:
+{ locType: \"house\", type: \"invite\", room: MONIKER, roomTitle:
+USER-VISIBLE-NAME } }
+@end verbatim
+for user houses, roomTitle will be like \"BlackDaddyNerd's House\"
 
-                 Parameters:
+Parameters:
 
-                 jso - To send to one user:  @{ to: userName, body: @{JSON@} @}, or to
-                 broadcast to the entire room: @{ toRoom: true, body: @{JSON@} @}
+jso - To send to one user:  @{ to: userName, body: @{JSON@} @}, or to
+broadcast to the entire room: @{ toRoom: true, body: @{JSON@} @}
 
-                 u - The sender of the out-of-band-message
+u - The sender of the out-of-band-message
 
-                 room -  The room in which  the sender is standing.  Necessary for
-                 the toRoom version of this method.
+room -  The room in which  the sender is standing.  Necessary for
+the toRoom version of this method.
 
-                 Throws:
+Throws:
 
-                 org.json.JSONException - Thrown if the data cannot be interpreted
-                 from  the JSON  objects passed  in,  or conversely,  if we  can't
-                 encode a response into a JSON form
+org.json.JSONException - Thrown if the data cannot be interpreted
+from  the JSON  objects passed  in,  or conversely,  if we  can't
+encode a response into a JSON form
 
-                 "
+"
   (error 'unimplemented))
 
 (definfinity server-time ((server-time) u r )

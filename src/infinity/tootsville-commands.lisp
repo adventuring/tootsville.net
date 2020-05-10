@@ -37,7 +37,7 @@ review in a customer service application such as Joshua. Creating
 a ModeratorJournal object will parse for certain values such as
 [@@username].
 
-     * param jso { \"entry\": TEXT }
+     * param jso @{ \"entry\": TEXT @}
 
 @subsection Formerly Proprietary Extension
 

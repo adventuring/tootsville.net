@@ -179,10 +179,10 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
                                       ("@samp{(.*?)}" . "<tt>\\1</tt>")
                                       ("@key{(.*?)}" . "<tt class=\"key\">\\1</tt>")
                                       ("@var{(.*?)}" . "<span class=\"var\">\\1</span>")
-                                      ("@section{(.*?)}" .
+                                      ("@section (.*?)" .
                                        "</section><section><h3>\\1</h3>")
-                                      ("@subsection{(.*?)}" . "<h4>\\1</h4>")
-                                      ("@subsubsection{(.*?)}" . "<h5>\\1</h5>")
+                                      ("@subsection (.*?)" . "<h4>\\1</h4>")
+                                      ("@subsubsection (.*?)" . "<h5>\\1</h5>")
                                       ("@enumerate" . "<ol>")
                                       ("@end enumerate" . "</ol>")
                                       ("@example(.*?)@end example" . "<pre>\\1</pre>")
@@ -204,9 +204,9 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
                                       ("@samp{(.*?)}" . "`\\1`")
                                       ("@key{(.*?)}" . "〔`\\1`〕")
                                       ("@var{(.*?)}" . "`\\1`")
-                                      ("@section{(.*?)}" . "\\1\\n==========\\n\\n")
-                                      ("@subsection{(.*?)}" ."\\1\\n==========\\n\\n")
-                                      ("@subsubsection{(.*?)}" . "\\1\\n==========\\n\\n")
+                                      ("@section (.*?)" . "\\1\\n==========\\n\\n")
+                                      ("@subsection (.*?)" ."\\1\\n==========\\n\\n")
+                                      ("@subsubsection (.*?)" . "\\1\\n==========\\n\\n")
                                       ("@enumerate" . "")
                                       ("@end enumerate" . "")
                                       ("@example" . "——————————\\n")
@@ -307,7 +307,7 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
     (loop
        for line = (read-line doc-stream nil nil)
        while line
-       when (string-begins "@subsection{Status:" line)
+       when (string-begins "@subsection Status:" line)
        collect (list*
                 (multiple-value-bind (status-number status-number-end)
                     (parse-integer (string-trim +whitespace+ (subseq line 20))
@@ -458,7 +458,7 @@ key in the resulting Alist."
 Provide an  OpenAPI JSON dump  of the  same information seen  on this
 page, but in a machine-readable format.
 
-@subsection{Status: 200 OK}
+@subsection Status: 200 OK
 
 The data  returned is  in the  JSON encoded form  of OpenAPI  3.0.0; see
 @url{https://openapis.org/} for details."
@@ -486,7 +486,7 @@ in transit."
 (defendpoint (get "/meta-game/ping" "text/plain")
   "Ping the server (test server presence and latency)
 
-@subsection{200: OK}
+@subsection 200: OK
 
 This endpoint always returns the 6-character string: @samp{\"pong\"}"
   (list 200 () "\"pong\""))

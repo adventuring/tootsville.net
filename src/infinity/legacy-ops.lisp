@@ -129,7 +129,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
 Altitude is optional.
 
-@subsection{Changes in 2.0}
+@subsection Changes in 2.0
 
 In Romance  1, this command took  a room moniker as  its sole parameter;
 since rooms as such no longer exist, we use latitude and longitude now.
@@ -265,13 +265,13 @@ Must have staff level 4 (DESIGNER) to use this command.
  Clear a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
- #clearvar @[ROOM] [VARIABLE] [VALUE]
+ #clearvar @@[ROOM] [VARIABLE] [VALUE]
  #clearvar [VARIABLE] [VALUE]
 
  See op_setvar(String[], AbstractUser, Room) to set a variable.
 
  Examples
- #clearvar @tootsSquareWest anim~ropes 2
+ #clearvar @@tootsSquareWest anim~ropes 2
  #clearvar anim~ropes 2
 
  Parameters:
@@ -620,11 +620,11 @@ on the path to the config value.
  Get a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
- #getvar @[ROOM] [VARIABLE]
+ #getvar @@[ROOM] [VARIABLE]
  #getvar [VARIABLE]
 
  Examples
- #getvar @tootsSquareWest anim~ropes
+ #getvar @@tootsSquareWest anim~ropes
  #getvar anim~ropes
 
  Parameters:
@@ -1169,7 +1169,7 @@ Examples:
 
 #run sb-ext quit
 
-@subsection{Changes in 2.0}
+@subsection Changes in 2.0
 
 In 1.x: 
  Run an arbitrary Java routine through an uploaded Runnable or RunCommands class
@@ -1203,7 +1203,7 @@ Altitude is optional and defaults to 0.
 
 World is optional and defaults to CHOR.
 
-@subsection{Changes from 1.2 to 2.0}
+@subsection Changes from 1.2 to 2.0
 
 In 1.2, this movesd an user into another room.
 
@@ -1305,13 +1305,14 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
  Set a user variable. Must have staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
- #setuvar [@LOGIN] VARIABLE [=] VALUE...
+ #setuvar [@@LOGIN] VARIABLE [=] VALUE...
 
- NOTE: Using #setuvar without an @[LOGIN] parameter will apply the changes to the user issuing the command.
+ NOTE: Using #setuvar without an @@[LOGIN] parameter will apply the changes
+ to the user issuing the command.
 
  Examples:
 
- #setuvar @mouser d = 254~376~254~376~SE~1267735566759
+ #setuvar @@mouser d = 254~376~254~376~SE~1267735566759
 
  #setuvar d = 254~376~254~376~SE~1267735566759
 "
@@ -1324,7 +1325,7 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
 
  Syntax for use
  #setvar #replace VARIABLE FIND REPLACE
- #setvar [@ROOM] VARIABLE VALUE...
+ #setvar [@@ROOM] VARIABLE VALUE...
  
  WARNING: SETTING ROOM VARIABLES TO INVALID VALUES CAN CAUSE UNEXPECTED RESULTS. DOUBLE CHECK ALL VALUES BEING SET FOR CORRECTNESS.
 
@@ -1332,7 +1333,7 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
 
  Examples:
 
- #setvar @tootsSquareWest anim~ropes 2
+ #setvar @@tootsSquareWest anim~ropes 2
 
  #setvar anim~ropes 2
 "
@@ -1471,7 +1472,7 @@ Mnemonic: Ventriloquism
 
 See `INFINITY-SPEAK'
 
-@subsection{Changes in 2.0}
+@subsection Changes in 2.0
 
 This no longer allows ventriloquism of operator commands &c.
 "
@@ -1640,12 +1641,12 @@ Throws:
 
  User Name of a specific user
  #everyone for a the location of every user in the zone.
- @[ROOM] for the location of every user in the specified room.
+ @@[ROOM] for the location of every user in the specified room.
 
  Examples
  #whereis snowcone
  #whereis #everyone
- #whereis @tootSquare
+ #whereis @@tootSquare
 
  Parameters:
 
