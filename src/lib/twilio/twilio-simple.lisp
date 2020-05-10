@@ -95,11 +95,9 @@
                      "-"
                      (string-upcase (subseq name 3))))))
 
-(tootsville::defpost check-language-format-2 ()
-  (assert (string= "en" (format-language :en))))
+(assert (string= "en" (format-language :en)))
 
-(tootsville::defpost check-language-format-5 ()
-  (assert (string= "en-GB" (format-language :en-gb))))
+(assert (string= "en-GB" (format-language :en-gb)))
 
 
 
@@ -171,10 +169,10 @@
 
                   client conference number queue
                   sim sip)
-  (error 'tootsville::unimplemented))
+  (error "unimplemented"))
 
 (defun record (&rest _)
-  (error 'tootsville::unimplemented))
+  (error "unimplemented"))
 
 (defun with-gather% (body
                      &key action hints (finish-on-key #\#)
@@ -312,7 +310,7 @@
   (with-element "Message"
     (when to (attribute "to" to))
     (when from (attribute "from" from))
-    (when (< 0 (length (string-trim tootsville::+whitespace+ body-text)))
+    (when (< 0 (length (string-trim #(#\space #\return #\linefeed #\tab #\page) body-text)))
       (with-element "Body" (text body-text)))
     (when action (attribute "action" (etypecase action
                                        (string action)

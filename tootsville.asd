@@ -78,6 +78,7 @@ REST services for the front-end."
                :oliphaunt
                :rollbar
                :thread-pool-taskmaster
+	       :twilio
                )
   :components
   ((:module
@@ -157,7 +158,7 @@ REST services for the front-end."
         "gossip"
         :depends-on ("slash-gossip")
         :components
-        ((:file "twilio" :depends-on ("lib/twilio/twilio-simple"))
+        ((:file "twilio")
          (:module
           "alexa"
           :components
