@@ -321,10 +321,11 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
       (hunchensocket:send-text-message ws-client text))))
 
 (defmethod hunchensocket::process-connection :around ((acceptor websocket-acceptor) socket)
-  (handler-case
-      (call-next-method)
-    (sb-sys:io-timeout (c)
-      (v:warn "Ignoring ~a" c))))
+  (handler-bind
+      ((sb-sys:io-timeout 
+        (lambda (c)
+          (v:warn "Ignoring ~a" c))))
+    (call-next-method)))
 
 (defmethod hunchensocket:text-message-received ((res infinity-websocket-resource)
                                                 client message)
@@ -383,6 +384,10 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
       (progn (v:warn :auth "Unsupported ∞ JSON auth, ~s" json)
              nil)))
 
+(defun user-online-p (user)
+  "Is USER actively connected right now?"
+  (user-stream user))
+
 (defun login-ok-message ()
   "Produce a logOK message for successful login"
   (jonathan:to-json
@@ -435,6 +440,7 @@ The full procedure comes about from `WS-PERFORM-SIGN-IN.' This function
 only handles the low-level bookkeeping."
   (setf (user-account client) user
         (gethash (uuid:uuid-to-byte-array (person-uuid user)) *ws-client-for-user*) client)
+  (post-sign-in user)
   (incf *ws-sign-ins*))
 
 (defun ws-kick-other-streams-for-user (&optional (user *user*))

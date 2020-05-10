@@ -466,19 +466,84 @@ Uses the first, alphabetically speaking."
 
 
 
-(defun sign-in-local (email)
-  "Set *USER* to the user with EMAIL globally."
-  (if-let (links (person-links-to-email email))
-    (if (= 1 (length links))
-        (setf *user* (find-reference (first links) :person))
-        (error "Multiple users share email ~a" email))
-    (error "No users have email ~a" email)))
+(defmacro with-local-user ((email) &body body)
+  "Set *USER* to the user with EMAIL locally"
+  `(if-let (links (person-links-to-email ,email))
+     (if (= 1 (length links))
+         (let ((*user* (find-reference (first links) :person)))
+           ,@body)
+         (error "Multiple users share email ~a" ,email))
+     (error "No users have email ~a" ,email)))
 
-(defun sign-in-local-Toot (Toot)
+(defmacro with-local-Toot ((Toot) &body body)
   "Set *TOOT* to the Toot named TOOT."
-  (setf *Toot* (find-record 'Toot :name Toot)))
+  `(let ((*Toot* (find-record 'Toot :name ,Toot)))
+     ,@body))
 
 
 
 (defun builder-Toot-p (&optional (Toot *Toot*))
   (Toot-has-item-p +builder-Toot-hard-hat-template+ *Toot*))
+
+
+
+(defun send-parent-child-login-request (Toot)
+  (unicast (list :|from| "prompt"
+                 :|id| (format nil "child-request-~a" (Toot-UUID Toot))
+                 :|label| "Child login"
+                 :|label_en_US| "Child login"
+                 :|msg| (format nil 
+                                "Your child wants to play on Tootsville as “~a.” Is that OK?" 
+                                (Toot-name Toot))
+                 :|replies| (list :|affirm| (list :|label| "Yes"
+                                                  :|label_en_US| "Yes"
+                                                  :|type| "aff")
+                                  :|deny| (list :|label| "No" 
+                                                :|label_en_US| "No"
+                                                :|type| "neg")
+                                  :|1hour| (list :|label| "For 1 Hour"
+                                                 :|label_en_US| "For 1 Hour"
+                                                 :|type| "aff")))))
+
+(defun login-child (Toot)
+  "Start a login request for TOOT, if one is not already pending.
+
+WRITEME"
+  (with-dbi (:friendly)
+    (let ((make-table (dbi:prepare *dbi-connection* "
+CREATE TABLE IF NOT EXISTS child_requests
+\( toot CHAR (22) NOT NULL,
+  placed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP (),
+  allowed_at TIMESTAMP NULL,
+  denied_at TIMESTAMP NULL,
+  allowed_for INTEGER NULL,
+  response VARCHAR (160)
+)")))
+      (dbi:execute make-table)))
+  (save-record 
+   (make-record 'child-request
+                :Toot (Toot-UUID Toot)
+                :placed-at (now)))
+  (unless (user-online-p (Toot-player Toot))
+    (return-from login-child
+      (list 400 (list :|error| "Your parent or guardian is not online, and we can not send them an email."))))
+  (let ((*user* (find-reference Toot :player)))
+    (send-parent-child-login-request Toot))
+  (list 200 (list :|message| "Waiting for permission…")))
+
+(defun Toot-with-pending-parent-approval (user)
+  (dolist (Toot (player-Toots user))
+    (when-let (request (ignore-not-found (find-record 'child-request 
+                                                      :allowed-at nil
+                                                      :denied-at nil
+                                                      :Toot (Toot-UUID Toot))))
+      (return-from Toot-with-pending-parent-approval Toot))))
+
+
+
+(defun post-sign-in (user)
+  "Perform housekeeping after an user signs in. 
+
+This might  include sending  a pending  child prompt."
+  (when-let (Toot (Toot-with-pending-parent-approval user))
+    (send-parent-child-login-request Toot)))

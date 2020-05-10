@@ -111,7 +111,7 @@ REST services for the front-end."
      (:file "weather/sun-moon" :depends-on ("package-post"))
      (:file "version" :depends-on ("package-post" "config"))
      (:file "logging" :depends-on ("package-post" "version"))
-     (:file "write-docs-2" :depends-on ("package-post"))
+     (:file "write-docs-2" :depends-on ("package-post" "infinity"))
      (:file "power-on-self-test" :depends-on ("package"))
      (:file "package-post" :depends-on ("power-on-self-test"))
      (:file "command-line" :depends-on ("main" "logging" "write-docs-2"))
@@ -157,7 +157,7 @@ REST services for the front-end."
         "gossip"
         :depends-on ("slash-gossip")
         :components
-        ((:file "twilio")
+        ((:file "twilio" :depends-on ("lib/twilio/twilio-simple"))
          (:module
           "alexa"
           :components

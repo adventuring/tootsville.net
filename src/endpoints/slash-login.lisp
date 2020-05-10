@@ -27,3 +27,19 @@
 
 ;;;; login.lisp — Login page services
 (in-package :Tootsville)
+
+(defendpoint (post "/login/child" "application/json")
+  "Child login submission.
+
+See `LOGIN-CHILD' for details of the child login protocol."
+  (with-posted-json (name code)
+    (let* ((Toot (ignore-errors (find-record 'Toot :name name)))
+           (correctp (when (and Toot (Toot-childp Toot))
+                       (string-equal code (Toot-child-code Toot)))))
+      (v:info :child-login "Login request from ~a with ~:[incorrect~;correct~] code" 
+              name correctp)
+      (if correctp
+          (list 200 (login-child Toot))
+          (list 403 (if Toot
+                        (list :|error| "Wrong secret code")
+                        (list :|error| (format nil "No Toot is named “~a”" name))))))))

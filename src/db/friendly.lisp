@@ -244,3 +244,13 @@
   (latitude number)
   (longitude number)
   (terrain string))
+
+
+
+(defrecord child-request (:friendly "child_requests")
+  (Toot uuid ref Toots)
+  (placed-at timestamp)
+  (allowed-at timestamp)
+  (denied-at timestamp)
+  (allowed-for number)
+  (response string))
