@@ -36,7 +36,7 @@
   socket
   buffer
   expected-length
-  user)
+  peer)
 
 (defun tcp-unicast (message tcp-client)
   (format (usocket:socket-stream tcp-client) 
@@ -60,13 +60,18 @@ TODO: This is not implemented."
   (tcp-unicast message tcp-client))
 
 (defun tcp-broadcast (message)
-  ;; TODO
+  (let ((message (ensure-message-is-characters message)))
+    (dolist (client (hash-table-values *tcp-clients*))
+      ;; TODO
+      )))
+
+(defun tcp-handle-peer-request (json)
+  ;; TODO!
   )
 
 (defun tcp-process-packet (packet tcp-client)
-  (if-let (*user* (tcp-client-user tcp-client))
-    (tcp-reply (call-infinity-from-stream packet)
-               tcp-client)
+  (if-let (peer (tcp-client-peer tcp-client))
+    (tcp-handle-peer-request (jonathan.decode:parse packet))
     (tcp-stream-authenticate tcp-client packet)))
 
 (defun tcp-socket-input (tcp-client)
@@ -107,8 +112,13 @@ TODO: This is not implemented."
                      :socket client
                      :buffer nil
                      :expected-length nil
-                     :user nil))
+                     :peer nil))
               (v:info :stream "TCP connection from ~a" client))
             (handler-case
                 (tcp-socket-input (find-client-for-socket socket)))))
       (usocket:wait-for-input (cons *tcp-listener* *tcp-clients*) :ready-only t))))
+
+(defun server-list ()
+  "A list of all servers active in the current cluster."
+  (cons (machine-instance)
+        (mapcar #'tcp-client-peer (hash-table-values *tcp-clients*))))

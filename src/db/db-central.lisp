@@ -104,6 +104,11 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
   (:method (value (type (eql :timestamp)))
     (and value (substitute #\Space #\Z (format-timestring nil value :timezone *utc-timezone*)))))
 
+(defun base64-to-uuid (value)
+  (uuid:byte-array-to-uuid
+   (cl-base64:base64-string-to-usb8-array
+    (format nil "~a==" value))))
+
 (defgeneric column-load-value (value type)
   (:documentation "For a column of TYPE, interpret raw VALUE")
   (:method (value (type (eql :string)))
@@ -132,9 +137,7 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
       (integer (integer-to-color24 value))
       (string (parse-color24 value))))
   (:method (value (type (eql :uuid)))
-    (uuid:byte-array-to-uuid
-     (cl-base64:base64-string-to-usb8-array
-      (format nil "~a==" value))))
+    (base64-to-uuid value))
   (:method (value (type (eql :timestamp)))
     (let ((τ value))
       (etypecase τ

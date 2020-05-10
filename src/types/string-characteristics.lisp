@@ -89,3 +89,12 @@ entire (original) string is returned."
   (if (<= (length string) length)
       string
       (subseq string 0 length)))
+
+(defun first-paragraph (string)
+  "Returns the first paragraph of STRING.
+
+\(Up to the first blank line)"
+  (loop for line in (split-sequence #\Newline string)
+     collecting line into lines
+     when (emptyp line)
+     do (return-from first-paragraph (join #\Newline lines))))

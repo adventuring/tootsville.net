@@ -304,7 +304,7 @@ For a complete enumeration
                     ,(concatenate 'string #(#\#) (string-downcase command))
                     reply)))
                (private-admin-message "Builders Only"
-                                      "That command is only for Builder Toots.")))))))
+                                      "# commands are only for Builder Toots.")))))))
 
 (defendpoint (POST "/world/infinity" "application/json")
   "Dispatch an Infinity-mode JSON packet to its handler based on the @code{c} parameter.

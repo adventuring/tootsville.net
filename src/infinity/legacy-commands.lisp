@@ -461,12 +461,15 @@ AbstractUser, Room) but specifically something to do with a game
 
 Parameters: jso -  @verb{| { \"action\": (verb), (other params...) } |} u - The user
 calling  this method  room -  The room  in which  this user  is standing
-Throws:  org.json.JSONException   -  Thrown   if  the  data   cannot  be
-interpreted from the JSON objects passed  in, or conversely, if we can't
-encode a response into a JSON form
 
 "
-  (error 'unimplemented))
+  (if-let (fn (find-symbol (concatenate 'string "GAME-ACTION-"
+                                        (symbol-munger:camel-case->lisp-name action))
+                           (find-package :Tootsville)))
+    (apply fn more-params)
+    (list 400 (list :|from| "gameAction"
+                    :|status| :false
+                    :|error| (format nil "No such gameAction: ~a" action)))))
 
 (definfinity get-apple (nil user recipient/s)
   "Get the apple to get into, or out of, $Eden. Unused.
@@ -1647,7 +1650,10 @@ We no longer have zones, but we can have server paritings
         (params (when-let (space (position #\Space string))
                   (split-sequence #\Space (subseq string space)
                                   :remove-empty-subseqs t))))
-    (if-let (sym (find-symbol (string-upcase command) :tootsville-user))
+    (if-let (sym (or (find-symbol (concatenate 'string "*" (string-upcase command)) 
+                                  :tootsville-user)
+                     (find-symbol (string-upcase command)
+                                  :tootsville-user)))
       (if (and (fboundp sym)
                (= 2 (length (function-lambda-list sym)))
                (eql '&rest (first (function-lambda-list sym))))
@@ -1672,6 +1678,11 @@ We no longer have zones, but we can have server paritings
  Parameters:
  jso - @{ \"speech\": TEXT-TO-BE-SPOKEN @}
 
+\"key\" --- WRITEME
+
+\"vol\"  ---  Volume is  one  of  \"talk\", \"shout\",  or  \"whisper\".
+The default is always \"talk\".
+
 
 @verbatim
 
@@ -1690,7 +1701,7 @@ We no longer have zones, but we can have server paritings
          (return))
     (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
     (#\/ (v:warn :speak "emote not handled ~a" speech))     ; TODO
-    ((#\$ #\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX
+    ((#\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX
     (otherwise
      (when (search ",dumpthreads" speech)
        (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"

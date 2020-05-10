@@ -71,10 +71,10 @@ of the bandwidth involved.")
 
 (defun ws-bandwidth-by-source ()
   (format nil "Commands:
-~{~a: ~:d byte~:p~^;~%~}.
+~{~a: ~:d character~:p~^;~%~}.
 
 Replies:
-~{~a: ~:d byte~:p~^;~%~}.
+~{~a: ~:d character~:p~^;~%~}.
 
 Other:
 ~:d byte~:p."
@@ -87,6 +87,9 @@ Other:
           *ws-traffic-other*))
 
 (defun ws-bandwidth-record (packet &optional (multiplier 1))
+  "Record bandwidth used by this PACKET.
+
+For broadcasts, multiply by MULTIPLIER."
   (etypecase packet
     (cons (if-let (from (getf packet :|from|))
             (incf (gethash from *ws-traffic-from* 0)
@@ -113,7 +116,7 @@ Other:
     (t (incf *ws-traffic-other* (* multiplier (length (princ-to-string packet)))))))
 
 (defun ws-stats ()
-  "Returns  a  string  with   some  nifty  statistics  about  WebSockets"
+  "Returns a string with some nifty statistics about WebSockets"
   (let* ((clients (hunchensocket:clients *infinity-websocket-resource*))
          (user-clients (remove-if-not #'user-account clients))
          (active-clients (remove-if-not (lambda (client)
@@ -317,6 +320,12 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
       (incf *ws-chars-unicast* (length text))
       (hunchensocket:send-text-message ws-client text))))
 
+(defmethod hunchensocket::process-connection :around ((acceptor websocket-acceptor) socket)
+  (handler-case
+      (call-next-method)
+    (sb-sys:io-timeout (c)
+      (v:warn "Ignoring ~a" c))))
+
 (defmethod hunchensocket:text-message-received ((res infinity-websocket-resource)
                                                 client message)
   (incf *ws-chars-received* (length message))
@@ -456,9 +465,8 @@ Sends logOK message and Toots List"
 (defun websockets-maintenance ()
   "Maintain websockets.
 
-Sends Are You There packets to idle users and logs `WS-STATS'"
-  (ayt-idle-users)
-  (v:info '(:stream :stats) "WebSockets stats: ~a" (ws-stats)))
+Sends Are You There packets to idle users."
+  (ayt-idle-users))
 
 (defun ws-maintenance-thread ()
   "This is the main function for the websockets maintenance thread.

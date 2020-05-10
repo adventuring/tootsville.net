@@ -33,7 +33,7 @@
 
 
 (defsystem Tootsville
-  :version "0.6.1"
+  :version "0.6.3"
   :author "Bruce-Robert Pocock <BRPocock@ciwta.org>"
   :license "AGPL v3+"
   :bug-tracker "https://github.com/adventuring/tootsville.net/issues"
@@ -173,6 +173,7 @@ REST services for the front-end."
        (:file "legacy-commands" :depends-on ("infinity"))
        (:file "legacy-ops" :depends-on ("infinity"))
        (:file "modern-ops" :depends-on ("infinity"))
+       (:file "game-actions" :depends-on ("infinity"))
        (:file "tootsville-commands" :depends-on ("infinity"))
        (:file "new-commands-20" :depends-on ("infinity"))
        (:file "new-commands-50" :depends-on ("infinity"))))))))

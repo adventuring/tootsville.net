@@ -116,30 +116,33 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 @samp{#-ip}, or @samp{#user}, an additional parameter is needed."
 
   (error 'unimplemented))
+
 (define-operator-command beam (words user plane)
   "
  throws org.json.JSONException,
  PrivilegeRequiredException
 
- Beam yourself to a different room.
+ Beam yourself to a different location.
 
- Syntax for use
- #beam [ROOM]
+ Syntax for use:
+ #beam LATITUDE LONGITUDE [ALTITUDE]
 
- Examples
- #beam tootSquare
+Altitude is optional.
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- org.json.JSONException - if the data can't be formatted for some reason
- PrivilegeRequiredException - if so
+@subsection{Changes in 2.0}
+
+In Romance  1, this command took  a room moniker as  its sole parameter;
+since rooms as such no longer exist, we use latitude and longitude now.
+
 "
-  (error 'unimplemented)
-  )
-(define-operator-command build (words user plane)
+  (list 200 (list :|from| "beam"
+                  :|latitude| (parse-integer (first words))
+                  :|longitude| (parse-integer (second words))
+                  :|altitude| (if (< 2 (length words))
+                                  (parse-integer (third words))
+                                  0))))
+
+(define-operator-command spawnroom (words user plane)
   "
 
  Create  a new  room  in  the current  zone.  Must  have staff  level
@@ -161,27 +164,42 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
   (error 'unimplemented))
+
 (define-operator-command census (words user plane)
-  "
- throws PrivilegeRequiredException
+  "Load a number of users.
+ 
+Simply  reference a  range  of  users, for  testing  purposes. Takes  an
+optional  low and  high point,  or  runs 0…250000.  (250,000) This  will
+load their Toots, and seriously strain the caché and database subsystems.
 
- Simply reference  a range of  users, for testing purposes.  Takes an
- optional low and high point, or runs 0…250000. (250,000) This will
- assert free or  paid member status, restore default  free items, and
- seriously strain the caché and database subsystems.
+Since this is designed  to stress the servers, it can  be called only by
+God (Pil)."
+  (assert (equal (Toot-name *Toot*) "Pil"))
+  (let* ((low (if (<= 1 (length words))
+                  (parse-integer (first words))
+                  0))
+         (length (if (<= 2 (length words))
+                     (1+ (- (parse-integer (second words)) low))
+                     250000))
+         (uuids (mapcar 
+                 (compose #'base64-to-uuid #'second)
+                 (db-select-all :friendly
+                                (format nil "SELECT uuid FROM people LIMIT ~d OFFSET ~d"
+                                        length low))))
+         (users 0) (Toots 0))
+    (dolist (uuid uuids)
+      (let ((person (find-record 'person :uuid uuid)))
+        (person-info person)
+        (incf users)
+        (dolist (Toot (player-Toots person))
+          (Toot-info Toot)
+          (incf Toots))))
+    (format nil "Stressed database with ~:d user~:p (from offset ~:d) and ~:d Toot~:p"
+            users low Toots)))
 
- Parameters:
- words - optional low and high points of the range to be referenced.
- u - God
- room - God's room
- Throws:
- PrivilegeRequiredException - if someone other than God tries to call this routine
-"
-  (error 'unimplemented))
 (define-operator-command clearbadge (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Clear badges off of the map interface. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -211,27 +229,17 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
   (error 'unimplemented))
+
 (define-operator-command clearcache (words user plane)
-  "
- throws com.whirlycott.cache.CacheException,
- PrivilegeRequiredException
+  "Forcibly clear all cachés (MemCacheD)"
+  (cl-memcached:mc-flush-all))
 
- Forcibly clear all cachés
-
- Parameters:
- words - none
- u - operator
- r - room operator is in
- Throws:
- com.whirlycott.cache.CacheException - if the cachÃ© subsystem throws an exception
- PrivilegeRequiredException - if (u) is not a developer
-"
-
-  (error 'unimplemented))
 (define-operator-command clearevent (words user plane)
-  "
+  "UNIMPLEMENTED
 
- Clear a GameEvent from a Zone. Must have staff level 4 (DESIGNER) to use this command.
+Clear a GameEvent from a Zone. 
+
+Must have staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
  #clearevent [EVENTNAME]
@@ -249,8 +257,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  See Also:
  op_addevent(String[], AbstractUser, Room), op_getevents(String[], AbstractUser, Room)
 "
-  (error 'unimplemented)
-  )
+  (error 'unimplemented))
+
 (define-operator-command clearvar (words user plane)
   "
 
@@ -274,6 +282,7 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  op_setvar(String[], AbstractUser, Room), op_getvar(String[], AbstractUser, Room)
 "
   (error 'unimplemented))
+
 (define-operator-command cloneroom (words u plane)
   "
  throws PrivilegeRequiredException
@@ -287,8 +296,8 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  Throws:
  PrivilegeRequiredException - if the user doesn't have Designer level privileges, at least
 "
-  (error 'unimplemented)
-  )
+  (error 'unimplemented))
+
 (define-operator-command createroom (words user plane)
   "
  throws PrivilegeRequiredException,
@@ -304,24 +313,34 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  PrivilegeRequiredException - WRITEME
  NotReadyException - WRITEME
 "
-  (error 'unimplemented)
-  )
-(define-operator-command dbcpinfo (words user plane)
-  "
- Get DBCP information. Must have staff level 8 (DEVELOPER) to use this command.
+  (error 'unimplemented))
 
- Syntax for use
+(define-operator-command dbcpinfo (words user plane)
+  "Get information from the DBI (database) layer.
+
+Earlier versions of Romance were  Java-based, using the DBCP layer, thus
+the name.
+
+
+ Syntax for use:
  #dbcpinfo
 
- Examples
+ Examples:
  #dbcpinfo
 "
-  (error 'unimplemented)
-  )
+  (with-dbi (:friendly)
+    (let ((driver (dbi:connection-driver-type *dbi-connection*)))
+      (format nil "Friendly database name: ~a;
+DBI connection driver type: ~a (~a::~a);
+connection: ~s"
+              (dbi:connection-database-name *dbi-connection*)
+              driver
+              (package-name (symbol-package (class-name (dbi:find-driver driver))))
+              (class-name (dbi:find-driver driver))
+              (dbi.driver:connection-handle *dbi-connection*)))))
+
 (define-operator-command dress (words user plane)
-  "
- throws NumberFormatException,
- DataException
+  "UNIMPLEMENTED
 
  Force a character to wear a specific clothing item. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -341,20 +360,18 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
   (error 'unimplemented)
   )
+
 (define-operator-command drop (words user plane)
-  "
+  "UNIMPLEMENTED
 
- find an item in your inventory based upon the item ID # and destroy (drop) it
+Find an item in your inventory based upon the item ID # and drop it (to the world).
 
- Parameters:
- words - the item# to be destroyed
- u - the user dropping the item
- room - the room in which the user is standing
+Usage: #drop ITEM-TEMPLATE-ID
 "
-  (error 'unimplemented)
-  )
+  (error 'unimplemented))
+
 (define-operator-command dropkick (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Silently remove the named user from the game by disconnection. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -369,40 +386,29 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-  
   (error 'unimplemented))
+
 (define-operator-command dumpthreads (words user plane)
-  "
+  "Dump debugging information including all running threads to the server logs.
 
- Dump debugging information including all running threads to a server-side file. Must have staff level 1 (STAFF) to use this command.
-yntax for use
- #dumpthreads
-
- Examples
- #dumpthreads
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
-  (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
-           (all-threads))
+Syntax for use:
+ #dumpthreads"
+  (v:info :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
+          (all-threads))
   (format nil "Dumped names of ~:d thread~:p" (length (all-threads))))
+
 (define-operator-command enablepathfinder (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Temporary test routine for testing pathfinders on users
 
- Parameters:
- words - true or false
- u - who
- room - where
-"
+Syntax:
 
-  )
+#enablepathfinder (true|false)"
+  (error 'unimplemented))
+
 (define-operator-command evacuate (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Evacuate all users from your current Zone into another Zone. Will error if the Zone specified does not exist. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -417,8 +423,8 @@ yntax for use
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command filter (words user plane)
   "
 
@@ -429,39 +435,60 @@ yntax for use
  See Also:
  op_testcensor(String[], AbstractUser, Room)
 "
+  (error 'unimplemented))
 
-  )
 (defun json-to-html (json)
   (with-output-to-string (s)
     (doplist (key value json)
-        (format s "~%<div><strong>~a</strong>: &nbsp; ~a</div>" key value))))
+        (format s "~%<div><strong>~a</strong>: &nbsp; ~s</div>" key value))))
 
 (define-operator-command finger (words user plane)
-  "
+  "Finger a user account. Return interesting details in an administrative message.
 
- Finger a user account. Return interesting details in an administrative message. Must have staff level 1 (STAFF) to use this command.
+ Syntax for use:
+ #finger TOOT
 
- Syntax for use
- #finger [LOGIN]
-
- Examples
+ Examples:
  #finger mouser
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-  (json-to-html (Toot-info (first words))))
+  (let* ((Toot (find-record 'Toot :name (first words)))
+         (player (find-reference Toot :player)))
+    (format nil " ~a is a ~a with base color ~a, pad color ~a, and pattern ~a ~a. 
+ This is a~:[n adult~; child~]'s account. ~@[~*(sensitive player)~] ~@[~*(patron)~]
+ The user has ~:d peanut~:p, ~:d fairy dust, and was last active ~a
+ (Earth time, ~a ago; ~a)
+ The player owning ~a is ~a (~a). 
+ Toot: ~a; player: ~a 
+"
+            (Toot-name Toot)
+            (avatar-moniker (find-reference Toot :avatar))
+            (color24-name (Toot-base-color Toot))
+            (color24-name (Toot-pad-color Toot))
+            (color24-name (Toot-pattern-color Toot))
+            (pattern-name (find-reference Toot :pattern))
+            (Toot-childp Toot)
+            (person-sensitivep player)
+            (person-is-patron-p player)
+            (Toot-peanuts Toot) (Toot-fairy-dust Toot)
+            (Toot-last-active Toot)
+            (human-duration (timestamp-difference (now)
+                                                  (Toot-last-active Toot)))
+            (Chœrogryllum:date-string (timestamp-to-universal (Toot-last-active Toot)))
+            (Toot-name Toot)
+            (person-display-name player)
+            (person-first-email player)
+            (Toot-uuid Toot)
+            (person-uuid player))))
 
 (define-operator-command flush (words user plane)
-  "
-Historically, this flushed the database write cache. Now, instead, it flushes the
-database reading MemCacheD servers.
+  "UNIMPLEMENTED
+
+Historically, this flushed the database write cache.
 "
-  (cl-memcached:mc-flush-all))
+  (error 'unimplemented))
+
 (define-operator-command game (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Send a command into the operator command interpreter for a running game (if that game provides one)
 
@@ -472,23 +499,24 @@ database reading MemCacheD servers.
  u - The user invoking the operator command
  room - The room in which the user is standing. The GameEvent must be attached thereunto.
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command getconfig (words user plane)
   "Reads a configuration key. All WORDS are expected to be the keywords
 on the path to the config value.
 
- Syntax for use
- #getconfig [PROPERTY]
+ Syntax for use:
+ #getconfig PROPERTY
 
- Examples
+ Examples:
  #getconfig :taskmaster :devel
 
  "
-  (apply #'config (mapcar #'make-keyword (mapcar #'string-upcase words))))
+  (format nil "<pre>~s</pre>"
+          (apply #'config (mapcar (compose #'make-keyword #'string-upcase) words))))
 
 (define-operator-command getevents (words user plane)
-  "
+  "UNIMPLEMENTED
 
  List GameEvents in your current Zone. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -505,15 +533,14 @@ on the path to the config value.
  See Also:
  op_addevent(String[], AbstractUser, Room), op_getevents(String[], AbstractUser, Room)
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command getmotd (words user plane)
   "Retrieve the current Message Of The Day as a server message."
   *motd*)
 
 (define-operator-command getschedule (words user plane)
   "
- throws PrivilegeRequiredException
 
  WRITEME: Document this method brpocock@@star-hope.org
 
@@ -524,12 +551,10 @@ on the path to the config value.
  Throws:
  PrivilegeRequiredException - WRITEME
 "
-  
-  )
+  (error 'unimplemented))
+
 (define-operator-command getschedulefor (words user plane)
-  "
- throws PrivilegeRequiredException,
- ClassNotFoundException
+  "UNIMPLEMENTED
 
  Get scheduled events for a particular class (scheduled by that class)
 
@@ -541,10 +566,10 @@ on the path to the config value.
  PrivilegeRequiredException - if the user doesn't have at least moderator privilege level
  ClassNotFoundException - is the class requested can't be found (probably a typo)
 "
-  
-  )
+  (error 'unimplemented))
+
 (define-operator-command getuvar (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Get a user variable. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -562,10 +587,10 @@ on the path to the config value.
  See Also:
  op_setuvar(String[], AbstractUser, Room), op_getuvars(String[], AbstractUser, Room)
 "
-  
   (error 'unimplemented))
+
 (define-operator-command getuvars (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Get all user variables for a given user. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -587,10 +612,10 @@ on the path to the config value.
  See Also:
  op_setuvar(String[], AbstractUser, Room), op_getuvar(String[], AbstractUser, Room)
 "
-  
-  )
+  (error 'unimplemented))
+
 (define-operator-command getvar (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Get a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -609,10 +634,10 @@ on the path to the config value.
  See Also:
  op_setvar(String[], AbstractUser, Room), op_clearvar(String[], AbstractUser, Room), op_getvars(String[], AbstractUser, Room)
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command getvars (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Get all room variables. Must have staff level 4 (DESIGNER) to use this command.
 
@@ -631,9 +656,11 @@ on the path to the config value.
  See Also:
  op_setvar(String[], AbstractUser, Room), op_clearvar(String[], AbstractUser, Room), op_getvar(String[], AbstractUser, Room)
 "
-
   (error 'unimplemented))
-(define-operator-command give (words u plane)"
+
+(define-operator-command give (words u plane)
+  "UNIMPLEMENTED
+
  throws NumberFormatException,
  org.json.JSONException,
  AlreadyExistsException
@@ -652,10 +679,10 @@ on the path to the config value.
  org.json.JSONException - WRITEME
  AlreadyExistsException - WRITEME
 "
+  (error 'unimplemented))
 
-                         (error 'unimplemented))
 (define-operator-command givehead (words user plane)
-  "
+  "UNIMPLEMENTED
  throws PrivilegeRequiredException
 
  Give an inventory item to a user. Must have staff level 1 (STAFF) to use this command.
@@ -677,10 +704,11 @@ on the path to the config value.
  Throws:
  PrivilegeRequiredException - requires staff level permissions
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command goto (words user plane)
-  "
+  "UNIMPLEMENTED
+
  throws PrivilegeRequiredException
 
  WRITEME: Document this method brpocock@@star-hope.org
@@ -692,10 +720,11 @@ on the path to the config value.
  Throws:
  PrivilegeRequiredException - WRITEME
 "
-
   (error 'unimplemented))
+
 (define-operator-command grant (words user plane)
-  "
+  "UNIMPLEMENTED
+
  throws PrivilegeRequiredException
 
  Grant an item to a user. See op_givehead(String[], AbstractUser, Room)
@@ -707,10 +736,10 @@ on the path to the config value.
  Throws:
  PrivilegeRequiredException - if the user doesn't have sufficient privileges
 "
-
   (error 'unimplemented))
+
 (define-operator-command headcount (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Get headcount information about the running system. Must have staff level 1 (STAFF) to use this command.
 
@@ -744,10 +773,11 @@ See Also:
 
  headcount_members(AbstractUser, Room)
 "
-
   (error 'unimplemented))
+
 (define-operator-command inv (words user plane)
-  "
+  "UNIMPLEMENTED
+
  throws PrivilegeRequiredException
 
  Get inventory  items for  a particular user.  By default,  this will
@@ -784,8 +814,8 @@ room - the room in which that user is standing
 Throws:
  PrivilegeRequiredException - if the user lacks staff privileges to invoke this command
 "
+  (error 'UNIMPLEMENTED))
 
-  )
 (define-operator-command kick (words user plane)
   "
  throws NotFoundException
@@ -825,11 +855,10 @@ Throws:
  See Also:
  op_warn(String[], AbstractUser, Room), op_ban(String[], AbstractUser, Room)
 "
-
   (error 'unimplemented))
+
 (define-operator-command king (words user plane)
-  "
- throws org.json.JSONException
+  "UNIMPLEMENTED
 
  Apply  a  gift  membership  to   an  user.  Must  have  staff  level
  4 (DESIGNER) to use this command.
@@ -847,10 +876,11 @@ Throws:
  Throws:
  org.json.JSONException - if something can't be cast into a JSON packet underlying
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command liftban (words user plane)
-  "
+  "UNIMPLEMENTED
+
  throws PrivilegeRequiredException,
  NotFoundException
 
@@ -875,10 +905,10 @@ Throws:
  PrivilegeRequiredException - if the user lacks PrivilegeRequiredException
  NotFoundException - if the warning reason code is not valid
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command loadlists (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Reload the censorship lists. Must have staff level 8 (DEVELOPER) to use this command.
 
@@ -893,26 +923,23 @@ Throws:
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
-  )
-(define-operator-command mem (words user plane)
-  "
-
- Display some memory usage and other debugging type information as an pop-up message. Must have Designer privileges to use this command.
-
- Syntax for use
- #mem
-
- Examples
- #mem
-
- Parameters:
- words - command parameters (not used)
- u - invoking user
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
-
   (error 'unimplemented))
+
+(define-operator-command mem (words user plane)
+  "Display some memory usage and other debugging type information as an pop-up message. 
+
+This is an abbreviated version of the output of `ROOM'
+ 
+Syntax for use:
+ #mem
+
+ Examples:
+ #mem
+"
+  (format nil "This server is ~a. <pre>~a</pre>"
+          (machine-instance)
+          (first-paragraph (with-output-to-string (*standard-output*) (room)))))
+
 (define-operator-command metronome (words user plane)
   "
 
@@ -944,39 +971,31 @@ Throws:
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
   (error 'unimplemented))
+
 (define-operator-command motd (words user plane)
-  "
+  "Set the  message of the day.
 
- Set the  message of the day.  Must have staff level  4 (DESIGNER) to
- use this command.
-
- Syntax for use
+ Syntax for use:
  #motd [MESSAGE...]
 
- Examples
+ Examples:
  #motd I am setting the message of the day
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
+ The message of the day is echoed  to every user as they sign in, before
+ they choose a Toot."
+  (setf *motd* (format nil "~{~a~^ ~}" words)))
 
-  )
 (define-operator-command mute (words user plane)
-  "
+  "Mute a user or area
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
+UNIMPLEMENTED
+
  See Also:
- op_stfu(String[], AbstractUser, Room)
+ `TOOTSVILLE-USER::STFU'
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command nuke (words user plane)
   "
  throws PrivilegeRequiredException
@@ -990,53 +1009,37 @@ Throws:
  Throws:
  PrivilegeRequiredException - WRITEME
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command parentapproves (words user plane)
-  "
- throws PrivilegeRequiredException,
- GameLogicException,
- ForbiddenUserException,
- AlreadyExistsException,
- NotReadyException
+  "Signal that a parent approves a user signing in.
 
- WRITEME: Document this method brpocock@@star-hope.org
+Syntax:
 
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
- GameLogicException - WRITEME
- ForbiddenUserException - WRITEME
- AlreadyExistsException - WRITEME
- NotReadyException - WRITEME
-"
+#parentapproves TOOT
 
-  )
+Example:
+
+#parentapproves Pil
+
+This is only useful if TOOT is a child Toot account has begun to sign in
+and requested parent permission.
+
+ "
+  (error 'unimplemented))
+
 (define-operator-command ping (words user plane)
-  "
-
- Ping the  server, to force  a neutral administrative  message reply.
- Must have staff level 1 (STAFF) to use this command.
-
+  "Ping the  server, to force  a neutral administrative  message reply.
+ 
  Syntax for use
  #ping
 
  Examples
- #ping
+ #ping"
+  "Pong!")
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
-
-  )
 (define-operator-command place (words user plane)
-  "
- throws PrivilegeRequiredException
+  "Put a thing or a Place into the game
 
  Add a  Place to  a room.  This command supports  the basic  types of
  event Places,  and adds them to  the room in the  given WHERE place.
@@ -1055,45 +1058,19 @@ Throws:
  #place WHERE #walk
  WHERE := #here | #here-tiny | #here-big | x,y~x,y~x,y~x,y polygon list
 
-
- WRITEME: Document this method brpocock@@star-hope.org
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command purgephysics (words user plane)
-  "
- throws PrivilegeRequiredException
-
- WRITEME: Document this method brpocock@@star-hope.org
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
-"
-
+  "Purge pending physics interactions. UNIMPLEMENTED"
   (error 'unimplemented))
+
 (define-operator-command push (words user plane)
-  "
+  "UNIMPLEMENTED
 
- WRITEME
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
-"
-
+ WRITEME"
   (error 'unimplemented))
+
 (define-operator-command put (words user plane)
   "
  throws PrivilegeRequiredException
@@ -1107,69 +1084,51 @@ Throws:
  Throws:
  PrivilegeRequiredException - WRITEME
 "
-
   (error 'unimplemented))
-(define-operator-command rc (words user plane)
-  "
- throws PrivilegeRequiredException,
- InstantiationException,
- IllegalAccessException,
- ClassNotFoundException
 
+(define-operator-command rc (words user plane)
+  "UNIMPLEMENTED
+ 
  Run   an   RC  (RunCommands)   script.   Both   the  â€œsystem   run
  commandsâ€  (â€œrunâ€)  method  and   the  â€œnew  zone  run
  commandsâ€ (â€œnewZoneâ€) method will be executed; the
-
- Parameters:
- words - class name
- u - user
- room - room
- Throws:
- PrivilegeRequiredException - user must be dev level
- InstantiationException - class can't instantiate
- IllegalAccessException - class can't instantiate
- ClassNotFoundException - probably a typo on class name
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command reboot (words user plane)
-  "
+  "Restart the game server.
 
- Forces appius to restart. Must have staff level 8 (DEVELOPER) to use this command.
+ No, really; this  actually kills the game server with  an error exit so
+ that it will (hopefully) be restarted by SystemD.
 
- Syntax for use
+ Syntax for use:
  #reboot
 
- Examples
- #reboot
+ Examples:
+ #reboot"
+  (private-admin-message "Bye!" "This server is rebooting in 3 seconds.")
+  (sleep 3)
+  (sb-ext:quit :unix-status 66))
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
-
-  )
 (define-operator-command reloadconfig (words user plane)
-  "
+  "Reloads configuration properties.
 
- Reloads configuration properties. Must have staff level 8 (DEVELOPER) to use this command.
-
- Syntax for use
+ Syntax for use:
  #reloadconfig
 
- Examples
+ Examples:
  #reloadconfig
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
+  (let ((info (load-config)))
+    (format nil "Reloaded configuration from pathname ~a, truename ~a, on host ~a.
+Read at ~a. File write date ~a, author ~a."
+            (getf info :path) (getf info :truename) (getf info :host)
+            (getf info :read) (getf info :file-write-date) (getf info :author))))
 
-  )
 (define-operator-command retire (words user plane)
-  "
+  "UNIMPLEMENTED
+
+TODO -- evacuate and then restart a server node -- UNIMPLEMENTED
 
  Forces a  zone to retire.  This will disconnect anyone  currently in
  the zone.  Use #evacuate to  move users  to another zone.  Must have
@@ -1193,258 +1152,218 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-
   (error 'unimplemented))
-(define-operator-command run (words
-                              u r)"
- throws ClassNotFoundException,
- InstantiationException,
- IllegalAccessException
 
+(define-operator-command run (words u r)
+  "Run an arbitrary nullary Lisp function or method
+
+Syntax:
+
+#run FUNCTION
+
+Examples:
+
+#run ws-stats
+
+#run infinity-stats
+
+#run sb-ext quit
+
+@subsection{Changes in 2.0}
+
+In 1.x: 
  Run an arbitrary Java routine through an uploaded Runnable or RunCommands class
 
- Parameters:
- words - WRITEME
- who - WRITEME
- where - WRITEME
- Throws:
- ClassNotFoundException - WRITEME
- InstantiationException - WRITEME
- IllegalAccessException - WRITEME
-"
+In 2.x:
+ Run arbitrary nullary Lisp function or method"
+  (case (length words)
+    (1 (if-let (symbol (find-symbol (string-upcase (first words))))
+         (ignore-errors (funcall symbol))
+         (format nil "No function nor method named ~a" (first words))))
+    (2 (if-let (symbol (find-symbol (string-upcase (second words))
+                                    (find-package (string-upcase (first words)))))
+         (ignore-errors (funcall symbol))
+         (format nil "No function nor method named ~a::~a" (first words) (second words))))
+    (otherwise "Improper usage: #run FUNCTION or #run PACKAGE FUNCTION")))
 
-                              (error 'unimplemented))
 (define-operator-command saveroomvars (words user plane)
-  "
+  "UNIMPLEMENTED
 
- WRITEME: Document this method brpocock@@star-hope.org
+WRITEME"
+  (error 'unimplemented))
 
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
-"
-
-  )
 (define-operator-command scotty (words user plane)
-  "
- throws org.json.JSONException,
- PrivilegeRequiredException
+  "Force a user to relocate to another location
 
- Forces a user into another room. Must have staff level 8 (DEVELOPER) to use this command.
+Usage:
 
- Syntax for use
+#scotty TOOT LATITUDE LONGITUDE [ALTITUDE] [WORLD]
+
+Altitude is optional and defaults to 0.
+
+World is optional and defaults to CHOR.
+
+@subsection{Changes from 1.2 to 2.0}
+
+In 1.2, this movesd an user into another room.
+
+ Syntax for use:
  #scotty [LOGIN] [ROOM]
 
- Examples
- #scotty mouser tootSquareWest
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- org.json.JSONException - if something can't be done
- PrivilegeRequiredException - if so
-"
-
+ Examples:
+ #scotty mouser tootSquareWest"
   (error 'unimplemented))
+
 (define-operator-command setavatarcolors (words user plane)
-  "
+  "Sets the  base and extra colors  of a user's avatar.  
 
- Sets the  base an extra color  of a user's avatar.  Colors should be
- passed  in   HTML  format  (see   below).  Must  have   staff  level
- 4 (DESIGNER) to use this command.
-
- Syntax for use
+ Syntax for use:
  #setavatarcolors [LOGIN] [BASE] [EXTRA]
 
- Instantiate a Colour object based upon  the CSS, HTML, or JSON style
- of colour string.
-
- The  \"CSS   style\"  uses  a   decimal  triplet  in   the  form
+  The  \"CSS   style\"  uses  a   decimal  triplet  in   the  form
  rgb(R,G,B) (the literal string \"rgb(\" identifies it).
 
  The \"HTML style\" uses  a # sign followed by either  3 or 6 hex
  characters, in the form #RGB or #RRGGBB.
 
- Examples
+Basic Toot avatar colors can be passed as named strings.
+
+
+
+ Examples:
+
  #setavatarcolors mouser #000000 #ffffff
+
  #setavatarcolors mouser rgb(0,0,0) rgb(255,255,255)
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
-
- u - The user invoking the operator command
-
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- DataException - if the colour is bad
- NumberFormatException - if the colour is bad
- See Also:
- Colour.Colour(String)
 "
-
   (error 'unimplemented))
+
 (define-operator-command setbadge (words user plane)
-  "
+  "UNIMPLEMENTED
 
- Set the badge on  a room. Must have staff level  4 (DESIGNER) to use
- this command on another character. Staff level 2 (MODERATOR) can use
- the command with the #me parameter.
+Set the badge on  a map area.
 
- NOTE: Rooms  that don't  directly appear  on the  map will  not have
- visible badges, but the badges can still be set.
+ 
+ Syntax for use:
 
- Syntax for use
- #setbadge [LOGIN] [ROOM] #setbadge
- Login
+#setbadge
 
- User name of a character
- #me for the character you are logged in as
+ #setbadge BADGE MONIKER
 
- Room
+ #setbadge BADGE #here
 
- Room moniker of a room
- #here for the room you are currently in
+ #setbadge #me MONIKER
 
+ 
  NOTE: Using #setbadge with no  parameters will assume default values
  which are identical to typing #setbadge #me #here
 
- Examples
+ Examples:
+
  #setbadge snowcone tootSquareWest
+
  #setbadge #me tootSquare
+
  #setbadge snowcone #here
+
  #setbadge #me #here
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
-
+ "
   (error 'unimplemented))
+
 (define-operator-command setconfig (words user plane)
-  "
+  "UNIMPLEMENTED
 
- Set a config property. Must have staff level 8 (DEVELOPER) to use this command.
+ Set a config property.
 
- Syntax for use
- #setconfing [PROPERTY] [VALUE]
+ Syntax for use:
+ #setconfing PROPERTY VALUE
 
- Examples
- #setconfig org.starhope.appius.requireBeta true
+PROPERTY is a  sequence of keywords, which must be  delimited by spaces.
+Omit the leading : on the keyword names.
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_getconfig(String[], AbstractUser, Room)
+ Examples:
+ 
+#setconfig rollbar access-token 1234567890
+
+Changes  made   with  this   command  are   only  effective   until  the
+configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
+`LOAD-CONFIG'.
 "
-
   (error 'unimplemented))
+
 (define-operator-command setstafflevel (words user plane)
-  "
- throws PrivilegeRequiredException,
- GameLogicException
+  "UNIMPLEMENTED 
 
- WRITEME: Document this method brpocock@@star-hope.org
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
- GameLogicException - WRITEME
+   WRITEME
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command setuvar (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Set a user variable. Must have staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
- #setuvar @[LOGIN] [VARIABLE] [VALUE...] #setuvar [VARIABLE] [VALUE...] #setbadge
+ #setuvar [@LOGIN] VARIABLE [=] VALUE...
 
- NOTE: Using #setconfig without an @[LOGIN] parameter will apply the changes to the user issuing the command.
+ NOTE: Using #setuvar without an @[LOGIN] parameter will apply the changes to the user issuing the command.
 
- Examples
+ Examples:
+
  #setuvar @mouser d = 254~376~254~376~SE~1267735566759
+
  #setuvar d = 254~376~254~376~SE~1267735566759
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_getuvar(String[], AbstractUser, Room), op_getuvars(String[], AbstractUser, Room)
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command setvar (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Set a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
- #setvar #replace [VARIABLE] [FIND] [REPLACE]
- #setvar @[ROOM] [VARIABLE] [VALUE...]
- #setvar [VARIABLE] [VALUE...]
-
+ #setvar #replace VARIABLE FIND REPLACE
+ #setvar [@ROOM] VARIABLE VALUE...
+ 
  WARNING: SETTING ROOM VARIABLES TO INVALID VALUES CAN CAUSE UNEXPECTED RESULTS. DOUBLE CHECK ALL VALUES BEING SET FOR CORRECTNESS.
 
  Use #replace to change a room variable from one value to another.
 
- Examples
+ Examples:
+
  #setvar @tootsSquareWest anim~ropes 2
+
  #setvar anim~ropes 2
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_clearvar(String[], AbstractUser, Room), op_getvar(String[], AbstractUser, Room), Room.setVariable(String, String)
 "
+  (error 'unimplemented))
 
-  )
 (define-operator-command shanghai (words user plane)
-  "
- throws org.json.JSONException
+  "UNIMPLEMENTED
 
  Force a client into a different room and zone
 
- Parameters:
- words - space-delimited: USER ZONE ROOM
- u - the user doing the Shanghai:ing
- room - the room where the kidnapper is
- Throws:
- org.json.JSONException - if something can't work in JSON
-"
+ WRITEME"
+  (error 'unimplemented))
 
-  )
 (define-operator-command shout (words user plane)
-  "
+  "Speak in another zone. This is intended for using operator commands in a remote zone, not normal chat messages. Must have staff level 2 (MODERATOR) to use this command.
 
- Speak in another zone. This is intended for using operator commands in a remote zone, not normal chat messages. Must have staff level 2 (MODERATOR) to use this command.
+ Syntax for use:
 
- Syntax for use
  #shout [ZONE] [ROOM] [COMMAND...]
 
- Examples
+ Examples:
+
  #shout dottie tootSquareWest #wall Hello Everyone
+
  #shout dottie tootSquare #retire
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
+See modern version `TOOTSVILLE-USER::AT' also
 
+ "
   (error 'unimplemented))
+
 (define-operator-command spawnzone (words user plane)
   "
 
@@ -1461,10 +1380,10 @@ This can be -1 under certain circumstances.
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
   (error 'unimplemented))
+
 (define-operator-command speak (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Allows a user to speak. Must have staff level 2 (MODERATOR) to use this command.
 
@@ -1479,133 +1398,88 @@ This can be -1 under certain circumstances.
  u - The user invoking the operator command
  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
-
   (error 'unimplemented))
+
 (define-operator-command stfu (words user plane)
-  "
+  "Silences a user.
 
- Silences a user. Must have staff level 2 (MODERATOR) to use this command.
+WRITEME
 
- Syntax for use
+ Syntax for use:
+
  #stfu [LOGIN]
 
- Examples
+ Examples:
+
  #stfu flappyperry
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
-
+ "
   (error 'unimplemented))
+
 (define-operator-command testcensor (words user plane)
-  "
+  "UNIMPLEMENTED
 
  Test a message with the censor, displays the filter result.
 
- Syntax for use
+ Syntax for use:
+
  #testcensor [MESSAGE]
 
- Examples
+ Examples:
  #testcensor This message will be filtered and the result will be displayed.
 
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-"
-
+ "
   (error 'unimplemented))
+
 (define-operator-command time (words user plane)
-  "
-
- Displays a message  with the current time in  Eastern Standard Time.
- Must have staff level 1 (STAFF) to use this command.
-
- Syntax for use
+  "Displays a message  with the current server time.
+ 
+Syntax for use:
  #time
 
- Examples
+ Examples:
  #time
 
- Parameters:
+ "
+  (format nil "Now it is ~a (Universal: ~:d; Unix: ~:d)"
+          (now) (get-universal-time) (- (get-universal-time) +unix-time-in-universal+)))
 
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-"
-
-  (error 'unimplemented))
 (define-operator-command unbuild (words user plane)
-  "
- throws NotFoundException
-
+  "UNIMPLEMENTED
+ 
  Destroys a room. Must have staff level 8 (DEVELOPER) to use this command.
 
- Syntax for use
- #unbuild [ROOM]
+ Syntax for use:
+ #unbuild ROOM
 
- Examples
+ Examples:
  #unbuild tootUniversity
 
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-
-Throws:
- NotFoundException - if the room doesn't exist
 "
-
   (error 'unimplemented))
+
 (define-operator-command v (words user plane)
-  "
- throws org.json.JSONException,
- NotFoundException
+  "Forces a user to say a message.
 
- Forces a user  to say a message. Must have  staff level 4 (DESIGNER)
- to use this command.
+Mnemonic: Ventriloquism
 
- Syntax for use
- #v [LOGIN] [MESSAGE...]
+ Syntax for use:
+ #v LOGIN MESSAGE...
 
- Examples
+ Examples:
  #v flappyperry I like to cause trouble in tootsville
 
- Parameters:
+See `INFINITY-SPEAK'
 
- words  -  The  command  parameters  (whitespace-delimited  list)
- provided after the # command name
+@subsection{Changes in 2.0}
 
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-
-Throws:
- org.json.JSONException - if the speech can't be represented in JSON somehow
- NotFoundException - WRITEME
- See Also:
- Commands.do_speak(JSONObject, AbstractUser, Room)
+This no longer allows ventriloquism of operator commands &c.
 "
+  (Toot-speak (join #\Space (rest words)) 
+              :Toot (find-record 'Toot :name (first words))))
 
-  )
-(define-operator-command verbosebugs (words u plane)"
+(define-operator-command verbosebugs (words u plane)
+  "UNIMPLEMENTED
 
  Set verbose bug backtrace reporting on or off
 
@@ -1614,59 +1488,46 @@ Throws:
  u - the user affected
  r - the room in which the user is standing
 "
+  (error 'unimplemented))
 
-                         (error 'unimplemented))
 (define-operator-command wall (words user plane)
-  "
+  "Write to all players
 
- Sends an pop-up message to everyone in the zone. Must have staff level 4 (DESIGNER) to use this command.
+ Sends an pop-up message to everyone currently online.
 
- Syntax for use
+ Syntax for use:
  #wall [MESSAGE...]
 
- Examples
- #wall This message will go to everyone in the zone I am in.
+ Examples:
+ #wall This message will go to everyone currently on-line.
 
  Parameters:
 
 words  - The  command  parameters  (whitespace-delimited list)  provided
 after the # command name
 
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
 "
-
+  
   (broadcast
    (list :|from| "admin"
          :|status| t
          :|title| "Squawk!"
          :|message| (format nil "~{~a~^ ~}" words))))
+
 (define-operator-command wallops (words user plane)
-  "
+  "Write to all operators
 
- Sends an pop-up message to all  staff members in the zone. Must have
- staff level 2 (MODERATOR) to use this command.
+ Sends an pop-up message to all  staff members in the zone. 
 
- Syntax for use
+ Syntax for use:
  #wallops [MESSAGE...]
 
- Examples
+ Examples:
  #wallops This message will go to all other staff members in this zone.
 
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-"
-
+ "
   (error 'unimplemented))
+
 (define-operator-command wallzones (words user plane)
   "
 
@@ -1689,8 +1550,8 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-
   (error 'unimplemented))
+
 (define-operator-command warn (words user plane)
   "
  throws NotFoundException
@@ -1734,36 +1595,18 @@ Throws:
  See Also:
  op_kick(String[], AbstractUser, Room), op_ban(String[], AbstractUser, Room)
 "
-
   (error 'unimplemented))
-(define-operator-command whatis (words user plane)
-  "
- throws NumberFormatException,
- NotFoundException
 
- Displays information about an item.  Must have staff level 1 (STAFF)
- to use this command.
+(define-operator-command whatis (words user plane)
+  "Displays information about an item template. 
 
  Syntax for use
- #whatis [ITEM]
+ #whatis ITEM-TEMPLATE
 
  Examples
  #whatis 1337
 
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-
-Throws:
- NotFoundException - WRITEME
- NumberFormatException - WRITEME
-"
+ "
   (unless (= 1 (length words))
     (return "Give exactly one template item ID"))
   (let ((item-id (parse-integer (first words) :junk-allowed t)))
@@ -1773,30 +1616,17 @@ Throws:
       (return (format nil "~{~a: ~a~%<BR>~}"
                       (item-template-info template))))))
 (define-operator-command whereami (words user plane)
-  "
+  "Return an administrative message with the  name of the server to which
+ the player is currently connected.
 
- Return an administrative message with the  name of the Zone in which
- the player is currently standing. Must have staff level 1 (STAFF) to
- use this command.
-
- Syntax for use
+ Syntax for use:
  #whereami
 
- Examples
+ Examples:
  #whereami
-
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
 "
+  (machine-instance))
 
-  (error 'unimplemented))
 (define-operator-command whereis (words user plane)
   "
 
@@ -1830,8 +1660,8 @@ This can be -1 under certain circumstances.
 See Also:
  whereis_atRoom(AbstractUser, Room, String), whereis_everyone(AbstractUser, Room)
 "
-
   (error 'unimplemented))
+
 (define-operator-command who (words user plane)
   "
  throws PrivilegeRequiredException,
@@ -1865,43 +1695,30 @@ Throws:
  PrivilegeRequiredException - if the user calling isn't a staff member
  NotFoundException - if the chosen room does not exist
 "
-
   (error 'unimplemented))
+
 (define-operator-command whoami (words user plane)
-  "
+  "Cause  the character  to speak  his/her  name in  the current  room.
+ Appears as dialogue in the form:  ``Hello, my name is NAME.'' Must have
+ staff level 1 (STAFF) to use this command.
 
- Cause  the character  to speak  his/her  name in  the current  room.
- Appears as  dialogue in the  form: â€œHello, my name  is NAMEâ€.
- Must have staff level 1 (STAFF) to use this command.
-
- Syntax for use
+ Syntax for use:
  #whoami
 
- Examples
+ Examples:
  #whoami
-
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
- after the # command name
-
- u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
 "
-  (error 'unimplemented))
+  (toot-speak (format nil "Hello, my name is ~a." (Toot-name *Toot*)))
+  nil)
+
 (define-operator-command whoareyou (words user plane)
-  "
-
- Ask  the  server who  it  is.  This  command should  return  version
+  "Ask  the  server who  it  is.  This  command should  return  version
  information on some of the critical classes used in the game server.
- Must have staff level 2 (MODERATOR) to use this command.
-
- Syntax for use
+ 
+ Syntax for use:
  #whoareyou
 
- Examples
+ Examples:
  #whoareyou
 
  Parameters:
@@ -1914,15 +1731,22 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-  (error 'unimplemented))
+  (format nil "This server is ~a, a ~a ~a running ~a ~a with ~a ~a.
+Quicklisp dist version ~a; 
+~@[Ultralisp dist version ~a; ~]
+Tootsville version ~a"
+          (machine-instance) (machine-type) (machine-version)
+          (software-type) (software-version)
+          (lisp-implementation-type) (lisp-implementation-version)
+          (ql:dist-version "quicklisp")
+          (ignore-errors (ql:dist-version "ultralisp"))
+          (asdf:component-version (asdf:find-system :Tootsville))))
+
 (define-operator-command zoom (words user plane)
   "
 
  WRITEME: Document this method brpocock@@star-hope.org
 
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
+ 
 "
   (error 'unimplemented))
