@@ -93,7 +93,7 @@ Used by the WebSockets and direct TCP stream handlers."
             (incf *infinity-stream-requests*)
             (with-http-errors-as-infinity-errors (command)
               (funcall method data *Toot* (Toot-world *Toot*)))))
-        (let ((c (or (getf json :|c|) "")))
+        (let ((c (or command "(No command sent)")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)
           (list :|from| "c"
