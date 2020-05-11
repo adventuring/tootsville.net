@@ -316,6 +316,8 @@ Performs announcement of the player to the world and other bookkeeping."
   (setf (player-toot *user*) Toot
         (Toot-last-active Toot) (get-universal-time))
   (save-record Toot)
+  (when *client*
+    (setf (Toot *client*) Toot))
   (unicast
    (list :|status| t
          :|from| "playWith"

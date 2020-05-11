@@ -454,14 +454,62 @@ names of Toots."
           :|status| t)))
 
 (definfinity game-action ((&rest more-params &key action &allow-other-keys) user recipient/s)
-  "Send an in-world game's action
+  "Send an in-world game's action.
 
-WRITEME  — basically  similar  to an  sendOutOfBandMessage(JSONObject,
-AbstractUser, Room) but specifically something to do with a game
+These are actions that affect in-world minigames.
 
-Parameters: jso -  @verb{| { \"action\": (verb), (other params...) } |} u - The user
-calling  this method  room -  The room  in which  this user  is standing
+@subsection Overview of In-World Minigames
 
+In-world minigames generally don't use much of a special interface,
+but sometimes require some kind of additional overlay. The game
+actions are usually signaled by in-game items.
+
+In-world minigames include soccer, volleyball, croquet, bowling, card
+table games, tag, and more. Each of these games may have a score and
+possibly some enforceable rules, although we often leave enforcement
+of the rules to the players (so that they can choose which rule set
+they like).
+
+These game actions are identified by function names beginning with
+``GAME-ACTION-.'' Some of them include:
+
+@itemize
+
+@item
+
+`GAME-ACTION-START-SPORTS-BALL-GAME'
+
+@item
+
+`GAME-ACION-JOIN-CARD-GAME'
+
+@item
+
+`GAME-ACTION-TAG-YOU-RE-IT'
+
+@end itemize
+
+@subsection General Structure
+
+A @code{gameAction} packet has a @code{d} datum with a key
+@code{action}, which is used to further dispatch the game action to
+its appropriate handler. The @code{action} value is the smallCamelCase
+version of the ``GAME-ACTION-function-name'' that will actually handle
+it.
+
+Refer to the individual game action functions for further details.
+
+@subsection Status 400 Error
+
+If the @code{action} is not supplied, or if no such action is known to
+the server, then an error 400 is returned, with a JSON error packet of
+the usual form:
+
+@verbatim
+{ from: \"gameAction\",
+  status: false,
+  error: \"error message text\" }
+@end verbatim
 "
   (if-let (fn (find-symbol (concatenate 'string "GAME-ACTION-"
                                         (symbol-munger:camel-case->lisp-name action))
@@ -470,14 +518,6 @@ calling  this method  room -  The room  in which  this user  is standing
     (list 400 (list :|from| "gameAction"
                     :|status| :false
                     :|error| (format nil "No such gameAction: ~a" action)))))
-
-(definfinity get-apple (nil user recipient/s)
-  "Get the apple to get into, or out of, $Eden. Unused.
-
-@subsection 410 Gone
-
-This command is no longer needed."
-  (error 'legacy-gone))
 
 (definfinity get-avatars ((&rest _+user-names) user recipient/s)
   "Get avatar data for a list of (other) users. cv. `INFINITY-FINGER'
@@ -542,26 +582,45 @@ of  code sequences  beginning with  @code{#} or  @code{$} are  no longer
 supported, however.
 
 @table @code
+
 @item clothes
+
 All items which can be worn in any slot other than @code{TRUNK}, @code{HAND},
  @code{LHAND} or @code{RHAND}, or @code{PIVITZ}
+
 @item pivitz
+
 Only Pivitz items
+
 @item patterns
+
 Ignored for backward-compatibility.
+
 @item furniture
+
 Any item which cannot be equipped in any way
+
 @item structure
+
 Ignored for backward-compatibility
+
 @item music
+
 Ignored for backward-compatibility
+
 @item tootsBook
+
 Ignored for backward-compatibility
+
 @item stationery
+
 Ignored in 2.0 but may be revived in 2.1
+
 @item accessories
+
 All items which can be equipped in @code{TRUNK} slot, or @code{HAND},
  @code{LHAND} or @code{RHAND} (for non-Toot characters).
+
 @end table
 
 In  addition,   @code{type}  can  be   a  string  containing   the  word
@@ -950,15 +1009,6 @@ u - the user joining the room
 Removed in 2.0."
   (error 'unimplemented))
 
-(definfinity login ((userName password zone) user recipient/s)
-  "Notification of a new player in the game.
-
- Parameters:
- jso - @{ userName: LOGIN, uuid: UUID, password: PUBLIC-KEY, zone: ZONE @}
-
-Response: logOK or @{ err: login.fail, msg: reason @}"
-  (error 'unimplemented))
-
 (definfinity logout ((&rest d) user recipient/s)
   "Log out of this game session
 
@@ -984,8 +1034,9 @@ no longer supported."
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Handle looking at other user's inventories
 
-Parameters: jso -  @{\"who\": the login name  of the user of  whom to get
-the  inventory   @};  optional   \"type\":  to   filter  by   type.  (see `INFINITY-GET-INVENTORY-BY-TYPE' for details)
+Parameters: jso - @{\"who\": the login name of the user of whom to get
+the inventory @}; optional \"type\": to filter by type.  (see
+`INFINITY-GET-INVENTORY-BY-TYPE' for details)
 
 u  - The  user requesting  the inventory
 
@@ -1430,10 +1481,13 @@ as a string.
  "
   (error 'unimplemented))
 
+(defun generate-buddy-list-signature (requestor requestee)
+  (error 'unimplemented))
+
 (definfinity request-buddy ((buddy) user recipient/s)
   "Request adding a user to your buddy list (mutual-add) using the notification-based system
 
-(Added in 1.1)
+\(Added in 1.1)
 
  jso - @{ buddy: LOGIN @}
 
@@ -1452,7 +1506,7 @@ This is new in Romance 1.1
   (unicast (list :|from| "buddyRequest"
                  :|status| t
                  :|sender| (Toot-name *Toot*)
-                 :|signature| "FIXME")))
+                 :|signature| (generate-buddy-list-signature *Toot* buddy))))
 
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users

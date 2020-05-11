@@ -84,13 +84,15 @@ Used by the WebSockets and direct TCP stream handlers."
          (data (getf json :|d|)))
     (if (and (symbolp method) (not (eql 'nil method)))
         (with-user ()
-          (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
+		   (let ((*Toot* (or *Toot*
+				     (Toot *client*)
+				     (find-active-Toot-for-user))))
             (v:info '(:infinity :stream) "Stream request from ~a for command ~a"
-                    *user* method)
+                    (or *user* *Toot) method)
             (setf (Toot-last-active *Toot*) (now))
             (incf *infinity-stream-requests*)
             (with-http-errors-as-infinity-errors (command)
-              (funcall method data *user* (user-plane *user*)))))
+              (funcall method data (or *user* *Toot*) (Toot-world *Toot*)))))
         (let ((c (or (getf json :|c|) "")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)

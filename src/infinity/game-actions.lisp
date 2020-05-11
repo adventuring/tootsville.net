@@ -300,3 +300,7 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
   (error 'unimplemented))
 
 
+
+(defun game-action-tag-you-re-it (action)
+  "WRITEME"
+  (error 'unimplemented))

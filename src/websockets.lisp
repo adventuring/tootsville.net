@@ -29,6 +29,8 @@
 
 
 
+(defvar *client* nil)
+
 (defvar *websocket-server* nil
   "The Hunchentoot/Hunchensocket server object for WebSockets.")
 
@@ -180,6 +182,8 @@ Active Clients (~:d secs): ~:d (~:d%)."
 
 (defclass ws-client (hunchensocket:websocket-client)
   ((user :accessor user-account :initform nil)
+   (Toot :accessor Toot :initform nil)
+   (random-key :accessor random-key :initform nil)
    (last-active :accessor last-active :initform (get-universal-time))))
 
 (defmethod print-object ((user ws-client) s)
@@ -233,7 +237,7 @@ message (usually the originator)"
 
 (defmethod user-stream ((user person))
   "Find the stream associated with USER"
-  (or (gethash (uuid:uuid-to-byte-array (person-uuid *user*)) *ws-client-for-user*)
+  (or (gethash (uuid:uuid-to-byte-array (person-uuid User)) *ws-client-for-user*)
       (dolist (client (remove-if-not #'user-account
                                      (hunchensocket:clients *infinity-websocket-resource*)))
         (when (uuid:uuid= (person-uuid (user-account client))
@@ -243,7 +247,12 @@ message (usually the originator)"
 
 (defmethod user-stream ((Toot Toot))
   "Find the stream associated with TOOT"
-  (user-stream (find-reference Toot :player))
+  (or (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*)
+      (dolist (client (remove-if-not #'Toot
+				     (hunchensocket:clients *infinity-websocket-resource*)))
+	(when (uuid:uuid= (Toot-uuid (Toot client))
+			  (Toot-uuid Toot))
+	  (return-from user-stream client))))
   nil)
 
 (defun force-close-hunchensocket (client)
@@ -332,11 +341,12 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   (incf *ws-chars-received* (length message))
   (setf (last-active client) (get-universal-time))
   (if-let (*user* (user-account client))
+    (let ((*client* client))
     (ws-reply (with-simple-restart (continue "Restart ∞ request processor")
                 (let ((json (jonathan.decode:parse message)))
                   (ws-bandwidth-record json)
                   (call-infinity-from-stream json)))
-              client)
+              client))
     (websocket-authenticate client message)))
 
 (defconstant +unix-time-in-universal+
@@ -366,7 +376,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defun connected-Toots ()
   "All Toots currently connected"
   (remove-if #'null
-             (mapcar #'player-Toot (who-is-connected))))
+             (mapcar #'Toot (hunchensocket:clients *infinity-websocket-resource*))))
 
 (defun find-user-for-json (json)
   "Find a user based on submitted authentication JSON"
@@ -542,3 +552,104 @@ Instead logs the contents to the console if USER is not connected."
                    :|x| vol
                    :|id| (Toot-UUID Toot))
              :near Toot))
+
+(defun infinity-get-apple (client packet$)
+  "Get the apple to get into, or out of, $Eden.
+
+@subsection Apple-based authentication
+
+In the modern usage, the user who wishes to get authenticated connects
+a stream (ie, WebSocket) connection and sends a packet like this:
+
+@verbatim
+{ c: \"getApple\" }
+@end verbatim
+
+There are no @code{d} data required.
+
+The response from the server will be something like
+
+@verbatim
+{ from: \"getApple\",
+  status: true,
+  apple: \"an opaque string\" }
+@end verbatim
+
+Upon receiving this, the client will submit a login packet (see:
+`INFINITY-LOGIN') like:
+
+@verbatim
+{ c: \"login\",
+  d: { userName: \"a-Toot-name\",
+       password: \"a-secret-sha1-hex-string\",
+       zone: \"$Eden\" } }
+@end verbatim
+
+The @code{pass} submitted is a hash created by:
+
+@enumerate
+
+@item
+
+Concatenate the @code{apple} value with the @code{child-code} for the
+Toot being signed-in.
+
+@item
+
+Take this concatenated string, and take the SHA1 hash of it.
+
+@item
+
+Take the hex value of that SHA1 hash
+
+@end enumerate
+
+@subsection Changes from 1.2 to 2.0
+
+WRITEME"
+  
+  (error 'unimplemented))
+
+(defun infinity-login (client packet$)
+  "Notification of a new player in the game.
+
+See `INFINITY-GET-APPLE' for an overview of the login process.
+
+Response: logOK or @{ from: \"login\", status: false, err:
+\"login.fail\", msg: reason @}"
+  (let ((packet (jonathan.decode:parse packet$)))
+    (let ((user-name (getf :|userName| packet))
+	  (password (getf :|password| packet))
+	  (zone (getf :|zone| packet)))
+      (if-let (random-key (random-key client))
+	      (if-let (Toot (find-record 'Toot :name user-name))
+		      (if-let (child-code (child-code Toot))
+			      (if (equal password (sha1-hex (concatenate 'string (bytes-hex random-key)
+									 (Toot-child-code Toot))))
+				  (progn
+				    (setf (user-account client) t
+					  (Toot client) Toot)
+				    (play-with-Toot Toot)
+				    (list :|from| "login"
+					  :|status| t))
+				(list :|from| "login"
+				      :|status| :false
+				      :|err| "login.fail"
+				      :|msg| "I gave you an apple, and you made applesauce."
+				      :|err2| "applesauce"))
+			      (list :|from| "login"
+				    :|status| :false
+				    :|err| "login.fail"
+				    :|msg| (format nil "~a is not a child Toot" (Toot-name Toot))
+				    :|err2| "not-child"))
+		      (list :|from| "login"
+			    :|status| :false
+			    :|err| "login.fail"
+			    :|msg| (format nil "There is no Toot named ~a" user-name)
+			    :|err2| "no-Toot"))
+	(list :|from| "login"
+	      :|status| :false
+	      :|err| "login.fail"
+	      :|msg| "You can't leave $Eden without getApple"
+	      :|err2| "no-apple")))))
+
