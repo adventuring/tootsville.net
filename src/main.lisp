@@ -62,7 +62,7 @@ Presently only supported for SBCL."
 
 (defun swank-connected-p ()
   "Is Swank currently connected to this Lisp image?"
-  (when (swank:connection-info) t))
+  swank::*connections*)
 
 (defun name-idle-threads-sequentially (count)
   "Name all of the idle asynchronous worker threads with numbers up to COUNT."

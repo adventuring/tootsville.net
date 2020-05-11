@@ -194,9 +194,9 @@ parameters."
         (gracefully-report-error.html status-code c))))
 
 (defmacro with-http-conditions (() &body body)
-  `(handler-case
-       (progn ,@body)
-     (error (c) (gracefully-report-http-client-error c))))
+  `(handler-bind
+       ((error 'gracefully-report-http-client-error))
+     (progn ,@body)))
 
 (defun handle-options-request (uri-parts ua-accept)
   (v:info :request "Method is OPTIONS")
@@ -258,7 +258,6 @@ parameters."
   (let* ((hunchentoot:*request* request)
          (*user* (find-user-for-headers (hunchentoot:header-in*
                                          "X-Infinity-Auth")))
-         (*Toot* (find-active-Toot-for-user))
          (method (hunchentoot:request-method*))
          (uri-parts (split-sequence #\/
                                     (namestring

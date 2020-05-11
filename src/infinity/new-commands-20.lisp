@@ -313,11 +313,10 @@ Each Toot object is as per `TOOT-INFO', q.v."
   "Set up the *USER* to play with Toot object TOOT.
 
 Performs announcement of the player to the world and other bookkeeping."
-  (setf (player-toot *user*) Toot
-        (Toot-last-active Toot) (get-universal-time))
-  (save-record Toot)
   (when *client*
     (setf (Toot *client*) Toot))
+  (setf (Toot-last-active Toot) (get-universal-time))
+  (save-record Toot)
   (unicast
    (list :|status| t
          :|from| "playWith"
@@ -326,7 +325,7 @@ Performs announcement of the player to the world and other bookkeeping."
          :|player| (list :|uuid| (person-uuid *user*)
                          :|name| (person-display-name *user*)
                          :|email| (person-first-email *user*))))
-  (broadcast (Toot-join-message Toot) :except *user*)
+  (broadcast (Toot-join-message Toot) :except (or *client* *user*))
   (broadcast (list :|status| t
                    :|from| "avatars"
                    :|inRoom| (Toot-world Toot)
@@ -335,9 +334,36 @@ Performs announcement of the player to the world and other bookkeeping."
   (list 200 (from-avatars (plist-with-index (connected-toots)))))
 
 (definfinity play-with ((character) u r)
-  "Choose a Toot as your active CHARACTER in the game. "
+  "Choose a Toot as your active CHARACTER in the game.
+
+CHARACTER must be the name of a Toot character owned by *USER*.
+
+@subsection Usage
+
+@verbatim
+{ c: \"playWith\", d: { character: \"a-Toot-name\" } }
+@end verbatim
+
+@subsection Status 403 Not Your Toot
+
+*USER* must  be the owner  of the Toot named  CHARACTER, or you  will be
+ denied permission.
+
+@verbatim
+{ from: \"playWith\", status: false, error: \"Not your Toot\" }
+@end verbatim
+
+@subsection Status 404 No Such Toot
+
+The Toot named CHARACTER must exist.
+
+@verbatim
+{ from: \"playWith\", status: false, error: \"No such Toot\" }
+@end verbatim
+
+"
   (if-let (Toot (find-record 'Toot :name character))
-    (if (uuid:uuid= (toot-player toot) (person-uuid *user*))
+    (if (uuid:uuid= (Toot-player Toot) (person-uuid *user*))
         (play-with-Toot Toot)
         (list 403
               (v:warn :toot-security "Attempt by ~a to access ~a" *user* Toot)

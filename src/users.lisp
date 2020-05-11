@@ -326,21 +326,21 @@ Currently just me."
 
 
 
-(defun player-Toot (&optional (person *user*))
-  "Find the Toot which PERSON is playing as (or was most recently)"
-  (when-let (p-t-link (find-record 'player-Toot :player (person-uuid person)))
-    (ignore-not-found (find-record 'Toot :UUID (player-Toot-Toot p-t-link)))))
+;; (defun player-Toot (&optional (person *user*))
+;;   "Find the Toot which PERSON is playing as (or was most recently)"
+;;   (when-let (p-t-link (find-record 'player-Toot :player (person-uuid person)))
+;;     (ignore-not-found (find-record 'Toot :UUID (player-Toot-Toot p-t-link)))))
 
-(defun (setf player-Toot) (Toot person)
-  (if-let (p-t-link (ignore-not-found
-                      (find-record 'player-Toot :player (person-uuid person))))
-    (progn (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
-           (save-record p-t-link))
-    (save-record (make-record 'player-Toot :player (person-uuid person)
-                              :Toot (Toot-uuid Toot))))
-  (setf (Toot-last-active Toot) (now))
-  (save-record Toot)
-  Toot)
+;; (defun (setf player-Toot) (Toot person)
+;;   (if-let (p-t-link (ignore-not-found
+;;                       (find-record 'player-Toot :player (person-uuid person))))
+;;     (progn (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
+;;            (save-record p-t-link))
+;;     (save-record (make-record 'player-Toot :player (person-uuid person)
+;;                               :Toot (Toot-uuid Toot))))
+;;   (setf (Toot-last-active Toot) (now))
+;;   (save-record Toot)
+;;   Toot)
 
 
 
@@ -415,14 +415,8 @@ The person's age in years
         :|dateOfBirth| (person-date-of-birth user)
         :|age| (person-age* user)))
 
-
-
-(defun user-plane (&optional (user *user*))
-  "Find the world in which USER's Toot is playing."
-  (Toot-world (find-active-toot-for-user user)))
-
 (defmethod print-object ((user person) s)
-  (format s "#<User ~a ~a (~a)~a>"
+  (format s "#<User ~a ~a ~a>"
           (person-uuid user)
           (or (person-display-name user)
               (and (or (person-given-name user)
@@ -435,8 +429,6 @@ The person's age in years
                                  (otherwise "Mx")))
                            (or (person-surname user) "")))
               "(No name)")
-          (when-let (Toot (ignore-not-found (player-Toot user)))
-            (Toot-name Toot))
           (or (when (person-is-patron-p user)
                 " (*Patron)")
               "")))
@@ -512,7 +504,8 @@ WRITEME"
   (with-dbi (:friendly)
     (let ((make-table (dbi:prepare *dbi-connection* "
 CREATE TABLE IF NOT EXISTS child_requests
-\( toot CHAR (22) NOT NULL,
+\( uuid CHAR(22) NOT NULL PRIMARY KEY,
+  toot CHAR (22) NOT NULL,
   placed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP (),
   allowed_at TIMESTAMP NULL,
   denied_at TIMESTAMP NULL,
@@ -520,11 +513,11 @@ CREATE TABLE IF NOT EXISTS child_requests
   response VARCHAR (160)
 )")))
       (dbi:execute make-table)))
-  (save-record 
-   (make-record 'child-request
-                :Toot (Toot-UUID Toot)
-                :placed-at (now)))
-  (unless (user-online-p (Toot-player Toot))
+  (make-record 'child-request
+               :uuid (uuid:make-v4-uuid)
+               :Toot (Toot-UUID Toot)
+               :placed-at (now))
+  (unless (user-online-p (find-reference Toot :player))
     (return-from login-child
       (list 400 (list :|error| "Your parent or guardian is not online, and we can not send them an email."))))
   (let ((*user* (find-reference Toot :player)))

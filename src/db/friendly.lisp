@@ -216,12 +216,6 @@
 
 
 
-(defrecord player-toot (:friendly "players_toots" :id-column player)
-  (player uuid ref person)
-  (Toot uuid ref Toots))
-
-
-
 (defrecord world (:friendly "worlds"
                             :pull t)
   (moniker keyword)
@@ -248,6 +242,7 @@
 
 
 (defrecord child-request (:friendly "child_requests")
+  (uuid uuid)
   (Toot uuid ref Toots)
   (placed-at timestamp)
   (allowed-at timestamp)
