@@ -86,7 +86,8 @@ Used by the WebSockets and direct TCP stream handlers."
     (if (and (symbolp method) (not (eql 'nil method)))
         (let ((*Toot* (or *Toot*
                           (Toot *client*))))
-          (v:info '(:infinity :stream) "Stream request from ~a for command ~a"
+          (v:info '(:infinity :stream) 
+                  "Stream request from ~a for command ~a"
                   *client* method)
           (when *Toot*
             (setf (Toot-last-active *Toot*) (now)))
