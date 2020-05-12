@@ -80,6 +80,13 @@ This is returned if TOOT-NAME does not name a character in the game."
            (setf (Toot-child-code Toot) (when (not (emptyp new-value))
                                           new-value))
            (save-record Toot)
+           (list 202 (Toot-info Toot t)))
+          (:note
+           (unless (emptyp new-value)
+             (with-errors-as-http (422)
+               (assert (< (length new-value) 100))))
+           (setf (Toot-note Toot) new-value)
+           (save-record Toot)
            (list 202 (Toot-info Toot t))))))))
 
 (defendpoint (post "/toots" "application/json")
@@ -123,10 +130,7 @@ is malformed.)"
                               :avatar-scale-y 1.0
                               :avatar-scale-z 1.0
                               :avatar 1  ; UltraToot
-                              :note (concatenate
-                                     'string
-                                     "New Toot registered via web from "
-                                     (hunchentoot:remote-addr*)))
+                              :note "New Toot registered via web")
                (v:info :registration
                        "Created new Toot ~:(~a~)" name)))
             (t-shirt
