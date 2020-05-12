@@ -132,10 +132,10 @@ leftmost digit must be after the rightmost non-digit character.
 (defun valid-child-code-p (code)
   "Is CODE valid for a child code?
 
-It must  be made up completely  of `ALPHA-CHAR-P' characters and  be 4-6
+It  must  be made  up  completely  of  ASCII67  characters and  be  6-12
 characters in length (inclusive)."
-  (and (every #'alpha-char-p code)
-       (<= 4 (length code) 6)
+  (and (every (lambda (ch) (char<= #\Space ch #\~)) code)
+       (<= 4 (length code) 12)
        (string= code (string-downcase code))))
 
 (deftype child-code ()

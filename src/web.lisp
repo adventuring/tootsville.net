@@ -209,16 +209,16 @@ Downcases the string. Returns entire string when there's no slash."
   (defun check-arg-type-fail% (arg-name type arg-value name)
     (list 400
           (list :content-type "application/json")
-          (list :error
+          (list :|error|
                 (format nil "Value provided for ~:(~a~) is not a valid ~a"
                         arg-name (or name
                                      (string-capitalize
                                       (symbol-munger:lisp->english type))))
-                :expected-type (or name
-                                   (string-capitalize
-                                    (symbol-munger:lisp->english type)))
-                :argument-name (symbol-munger:lisp->camel-case arg-name)
-                :provided-value (format nil "~s" arg-value))))
+                :|expectedType| (or name
+                                    (string-capitalize
+                                     (symbol-munger:lisp->english type)))
+                :|argumentName| (symbol-munger:lisp->camel-case arg-name)
+                :|providedValue| (format nil "~s" arg-value))))
 
   (defmacro check-arg-type (arg type &optional name)
     "Ensure that ARG  is of type TYPE, which is  called NAME. Signals back

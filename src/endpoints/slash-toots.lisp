@@ -101,7 +101,7 @@ color  or pattern  name(s)  given are  not valid.  (400  if the  request
 is malformed.)"
   (with-user ()
     (with-posted-json (name base-color pad-color pattern pattern-color
-                            t-shirt-color)
+                            t-shirt-color child-p child-code)
       (v:info :registration
               "Begin registration request for ~:(~a~)" name)
       (check-arg-type name Toot-name)
@@ -112,6 +112,8 @@ is malformed.)"
       (with-errors-as-http (400 "T-shirt color")
         (assert (member t-shirt-color +initial-t-shirt-colors+
                         :test 'string-equal)))
+      (when child-p
+        (check-arg-type child-code child-code))
       (v:info :registration
               "Registration request for ~:(~a~) seems sane" name)
       (with-errors-as-http (409)
@@ -130,6 +132,8 @@ is malformed.)"
                               :avatar-scale-y 1.0
                               :avatar-scale-z 1.0
                               :avatar 1  ; UltraToot
+                              :child-code (when child-p
+                                            child-code)
                               :note "New Toot registered via web")
                (v:info :registration
                        "Created new Toot ~:(~a~)" name)))
@@ -153,7 +157,8 @@ is malformed.)"
                       :person (person-uuid *user*)
                       :toot (Toot-uuid Toot)
                       :equipped :y))
-        (play-with-Toot Toot)
+        (unless child-p
+          (play-with-Toot Toot))
         (list 201 (list :|from| "newToot"
                         :|status| t
                         :|id| (princ-to-string (Toot-uuid Toot))

@@ -392,5 +392,6 @@ Now, we also report (at least) X-FADU, fairy dust.
               (signal c)))))))
 
 (defun destroy-Toot (Toot)
-  (cerror "Continue" "About to destroy the Toot ~a for all time." Toot)
-  (destroy-record Toot))
+  (let ((Toot (ensure-Toot Toot)))
+    (cerror "Continue" "About to destroy the Toot ~a for all time." Toot)
+    (destroy-record Toot)))
