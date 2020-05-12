@@ -260,7 +260,8 @@
   (altitude number)
   (shape string)
   (kind keyword)
-  (attributes string))
+  (attributes string)
+  (appearance string))
 
 (defrecord toot-quiesced (:friendly "toots_quiesced")
   (uuid uuid)

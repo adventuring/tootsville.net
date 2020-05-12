@@ -227,6 +227,13 @@ server include:
 
 @item stairs
 
+@item
+
+'GRASS','TALL-GRASS', 'WATER', 'UNWALKABLE',
+       'DOORMAT', 'PARKING', 'DRIVEWAY', 'STAIRS',
+       'SIDEWALK', 'COBBLES', 'SLIDE', 'FIREPOLE', 'GAME',
+       'ICE', 'SAND', 'SNOW', 'CHEESE', '
+
 @end table
 
 "
