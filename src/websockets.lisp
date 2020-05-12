@@ -420,7 +420,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                         :|idleTime| idle-time)
                   client))))
 
-
+(defun all-connected () 
+  (hunchensocket:clients *infinity-websocket-resource*))
 (defun who-is-connected ()
   "All users currently connected"
   (remove-if #'null
