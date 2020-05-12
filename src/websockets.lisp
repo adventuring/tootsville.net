@@ -344,7 +344,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defun ws-reply (message ws-client)
   "Send a reply MESSAGE to a WebSocket WS-CLIENT from an Infinity handler."
   (ws-bandwidth-record message)
-  (let ((text (ensure-message-is-characters (lastcar message))))
+  (let ((text (ensure-message-is-characters (and (consp message)
+                                                 (lastcar message)))))
     (unless (zerop (length text))
       (v:info :stream "Unicast text reply to ~a, ~:d character~:p" 
               ws-client (length text))
@@ -375,11 +376,11 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                     (user-account client)))
         (*Toot* (Toot client))
         (*client* client))
-    (ws-reply (with-simple-restart (continue "Restart ∞ request processor")
-                (let ((json (jonathan.decode:parse message)))
+    (with-simple-restart (continue "Restart ∞ request processor")
+      (ws-reply (let ((json (jonathan.decode:parse message)))
                   (ws-bandwidth-record json)
-                  (call-infinity-from-stream json)))
-              client)))
+                  (call-infinity-from-stream json))
+                client))))
 
 (defun ws-without-login (client message)
   (if (or (zerop (decf (pre-login-commands client)))
