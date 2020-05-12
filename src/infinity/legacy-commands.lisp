@@ -1789,12 +1789,18 @@ The default is always \"talk\".
     (otherwise
      (when (search ",dumpthreads" speech)
        (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
-                (bt:all-threads)))
-     (if (equal ",credits" speech)
-         (dump-credits)
-         (let ((vol (when (member vol '("shout" "whisper") :test 'equal)
-                      vol)))
-           (toot-speak speech :Toot *Toot* :vol vol))))))
+                (bt:all-threads))
+       (setf speech "🔍"))
+     (when (search ",disconnect" speech)
+       (v:info "Disconnecting ~a by their request" *client*)
+       (force-close-hunchensocket *client*)
+       (setf speech "♥ Bye! ♥"))
+     (when (search ",credits" speech)
+       (dump-credits)
+       (setf speech "📜"))
+     (let ((vol (when (member vol '("shout" "whisper") :test 'equal)
+                  vol)))
+       (toot-speak speech :Toot *Toot* :vol vol)))))
 
 (define-constant +credits+
     "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.

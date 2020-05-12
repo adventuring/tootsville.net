@@ -427,19 +427,39 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   (remove-if #'null
              (mapcar #'Toot (hunchensocket:clients *infinity-websocket-resource*))))
 
+(defun try-reconnect-Toot-name (Toot-name user)
+  (when (and Toot-name (plusp (length Toot-name)))
+    (if-let ((Toot (find-record 'Toot :name Toot-name)))
+      (if (uuid:uuid= (Toot-player Toot) (person-uuid user))
+          (progn (setf (Toot *client*) Toot)
+                 (v:info :stream "Client ~a reconnected Toot ~a" *client* Toot))
+          (unicast (list :|from| "login"
+                         :|status| :false
+                         :|err| "char.notYours"
+                         :|msg| (format nil "~a is not your Toot" Toot-name)
+                         :|err2| "char.notYours")))
+      (unicast (list :|from| "login"
+                     :|status| :false
+                     :|err| "char.notYours"
+                     :|msg| "Toot name is incorrect"
+                     :|err2| "char.notFound")))))
+
 (defun find-user-for-json (json)
   "Find a user based on submitted authentication JSON"
   (if (and json
            (string= "Auth/∞/ℵ₀" (getf json :|c|)))
       (let ((provider (getf json :|provider|))
-            (token (getf json :|token|)))
+            (token (getf json :|token|))
+            (Toot-name (getf json :|userName|)))
         (when (and provider token)
           (v:info :auth "Provider ~:(~a~) asserts token (… ~a)"
                   provider (subseq token (max 0 (- (length token) 50))
                                    (length token)))
           (assert (string-equal provider "Firebase"))
-          (ensure-user-for-plist
-           (check-firebase-id-token token))))
+          (let ((user (ensure-user-for-plist
+                       (check-firebase-id-token token))))
+            (try-reconnect-Toot-name Toot-name user)
+            user)))
       (progn (v:warn :auth "Not ∞/ℵ₀ JSON auth, ~s" json)
              nil)))
 
@@ -631,7 +651,8 @@ See `+PRE-LOGIN-MAX-TIME+' and `+PRE-LOGIN-MAX-COMMANDS+'.
 "
   
   (incf (pre-login-commands client))
-  (let ((auth (jonathan.decode:parse auth$)))
+  (let ((auth (jonathan.decode:parse auth$))
+        (*client* client))
     (ws-bandwidth-record auth)
     (if-let (*user* (find-user-for-json auth))
       (ws-perform-sign-in client)
