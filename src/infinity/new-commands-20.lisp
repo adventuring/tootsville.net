@@ -383,3 +383,16 @@ The Toot named CHARACTER must exist.
           (list :|status| :false
                 :|from| "playWith"
                 :|error| "No such Toot"))))
+
+(definfinity quiesce ((wtl d3 emotion peanuts fairy-dust) Toot r)
+  (dolist (old (find-records 'Toot-quiesced :Toot (Toot-uuid Toot)))
+    (ignore-errors (destroy-record old)))
+  (make-record 'Toot-quiesced
+               :uuid (uuid:make-v4-uuid)
+               :Toot (Toot-uuid Toot)
+               :wtl (jonathan.encode:to-json wtl)
+               :d3 (jonathan.encode:to-json d3)
+               :emotion emotion
+               :peanuts peanuts
+               :fairy-dust fairy-dust
+               :observed (now)))

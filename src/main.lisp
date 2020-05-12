@@ -182,7 +182,8 @@ is available."
                          (format nil "Tootsville Non-TLS at ~a port ~d"
                                  host port))
                    (push acceptor *acceptors*)))
-             (listen-for-websockets))
+             (listen-for-websockets)
+             (start-game-metronome))
     (change-port (port*)
       :report "Use a different port"
       (start :host host :port port*))

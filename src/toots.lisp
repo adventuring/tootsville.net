@@ -395,3 +395,15 @@ Now, we also report (at least) X-FADU, fairy dust.
   (let ((Toot (ensure-Toot Toot)))
     (cerror "Continue" "About to destroy the Toot ~a for all time." Toot)
     (destroy-record Toot)))
+
+
+
+(defun demand-quiesce-Toot (Toot)
+  (unicast (list :|from| "quiesce"
+                 :|status| :false
+                 :|request| t)
+           Toot))
+
+(defun quiesce-connected-Toots ()
+  (dolist (Toot (connected-Toots))
+    (demand-quiesce-Toot Toot)))

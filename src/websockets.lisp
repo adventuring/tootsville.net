@@ -666,21 +666,7 @@ See `+PRE-LOGIN-MAX-TIME+' and `+PRE-LOGIN-MAX-COMMANDS+'.
         (infinity-pre-login c auth client)
         (ws-unicast (login-failed-message) client)))))
 
-(defun websockets-maintenance ()
-  "Maintain websockets.
 
-Sends Are You There packets to idle users."
-  (ayt-idle-users))
-
-(defun ws-maintenance-thread ()
-  "This is the main function for the websockets maintenance thread.
-
-It     calls     `WEBSOCKETS-MAINTENANCE',     qv,    at     half     of
-+WS-IDLE-SECONDS+ intervals."
-  (loop while *websocket-server*
-     do (progn 
-          (websockets-maintenance)
-          (sleep (/ +ws-idle-seconds+ 2)))))
 
 (defun listen-for-websockets ()
   "Start listening for websocket connections."
@@ -688,9 +674,6 @@ It     calls     `WEBSOCKETS-MAINTENANCE',     qv,    at     half     of
         (make-instance (if (enable-ssl-p)
                            'websocket-ssl-acceptor
                            'websocket-acceptor)))
-  (setf *websocket-maintenance-thread*
-        (make-thread #'ws-maintenance-thread
-                     :name "WebSockets maintenance thread"))
   (hunchentoot:start *websocket-server*))
 
 (defun stop-listening-for-websockets ()

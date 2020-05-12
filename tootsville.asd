@@ -122,6 +122,7 @@ REST services for the front-end."
             :depends-on ("view" "players" "errors" "config" "endpoint"))
      (:file "http-error" :depends-on ("web"))
      (:file "redirect" :depends-on ("web"))
+     (:file "metronome" :depends-on "package-post")
      (:file "gossip" :depends-on ("db"))
      (:file "http-status-messages" :depends-on ("package-post"))
      (:file "acceptor" :depends-on ("types" "endpoint" "web" "auth"
