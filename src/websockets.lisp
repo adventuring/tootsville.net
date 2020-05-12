@@ -201,12 +201,17 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (connect-time :reader connect-time :initform (get-universal-time))
    (last-active :accessor last-active :initform (get-universal-time))))
 
-(defmethod print-object ((user ws-client) s)
-  (format s "#<WS-Client from ~a~:[ without user~;~:* for ~a~]>"
-          (when (slot-boundp user 'hunchensocket::input-stream)
-            (princ-to-string (slot-value user 'hunchensocket::input-stream)))
-          (when (slot-boundp user 'user)
-            (user-account user))))
+(defmethod print-object ((client ws-client) s)
+  (format s "#<WS-Client from ~a~:[ without user~;~:* for ~a~]~:[ (no Toot)~;~:* (~a)~]>"
+          (when (slot-boundp client 'hunchensocket::input-stream)
+            (princ-to-string (slot-value client 'hunchensocket::input-stream)))
+          (when (slot-boundp client 'user)
+            (and (user-account client)
+                 (not (eql t (user-account client)))
+                 (user-account client)))
+          (when (slot-boundp client 'Toot)
+            (and (Toot client)
+                 (Toot-name (Toot client))))))
 
 (defvar *infinity-websocket-resource* (make-instance 'infinity-websocket-resource))
 
