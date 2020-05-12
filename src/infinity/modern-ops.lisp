@@ -34,8 +34,7 @@
 
 Reloads   the   ASDF   file   with   `ASDF:LOAD-ASD'   and   then   does
 a `QL:QUICKLOAD'."
-  (asdf:load-asd (asdf:system-source-file :Tootsville))
-  (ql:quickload :Tootsville)
+  (reload-production)
   (format nil "Now running Tootsville.net server version ~a"
           (asdf:component-version (asdf:find-system :Tootsville))))
 

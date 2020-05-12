@@ -329,6 +329,16 @@ them all."
   "A  thread  listing   is  dumped  every  *TRACE-OUTPUT-HEARTBEAT-TIME*
 seconds into the verbose log.")
 
+(defvar *running-main-loop* nil)
+
+(defun register-signal-handlers ()
+  (setf (trivial-signal:signal-handler :term) (lambda (signal)
+                                                (declare (ignore signal))
+                                                (setf *running-main-loop* nil))
+        (trivial-signal:signal-handler :hup) (lambda (signal)
+                                               (declare (ignore signal))
+                                               (setf *running-main-loop* :reload))))
+
 (defun start-production (&key host port)
   "Start a Hunchentoot  server via `START' and daemonize with Swank.
 
@@ -342,9 +352,31 @@ allowing SystemD to start a new instance in case of a fatal error."
   (start :host host :port port)
   (v:info :starting "Starting Swank")
   (start-swank)
+  (register-signal-handlers)
+  (setf *running-main-loop* t)
   (loop
-     (trace-output-heartbeat)
-     (sleep *trace-output-heartbeat-time*)))
+     (case *running-main-loop*
+       (t (when (zerop (mod (get-universal-time)
+                            *trace-output-heartbeat-time*))
+            (trace-output-heartbeat)))
+       (nil (stop-production))
+       (:reload (reload-production)))
+     (sleep 30)))
+
+(defun stop-production ()
+  (stop-listening-for-websockets)
+  (ws-evacuate-all)
+  (stop)
+  (sb-ext:quit :unix-status 0))
+
+(defun reload-production ()
+  (v:warn :reload "About to reload source and config")
+  (asdf:load-asd (asdf:system-source-file :Tootsville))
+  (ql:quickload :Tootsville)
+  (v:warn :reload "Reload complete, now running Tootsville server version ~a"
+          (asdf:component-version (asdf:find-system :Tootsville)))
+  (v:warn :reload "Reloading config file ~s"
+          (load-config)))
 
 
 ;;; Recompilation

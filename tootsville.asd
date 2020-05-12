@@ -68,6 +68,7 @@ REST services for the front-end."
                :symbol-munger
                :trivial-backtrace
                :trivial-ldap
+               :trivial-signal
                :uiop
                :uuid
                :zeromq
@@ -78,7 +79,7 @@ REST services for the front-end."
                :oliphaunt
                :rollbar
                :thread-pool-taskmaster
-	       :twilio
+               :twilio
                )
   :components
   ((:module
