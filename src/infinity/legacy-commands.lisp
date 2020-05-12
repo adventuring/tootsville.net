@@ -1,4 +1,4 @@
-(in-package :Tootsville)
+(in-package :Tootsville) ; -*- lisp -*-
 
 ;;; legacy-commands.lisp is part of Tootsville
 ;;;
@@ -1250,25 +1250,27 @@ a reply to a prompt that was not (recently) asked.
  jso - in the form @{ id: $ID, reply: $TOKEN @}, as detailed above
 
  " 
-  (if-let (request (and (starts-with id "child-request-")
+  (v:info :prompt "Prompt reply: ~a → ~a" id reply)
+  (if-let (request (and (zerop (search "child-request-" id))
                         (find-record 'child-request
                                      :uuid (subseq id 14))))
-    (or
-     (string-case reply
-       ("affirm" (parent-grant-permission request))
-       ("deny" (parent-deny-permission request))
-       ("close" #| no op |#)
-       ("1hour" (parent-grant-permission request :hours 1))
-       ("2hours" (parent-grant-permission request :hours 2))
-       ("3hours" (parent-grant-permission request :hours 3))
-       ("24hours" (parent-grant-permission request :hours 24))
-       (otherwise
-        (list 404 (list :|from| "promptReply"
-                        :|status| :false
-                        :|err| "reply.notFound"))))
-     (list 200 (list :|from| "promptReply"
-                     :|status| t
-                     :|id| id)))
+    (progn
+      (or
+       (string-case reply
+         ("affirm" (parent-grant-permission request))
+         ("deny" (parent-deny-permission request))
+         ("close" #| no op |#)
+         ("1hour" (parent-grant-permission request :hours 1))
+         ("2hours" (parent-grant-permission request :hours 2))
+         ("3hours" (parent-grant-permission request :hours 3))
+         ("24hours" (parent-grant-permission request :hours 24))
+         (otherwise
+          (list 404 (list :|from| "promptReply"
+                          :|status| :false
+                          :|err| "reply.notFound"))))
+       (list 200 (list :|from| "promptReply"
+                       :|status| t
+                       :|id| id))))
     (list 404 (list :|from| "promptReply"
                     :|status| :false
                     :|err| "id.notFound"))))

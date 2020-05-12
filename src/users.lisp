@@ -474,10 +474,7 @@ Uses the first, alphabetically speaking."
                                 "Your child wants to play on Tootsville as “~a.” Is that OK?" 
                                 (Toot-name (find-reference request :Toot)))
                  :|replies|
-                 (list :|affirm| (list :|label| "Yes"
-                                       :|label_en_US| "Yes"
-                                       :|type| "aff")
-                       :|deny| (list :|label| "No" 
+                 (list :|deny| (list :|label| "No" 
                                      :|label_en_US| "No"
                                      :|type| "neg")
                        :|1hour|
@@ -487,6 +484,10 @@ Uses the first, alphabetically speaking."
                        :|2hours|
                        (list :|label| "For 2 Hours"
                              :|label_en_US| "For 2 Hours"
+                             :|type| "aff")
+                       :|4hours|
+                       (list :|label| "For 4 Hours"
+                             :|label_en_US| "For 4 Hours"
                              :|type| "aff")))
            (find-reference (find-reference request :Toot) :Player)))
 
@@ -497,6 +498,8 @@ Returns NIL"
   (let ((Toot (find-reference request :Toot)))
     (assert (uuid:uuid= (person-uuid *user*) (Toot-player Toot)) (*user*)
             "~a can not grant access to ~a" *user* Toot)
+    (v:info :child "~a grants access to ~a for ~:d hour~:P"
+            *user* Toot hours)
     (setf (child-request-allowed-at request) (now)
           (child-request-denied-at request) nil
           (child-request-allowed-for request) hours)
@@ -510,7 +513,8 @@ Returns NIL"
 Returns NIL"
   (let ((Toot (find-reference request :Toot)))
     (assert (person= *user* (Toot-player Toot)) (*user*)
-            "~a can not grant access to ~a" *user* Toot)
+            "~a can not deny access to ~a" *user* Toot)
+    (v:info :child "~a denies access to ~a" *user* Toot)
     (setf (child-request-allowed-at request) nil
           (child-request-denied-at request) (now)
           (child-request-allowed-for request) 0)

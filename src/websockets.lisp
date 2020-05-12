@@ -1098,7 +1098,7 @@ If a parent has already authorized this Toot, they'll sign right in."
                  (play-with-Toot Toot)))
         (v:warn '(:child :stream) "Already approved ~a to play at ~a"
                 Toot client))
-    (v:warn '(child stream) "~a is not online to get approval" Toot)))
+    (v:warn '(:child :stream) "~a is not online to get approval" Toot)))
 
 (defun ws-deny-Toot (Toot request)
   (declare (ignore request))
@@ -1114,5 +1114,5 @@ If a parent has already authorized this Toot, they'll sign right in."
            (unicast (list :|from| "goToWeb"
                           :|status| t
                           :|url| "https://wiki.Tootsville.org/wiki/Parental_Approval_Denied")))
-    (v:warn '(child stream) "~a is not online to get denied" Toot)))
+    (v:warn '(:child :stream) "~a is not online to get denied" Toot)))
 
