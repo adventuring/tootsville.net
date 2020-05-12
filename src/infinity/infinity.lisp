@@ -298,7 +298,7 @@ For a complete enumeration
        (defun ,(intern (string command) (find-package :Tootsville-User)) (&rest ,words)
          ,docstring
          (declare (ignorable ,words))
-         (let ((,user *user*) (,plane (user-plane *user*)))
+         (let ((,user *Toot*) (,plane (Toot-world *Toot*)))
            (declare (ignorable ,user ,plane))
            (if (and *Toot* (builder-Toot-p *Toot*))
                (let ((reply (block nil (progn ,@body))))
