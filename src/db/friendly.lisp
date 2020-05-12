@@ -249,3 +249,27 @@
   (denied-at timestamp)
   (allowed-for number)
   (response string))
+
+
+
+(defrecord place (:friendly "places")
+  (uuid uuid)
+  (world keyword ref worlds)
+  (latitude number)
+  (longitude number)
+  (altitude number)
+  (shape string)
+  (kind keyword)
+  (attributes string))
+
+(defrecord toot-quiesced (:friendly "toots_quiesced")
+  (uuid uuid)
+  (Toot uuid ref Toot)
+  (wtl string)
+  (d3 string)
+  (emotion keyword)
+  (peanuts number)
+  (fairy-dust number)
+  (observed timestamp)
+  (peer-address string)
+  (attribs string))
