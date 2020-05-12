@@ -57,7 +57,8 @@
            (make-thread (metronome-task-function task)
                         :name (format nil "Metronome: ~a"
                                       (metronome-task-name task)))
-           (metronome-remove task)))))
+           (metronome-remove task)))
+     do (setf *metronome-next-tick* now)))
 
 (defun metronome-remove (task)
   (with-lock-held (*metronome-task-lock*)

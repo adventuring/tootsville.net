@@ -76,8 +76,6 @@ most active user connected ~:d time~:p."
   "Call an Infinity-mode command from a stream of JSON$ packets.
 
 Used by the WebSockets and direct TCP stream handlers."
-  (unless *Toot*
-    (break))
   (let* ((command (getf json :|c|))
          (method (find-symbol (concatenate 'string "INFINITY-"
                                            (string-upcase (symbol-munger:camel-case->lisp-name command)))
