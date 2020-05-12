@@ -1,6 +1,6 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; src/main.lisp is part of Tootsville
+;;;; src/metronome.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -47,11 +47,13 @@
      below (get-universal-time)
      do
        (dolist (task *metronome-tasks*)
-         (when (zerop (mod now (metronome-task-frequency task)))
+         (when (and (metronome-task-frequency task)
+                    (zerop (mod now (metronome-task-frequency task))))
            (make-thread (metronome-task-function task)
                         :name (format nil "Metronome: ~a"
                                       (metronome-task-name task))))
-         (when (< (metronome-task-one-shot-time task) now)
+         (when (and (metronome-task-one-shot-time task)
+                    (< (metronome-task-one-shot-time task) now))
            (make-thread (metronome-task-function task)
                         :name (format nil "Metronome: ~a"
                                       (metronome-task-name task)))
@@ -77,8 +79,9 @@
 
 (defun start-metronome-thread ()
   (make-thread (lambda ()
-                 (run-metronome-tasks)
-                 (sleep 1))
+                 (loop
+                    (run-metronome-tasks)
+                    (sleep 1)))
                :name "Metronome main thread"))
 
 (defun start-game-metronome ()

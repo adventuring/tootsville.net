@@ -360,7 +360,7 @@ allowing SystemD to start a new instance in case of a fatal error."
        ((t) (when (zerop (mod (get-universal-time)
                               *trace-output-heartbeat-time*))
               (trace-output-heartbeat)))
-       (nil (stop-production))
+       ((nil) (stop-production))
        (:reload (reload-production)))
      (sleep 30)))
 
