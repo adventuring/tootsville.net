@@ -385,6 +385,7 @@ The Toot named CHARACTER must exist.
                 :|error| "No such Toot"))))
 
 (definfinity quiesce ((wtl d3 emotion peanuts fairy-dust) Toot r)
+  "WRITEME"
   (dolist (old (find-records 'Toot-quiesced :Toot (Toot-uuid Toot)))
     (ignore-errors (destroy-record old)))
   (make-record 'Toot-quiesced

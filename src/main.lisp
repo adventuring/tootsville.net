@@ -357,9 +357,9 @@ allowing SystemD to start a new instance in case of a fatal error."
   (setf *running-main-loop* t)
   (loop
      (case *running-main-loop*
-       (t (when (zerop (mod (get-universal-time)
-                            *trace-output-heartbeat-time*))
-            (trace-output-heartbeat)))
+       ((t) (when (zerop (mod (get-universal-time)
+                              *trace-output-heartbeat-time*))
+              (trace-output-heartbeat)))
        (nil (stop-production))
        (:reload (reload-production)))
      (sleep 30)))
