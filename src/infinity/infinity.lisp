@@ -42,11 +42,10 @@ Used to create the REST endpoints mapping to METHOD."
   (let* ((json$ (hunchentoot:post-parameters*))
          (json (jonathan.decode:parse json$)))
     (with-user ()
-      (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
-        (v:info '(:infinity :rest) "REST request from ~a for command ~a"
-                *user* method)
-        (incf *infinity-rest-requests*)
-        (funcall method json *user* (user-plane *user*))))))
+      (v:info '(:infinity :rest) "REST request from ~a for command ~a"
+              *user* method)
+      (incf *infinity-rest-requests*)
+      (funcall method json *user* nil))))
 
 (defmacro with-http-errors-as-infinity-errors ((command) &body body)
   `(handler-case
@@ -313,8 +312,7 @@ For a complete enumeration
 See `DEFINFINITY' for a detailed discussion of this mode of operation."
   (with-posted-json (c d)
     (with-user ()
-      (let ((*Toot* (or *Toot* (find-active-Toot-for-user))))
-        (funcall (find-symbol (concatenate 'string "INFINITY-"
-                                           (string-upcase (symbol-munger:camel-case->lisp-name c)))
-                              :Tootsville)
-                 d *user* (user-plane *user*))))))
+      (funcall (find-symbol (concatenate 'string "INFINITY-"
+                                         (string-upcase (symbol-munger:camel-case->lisp-name c)))
+                            :Tootsville)
+               d *user* nil))))

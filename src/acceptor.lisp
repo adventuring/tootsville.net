@@ -289,7 +289,6 @@ parameters."
   (let* ((hunchentoot:*request* request)
          (*user* (find-user-for-headers (hunchentoot:header-in*
                                          "X-Infinity-Auth")))
-         (*Toot* (find-active-Toot-for-user))
          (method (hunchentoot:request-method*))
          (uri-parts (split-sequence #\/
                                     (namestring
@@ -303,10 +302,10 @@ parameters."
       (let ((sec-websocket-key (hunchentoot:header-in* "Sec-Websocket-Key"))
             (sec-websocket-version (hunchentoot:header-in* "Sec-Websocket-Version")))
         (unless (or (equal "13" sec-websocket-version)
-                    (find "13" (remove-if #'whitespacep (split-sequence #\, sec-websocket-version))
+                    (find "13" (remove #\space (split-sequence #\, sec-websocket-version))
                           :test #'equal))
           (gracefully-report-http-client-error (make-condition 'bad-request)))
-        (handle-websocket-request sec-websocket-key)))
+        #+ (or) (handle-websocket-request sec-websocket-key)))
     (with-http-conditions ()
       (set-http-default-headers)
       (if (eql :options method)
