@@ -35,7 +35,7 @@
   (let ((query (format nil "~a~{~a~^~}" prepared args)))
     (sha1-hex query)))
 
-(defmacro with-memcached-query ((db query args &key (timeout 5)) &body body)
+(defmacro with-memcached-query ((db query args &key (timeout (* 60 60 4))) &body body)
   (let (($db (gensym "DB-"))
         ($query (gensym "QUERY-"))
         ($key (gensym "KEY-"))

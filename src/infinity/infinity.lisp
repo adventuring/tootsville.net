@@ -1,5 +1,5 @@
 ;; -*- lisp -*-
-
+;;
 ;;; src/infinity/infinity.lisp is part of Tootsville
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
@@ -83,23 +83,22 @@ Used by the WebSockets and direct TCP stream handlers."
                               :tootsville))
          (data (getf json :|d|)))
     (if (and (symbolp method) (not (eql 'nil method)))
-        (with-user ()
-          (let ((*Toot* (or *Toot*
-                            (Toot *client*))))
-            (v:info '(:infinity :stream) "Stream request from ~a for command ~a"
-                    (or *user* *Toot*) method)
-            (when *Toot*
-              (setf (Toot-last-active *Toot*) (now)))
-            (incf *infinity-stream-requests*)
-            (with-http-errors-as-infinity-errors (command)
-              (funcall method data *Toot* (Toot-world *Toot*)))))
+        (let ((*Toot* (or *Toot*
+                          (Toot *client*))))
+          (v:info '(:infinity :stream) "Stream request from ~a for command ~a"
+                  *client* method)
+          (when *Toot*
+            (setf (Toot-last-active *Toot*) (now)))
+          (incf *infinity-stream-requests*)
+          (with-http-errors-as-infinity-errors (command)
+            (funcall method data *Toot* (Toot-world *Toot*))))
         (let ((c (or command "(No command sent)")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)
           (list :|from| "c"
                 :|status| :false
                 :|error| (format nil "Unrecognized command ~a"
-                                 (subseq c 0 (min (length c) 100))))))))
+                                 (limit-string-length c 100)))))))
 
 (defmacro definfinity (name (lambda-list user-var plane-var) &body body)
   "Define an Infinity-mode “c” command NAME.

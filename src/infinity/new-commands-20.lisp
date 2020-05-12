@@ -263,7 +263,7 @@ Return:
                    :|facing| facing
                    :|u| (Toot-uuid *Toot*)
                    :|n| (Toot-name *Toot*))
-             :except *user*))
+             :except *client*))
 
 (definfinity wtl-4 ((u course facing) u r)
   "Walk the Line indirect refresher from observer"
@@ -273,7 +273,7 @@ Return:
                    :|facing| facing
                    :|u| (Toot-uuid (find-record 'Toot :name u))
                    :|n| u)
-             :except *user*))
+             :except *client*))
 
 (defun toot-list-message ()
   "Send a player (user) their list of Toots.
@@ -322,9 +322,10 @@ Performs announcement of the player to the world and other bookkeeping."
          :|from| "playWith"
          :|playWith| (Toot-name Toot)
          :|uuid| (Toot-UUID Toot)
-         :|player| (list :|uuid| (person-uuid *user*)
-                         :|name| (person-display-name *user*)
-                         :|email| (person-first-email *user*))))
+         :|player| (when *user*
+                     (list :|uuid| (person-uuid *user*)
+                           :|name| (person-display-name *user*)
+                           :|email| (person-first-email *user*)))))
   (broadcast (Toot-join-message Toot) :except (or *client* *user*))
   (broadcast (list :|status| t
                    :|from| "avatars"

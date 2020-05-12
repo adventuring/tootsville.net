@@ -51,6 +51,11 @@ Does  not   attempt  to  destroy   OBJECT,  so  a  subsequent   call  to
   "Invalidate any cached version of OBJECT"
   (invalidate-cache object))
 
+(defgeneric find-records-by-sql (type sql)
+  (:documentation "Find records of type TYPE by using the query SQL.
+
+SQL must be a query of the form ``SELECT * FROM table WHERE…''"))
+
 (defgeneric find-record (type &rest columns+values)
   (:documentation
    "Find a record of TYPE where each of COLUMNS+VALUES are exact matches.

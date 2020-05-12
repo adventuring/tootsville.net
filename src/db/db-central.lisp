@@ -68,6 +68,19 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
     (local-time:reread-timezone-repository)
     (local-time:find-timezone-by-location-name "UTC")))
 
+(defun uuid-string-to-base64 (uuid-string)
+  (subseq (the string
+               (cl-base64:usb8-array-to-base64-string
+                (uuid:uuid-to-byte-array
+                 (uuid:make-uuid-from-string uuid-string))))
+          0 22))
+
+(defun uuid-to-base64 (uuid)
+  (subseq (the string
+               (cl-base64:usb8-array-to-base64-string
+                (uuid:uuid-to-byte-array uuid)))
+          0 22))
+
 (defgeneric column-save-value (value type)
   (:documentation "Convert VALUE into the database's representation of TYPE")
   (:method (value (type (eql :string)))
@@ -92,15 +105,8 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
   (:method (value (type (eql :uuid)))
     (etypecase value
       (null nil)
-      (string (subseq (the string
-                           (cl-base64:usb8-array-to-base64-string
-                            (uuid:uuid-to-byte-array
-                             (uuid:make-uuid-from-string value))))
-                      0 22))
-      (uuid:uuid (subseq (the string
-                              (cl-base64:usb8-array-to-base64-string
-                               (uuid:uuid-to-byte-array value)))
-                         0 22))))
+      (string (uuid-string-to-base64 value))
+      (uuid:uuid (uuid-to-base64 value))))
   (:method (value (type (eql :timestamp)))
     (and value (substitute #\Space #\Z (format-timestring nil value :timezone *utc-timezone*)))))
 
@@ -236,6 +242,11 @@ columns are ~{~:(~a~)~^, ~}" column (mapcar #'car column-definitions)))
              (apply #'db-select-records-simply ,table
                     (arrange-columns+values-for-find
                      columns+values ',columns)))))
+
+(defun defrecord/find-records-by-sql (name database)
+  `(defmethod find-records-by-sql ((class (eql ',name)) sql)
+     (mapcar (lambda (record) (load-record ',name record))
+             (db-select-all ,database sql))))
 
 (defun defrecord/find-records/pull (name table columns)
   (declare (ignore table columns))
@@ -464,6 +475,7 @@ translates to a LOCAL-TIME:TIMESTAMP on loading.
      ,(if (and nil pull)
           (defrecord/find-records/pull name table columns)
           (defrecord/find-records name table columns))
+     ,(defrecord/find-records-by-sql name database)
      ,(defrecord/before-save-normalize name columns)
      ,@(defrecord/save-record-with-id-column name database table columns)
  ;;;,(defrecord/to-json name columns)

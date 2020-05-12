@@ -243,7 +243,7 @@
 
 (defrecord child-request (:friendly "child_requests")
   (uuid uuid)
-  (Toot uuid ref Toots)
+  (Toot uuid ref Toot)
   (placed-at timestamp)
   (allowed-at timestamp)
   (denied-at timestamp)

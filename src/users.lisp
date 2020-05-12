@@ -213,13 +213,15 @@ come from a trusted authentication provider like Google Firebase)."
              (person-age player)
              1)
          13)
-      (when-let (Toot (player-Toot *user*))
+      (when-let (Toot (when-let (stream (user-stream player)) 
+                        (Toot stream)))
         (Toot-child-code Toot))))
 
 (defun player-adultp (&optional (player *user*))
-  (>= (or (legal-age (person-date-of-birth player))
-          (person-age player))
-      18))
+  (and (not (player-childp player))
+       (>= (or (legal-age (person-date-of-birth player))
+               (person-age player))
+           18)))
 
 (defun player-Toots (&optional (player *user*))
   (find-records 'Toot :player (person-uuid player)))
@@ -309,10 +311,11 @@ Currently just me."
     (list :|person|
           (list :|uid| (princ-to-string (person-uuid person))
                 :|username| (format nil "~@[Toot: ~a, ~]Person: ~a"
-                                    (when-let (Toot (ignore-not-found (player-Toot person)))
-                                      (ignore-not-found (Toot-name Toot)))
+                                    (when-let (Toot (when-let (stream (user-stream person))
+                                                      (Toot stream)))
+                                      (Toot-name Toot))
                                     (person-display-name person))
-                :|email| (user-email)))))
+                :|email| (person-first-email person)))))
 
 
 
@@ -323,26 +326,6 @@ Currently just me."
                    :|status| t
                    :|alert| message)
              person)))
-
-
-
-;; (defun player-Toot (&optional (person *user*))
-;;   "Find the Toot which PERSON is playing as (or was most recently)"
-;;   (when-let (p-t-link (find-record 'player-Toot :player (person-uuid person)))
-;;     (ignore-not-found (find-record 'Toot :UUID (player-Toot-Toot p-t-link)))))
-
-;; (defun (setf player-Toot) (Toot person)
-;;   (if-let (p-t-link (ignore-not-found
-;;                       (find-record 'player-Toot :player (person-uuid person))))
-;;     (progn (setf (player-Toot-Toot p-t-link) (Toot-uuid Toot))
-;;            (save-record p-t-link))
-;;     (save-record (make-record 'player-Toot :player (person-uuid person)
-;;                               :Toot (Toot-uuid Toot))))
-;;   (setf (Toot-last-active Toot) (now))
-;;   (save-record Toot)
-;;   Toot)
-
-
 
 (defun person-age* (&optional (user *user*))
   "Get a person's age in years."
@@ -475,27 +458,64 @@ Uses the first, alphabetically speaking."
 
 
 (defun builder-Toot-p (&optional (Toot *Toot*))
-  (Toot-has-item-p +builder-Toot-hard-hat-template+ *Toot*))
+  (Toot-has-item-p +builder-Toot-hard-hat-template+ Toot))
 
 
 
-(defun send-parent-child-login-request (Toot)
+(defun send-parent-child-login-request (request)
+  "Send a parent a child's REQUEST to play"
   (unicast (list :|from| "prompt"
-                 :|id| (format nil "child-request-~a" (Toot-UUID Toot))
+                 :|status| t
+                 :|id| (format nil "child-request-~a" (child-request-uuid request))
                  :|label| "Child login"
                  :|label_en_US| "Child login"
+                 :|title| "Child login permission"
                  :|msg| (format nil 
                                 "Your child wants to play on Tootsville as “~a.” Is that OK?" 
-                                (Toot-name Toot))
-                 :|replies| (list :|affirm| (list :|label| "Yes"
-                                                  :|label_en_US| "Yes"
-                                                  :|type| "aff")
-                                  :|deny| (list :|label| "No" 
-                                                :|label_en_US| "No"
-                                                :|type| "neg")
-                                  :|1hour| (list :|label| "For 1 Hour"
-                                                 :|label_en_US| "For 1 Hour"
-                                                 :|type| "aff")))))
+                                (Toot-name (find-reference request :Toot)))
+                 :|replies|
+                 (list :|affirm| (list :|label| "Yes"
+                                       :|label_en_US| "Yes"
+                                       :|type| "aff")
+                       :|deny| (list :|label| "No" 
+                                     :|label_en_US| "No"
+                                     :|type| "neg")
+                       :|1hour|
+                       (list :|label| "For 1 Hour"
+                             :|label_en_US| "For 1 Hour"
+                             :|type| "aff")
+                       :|2hours|
+                       (list :|label| "For 2 Hours"
+                             :|label_en_US| "For 2 Hours"
+                             :|type| "aff")))
+           (find-reference (find-reference request :Toot) :Player)))
+
+(defun parent-grant-permission (request &key (hours 168))
+  "WRITEME
+
+Returns NIL"
+  (let ((Toot (find-reference request :Toot)))
+    (assert (uuid:uuid= (person-uuid *user*) (Toot-player Toot)) (*user*)
+            "~a can not grant access to ~a" *user* Toot)
+    (setf (child-request-allowed-at request) (now)
+          (child-request-denied-at request) nil
+          (child-request-allowed-for request) hours)
+    (save-record request)
+    (ws-approve-Toot Toot request))
+  nil)
+
+(defun parent-deny-permission (request)
+  "WRITEME
+
+Returns NIL"
+  (let ((Toot (find-reference request :Toot)))
+    (assert (person= *user* (Toot-player Toot)) (*user*)
+            "~a can not grant access to ~a" *user* Toot)
+    (setf (child-request-allowed-at request) nil
+          (child-request-denied-at request) (now)
+          (child-request-allowed-for request) 0)
+    (ws-deny-Toot Toot request))
+  nil)
 
 (defun login-child (Toot)
   "Start a login request for TOOT, if one is not already pending.
@@ -513,24 +533,56 @@ CREATE TABLE IF NOT EXISTS child_requests
   response VARCHAR (160)
 )")))
       (dbi:execute make-table)))
-  (make-record 'child-request
-               :uuid (uuid:make-v4-uuid)
-               :Toot (Toot-UUID Toot)
-               :placed-at (now))
-  (unless (user-online-p (find-reference Toot :player))
-    (return-from login-child
-      (list 400 (list :|error| "Your parent or guardian is not online, and we can not send them an email."))))
-  (let ((*user* (find-reference Toot :player)))
-    (send-parent-child-login-request Toot))
+  (let ((request (if-let (requests (pending-child-requests-by-Toot Toot))
+                   (and (setf (child-request-placed-at (first requests)) (now))
+                        (first requests))
+                   (make-record 'child-request
+                                :uuid (uuid:make-v4-uuid)
+                                :Toot (Toot-UUID Toot)
+                                :placed-at (now)))))
+    (unless (user-online-p (find-reference Toot :player))
+      (return-from login-child
+        (list 400 (list :|error| "Your parent or guardian is not online, and we can not send them an email."))))
+    (let ((*user* (find-reference Toot :player)))
+      (send-parent-child-login-request request)))
   (list 200 (list :|message| "Waiting for permission…")))
 
-(defun Toot-with-pending-parent-approval (user)
+(defun pending-child-approval-request (user)
   (dolist (Toot (player-Toots user))
-    (when-let (request (ignore-not-found (find-record 'child-request 
-                                                      :allowed-at nil
-                                                      :denied-at nil
-                                                      :Toot (Toot-UUID Toot))))
-      (return-from Toot-with-pending-parent-approval Toot))))
+    (when-let (requests (pending-child-requests-by-Toot Toot))
+      (return-from pending-child-approval-request (first requests)))))
+
+(defun pending-child-requests-by-Toot (Toot)
+  (find-records-by-sql 
+   'child-request 
+   (format nil "
+SELECT * FROM child_requests
+WHERE toot='~a'
+AND (allowed_at IS NULL
+    AND denied_at IS NULL)
+AND placed_at > CURRENT_TIMESTAMP - INTERVAL 1 HOUR
+"
+           (column-save-value (Toot-UUID Toot) :uuid))))
+
+(defun answered-child-requests-by-Toot (Toot)
+  (remove-if
+   (lambda (request)
+     (and (child-request-allowed-at request)
+          (timestamp< (timestamp+ (child-request-allowed-at request)
+                                  (child-request-allowed-for request)
+                                  :hour)
+                      (now))))
+   (find-records-by-sql 
+    'child-request 
+    (format nil "
+SELECT * FROM child_requests
+WHERE toot='~a'
+AND ((allowed_at IS NOT NULL
+           AND allowed_at > CURRENT_TIMESTAMP - INTERVAL 168 HOUR)
+  OR (denied_at IS NOT NULL
+         AND denied_at > CURRENT_TIMESTAMP - INTERVAL 1 HOUR))
+"
+            (column-save-value (Toot-UUID Toot) :uuid)))))
 
 
 
@@ -538,5 +590,7 @@ CREATE TABLE IF NOT EXISTS child_requests
   "Perform housekeeping after an user signs in. 
 
 This might  include sending  a pending  child prompt."
-  (when-let (Toot (Toot-with-pending-parent-approval user))
-    (send-parent-child-login-request Toot)))
+  (when (not (eql t user))
+    (when-let (request (pending-child-approval-request user))
+      (send-parent-child-login-request request))))
+

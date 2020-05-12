@@ -247,16 +247,22 @@ message (usually the originator)"
 (defmethod user-stream ((null null))
   nil)
 
+(defmethod user-stream ((true (eql t)))
+  (error "Not a user — T"))
+
 (defmethod user-stream ((client ws-client))
   client)
 
 (defmethod user-stream ((user person))
   "Find the stream associated with USER"
   (or (gethash (uuid:uuid-to-byte-array (person-uuid User)) *ws-client-for-user*)
-      (dolist (client (remove-if-not #'user-account
-                                     (hunchensocket:clients *infinity-websocket-resource*)))
-        (when (uuid:uuid= (person-uuid (user-account client))
-                          (person-uuid user))
+      (dolist (client 
+                (remove-if-not #'user-account
+                               (hunchensocket:clients *infinity-websocket-resource*)))
+        (when (and (not (eql t (user-account client)))
+                   (uuid:uuid= (person-uuid (user-account client))
+                               (person-uuid user)))
+          (setf (gethash (uuid:uuid-to-byte-array (person-uuid user)) *ws-client-for-user*) client)
           (return-from user-stream client))))
   nil)
 
@@ -264,10 +270,11 @@ message (usually the originator)"
   "Find the stream associated with TOOT"
   (or (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*)
       (dolist (client (remove-if-not #'Toot
-				     (hunchensocket:clients *infinity-websocket-resource*)))
-	(when (uuid:uuid= (Toot-uuid (Toot client))
-			  (Toot-uuid Toot))
-	  (return-from user-stream client))))
+                                     (hunchensocket:clients *infinity-websocket-resource*)))
+        (when (uuid:uuid= (Toot-uuid (Toot client))
+                          (Toot-uuid Toot))
+          (setf (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*) client)
+          (return-from user-stream client))))
   nil)
 
 (defun force-close-hunchensocket (client)
@@ -432,7 +439,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
           (assert (string-equal provider "Firebase"))
           (ensure-user-for-plist
            (check-firebase-id-token token))))
-      (progn (v:warn :auth "Unsupported ∞ JSON auth, ~s" json)
+      (progn (v:warn :auth "Not ∞/ℵ₀ JSON auth, ~s" json)
              nil)))
 
 (defun user-online-p (user)
@@ -447,7 +454,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
          :|auth| "accepted auth, ∞ mode ℵ₀ protocol (Tootsville/5.0)"
          :|greet| "Welcome to Tootsville! Let's make some noise."
          :|motd| *motd*
-         :|userAccount| (person-info *user*))))
+         :|userAccount| (if *user* (person-info *user*)))))
 
 (defun login-failed-message ()
   "Produce a logOK for failed login"
@@ -456,9 +463,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
          :|status| :false
          :|auth| "rejected auth, ∞ mode ℵ₀ protocol (Tootsville/5.0)"
          :|motd| *motd*
-         :|error| "Authentication attempt was rejected. Either your software is trying to\
-use the ∞ mode $Eden-CHAP login method, which is not currently supported by the \
-Tootsville 5 demo version, or it is submitting invalid credentials using mode ℵ₀.")))
+         :|err| "login.fail"
+         :|error| "Invalid login credentials were submitted.")))
 
 (defun Toot-join-message (&optional (Toot *Toot*) (world "CHOR"))
   "Send joinOK message for TOOT"
@@ -492,15 +498,17 @@ Tootsville 5 demo version, or it is submitting invalid credentials using mode �
 
 The full procedure comes about from `WS-PERFORM-SIGN-IN.' This function
 only handles the low-level bookkeeping."
-  (setf (user-account client) user
-        (gethash (uuid:uuid-to-byte-array (person-uuid user)) *ws-client-for-user*) client)
+  (when (not (eql t user))
+    (setf (user-account client) user
+          (gethash (uuid:uuid-to-byte-array (person-uuid user)) *ws-client-for-user*) client))
   (post-sign-in user)
   (incf *ws-sign-ins*))
 
 (defun ws-kick-other-streams-for-user (&optional (user *user*))
   "`WS-KICK' any stream on which USER is signed in."
-  (when-let (other-client (user-stream user))
-    (ws-kick other-client)))
+  (unless (eql t user)
+    (when-let (other-client (user-stream user))
+      (ws-kick other-client))))
 
 (defun ws-perform-sign-in (client &optional (user *user*))
   "Perform signing in USER on CLIENT and side-effects.
@@ -509,7 +517,8 @@ Calls `WS-SIGN-IN-USER' and `WS-KICK-OTHER-STREAMS-FOR-USER'
 
 Sends logOK message and Toots List"
   (v:info :stream "User authenticated as ~a on ~a" user client)
-  (ws-kick-other-streams-for-user user)
+  (when (not (eql t user))
+    (ws-kick-other-streams-for-user user))
   (ws-sign-in-user client user)
   (ws-unicast (login-ok-message) client)
   (ws-unicast (second (toot-list-message)) client))
@@ -580,10 +589,8 @@ execution. It  used to return  a fake  zone list with  only @code{$Eden}
 before login, but now returns a @code{status: false} instead.
 "
   (string-case c
-    ("getApple"
-     (infinity-get-apple (getf auth :|d|) client))
-    ("login"
-     (infinity-login (getf auth :|d|) client))
+    ("getApple" (infinity-get-apple client (getf auth :|d|)))
+    ("login" (infinity-login client (getf auth :|d|)))
     ("batch" (list :|from| "batch" :status :false))
     ("finger" (list :|from| "finger" :status :false))
     ("getZoneList" (list :|from| "getZoneList" :status :false))
@@ -681,7 +688,7 @@ Also logs the contents to the console."
           title message label))
 
 (defun active-player ()
-  (or *user* *Toot*))
+  (or *user* *client*))
 
 (defun private-admin-message (title message
                               &key (label title)
@@ -714,14 +721,14 @@ Note that the current Tootsville V client does not make use of LABEL."
 (defun return-new-apple (client)
   "Used by `INFINITY-GET-APPLE' to send CLIENT a new apple value."
   (let ((random-key (cl-base64:integer-to-base64-string
-                     (ironclad:random-bits (random 32768
-                                                   )))))
+                     (ironclad:random-bits (random 32768)))))
     (setf (random-key client) random-key)
-    (list :|from| "getApple"
-          :|status| t
-          :|apple| random-key)))
+    (unicast (list :|from| "getApple"
+                   :|status| t
+                   :|apple| random-key) 
+             client)))
 
-(defun infinity-get-apple (client packet$)
+(defun infinity-get-apple (client &optional packet)
   "Get the apple to get into, or out of, $Eden.
 
 @subsection Apple-based authentication
@@ -795,8 +802,8 @@ The @code{pass} submitted is a hash created by:
 
 @item
 
-Concatenate the @code{apple} value with the @code{child-code} for the
-Toot being signed-in.
+Concatenate  the  @code{apple}  value  with  the  downcased  version  of
+@code{child-code} for the Toot being signed-in.
 
 @item
 
@@ -810,6 +817,51 @@ Take the hex value of that SHA1 hash
 
 The login packet will return @code{from: \"login\", status: true} if the
 password is successful.
+
+Next, parental approval is required. This can be submitted before login,
+in which case the login will be  followed by a slew of other messages as
+the player signs into the game, or  after login. In the latter case, the
+client  will  be given  the  login  success  message and  nothing  else.
+The client is expected to wait and  entertain the user until such a time
+as parental approval comes back.
+
+Parental approval  packets are sent by  `PARENT-GRANT-PERMISSION' by way
+of  `WS-APPROVE-TOOT'; denial,  by  `PARENT-DENY-PERMISSION'  by way  of
+`WS-DENY-TOOT'.
+
+During this intermediate  time between login and  approval, the client's
+`USER-ACCOUNT' will  be set  to NIL but  its `TOOT' will  be set  to the
+selected Toot object.
+
+If the parent approves, a packet will be returned like
+
+@verbatim
+{ from: \"parentApproval\",
+  status: true,
+  until: UNIX-TIME,
+  approved: \"approved\" }
+@end verbatim
+
+If the  parent does not  approve (actively denies permission),  a packet
+will be returned like
+
+@verbatim
+{ from: \"parentApproval\",
+  status: false,
+  until: UNIX-TIME-NOW,
+  approved: \"denied\" }
+@end verbatim
+
+Following denial, the client is required  to cease attempting to log in;
+it is  expected that  the child user  will be brought  to the  Wiki page
+explaining that they have been denied permission.
+
+Following approval, a flood of related  login packets will be sent which
+should trigger the  usual login process; these  will include positioning
+the  Toot  character,  observations   of  the  world  (so-called  ``room
+variables'' and avatar  information, &c.) and other  packets. Review the
+`Tootsville.Game.Gatekeeper' documentation for  the client's handling of
+these packets.
 
 @subsection New in 1.1
 
@@ -825,44 +877,96 @@ commands used by SmartFox Server's protocol.
 @itemize
 
 @item
-
 Apple values may now potentially reach 4kiB; the former limit was 256 characters.
 
 @item
-
 Apple values are UTF-8, not ASCII-67 (7-bit) characters.
 
 @item
-
 Apple values will not contain control characters.
 
 @item
-
 The login zone is only @code{$Eden}; there are no other zones.
+
+@item  
+Parental approval  is required  to proceed  with each  login, not
+a one-shot event during the sign-up process.
+
+@item
+Passwords are downcased to make them case-insensitive
 
 @end itemize
 
 WRITEME"
-  (let ((packet (jonathan.decode:parse packet$)))
-    (if-let (replace (getf packet :|replaceP|))
-      (string-case replace
-        ("never" 
-         (if (random-key client)
-             (list :|from| "getApple"
-                   :|status| :false
-                   :|error| "Already got an apple")
-             (return-new-apple client)))
-        ("supersede"
-         (return-new-apple client))
-        ("replace"
-         (if (random-key client)
-             (return-new-apple client)
-             (list :|from| "getApple"
-                   :|status| :false
-                   :|error| "Did not get an apple to replace"))))
-      (return-new-apple client))))
+  (if-let (replace (and packet (getf packet :|replaceP|)))
+    (string-case replace
+      ("never" 
+       (if (random-key client)
+           (list :|from| "getApple"
+                 :|status| :false
+                 :|error| "Already got an apple")
+           (return-new-apple client)))
+      ("supersede"
+       (return-new-apple client))
+      ("replace"
+       (if (random-key client)
+           (return-new-apple client)
+           (list :|from| "getApple"
+                 :|status| :false
+                 :|error| "Did not get an apple to replace"))))
+    (return-new-apple client)))
 
-(defun infinity-login (client packet$)
+(defun login-fail (err2 msg client)
+  "Sends a login failure message.
+
+@vebatim
+{ from: \"login\",
+  status: false,
+  err: \"login.fail\",
+  msg: \"User-visible error message\",
+  err2: \"unique error token\" }
+@end verbatim
+
+@code{err2} is an unique error token to identify the specific reason why
+login   was  denied   in  machine-readable   form.  @code{msg}   conveys
+approximately the same information, but  in a form suitable for relaying
+to the end user.
+
+@table @code
+
+@item hashfail
+
+The password hash submitted was incorrect. Refer to `INFINITY-LOGIN' for
+the proper structure of the login  packet. This usually, if the software
+is conforming, means that the user entered a bad password.
+
+@item no-apple
+
+The  client  did   not  obtain  an  apple  with  which   to  create  the
+password hash.
+
+@item no-Toot
+
+The Toot named does not exist.
+
+@item no-zone
+
+The Zone named does not exist. Only @code{$Eden} is a valid Zone name.
+
+@item not-child
+
+The Toot named was not a child Toot. Login by password is for children only; adults use third-party authentication (eg, Firebase for Google and Twitter) to log in.
+@end table
+
+For an overview of the child login process, see `INFINITY-GET-APPLE'."
+  (unicast (list :|_cmd| "logOK"
+                 :|status| :false
+                 :|err| "login.fail"
+                 :|msg| msg
+                 :|err2| err2)
+           client))
+
+(defun infinity-login (client packet)
   "Notification of a new player in the game.
 
 See `INFINITY-GET-APPLE' for an overview of the login process.
@@ -891,57 +995,75 @@ Must always be @code{$Eden} exactly.
 
 @end table
 
+In the event  of failure, see `LOGIN-FAIL' for  possible failure (error)
+codes that can be returned.
+
 @subsection Changes from 1.2
 
 In 1.2, users  would log in to  zone @code{$Eden}, then log  in again to
 a specific zone.  Now, @code{$Eden} is just a placeholder  and there are
 no sharded zones.
+
+Login does not completely succeed without parental approval.
+
+The  @code{err2} value  was added  to  error packets  for better  client
+software support.
 "
-  (let ((packet (jonathan.decode:parse packet$)))
-    (let ((user-name (getf packet :|userName|))
-          (password (getf packet :|password|))
-          (zone (getf packet :|zone|)))
-      (if (equal zone "$Eden")
-          (if-let (random-key (random-key client))
-            (if-let (Toot (find-record 'Toot :name user-name))
-              (if-let (child-code (Toot-child-code Toot))
-                (if (equal password 
-                           (sha1-hex (concatenate 'string 
-                                                  random-key
-                                                  child-code)))
-                    (progn
-                      (setf (user-account client) t
-                            (Toot client) Toot)
-                      (play-with-Toot Toot)
-                      (list :|from| "login"
-                            :|status| t
-                            :|zone| "@Tootsville"))
-                    ;; TODO  factor out failure packet code
-                    (list :|from| "login"
-                          :|status| :false
-                          :|err| "login.fail"
-                          :|msg| "I gave you an apple, and you made applesauce."
-                          :|err2| "applesauce"))
-                (list :|from| "login"
-                      :|status| :false
-                      :|err| "login.fail"
-                      :|msg| (format nil "~a is not a child Toot" (Toot-name Toot))
-                      :|err2| "not-child"))
-              (list :|from| "login"
-                    :|status| :false
-                    :|err| "login.fail"
-                    :|msg| (format nil "There is no Toot named ~a" user-name)
-                    :|err2| "no-Toot"))
-            (list :|from| "login"
-                  :|status| :false
-                  :|err| "login.fail"
-                  :|msg| "Your software did not obtain an apple to seed its password"
-                  :|err2| "no-apple"))
-          (list :|from| "login"
-                :|status| :false
-                :|err| "login.fail"
-                :|msg| (format nil "There is no Zone named ~a" zone)
-                :|err2| "no-zone")))))
+  (let ((user-name (getf packet :|userName|))
+        (password (getf packet :|password|))
+        (zone (getf packet :|zone|)))
+    (if (equal zone "$Eden")
+        (if-let (random-key (random-key client))
+          (if-let (Toot (find-record 'Toot :name user-name))
+            (if-let (child-code (and (Toot-child-code Toot)
+                                     (string-downcase (Toot-child-code Toot))))
+              (if (equal password 
+                         (sha1-hex (concatenate 'string 
+                                                random-key
+                                                child-code)))
+                  (progn
+                    (setf (user-account client) nil
+                          (Toot client) Toot)
+                    (unicast (login-ok-message) client)
+                    (unicast (list :|from| "login"
+                                   :|status| t
+                                   :|zone| "@Tootsville")
+                             client)
+                    (maybe-parent-approval Toot client))
+                  (login-fail "hashfail"
+                              (format nil "I gave you an apple, and you made applesauce. I wanted to see ~a, but you sent ~a"
+                                      (sha1-hex (concatenate 'string
+                                                             random-key
+                                                             child-code))
+                                      password)
+                              client))
+              (login-fail "not-child"
+                          (format nil "~a is not a child Toot" (Toot-name Toot))
+                          client))
+            (login-fail "no-Toot"
+                        (format nil "There is no Toot named ~a" 
+                                (limit-string-length user-name 32))
+                        client))
+          (login-fail "no-apple" 
+                      "Your software did not obtain an apple to seed its password"
+                      client))
+        (login-fail "no-zone" 
+                    (format nil "There is no Zone named ~a" 
+                            (limit-string-length zone 32))
+                    client))))
+
+
+
+(defun maybe-parent-approval (Toot client)
+  "Check for existing parent approval.
+
+If a parent has already authorized this Toot, they'll sign right in."
+  (let ((*client* client))
+    (when-let (requests (answered-child-requests-by-Toot Toot))
+      (if-let (approved (find-if #'child-request-allowed-at requests))
+        (ws-approve-Toot Toot approved)
+        (when-let (denied (find-if #'child-request-denied-at requests))
+          (ws-deny-Toot Toot denied))))))
 
 
 ;;; Work-around for timeout buglet in Hunchensockets
@@ -953,3 +1075,44 @@ no sharded zones.
         (hunchensocket::read-frame hunchensocket::input-stream))
     (sb-sys:io-timeout (c)
       (throw 'hunchensocket::websocket-done c))))
+
+
+
+(defun ws-approve-Toot (Toot request)
+  (if-let (client (find Toot 
+                        (remove-if-not 
+                         #'Toot
+                         (hunchensocket:clients
+                          *infinity-websocket-resource*))
+                        :key #'Toot :test #'Toot=))
+    (if (null (user-account client))
+        (progn (setf (user-account client) t)
+               (unicast (list :|from| "parentApproval"
+                              :|status| t
+                              :|until| (timestamp-to-unix (timestamp+ (child-request-allowed-at request)
+                                                                      (child-request-allowed-for request)
+                                                                      :hour))
+                              :|approved| "approved")
+                        client)
+               (let ((*client* client))
+                 (play-with-Toot Toot)))
+        (v:warn '(:child :stream) "Already approved ~a to play at ~a"
+                Toot client))
+    (v:warn '(child stream) "~a is not online to get approval" Toot)))
+
+(defun ws-deny-Toot (Toot request)
+  (declare (ignore request))
+  (if-let (client (find Toot (hunchensocket:clients *infinity-websocket-resource*)
+                        :key #'Toot :test #'Toot=))
+    (progn (setf (user-account client) nil
+                 (Toot client) nil)
+           (unicast (list :|from| "parentApproval"
+                          :|status| :false
+                          :|until| (now)
+                          :|approved| "denied")
+                    client)
+           (unicast (list :|from| "goToWeb"
+                          :|status| t
+                          :|url| "https://wiki.Tootsville.org/wiki/Parental_Approval_Denied")))
+    (v:warn '(child stream) "~a is not online to get denied" Toot)))
+

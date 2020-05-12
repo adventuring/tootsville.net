@@ -1086,10 +1086,10 @@ as well.
                     :|serverTime| java-now))))
 
 (definfinity prompt-reply ((id reply) user recipient/s)
-  "promptReply(org.json.JSONObject jso,
- AbstractUser u,
- Room room)
- throws org.json.JSONException
+  "Accept a reply to a server-initiated prompt
+
+@subsection Overviow of Prompts
+
 
  Server initiates prompt with:
 
@@ -1123,16 +1123,16 @@ as well.
 
  $TITLE = dialog title
 
- Only one of either  ``attachUser'' or ``attachItem'' will be
- included. $AVATAR_LABEL is the full avatar label of the user/avatar to
- which  the prompt  should  be attached  —  including ``$''  and
- instance ID, if necessary — where $ITEM_ID is the room variable item
- ID for a placed item in the room.
+ Only one of  either ``attachUser'' or ``attachItem''  will be included.
+ $AVATAR_LABEL is the full avatar label  of the user/avatar to which the
+ prompt  should  be attached  —  including  ``$''  and instance  ID,  if
+ necessary —  where $ITEM_ID is the  room variable item ID  for a placed
+ item in the room.
 
  $TEXT = message text, may have  \n, will often need word-wrapping, and
  ideally might make use of scroll bars
 
- The \"replies\"  assoc-array is of  arbitrary length â‰¥ 2,  where the
+ The \"replies\"  assoc-array is of  arbitrary length,  where the
  key to each item is a $TOKEN,  again an arbitrary string without \0 to
  represent this response uniquely. This is not an user-visible string.
 
@@ -1188,13 +1188,13 @@ as well.
  should  be  sent  if  the  user dismissed  the  dialog  box  with  the
  close button.
 
- I'd suggest  that the  GUI attach anonymous  functions with  the reply
- packets  already constructed  to the  various dialog  box controls  at
- creation  time,   rather  than   trying  to   manage  some   queue  of
+ I'd  suggest that  the GUI  attach anonymous  functions with  the reply
+ packets  already constructed  to  the various  dialog  box controls  at
+ creation   time,  rather   than  trying   to  manage   some  queue   of
  pending prompts.
 
- To handle user expectations, it would be best to display the button in
- a \"down\" state  until receiving the server's  acknowledgement of the
+ To handle user expectations, it would  be best to display the button in
+ a \"down\"  state until receiving  the server's acknowledgement  of the
  \"promptReply\" and disallow multiple-clicking in the window.
 
  The server will respond with
@@ -1211,11 +1211,19 @@ as well.
 @end verbatim
 
 
- Where $ERR  will be a  brief description of  the problem. e.g.  $ERR =
- \"reply.notFound\" might represent a reply button that was not a valid
- $TOKEN from  the \"prompt\"  command nor  the special  case \"close\".
- $ERR =  \"id.notFound\" might represent a  reply to a prompt  that was
- not (recently) asked.
+ Where $ERR  will be  a brief  description of the  problem.
+ 
+@table @code
+
+@item reply.notFound
+
+ a reply  button that was not a valid $TOKEN from the \"prompt\" command nor the special case @code{close}. 
+
+@item id.notFound
+
+a reply to a prompt that was not (recently) asked.
+
+@end table
 
  A prompt  ID is not valid  across sessions; pending prompts  should be
  auto-closed   on  logout.   Prompts   can,   however,  remain   active
@@ -1224,26 +1232,46 @@ as well.
  Optional implementation:  the server may cancel  an outstanding prompt
  request by sending a packet with the following properties:
 
+@verbatim
  from: prompt
  status: true
  cancel: $ID
+@end verbatim
 
- Client  applications may  choose to  dismiss the  prompt automatically
- upon  receiving such  a packet.  Failure  to do  so is  not an  error,
- however, later  attempting to reply  to a canceled prompt  will return
- status:  false, err:  id.notFound. Clients  must accept  a cancelation
+ Client applications may choose to dismiss the prompt automatically upon
+ receiving such  a packet. Failure  to do so  is not an  error, however,
+ later  attempting to  reply to  a canceled  prompt will  return status:
+ @code{false,  err:  id.notFound}.  Clients must  accept  a  cancelation
  packet silently if they do not process it.
+
+@subsection Usage
 
  Parameters:
  jso - in the form @{ id: $ID, reply: $TOKEN @}, as detailed above
 
- u - the user replying to a prompt
-
-room - the room in which the user is standing (unimportant)
-
-Throws:
- org.json.JSONException - for really bad syntax errors" 
-  (error 'unimplemented))
+ " 
+  (if-let (request (and (starts-with id "child-request-")
+                        (find-record 'child-request
+                                     :uuid (subseq id 14))))
+    (or
+     (string-case reply
+       ("affirm" (parent-grant-permission request))
+       ("deny" (parent-deny-permission request))
+       ("close" #| no op |#)
+       ("1hour" (parent-grant-permission request :hours 1))
+       ("2hours" (parent-grant-permission request :hours 2))
+       ("3hours" (parent-grant-permission request :hours 3))
+       ("24hours" (parent-grant-permission request :hours 24))
+       (otherwise
+        (list 404 (list :|from| "promptReply"
+                        :|status| :false
+                        :|err| "reply.notFound"))))
+     (list 200 (list :|from| "promptReply"
+                     :|status| t
+                     :|id| id)))
+    (list 404 (list :|from| "promptReply"
+                    :|status| :false
+                    :|err| "id.notFound"))))
 
 (definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
