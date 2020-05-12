@@ -1792,7 +1792,7 @@ The default is always \"talk\".
                 (bt:all-threads))
        (setf speech "🔍"))
      (when (search ",disconnect" speech)
-       (v:info "Disconnecting ~a by their request" *client*)
+       (v:info :stream "Disconnecting ~a by their request" *client*)
        (force-close-hunchensocket *client*)
        (setf speech "♥ Bye! ♥"))
      (when (search ",credits" speech)
