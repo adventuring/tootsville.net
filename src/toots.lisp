@@ -194,6 +194,8 @@ If this is the requestor's Toot, a set of all inventory (equipment) as per
 @item childP
 True if the Toot represents a child player.
 See `TOOT-CHILDP'
+@item childRequest
+If there is an active or pending request to play from this  child, this object will be attached. It contains @code{uuid}, the time the request was @code{placedAt}, when it was @code{allowedAt} or @code{deniedAt}, how long it was @code{allowedFor}, and any @code{response} text.
 @item childCode
 Only available to the user owning the Toot, this is the code to log in as the
 child Toot.
@@ -245,7 +247,7 @@ parallel to existing, now deprecated, @code{colors} values.
 The  @code{avatarClass_B,P,E} values, which used to reflect default colors for
 an avatar model, are now just the Toot's current colors.
 @item
-Added @code{uuid}, @code{childP},  @code{sensitiveP},
+Added @code{uuid}, @code{childP}, @code{childRequest},  @code{sensitiveP},
 and @code{lastSeen}
 @item
 When the requestor owns this Toot, added @code{note},
@@ -302,6 +304,15 @@ Fetch avatar information for a list of Toots.
           :|patternColor| (color24-name (Toot-pattern-color Toot))
           :|padColor| (color24-name (Toot-pad-color Toot))
           :|childP| (or (Toot-childp Toot) :false)
+          :|childRequest| 
+          (when-let (request (or (first (answered-child-requests-by-Toot Toot))
+                                 (first (pending-child-requests-by-Toot Toot))))
+            (list :|uuid| (child-request-uuid request)
+                  :|placedAt| (child-request-placed-at request)
+                  :|allowedAt| (or (child-request-allowed-at request) :false)
+                  :|deniedAt| (or (child-request-denied-at request) :false)
+                  :|allowedFor| (or (child-request-allowed-for request) 0)
+                  :|response| (child-request-response request)))
           :|childCode| (or (and privatep (Toot-child-code Toot))
                            "*secret")
           :|peanuts| (or (and privatep (Toot-peanuts Toot))
