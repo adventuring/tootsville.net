@@ -43,6 +43,7 @@ The script name must be a function previously defined by @samp{#SCRIPT}
 
 "
   (error 'unimplemented))
+
 (define-operator-command addevent (words user plane)
   "Add a GameEvent to a Zone
 
@@ -77,8 +78,9 @@ The script name must be a function previously defined by @samp{#SCRIPT}
 
 WRITEME
 "
-
+  
   (error 'unimplemented))
+
 (define-operator-command ban (words user plane)
   "
 
@@ -96,8 +98,9 @@ WRITEME
 @end example
 
 See Also: `OPERATOR-KICK'"
-
+  
   (error 'unimplemented))
+
 (define-operator-command banhammer (words user plane)
   "Ban an IP address from connecting.
 
@@ -114,7 +117,7 @@ expected to be the most common usage.
 Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 @samp{#-ip},   @samp{#user},    or   @samp{#list}.    For   @samp{#+ip},
 @samp{#-ip}, or @samp{#user}, an additional parameter is needed."
-
+  
   (error 'unimplemented))
 
 (define-operator-command beam (words user plane)
@@ -175,28 +178,29 @@ load their Toots, and seriously strain the caché and database subsystems.
 
 Since this is designed  to stress the servers, it can  be called only by
 God (Pil)."
-  (assert (equal (Toot-name *Toot*) "Pil"))
-  (let* ((low (if (<= 1 (length words))
-                  (parse-integer (first words))
-                  0))
-         (length (if (<= 2 (length words))
-                     (1+ (- (parse-integer (second words)) low))
-                     250000))
-         (uuids (mapcar 
-                 (compose #'base64-to-uuid #'second)
-                 (db-select-all :friendly
-                                (format nil "SELECT uuid FROM people LIMIT ~d OFFSET ~d"
-                                        length low))))
-         (users 0) (Toots 0))
-    (dolist (uuid uuids)
-      (let ((person (find-record 'person :uuid uuid)))
-        (person-info person)
-        (incf users)
-        (dolist (Toot (player-Toots person))
-          (Toot-info Toot)
-          (incf Toots))))
-    (format nil "Stressed database with ~:d user~:p (from offset ~:d) and ~:d Toot~:p"
-            users low Toots)))
+  (if (equal (Toot-name *Toot*) "Pil")
+      (let* ((low (if (<= 1 (length words))
+                      (parse-integer (first words))
+                      0))
+             (length (if (<= 2 (length words))
+                         (1+ (- (parse-integer (second words)) low))
+                         250000))
+             (uuids (mapcar 
+                     (compose #'base64-to-uuid #'second)
+                     (db-select-all :friendly
+                                    (format nil "SELECT uuid FROM people LIMIT ~d OFFSET ~d"
+                                            length low))))
+             (users 0) (Toots 0))
+        (dolist (uuid uuids)
+          (let ((person (find-record 'person :uuid uuid)))
+            (person-info person)
+            (incf users)
+            (dolist (Toot (player-Toots person))
+              (Toot-info Toot)
+              (incf Toots))))
+        (format nil "Stressed database with ~:d user~:p (from offset ~:d) and ~:d Toot~:p"
+                users low Toots))
+      "Only Pil can trigger a #census"))
 
 (define-operator-command clearbadge (words user plane)
   "UNIMPLEMENTED
@@ -332,12 +336,13 @@ the name.
     (let ((driver (dbi:connection-driver-type *dbi-connection*)))
       (format nil "Friendly database name: ~a;
 DBI connection driver type: ~a (~a::~a);
-connection: ~s"
+connection: ~/HTML/; working: ~/HTML/"
               (dbi:connection-database-name *dbi-connection*)
               driver
               (package-name (symbol-package (class-name (dbi:find-driver driver))))
               (class-name (dbi:find-driver driver))
-              (dbi.driver:connection-handle *dbi-connection*)))))
+              (dbi.driver:connection-handle *dbi-connection*)
+              (db-select-all :friendly "select true")))))
 
 (define-operator-command dress (words user plane)
   "UNIMPLEMENTED
@@ -440,7 +445,7 @@ Syntax:
 (defun json-to-html (json)
   (with-output-to-string (s)
     (doplist (key value json)
-        (format s "~%<div><strong>~a</strong>: &nbsp; ~s</div>" key value))))
+        (format s "~%<div><strong>~/HTML/</strong>: &nbsp; ~/HTML/</div>" key value))))
 
 (define-operator-command finger (words user plane)
   "Finger a user account. Return interesting details in an administrative message.
