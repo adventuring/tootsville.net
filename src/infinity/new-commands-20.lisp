@@ -90,22 +90,21 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
                 :|y| (second xyφ)
                 :|φ| (third xyφ)))))
 
-(defun place-room-var (place)
-  (format nil "~a:~{~d,~d,~d~^~~~}"
-          (symbol-munger:lisp->camel-case (place-kind place))
-          (place-coords place)))
-
-(defun place-kind (place) :grass) ; TODO
-(defun place-coords (place) nil); TODO
-
 (defun places-at-position (world lat long alt)
-  nil)
+  (remove-if #'null
+             (loop for la from (1- lat) upto (1+ lat)
+                append
+                  (loop for lo from (1- long) upto (1+ long)
+                     append (find-records 'place 
+                                          :world world
+                                          :latitude la
+                                          :longitude lo
+                                          :altitude alt)))))
 
 (defun local-room-vars ()
   (let* ((position (Toot-position *client*))
          (world (first position))
          (pos (rest position))
-         (i 0)
          (hash (make-hash-table :test 'equal))
          (vars (make-hash-table :test 'equal)))
     (doplist (key val (sky-room-var world))
@@ -333,7 +332,10 @@ Each Toot object is as per `TOOT-INFO', q.v."
                    :|peanuts| (toot-quiesced-peanuts state)
                    :|fairy-dust| (toot-quiesced-fairy-dust state)
                    :|attribs| (toot-quiesced-attribs state)))
-    (setf (Toot-position *client*) (list world latitude longitude altitude))))
+    (setf (Toot-position *client*) (list (Toot-quiesced-world state)
+                                         (Toot-quiesced-latitude state)
+                                         (Toot-quiesced-longitude state)
+                                         (Toot-quiesced-altitude state)))))
 
 (defun update-Toot-last-active (Toot)
   (setf (Toot-last-active Toot) (get-universal-time))

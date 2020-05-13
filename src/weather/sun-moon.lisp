@@ -44,8 +44,13 @@
                      (:othm 71)
                      (:pink 53)))
                   (number moon-or-period))))
-    (multiple-value-bind (sec min hour)
+    (multiple-value-bind (sec min hour
+                              month-day 
+                              _month _year _weekday 
+                              other-month-day
+                              pink-month-day)
         (chœrogryllum:decode*-universal-time time)
+      (declare (ignore _month _year _weekday))
       (let ((θ (- (* period
                      (/ (+ hour (/ min 60) (/ sec 360))
                         18)
@@ -53,4 +58,9 @@
                      PI)
                   (/ PI 2))))
         (list (* 1900 (/ (sin θ) 2))
-              (* 1900 (/ (cos θ) 2)))))))
+              (* 1900 (/ (cos θ) 2))
+              (let ((monthly (ecase period
+                               (30 month-day)
+                               (71 other-month-day)
+                               (53 pink-month-day))))
+                (sin (* (/ monthly period) pi))))))))

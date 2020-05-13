@@ -243,3 +243,13 @@ be in the world, and not owned by any other player."
           (place-shape place)
           (place-appearance place)
           (place-attributes place)))
+
+(defun wear-slot-info (wear-slot)
+  (list :|id| (wear-slot-id wear-slot)
+        :|name| (wear-slot-name wear-slot)
+        :|alternate| (wear-slot-alternate wear-slot)
+        :|avatarPoint| (wear-slot-avatar-point wear-slot)
+        :|valence| (wear-slot-valence wear-slot)
+        :|obstruct| (list :|point| (wear-slot-obstruct-point wear-slot)
+                          :|min| (wear-slot-obstruct-min wear-slot)
+                          :|max| (wear-slot-obstruct-max wear-slot))))
