@@ -205,6 +205,13 @@ Active Clients (~:d secs): ~:d (~:d%)."
 (defun Toot-world (client)
   (first (Toot-position client)))
 
+(defmethod Toot-position ((Toot Toot))
+  (Toot-position (user-stream Toot)))
+
+(defmethod Toot-position ((null null))
+  (v:warn :stream "Toot-position called with NIL")
+  (list :char 0 0 1000))
+
 (defmethod print-object ((client ws-client) s)
   (format s "#<WS-Client from ~a~:[ without user~;~:* for ~a~]~:[ (no Toot)~;~:* (~a)~]>"
           (when (slot-boundp client 'hunchensocket::input-stream)
