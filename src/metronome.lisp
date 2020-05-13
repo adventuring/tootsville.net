@@ -36,22 +36,54 @@
   frequency
   one-shot-time
   name
-  function)
+  function
+  thread)
 
 (defvar *metronome-next-tick* (get-universal-time))
 
 (defvar *metronome-task-lock* nil)
 
+(defun metronome-idle-tasks ()
+  "Returns only those Metronome tasks without a live thread.
+
+Also reaps (by joining) finished threads.
+
+See `RUN-METRONOME-TASKS'"
+  (loop for task in *metronome-tasks*
+     if (when-let (th (metronome-task-thread task))
+          (if (thread-alive-p th)
+              t
+              (progn (join-thread th)
+                     nil)))
+     do (v:warn :metronome "Still running: ~a" (metronome-task-thread task))
+     else collect task))
+
 (defun run-metronome-tasks ()
+  "Runs tasks scheduled for the game's metronome.
+
+Typically these  tasks are scheduled in  one of three ways.  They may be
+scheduled to occur at a given frequency in seconds, at a single time, or
+at a give frequency up until a certain time.
+
+Tasks are usually created by `DO-METRONOME', which in turn uses `METRONOME-REGISTER' to safely enqueue the tasks with locking.
+
+The metronome runs  at approximately 1 second resolution,  but steps its
+time forward at precisely 1 second  intervals, so no task will be missed
+due to system scheduler tie-ups.
+
+Tasks are not allowed to ``stack up;'' if a task has not finished by the
+time  its  next  execution  window   comes  around,  it  will  miss  its
+opportunity and have to wait for the next window."
   (loop for now from *metronome-next-tick* 
      below (get-universal-time)
      do
-       (dolist (task *metronome-tasks*)
+       (dolist (task (metronome-idle-tasks))
          (when (and (metronome-task-frequency task)
                     (zerop (mod now (metronome-task-frequency task))))
-           (make-thread (metronome-task-function task)
-                        :name (format nil "Metronome: ~a"
-                                      (metronome-task-name task))))
+           (setf (metronome-task-thread task)
+                 (make-thread (metronome-task-function task)
+                              :name (format nil "Metronome: ~a"
+                                            (metronome-task-name task)))))
          (when (and (metronome-task-one-shot-time task)
                     (< (metronome-task-one-shot-time task) now))
            (make-thread (metronome-task-function task)
@@ -61,11 +93,20 @@
      do (setf *metronome-next-tick* now)))
 
 (defun metronome-remove (task)
+  "Safely remove TASK from the metronome's schedule.
+
+See  `RUN-METRONOME-TASKS'  for  a  discussion  of  the  metronome;  see
+`DO-METRONOME' and `METRONOME-REGISTER' to schedule a task."
   (with-lock-held (*metronome-task-lock*)
     (removef task *metronome-tasks*))
   t)
 
 (defun metronome-register (task)
+  "Safely register TASK with the metronome.
+
+Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
+`RUN-METRONOME-TASKS'   for  a   discussion   of   the  metronome,   and
+`METRONOME-REMOVE' for the complementary function."
   (with-lock-held (*metronome-task-lock*)
     (push task *metronome-tasks*))
   t)
@@ -78,7 +119,10 @@
                         :name ,name
                         :function (lambda () ,@body))))
 
-(defun start-metronome-thread ()
+(defvar *the-metronome-thread* nil)
+
+(defun start-metronome-thread% ()
+  "See `START-GAME-METRONOME'"
   (make-thread (lambda ()
                  (loop
                     (run-metronome-tasks)
@@ -88,11 +132,15 @@
 (defun start-game-metronome ()
   (setf *metronome-next-tick* (get-universal-time)
         *metronome-task-lock* (make-lock "Metronome task lock"))
-  (start-metronome-thread)
+  (unless *the-metronome-thread*
+    (setf *the-metronome-thread*
+          (start-metronome-thread%)))
   (register-metronome-tasks))
 
 (defun register-metronome-tasks ()
-  (do-metronome (:frequency 90 :name "Websocket AYT facility")
+  (do-metronome (:frequency 90
+                            :name "Websocket AYT facility")
     (ayt-idle-users))
-  (do-metronome (:frequency 300 :name "Toot Quiesce facility")
+  (do-metronome (:frequency 300
+                            :name "Toot Quiesce facility")
     (quiesce-connected-Toots)))
