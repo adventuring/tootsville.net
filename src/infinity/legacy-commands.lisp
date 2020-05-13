@@ -1797,7 +1797,7 @@ Special thanks to  Ali Dolan, Mariaelisa Greenwood,  Maureen Kenny, Levi
 Mc Call, and Zephyr Salz.
 
 Tootsville  IV  by  Brandon  Booker, Gene  Cronk,  Robert  Dawson,  Eric
-Feiling,  Tim  Hays,  Sean  King, Mark  Mc  Corkle,  Cassandra  Nichols,
+Feiling,  Tim  Hays,  Sean  King, Mark  Mc  Corkle,  Cassandra  Nichol,
 Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC.
 "
   :test 'equal)
