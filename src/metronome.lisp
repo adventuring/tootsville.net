@@ -39,6 +39,22 @@
   function
   thread)
 
+(defmethod print-object ((task metronome-task) s)
+  (format s "#<Metronome-Task \"~a\" ~a ~a>"
+          (metronome-task-name task)
+          (if (metronome-task-one-shot-time task)
+              (if (metronome-task-frequency task)
+                  (format nil "every ~a until ~a"
+                          (human-duration (metronome-task-frequency task))
+                          (human-future-time (metronome-task-one-shot-time task)))
+                  (format nil "once at ~a"
+                          (human-future-time (metronome-task-one-shot-time task))))
+              (if (metronome-task-frequency task)
+                  (format nil "every ~a"
+                          (human-duration (metronome-task-frequency task)))
+                  "never"))
+          (if (metronome-task-thread task) "running" "waiting")))
+
 (defvar *metronome-next-tick* (get-universal-time))
 
 (defvar *metronome-task-lock* nil)
@@ -124,18 +140,30 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
 (defun start-metronome-thread% ()
   "See `START-GAME-METRONOME'"
   (make-thread (lambda ()
-                 (loop
-                    (run-metronome-tasks)
-                    (sleep 1)))
+                 (loop while *metronome-run*
+                    do (run-metronome-tasks)
+                    do (sleep 1)))
                :name "Metronome main thread"))
+
+(defvar *metronome-run* t)
 
 (defun start-game-metronome ()
   (setf *metronome-next-tick* (get-universal-time)
-        *metronome-task-lock* (make-lock "Metronome task lock"))
+        *metronome-task-lock* (make-lock "Metronome task lock")
+        *metronome-run* t)
   (unless *the-metronome-thread*
     (setf *the-metronome-thread*
           (start-metronome-thread%)))
+  (v:info :metronome "Game metronome started")
   (register-metronome-tasks))
+
+(defun stop-game-metronome ()
+  (dolist (task *metronome-tasks*)
+    (v:warn :metronome "Canceling task ~a" task)
+    (metronome-remove task))
+  (v:warn :metronome "Stopping metronome thread")
+  (setf *metronome-run* nil)
+  (join-thread *the-metronome-thread*))
 
 (defun register-metronome-tasks ()
   (do-metronome (:frequency 90
