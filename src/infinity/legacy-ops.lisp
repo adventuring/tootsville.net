@@ -1004,11 +1004,11 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
                       (start-game-metronome)))
     ("#stop" (format nil "Stopping: ~s"
                      (stop-game-metronome)))
-    ("#restart" (format nil "Stopping: ~s; Starting: ~s"
+    ("#restart" (format nil "Stopping: ~/HTML/; Starting: ~/HTML/"
                         (stop-game-metronome)
                         (start-game-metronome)))
     ("#tick" (run-metronome-tasks))
-    ("#list" (format nil "Metronome tasks: ~{~a~}"
+    ("#list" (format nil "Metronome tasks: ~{~/HTML/~}"
                      *metronome-tasks*))
     ("#cancel" (let ((task-name (join #\Space (rest words))))
                  (let ((potentials (loop for task in *metronome-tasks*
