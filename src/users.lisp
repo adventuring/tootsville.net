@@ -525,25 +525,14 @@ Returns NIL"
   "Start a login request for TOOT, if one is not already pending.
 
 WRITEME"
-  (with-dbi (:friendly)
-    (let ((make-table (dbi:prepare *dbi-connection* "
-CREATE TABLE IF NOT EXISTS child_requests
-\( uuid CHAR(22) NOT NULL PRIMARY KEY,
-  toot CHAR (22) NOT NULL,
-  placed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP (),
-  allowed_at TIMESTAMP NULL,
-  denied_at TIMESTAMP NULL,
-  allowed_for INTEGER NULL,
-  response VARCHAR (160)
-)")))
-      (dbi:execute make-table)))
   (let ((request (if-let (requests (pending-child-requests-by-Toot Toot))
                    (and (setf (child-request-placed-at (first requests)) (now))
                         (first requests))
                    (make-record 'child-request
                                 :uuid (uuid:make-v4-uuid)
                                 :Toot (Toot-UUID Toot)
-                                :placed-at (now)))))
+                                :placed-at (now)
+                                :response ""))))
     (unless (user-online-p (find-reference Toot :player))
       (return-from login-child
         (list 400 (list :|error| "Your parent or guardian is not online, and we can not send them an email."))))
