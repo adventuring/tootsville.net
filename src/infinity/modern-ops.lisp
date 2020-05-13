@@ -33,7 +33,8 @@
   "Quicklisp reload of the Tootsville package from disk.
 
 Reloads   the   ASDF   file   with   `ASDF:LOAD-ASD'   and   then   does
-a `QL:QUICKLOAD'."
+a `QL:QUICKLOAD'. See `RELOAD-PRODUCTION'."
+  (private-admin-message "#quick-reload" "Started quick reload. Stand by.")
   (reload-production)
   (format nil "Now running Tootsville.net server version ~a"
           (asdf:component-version (asdf:find-system :Tootsville))))
