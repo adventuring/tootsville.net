@@ -368,12 +368,6 @@ Now, we also report (at least) X-FADU, fairy dust.
         :|currency| (list :x-tvpn (Toot-peanuts Toot)
                           :x-fadu (Toot-fairy-dust Toot))))
 
-(defun Toot-world (Toot)
-  :chor) ; TODO
-
-(defun Toot-position (Toot)
-  (list 0 0 0)) ; TODO
-
 (defun rename-Toot (Toot new-name)
   (assert (potential-Toot-name-p new-name) (new-name)
           "~a is not in the format of a Toot name" new-name)
