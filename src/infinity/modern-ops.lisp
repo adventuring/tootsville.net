@@ -67,7 +67,7 @@ See `WS-STATS'."
   "Returns some statistics about WebSockets bandwidth by source.
 
 See `WS-BANDWIDTH-BY-SOURCE'."
-  (format nil "This server is ~a.~2%~a"
+  (format nil "This server is ~a.~2%<pre>~a</pre>"
           (machine-instance) (ws-bandwidth-by-source)))
 
 (define-operator-command infinity-stats (words u r)
@@ -203,3 +203,7 @@ This is based upon `DOCUMENTATION', qv."
                                 (find (third words) doc-types :test 'string-equal)))))))
 
 
+(define-operator-command apropos (words u r)
+  "Runs `APROPOS' for a remote user."
+  (with-output-to-string (*standard-output*)
+    (apropos (first words) :tootsville-user)))
