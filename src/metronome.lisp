@@ -114,7 +114,7 @@ opportunity and have to wait for the next window."
 See  `RUN-METRONOME-TASKS'  for  a  discussion  of  the  metronome;  see
 `DO-METRONOME' and `METRONOME-REGISTER' to schedule a task."
   (with-lock-held (*metronome-task-lock*)
-    (removef task *metronome-tasks*))
+    (removef *metronome-tasks* task))
   t)
 
 (defun metronome-register (task)
@@ -166,7 +166,7 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
   (join-thread *the-metronome-thread*))
 
 (defun register-metronome-tasks ()
-  (do-metronome (:frequency 90
+  (do-metronome (:frequency 120
                             :name "Websocket AYT facility")
     (ayt-idle-users))
   (do-metronome (:frequency 300
