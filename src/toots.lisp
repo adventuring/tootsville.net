@@ -335,7 +335,7 @@ Fetch avatar information for a list of Toots.
 
           :|avatarClass_P| (color24-name (Toot-pattern-color Toot))
           :|avatarClass_E| (color24-name (Toot-pad-color Toot))
-          :|inRoom| (Toot-world Toot)
+          :|inRoom| "@Tootsville"
           :|colors| (list 0 (color24-name (Toot-base-color Toot))
                           1 (color24-name (Toot-pad-color Toot))
                           2 (color24-name (Toot-pattern-color Toot))))))

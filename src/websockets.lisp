@@ -202,6 +202,9 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (last-active :accessor last-active :initform (get-universal-time))
    (location :accessor Toot-position :initform (list :CHOR 0 0 0))))
 
+(defun Toot-world (client)
+  (first (Toot-position client)))
+
 (defmethod print-object ((client ws-client) s)
   (format s "#<WS-Client from ~a~:[ without user~;~:* for ~a~]~:[ (no Toot)~;~:* (~a)~]>"
           (when (slot-boundp client 'hunchensocket::input-stream)

@@ -82,8 +82,7 @@ Used by the WebSockets and direct TCP stream handlers."
                               :tootsville))
          (data (getf json :|d|)))
     (if (and (symbolp method) (not (eql 'nil method)))
-        (let ((*Toot* (or *Toot*
-                          (Toot *client*))))
+        (let ((*Toot* (or *Toot* (Toot *client*))))
           (v:info '(:infinity :stream) 
                   "Stream request from ~a for command ~a"
                   *client* method)
@@ -91,7 +90,7 @@ Used by the WebSockets and direct TCP stream handlers."
             (setf (Toot-last-active *Toot*) (now)))
           (incf *infinity-stream-requests*)
           (with-http-errors-as-infinity-errors (command)
-            (funcall method data *Toot* (Toot-world *Toot*))))
+            (funcall method data *Toot* (Toot-world *client*))))
         (let ((c (or command "(No command sent)")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)
@@ -296,7 +295,7 @@ For a complete enumeration
        (defun ,(intern (string command) (find-package :Tootsville-User)) (&rest ,words)
          ,docstring
          (declare (ignorable ,words))
-         (let ((,user *Toot*) (,plane (Toot-world *Toot*)))
+         (let ((,user *Toot*) (,plane (Toot-world *client*)))
            (declare (ignorable ,user ,plane))
            (if (and *Toot* (builder-Toot-p *Toot*))
                (let ((reply (block nil (progn ,@body))))

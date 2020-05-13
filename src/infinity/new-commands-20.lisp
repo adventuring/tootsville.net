@@ -360,7 +360,7 @@ Performs announcement of the player to the world and other bookkeeping."
   (broadcast (Toot-join-message Toot) :except (or *client* *user*))
   (broadcast (list :|status| t
                    :|from| "avatars"
-                   :|inRoom| (Toot-world Toot)
+                   :|inRoom| (Toot-world *client*)
                    :|avatars| (list :|joined| (Toot-info Toot))))
   (burgeon-quiesced-state Toot)
   (unicast (local-room-vars))
