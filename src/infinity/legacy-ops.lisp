@@ -941,37 +941,89 @@ Syntax for use:
           (first-paragraph (with-output-to-string (*standard-output*) (room)))))
 
 (define-operator-command metronome (words user plane)
-  "
-
- Display information  about or  micromanage the metronome.  Must have
- staff level 8 (DEVELOPER) to use this command.
+  "Display information  about or  micromanage the metronome. 
 
  Syntax for use
+@verbatim
  #metronome [OPTION]
+@end verbatim
 
  Options
 
- #rate - Displays a message indicating the rate that the metronome ticks in milliseconds.
- #last - Displays a message indicating the time in milliseconds when the last metronome tick occured.
- #start - Starts the metronome.
- #stop - Stops the metronome.
- #restart - Restarts the metronome.
- #tick - Forces the metronome to tick.
+@table @code
+@item #help
+list these options 
+@item #rate
+Displays  a message  indicating the  rate  that the  metronome ticks  in
+milliseconds. Always 1000 (1s).
+@item #last
+Displays a  message indicating  the time in  milliseconds when  the last
+metronome tick occured. Always rounded to 1s.
+@item #start
+Starts the metronome. 
+@item #stop
+Stops the metronome. 
+@item #restart 
+Restarts the metronome. 
+@item #tick 
+Forces the metronome to tick.
+@item #list
+List all tasks scheduled with the metronome
+@item #cancel <NAME>
+Cancel a specific task by name
+@end table
 
  Examples
+@verbatim
+ #metronome #help
  #metronome #rate
  #metronome #last
  #metronome #start
  #metronome #stop
  #metronome #restart
  #metronome #tick
+ #metronome #list
+ #metronome #cancel <NAME>
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
-  (error 'unimplemented))
+@subsection Changes from 1.2 to 2.0
+
+Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #cancel NAME} 
+
+ "
+  (string-case (or (first words) "#help")
+    ("#help"
+     "Usage: #metronome [OPTION] where [OPTION] is one of: #help #rate #last #start #stop #restart #tick #list, or #cancel NAME")
+    ("#rate" "The metronome runs every second (1000ms)")
+    ("#last"
+     (let ((last (1- *metronome-next-tick*)))
+       (format nil
+               "The last metronome tick was at ~d — ~:d second~:p ago"
+               last (- (get-universal-time) last))))
+    ("#start" (format nil "Starting: ~s"
+                      (start-game-metronome)))
+    ("#stop" (format nil "Stopping: ~s"
+                     (stop-game-metronome)))
+    ("#restart" (format nil "Stopping: ~s; Starting: ~s"
+                        (stop-game-metronome)
+                        (start-game-metronome)))
+    ("#tick" (run-metronome-tasks))
+    ("#list" (format nil "Metronome tasks: ~{~a~}"
+                     *metronome-tasks*))
+    ("#cancel" (let ((task-name (join #\Space (rest words))))
+                 (let ((potentials (loop for task in *metronome-tasks*
+                                      when (search task-name (metronome-task-name task))
+                                      collect task)))
+                   (cond
+                     ((null potentials)
+                      (format nil "There are no tasks matching ~a" task-name))
+                     ((= 1 (length potentials))
+                      (format nil "Removing ~a from metronome: ~s"
+                              (metronome-task-name (first potentials))
+                              (metronome-remove (first potentials))))
+                     (t 
+                      (format nil "There are ~:d task~:p matching ~a"
+                              (length potentials) task-name))))))))
 
 (define-operator-command motd (words user plane)
   "Set the  message of the day.
@@ -984,7 +1036,8 @@ Syntax for use:
 
  The message of the day is echoed  to every user as they sign in, before
  they choose a Toot."
-  (setf *motd* (format nil "~{~a~^ ~}" words)))
+  (when (not (emptyp words))
+    (setf *motd* (format nil "~{~a~^ ~}" words))))
 
 (define-operator-command mute (words user plane)
   "Mute a user or area
