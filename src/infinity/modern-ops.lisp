@@ -44,6 +44,7 @@ a `QL:QUICKLOAD'. See `RELOAD-PRODUCTION'."
 
 See also  `TOOTSVILLE-USER::QUICK-RELOAD' to actually load  any new code
 that's downloaded."
+  (private-admin-message "#git-pull" "(stand by…)")
   (run-program (format nil "cd ~a; git pull"
                        (asdf:system-source-directory :Tootsville))
                :output :string
