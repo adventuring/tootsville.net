@@ -1018,7 +1018,7 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
                      ((null potentials)
                       (format nil "There are no tasks matching ~a" task-name))
                      ((= 1 (length potentials))
-                      (format nil "Removing ~a from metronome: ~s"
+                      (format nil "Removing ~a from metronome: ~/HTML/"
                               (metronome-task-name (first potentials))
                               (metronome-remove (first potentials))))
                      (t 
