@@ -1247,7 +1247,7 @@ a reply to a prompt that was not (recently) asked.
          ("close" #| no op |#)
          ("1hour" (parent-grant-permission request :hours 1))
          ("2hours" (parent-grant-permission request :hours 2))
-         ("3hours" (parent-grant-permission request :hours 3))
+         ("4hours" (parent-grant-permission request :hours 4))
          ("24hours" (parent-grant-permission request :hours 24))
          (otherwise
           (list 404 (list :|from| "promptReply"
