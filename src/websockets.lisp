@@ -91,7 +91,7 @@ Replies:
 ~{~a: ~:d character~:p~^;~%~}.
 
 Other:
-~:d byte~:p."
+~:d character~:p."
           (alist-plist
            (sort (hash-table-alist *ws-traffic-commands*)
                  #'> :key 'cdr))
