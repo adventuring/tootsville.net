@@ -502,7 +502,9 @@ Returns NIL"
             *user* Toot hours)
     (setf (child-request-allowed-at request) (now)
           (child-request-denied-at request) nil
-          (child-request-allowed-for request) hours)
+          (child-request-allowed-for request) hours
+          (child-request-response request) (format nil "~a approved via web"
+                                                   (Person-display-name *user*)))
     (save-record request)
     (ws-approve-Toot Toot request))
   nil)
