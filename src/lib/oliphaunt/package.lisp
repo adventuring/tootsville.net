@@ -72,6 +72,7 @@ package (or similar). Perhaps it's even named the same? Try (APROPOS
    #:group-by
    #:|hash|
    #:human-duration
+   #:human-future-time
    #:join
    #:keyword*
    #:keywordify
