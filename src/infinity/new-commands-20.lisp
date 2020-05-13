@@ -68,7 +68,8 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
               :|from| "wardrobe"
               :|wardrobe| (list :|avatar| (Toot-info *Toot*)))))
 
-(defun sky-room-var ()
+(defun sky-room-var (world)
+  (assert (eql world :chor))
   (list :|sun|
         (let ((xy (sun-position)))
           (list :|x| (first xy)
@@ -101,32 +102,31 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
   nil)
 
 (defun local-room-vars ()
-  (let* ((world (Toot-world *Toot*))
-         (pos (Toot-position *Toot*))
-         (i 0))
-    ;; TODO  ---  create  an  hash table  rather  than  interning
-    ;; a bunch of garbage as keywords
-    (list :|from| "rv"
-          :|status| t
-          :|rad| t
-          :|var|
-          (concatenate
-           'list
-           (list :|s| (sky-room-var))
-           (mapcan (lambda (item)
-                     (list (make-keyword
-                            (format nil "itm2~~~36r" (incf i)))
-                           (item-info item)))
-                   (find-records 'item
-                                 :world world
-                                 :latitude (elt pos 0)
-                                 :longitude (elt pos 1)
-                                 :altitude (elt pos 2)))
-           (mapcan (lambda (place)
-                     (list (make-keyword
-                            (format nil "zone~~~36r"
-                                    (place-room-var place)))))
-                   (apply #'places-at-position world pos))))))
+  (let* ((position (Toot-position *client*))
+         (world (first position))
+         (pos (rest position))
+         (i 0)
+         (hash (make-hash-table :test 'equal))
+         (vars (make-hash-table :test 'equal)))
+    (doplist (key val (sky-room-var world))
+        (setf (gethash (string key) vars) val))
+    (dolist (item (find-records 'item
+                                :world world
+                                :latitude (elt pos 0)
+                                :longitude (elt pos 1)
+                                :altitude (elt pos 2)))
+      (setf (gethash (format nil "itm2~~~a" (item-uuid item))
+                     vars) 
+            (item-info item)))
+    (dolist (place (apply #'places-at-position world pos))
+      (setf (gethash (format nil "zone~~~a" (place-uuid place))
+                     vars) 
+            (place-string place)))
+    (setf (gethash "from" hash) "rv"
+          (gethash "status" hash) t
+          (gethash "rad" hash) t
+          (gethash "var" hash) vars)
+    hash))
 
 (definfinity get-room-vars (nil u recipient/s)
   "Returns room variables
@@ -316,14 +316,36 @@ Each Toot object is as per `TOOT-INFO', q.v."
      for el in list
      appending (list i el)))
 
+(defun burgeon-quiesced-state (Toot)
+  (when-let (state (ignore-not-found
+                     (find-record 'toot-quiesced :toot (Toot-uuid Toot))))
+    (unicast (list :|status| t
+                   :|from| "burgeon"
+                   :|world| (toot-quiesced-world state)
+                   :|latitude| (toot-quiesced-latitude state)
+                   :|longitude| (toot-quiesced-longitude state)
+                   :|altitude| (toot-quiesced-altitude state)
+                   :|wtl| (when-let (wtl (toot-quiesced-wtl state))
+                            (jonathan.decode:parse wtl))
+                   :|d3| (when-let (d3 (toot-quiesced-d3 state))
+                           (jonathan.decode:parse d3))
+                   :|emotion| (toot-quiesced-emotion state)
+                   :|peanuts| (toot-quiesced-peanuts state)
+                   :|fairy-dust| (toot-quiesced-fairy-dust state)
+                   :|attribs| (toot-quiesced-attribs state)))
+    (setf (Toot-position *client*) (list world latitude longitude altitude))))
+
+(defun update-Toot-last-active (Toot)
+  (setf (Toot-last-active Toot) (get-universal-time))
+  (save-record Toot))
+
 (defun play-with-Toot (Toot)
   "Set up the *USER* to play with Toot object TOOT.
 
 Performs announcement of the player to the world and other bookkeeping."
   (when *client*
     (setf (Toot *client*) Toot))
-  (setf (Toot-last-active Toot) (get-universal-time))
-  (save-record Toot)
+  (update-Toot-last-active Toot)
   (unicast
    (list :|status| t
          :|from| "playWith"
@@ -338,6 +360,7 @@ Performs announcement of the player to the world and other bookkeeping."
                    :|from| "avatars"
                    :|inRoom| (Toot-world Toot)
                    :|avatars| (list :|joined| (Toot-info Toot))))
+  (burgeon-quiesced-state Toot)
   (unicast (local-room-vars))
   (list 200 (from-avatars (plist-with-index (connected-toots)))))
 
@@ -384,16 +407,24 @@ The Toot named CHARACTER must exist.
                 :|from| "playWith"
                 :|error| "No such Toot"))))
 
-(definfinity quiesce ((wtl d3 emotion peanuts fairy-dust) Toot r)
-  "WRITEME"
-  (dolist (old (find-records 'Toot-quiesced :Toot (Toot-uuid Toot)))
-    (ignore-errors (destroy-record old)))
+(definfinity quiesce ((wtl d3 emotion peanuts fairy-dust
+                           world latitude longitude altitude)
+                      Toot r)
+  "Quiesce Toot values to database for logout"
+  (when-let (old (ignore-not-found
+                   (find-record 'Toot-quiesced :Toot (Toot-uuid Toot))))
+    (destroy-record old))
   (make-record 'Toot-quiesced
-               :uuid (uuid:make-v4-uuid)
                :Toot (Toot-uuid Toot)
+               :world world
+               :latitude latitude
+               :longitude longitude
+               :altitude altitude
                :wtl (jonathan.encode:to-json wtl)
                :d3 (jonathan.encode:to-json d3)
                :emotion emotion
                :peanuts peanuts
                :fairy-dust fairy-dust
-               :observed (now)))
+               :observed (now))
+  (list :|from| "quiesce"
+        :|status| t))

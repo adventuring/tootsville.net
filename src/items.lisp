@@ -234,3 +234,12 @@ be in the world, and not owned by any other player."
         :|qty| (store-item-qty store-item)
         :|price| (store-item-price store-item)
         :|currency| (store-item-currency store-item)))
+
+
+
+(defun place-string (place)
+  (format nil "~a:~a|~a|~a"
+          (place-kind place)
+          (place-shape place)
+          (place-appearance place)
+          (place-attributes place)))

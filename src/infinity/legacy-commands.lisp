@@ -1785,7 +1785,10 @@ The default is always \"talk\".
          (return))
     (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
     (#\/ (v:warn :speak "emote not handled ~a" speech))     ; TODO
-    ((#\\ #\! #\% #\_ #\^ #\*) (v:warn :speak "command not supported ~a" speech)) ; XXX
+    ((#\\ #\! #\% #\_ #\^ #\|) 
+     (v:warn :speak "command not supported ~a" speech)
+     (private-admin-message "Oops"
+                            "Try saying something that does not start with ~c" (char speech 0))) ; XXX
     (otherwise
      (when (search ",dumpthreads" speech)
        (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"

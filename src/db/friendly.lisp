@@ -263,9 +263,12 @@
   (attributes string)
   (appearance string))
 
+(defmethod id-column-for ((type (eql 'toot-quiesced)))
+  'Toot)
+
 (defrecord toot-quiesced (:friendly "toots_quiesced")
-  (uuid uuid)
   (Toot uuid ref Toot)
+  (world keyword ref worlds)
   (latitude number)
   (longitude number)
   (altitude number)
