@@ -1362,3 +1362,36 @@ well enough for many (most) English words. At least, an improvement upon
     ((< seconds (* 75 7 24 60 60))
      (format nil "~d weeks" (round seconds (* 7 24 60 60))))
     (t (format nil "~:d years" (round seconds (* 365.2489 24 60 60))))))
+
+(defun weekday-name (day-of-week)
+  (elt '("Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday" "Sunday") day-of-week))
+
+(defun month-name (month)
+  (elt '("January" "February" "March"
+         "April" "May" "June"
+         "July" "August" "September"
+         "October" "November" "December") 
+       month))
+
+(defun human-future-time (universal-time)
+  (multiple-value-bind (sec min hour day month year day-of-week)
+      (decode-universal-time universal-time)
+    (multiple-value-bind (sec-now min-now hour-now
+                                  day-now month-now year-now 
+                                  day-of-week-now)
+        (decode-universal-time (get-universal-time))
+      (cond
+        ((and (= hour-now hour)
+              (= day-now day)
+              (= month-now month)
+              (= year-now year))
+         (format nil "in ~a at ~2,'0d:~2,'0d" 
+                 (human-duration (- universal-time (get-universal-time)))
+                 hour min))
+        ((and (= year-now year)
+              (= month-now month))
+         (format nil "on ~a the ~:r at ~2,'0d:~2,'0d"
+                 (weekday-name day-of-week) day hour min))
+        (t (format nil "on ~a, ~:d ~a, ~d at ~2,'0d:~2,'0d"
+                   (weekday-name day-of-week) day (month-name month) year
+                   hour min))))))
