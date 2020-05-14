@@ -1124,7 +1124,10 @@ If a parent has already authorized this Toot, they'll sign right in."
 
 (defun ws-deny-Toot (Toot request)
   (declare (ignore request))
-  (if-let (client (find Toot (hunchensocket:clients *infinity-websocket-resource*)
+  (if-let (client (find Toot 
+                        (remove-if-not 
+                         #'Toot
+                         (hunchensocket:clients *infinity-websocket-resource*))
                         :key #'Toot :test #'Toot=))
     (progn (setf (user-account client) nil
                  (Toot client) nil)

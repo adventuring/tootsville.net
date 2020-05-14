@@ -430,3 +430,12 @@ The Toot named CHARACTER must exist.
                :observed (now))
   (list :|from| "quiesce"
         :|status| t))
+
+(definfinity consider-child-approval ((uuid) u r)
+  "Consider whether to approve a child's request"
+  (when-let (request (find-record 'child-request :uuid uuid))
+    (if (uuid:uuid= (Toot-player (find-reference request :Toot))
+                    (person-uuid *user*))
+        (send-parent-child-login-request request)
+        (private-admin-message "Unable to approve request"
+                               "You are not the owner of that Toot"))))

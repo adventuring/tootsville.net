@@ -171,4 +171,7 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
     (ayt-idle-users))
   (do-metronome (:frequency 300
                             :name "Toot Quiesce facility")
-    (quiesce-connected-Toots)))
+    (quiesce-connected-Toots))
+  (do-metronome (:frequency (* 4 60 60)
+                            :name "Reap uninteresting child requests")
+    (reap-uninteresting-child-requests)))

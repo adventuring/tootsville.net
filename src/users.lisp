@@ -491,10 +491,16 @@ Uses the first, alphabetically speaking."
                              :|type| "aff")))
            (find-reference (find-reference request :Toot) :Player)))
 
-(defun parent-grant-permission (request &key (hours 168))
-  "WRITEME
+(defun parent-grant-permission (request &key (hours 168)
+                                             (via "web"))
+  "The parent *USER* grants REQUEST for HOURS via VIA.
 
-Returns NIL"
+This sets the approval time to `NOW'  and allows HOURS of play time from
+`NOW'. The `CHILD-REQUEST-RESPONSE' of REQUEST  is set to an explanation
+that  *USER* approved  the  request  via VIA.  VIA  can contain  further
+comments, which will be presented in the UI.
+
+Returns NIL."
   (let ((Toot (find-reference request :Toot)))
     (assert (uuid:uuid= (person-uuid *user*) (Toot-player Toot)) (*user*)
             "~a can not grant access to ~a" *user* Toot)
@@ -503,23 +509,30 @@ Returns NIL"
     (setf (child-request-allowed-at request) (now)
           (child-request-denied-at request) nil
           (child-request-allowed-for request) hours
-          (child-request-response request) (format nil "~a approved via web"
-                                                   (Person-display-name *user*)))
+          (child-request-response request) (format nil "~a approved via ~a"
+                                                   (Person-display-name *user*)
+                                                   via))
     (save-record request)
+    (unicast (second (Toot-list-message)))
     (ws-approve-Toot Toot request))
   nil)
 
-(defun parent-deny-permission (request)
+(defun parent-deny-permission (request &key (via "web"))
   "WRITEME
 
 Returns NIL"
   (let ((Toot (find-reference request :Toot)))
-    (assert (person= *user* (Toot-player Toot)) (*user*)
+    (assert (uuid:uuid= (person-uuid *user*) (Toot-player Toot)) (*user*)
             "~a can not deny access to ~a" *user* Toot)
     (v:info :child "~a denies access to ~a" *user* Toot)
     (setf (child-request-allowed-at request) nil
           (child-request-denied-at request) (now)
-          (child-request-allowed-for request) 0)
+          (child-request-allowed-for request) 0
+          (child-request-response request) (format nil "~a denied via ~a"
+                                                   (Person-display-name *user*)
+                                                   via))
+    (save-record request)
+    (unicast (second (Toot-list-message)))
     (ws-deny-Toot Toot request))
   nil)
 
@@ -559,14 +572,18 @@ AND placed_at > CURRENT_TIMESTAMP - INTERVAL 1 HOUR
 "
            (column-save-value (Toot-UUID Toot) :uuid))))
 
+(defun child-request-allowed-until (request)
+  (when (child-request-allowed-at request)
+    (timestamp+ (child-request-allowed-at request)
+                (child-request-allowed-for request)
+                :hour)))
+
 (defun answered-child-requests-by-Toot (Toot)
+  "Recent requests by TOOT to play which have been answered and not expired yet."
   (remove-if
    (lambda (request)
      (and (child-request-allowed-at request)
-          (timestamp< (timestamp+ (child-request-allowed-at request)
-                                  (child-request-allowed-for request)
-                                  :hour)
-                      (now))))
+          (timestamp< (child-request-allowed-until request) (now))))
    (find-records-by-sql 
     'child-request 
     (format nil "
@@ -576,6 +593,7 @@ AND ((allowed_at IS NOT NULL
            AND allowed_at > CURRENT_TIMESTAMP - INTERVAL 168 HOUR)
   OR (denied_at IS NOT NULL
          AND denied_at > CURRENT_TIMESTAMP - INTERVAL 1 HOUR))
+ORDER BY placed_at ASC
 "
             (column-save-value (Toot-UUID Toot) :uuid)))))
 
@@ -589,3 +607,13 @@ This might  include sending  a pending  child prompt."
     (when-let (request (pending-child-approval-request user))
       (send-parent-child-login-request request))))
 
+(defun reap-uninteresting-child-requests ()
+  (v:info :child-request "Reaping denied requests (2 hours): ~s"
+          (db-select-all :friendly
+                         "DELETE FROM child_requests WHERE denied_at IS NOT NULL AND denied_at < CURRENT_TIMESTAMP - INTERVAL 2 HOUR"))
+  (v:info :child-request "Reaping ignored requests (2 hours): ~s"
+          (db-select-all :friendly
+                         "DELETE FROM child_requests WHERE allowed_at IS NULL AND placed_at < CURRENT_TIMESTAMP - INTERVAL 2 HOUR"))
+  (v:info :child-request "Reaping approved requests (1 week): ~s"
+          (db-select-all :friendly
+                         "DELETE FROM child_requests WHERE allowed_at IS NOT NULL AND placed_at < CURRENT_TIMESTAMP - INTERVAL 7 DAY")))
