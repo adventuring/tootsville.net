@@ -822,45 +822,76 @@ Throws:
   (error 'UNIMPLEMENTED))
 
 (define-operator-command kick (words user plane)
-  "
- throws NotFoundException
+  "Kick a user offline for a certain reason
 
- Kick a user offline for a certain reason
+  
+@subsection Syntax for use
 
- Kick a user offline for a certain reason. Must have staff level 2 (MODERATOR) to use this command.
+#kick [REASONCODE] [LOGIN]
 
- Syntax for use: #kick [REASONCODE] [LOGIN]
+Kick LOGIN offline for REASONCODE
 
- Examples
+#kick #list
+
+List reason codes.
+
+@subsection Examples
  #kick obs.rude pil
 
- Reason Codes:
+@subsection Reason Codes
 
- PER.MAIL = Don't share personal information like eMail addresses!
- PER.NAME = Don't share personal information like your real name!
- PER.PASS = Don't share personal information like passwords!
- PER.CHAT = Don't share personal information like chat and instant messaging \ information!
- PER.LOCA = Don't share personal information like your location!
- PER.AGES = Don't share personal information like your age!
- PER.BDAY = Don't share personal information like your birth date!
- BUL.MEAN = Don't be mean!
- OBS.RUDE = Don't be rude!
- OBS.FOUL = Don't use foul words!
- NET.CHTR = No cheating!
- APP.PARN = You need your parent's permission in order to chat in Tootsville.
- APP.MAIL = You need to confirm your eMail address in order to chat in Tootsville.
- APP.AGES = Lying about your birth date is against the law!
+@table @code
+@item BULLY
+Bullies are not allowed here.
+@item CHEAT
+Cheaters are not allowed here.
+@item DIAMOND
+Watch your language around children.
+@item MEAN
+Don't be mean!
+@item NICE
+Be nice!
+@item PARENT
+You need your parent's permission to play in Tootsville.
+@end table
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- NotFoundException - if the warning reason code is not valid
- See Also:
- op_warn(String[], AbstractUser, Room), op_ban(String[], AbstractUser, Room)
-"
-  (error 'unimplemented))
+@subsection Reason Codes from 1.2
+
+These are no longer supported
+
+@table @code
+@item PER.MAIL
+Don't share personal information like eMail addresses!
+@item PER.NAME
+ Don't share personal information like your real name!
+@item PER.PASS
+ Don't share personal information like passwords!
+@item PER.CHAT
+ Don't share personal information like chat and instant messaging \ information! @item PER.LOCA 
+Don't share personal information like your location! 
+@item PER.AGES 
+Don't share personal information like your age!
+@item PER.BDAY 
+Don't share personal information like your birth date!
+@item BUL.MEAN 
+Don't be mean!
+@item OBS.RUDE 
+Don't be rude!
+@item OBS.FOUL 
+Don't use foul words!
+@item NET.CHTR 
+No cheating!
+@item APP.PARN 
+You need your parent's permission in order to chat in Tootsville.
+@item APP.MAIL 
+You need to confirm your eMail address in order to chat in Tootsville.
+@item APP.AGES 
+Lying about your birth date is against the law!
+@end table
+ "
+  (if (equal "#list" (first words))
+      "Reasons: BULLY CHEAT DIAMOND MEAN NICE PARENT"
+      (error 'unimplemented)))
 
 (define-operator-command king (words user plane)
   "UNIMPLEMENTED
@@ -874,20 +905,12 @@ Throws:
  Examples
  #king 2 flappyperry
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- org.json.JSONException - if something can't be cast into a JSON packet underlying
 "
   (error 'unimplemented))
 
 (define-operator-command liftban (words user plane)
   "UNIMPLEMENTED
 
- throws PrivilegeRequiredException,
- NotFoundException
 
  Lift the ban upon a user. Must have staff level 2 (MODERATOR) to use
  this command.
@@ -900,15 +923,9 @@ Throws:
  #liftban [BANREASON] [USER] yes
 
  Examples
- #liftban app.mail flappyperry yes
+ #liftban CHEAT silly-biscuits yes
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- PrivilegeRequiredException - if the user lacks PrivilegeRequiredException
- NotFoundException - if the warning reason code is not valid
+
 "
   (error 'unimplemented))
 
@@ -923,10 +940,7 @@ Throws:
  Examples
  #loadlists
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
+
 "
   (error 'unimplemented))
 
