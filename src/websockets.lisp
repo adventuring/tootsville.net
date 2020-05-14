@@ -1117,6 +1117,13 @@ If a parent has already authorized this Toot, they'll sign right in."
         "child"))
 
 (defun consider-child-kick (Toot)
+  "Decide whether to kick TOOT offline due to time expiring.
+
+If  there is  no approved  request  for TOOT  to continue  in the  game,
+they'll be kicked  offline. If there is, then we'll  schedule to recheck
+this when that time is elapsed.
+
+Calling this with an adult's Toot is funny, but not helpful."
   (when-let (client (user-stream Toot))
     (let ((until-time (universal-to-timestamp 0)))
       (dolist (request (answered-child-requests-by-Toot Toot))
@@ -1154,6 +1161,7 @@ If a parent has already authorized this Toot, they'll sign right in."
       (v:warn '(:child :stream) "~a is not online to get approval" Toot))))
 
 (defun ws-deny-Toot (Toot request)
+  "Notify TOOT that REQUEST was denied"
   (declare (ignore request))
   (consider-child-kick Toot)
   (if-let (client (user-stream Toot))
