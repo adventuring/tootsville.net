@@ -513,7 +513,7 @@ Returns NIL."
                                                    (Person-display-name *user*)
                                                    via))
     (save-record request)
-    (unicast (second (Toot-list-message)))
+    (unicast (from-avatars (list :|childChanged| Toot)))
     (ws-approve-Toot Toot request))
   nil)
 
@@ -532,7 +532,7 @@ Returns NIL"
                                                    (Person-display-name *user*)
                                                    via))
     (save-record request)
-    (unicast (second (Toot-list-message)))
+    (unicast (from-avatars (list :|childChanged| Toot)))
     (ws-deny-Toot Toot request))
   nil)
 
