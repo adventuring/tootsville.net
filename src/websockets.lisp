@@ -285,13 +285,13 @@ message (usually the originator)"
 (defmethod user-stream ((Toot Toot))
   "Find the stream associated with TOOT"
   (or (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*)
-      (dolist (client (remove-if-not #'Toot
-                                     (hunchensocket:clients *infinity-websocket-resource*)))
-        (when (uuid:uuid= (Toot-uuid (Toot client))
-                          (Toot-uuid Toot))
-          (setf (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*) client)
-          (return-from user-stream client))))
-  nil)
+      (when-let (stream (find Toot 
+                              (remove-if-not 
+                               #'Toot
+                               (hunchensocket:clients
+                                *infinity-websocket-resource*))
+                              :key #'Toot :test #'Toot=))
+        (setf (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*) stream))))
 
 (defun force-close-hunchensocket (client)
   "Attempt to destroy the connection to CLIENT"
@@ -1100,35 +1100,63 @@ If a parent has already authorized this Toot, they'll sign right in."
 
 
 
+(defun kick (client title message reason-code)
+  (private-admin-message title message :user client)
+  (unicast (list :|from| "kick"
+                 :|status| t
+                 :|reasonCode| reason-code) 
+           client)
+  (do-metronome (:one-shot-time (+ 5 (get-universal-time))
+                                :name (format nil "Finish kicking ~a" client))
+    (hunchensocket:close-connection client)))
+
+(defun kick-child-time-up (Toot)
+  (kick client
+        "Time's Up"
+        "You have run out of time to play in Tootsville. Ask your parent or guardian if you want to play longer. See you soon!"
+        "child"))
+
+(defun consider-child-kick (Toot)
+  (when-let (client (user-stream Toot))
+    (let ((until-time (universal-to-timestamp 0)))
+      (dolist (request (answered-child-requests-by-Toot Toot))
+        (when-let (allowed-at (child-request-allowed-at request))
+          (let ((this-until (timestamp+ allowed-at
+                                        (child-request-allowed-until request)
+                                        :hour)))
+            (when (timestamp> this-until until-time)
+              (setf until-time this-until)))))
+      (if (timestamp< until-time (now))
+          (kick-child-time-up client)
+          (do-metronome (:one-shot-time (timestamp-to-universal until-time)
+                                        :name (format nil "Consider kicking child ~a" (Toot-name Toot)))
+            (consider-child-kick Toot))))))
+
 (defun ws-approve-Toot (Toot request)
-  (if-let (client (find Toot 
-                        (remove-if-not 
-                         #'Toot
-                         (hunchensocket:clients
-                          *infinity-websocket-resource*))
-                        :key #'Toot :test #'Toot=))
-    (if (null (user-account client))
-        (progn (setf (user-account client) t)
-               (unicast (list :|from| "parentApproval"
-                              :|status| t
-                              :|until| (timestamp-to-unix (timestamp+ (child-request-allowed-at request)
-                                                                      (child-request-allowed-for request)
-                                                                      :hour))
-                              :|approved| "approved")
-                        client)
-               (let ((*client* client))
-                 (play-with-Toot Toot)))
-        (v:warn '(:child :stream) "Already approved ~a to play at ~a"
-                Toot client))
-    (v:warn '(:child :stream) "~a is not online to get approval" Toot)))
+  "Notify TOOT that REQUEST was approved"
+  (let ((until-time (timestamp+ (child-request-allowed-at request)
+                                (child-request-allowed-for request)
+                                :hour)))
+    (do-metronome (:one-shot-time (timestamp-to-universal until-time))
+      (consider-child-kick Toot))
+    (if-let (client (user-stream Toot))
+      (if (null (user-account client))
+          (progn (setf (user-account client) t)
+                 (unicast (list :|from| "parentApproval"
+                                :|status| t
+                                :|until| (timestamp-to-unix until-time)
+                                :|approved| "approved")
+                          client)
+                 (let ((*client* client))
+                   (play-with-Toot Toot)))
+          (v:warn '(:child :stream) "Already approved ~a to play at ~a"
+                  Toot client))
+      (v:warn '(:child :stream) "~a is not online to get approval" Toot))))
 
 (defun ws-deny-Toot (Toot request)
   (declare (ignore request))
-  (if-let (client (find Toot 
-                        (remove-if-not 
-                         #'Toot
-                         (hunchensocket:clients *infinity-websocket-resource*))
-                        :key #'Toot :test #'Toot=))
+  (consider-child-kick Toot)
+  (if-let (client (user-stream Toot))
     (progn (setf (user-account client) nil
                  (Toot client) nil)
            (unicast (list :|from| "parentApproval"
