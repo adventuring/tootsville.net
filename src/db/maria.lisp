@@ -64,6 +64,21 @@
      (+ (com.hackinghat.cl-mysql-system:string-to-date (subseq string 0 10))
         (com.hackinghat.cl-mysql-system:string-to-seconds (subseq string 11))))))
 
+;;; XXX taken from Hans Huebner's fork mcna/cl-mysql
+
+(defun com.hackinghat.cl-mysql-system:string-to-date (string &optional len)
+  (declare (optimize (speed 3) (safety 3))
+           (type (or null simple-string) string)
+           (type (or null fixnum) len))
+  (when (and string (> (or len (length string)) 9))
+    (let ((y (parse-integer string :start 0 :end 4))
+          (m (parse-integer string :start 5 :end 7))
+          (d (parse-integer string :start 8 :end 10)))
+      (unless (or (zerop y)
+                  (zerop m)
+                  (zerop d))
+        (encode-universal-time 0 0 0 d m y 0))))) ; <-- assume UTC here (added zero)
+
 
 
 (defun build-simple-query (table columns)
