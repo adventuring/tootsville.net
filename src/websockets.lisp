@@ -446,7 +446,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 
 (defun try-reconnect-Toot-name (Toot-name user)
   (when (and Toot-name (plusp (length Toot-name)))
-    (if-let ((Toot (find-record 'Toot :name Toot-name)))
+    (if-let ((Toot (ignore-not-found (find-record 'Toot :name Toot-name))))
       (if (uuid:uuid= (Toot-player Toot) (person-uuid user))
           (progn (setf (Toot *client*) Toot)
                  (v:info :stream "Client ~a reconnected Toot ~a" *client* Toot))
@@ -1036,7 +1036,7 @@ software support.
         (zone (getf packet :|zone|)))
     (if (equal zone "$Eden")
         (if-let (random-key (random-key client))
-          (if-let (Toot (find-record 'Toot :name user-name))
+          (if-let (Toot (ignore-not-found (find-record 'Toot :name user-name)))
             (if-let (child-code (and (Toot-child-code Toot)
                                      (string-downcase (Toot-child-code Toot))))
               (if (equal password 
