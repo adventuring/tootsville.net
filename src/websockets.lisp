@@ -349,12 +349,12 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 
 (defmethod hunchensocket:client-disconnected ((res infinity-websocket-resource) client)
   (v:info :stream "WebSocket disconnection on ~a from ~a" res client)
-  (when *Toot*
+  (when (Toot client)
     (ws-broadcast *infinity-websocket-resource*
                   (list :|from| "bye"
                         :|status| t
-                        :|u| (Toot-uuid *Toot*)
-                        :|n| (Toot-name *Toot*))
+                        :|u| (Toot-uuid (Toot client))
+                        :|n| (Toot-name (Toot client)))
                   :except client)))
 
 (defun ws-reply (message ws-client)
