@@ -315,9 +315,40 @@ Each Toot object is as per `TOOT-INFO', q.v."
      for el in list
      appending (list i el)))
 
+(defun random-start-wtl-for-Toot ()
+  (let* ((θ (random (* 2 pi)))
+         (θ₂ (random (* 2 pi)))
+         (ρ (+ 35 (random 100)))
+         (x (* ρ (cos θ)))
+         (y (* ρ (sin θ))))
+    (to-json (list :|course| (list :|endPoint| (list :|x| x :|y| y :|z| 0)
+                                   :|startPoint| (list :|x| x :|y| y :|z| 0)
+                                   :|speed| 0
+                                   :|startTime| (* 1000 (- (get-universal-time)
+                                                           +unix-zero-in-universal-time+)))
+                   :|facing| θ₂))))
+
+(defun make-new-Toot-state (Toot)
+  (private-admin-message
+   (format nil "Welcome to Tootsville, ~:(~a~)!" (Toot-name Toot))
+   "Welcome  to Tootsville!  This is  Toot Square,  the center of town.")
+  (make-record 'Toot-quiesced
+               :Toot (Toot-uuid Toot)
+               :world :chor
+               :latitude 0
+               :longitude 0
+               :altitude 0
+               :wtl (random-start-wtl-for-Toot)
+               :d3 nil
+               :emotion nil
+               :peanuts 120
+               :fairy-dust 0
+               :attribs nil))
+
 (defun burgeon-quiesced-state (Toot)
-  (when-let (state (ignore-not-found
-                     (find-record 'toot-quiesced :toot (Toot-uuid Toot))))
+  (let ((state (or (ignore-not-found
+                     (find-record 'Toot-quiesced :Toot (Toot-uuid Toot)))
+                   (make-new-Toot-state Toot))))
     (unicast (list :|status| t
                    :|from| "burgeon"
                    :|world| (toot-quiesced-world state)
@@ -332,10 +363,10 @@ Each Toot object is as per `TOOT-INFO', q.v."
                    :|peanuts| (toot-quiesced-peanuts state)
                    :|fairy-dust| (toot-quiesced-fairy-dust state)
                    :|attribs| (toot-quiesced-attribs state)))
-    (setf (Toot-position *client*) (list (Toot-quiesced-world state)
-                                         (Toot-quiesced-latitude state)
-                                         (Toot-quiesced-longitude state)
-                                         (Toot-quiesced-altitude state)))))
+    (setf (Toot-position (user-stream Toot)) (list (Toot-quiesced-world state)
+                                                   (Toot-quiesced-latitude state)
+                                                   (Toot-quiesced-longitude state)
+                                                   (Toot-quiesced-altitude state)))))
 
 (defun update-Toot-last-active (Toot)
   (setf (Toot-last-active Toot) (get-universal-time))

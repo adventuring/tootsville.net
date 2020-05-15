@@ -68,7 +68,7 @@ to it."
   (if (or (Toot-childp Toot)
           (person-sensitivep
            (find-reference Toot :player)))
-      (format nil "◆~a" (Toot-name Toot))
+      (concatenate 'string "◆" (Toot-name Toot))
       (Toot-name Toot)))
 
 (defun Toot-clothes+pattern (Toot)
