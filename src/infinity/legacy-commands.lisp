@@ -1734,32 +1734,57 @@ We no longer have zones, but we can have server paritings
                              "Not an operator command"))))
 
 (definfinity speak ((key speech vol) user recipient/s)
-  "speak
+  "The user speaks SPEECH at volume VOL in public.
 
  Handle speech by the user.
 
  Speech is public to all users in a room/area
 
- Emotes are simply speech beginning with \"/\". A few are special-cased. WRITEME: which
+ Emotes are simply speech beginning with \"/\". A few are special-cased.
+ WRITEME: which emots are special-cased?
 
  Commands are speech beginning with \"#\"
 
- Parameters:
- jso - @{ \"speech\": TEXT-TO-BE-SPOKEN @}
-
-\"key\" --- WRITEME
-
-\"vol\"  ---  Volume is  one  of  \"talk\", \"shout\",  or  \"whisper\".
-The default is always \"talk\".
-
+@subsection Usage
 
 @verbatim
-
- private static String nonObnoxious (final String speech) {
- return speech.replace (\"!!\", \"!\").replace (\",,\", \",\").replace (
- \"....\", \"...\").replace (\"??\", \"?\");
- }
+{ c: \"speech\",
+  d: { speech: \"text to be spoken\",
+       vol: ( \"shout\" | \"talk\" | \"whisper\" ) } }
 @end verbatim
+
+@code{key} --- WRITEME --- optional --- currently ignored
+
+@code{vol}  ---   Volume  is   one  of  @code{talk},   @code{shout},  or
+@code{whisper}.   The   default   is  always   @code{talk}.   @code{vol}
+is optional.
+
+@subsection Speech filtering
+
+NOTE @emph{This is not actually implemented in Tootsville V yet}
+
+There are two  kinds of filtering on text: foul  language, and obnoxious
+typing.
+  
+Foul  language filtering  occurs when  there are  children or  sensitive
+players   nearby   (blacklist),   and   in   all   cases   for   certain
+stopwords (redlist).
+
+Obnoxious typing filtering  occurs all the time, and undoes  a couple of
+things that are --- well, just plain obnoxious.
+
+@itemize
+
+@item
+SPEECH IN ALL CAPS  is converted into lower-case; if it  was meant to be
+whispered, it will  instead be spoken (@code{talk}); if it  was meant to
+be spoken, it will instead by shouted.
+
+@item
+Sentences with lots of punctuation!!  are fixed; aside from ellipses, no
+repeated punctuation is preserved.
+
+@end itemize
 
  "
   (when (emptyp speech)
@@ -1804,58 +1829,311 @@ Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC.
 
 (defun dump-credits ()
   "Send +CREDIT+ as a private admin message. Response to the ,credits user utterance."
-  (private-admin-message "Credits" +credits+))
+  (private-admin-message "Credits" (docstring->html +credits+)))
 
 (definfinity start-event ((moniker) user recipient/s)
-  "Attempt to begin an event. Might return an error. Uses Quæstor for the heavy lifting.
+  "Attempt to begin an event. Might return an error.
 
+@subsection What is an ``event''?
 
-TODO verify params
+Events,  in  the context  of  this  function, are  transactions  between
+a  player  and  the  world.  These transactions  might  yield  items  or
+currency (peanuts,  or fairy dust), so  they have to be  proxied through
+the central servers, because we can't  ultimately trust the users not to
+just     tap     Control+Shift+K      and     try     something     like
+@code{Tootsville.Game.addPeanuts  (1000000)}.   (Note,  that   will  ---
+obviously --- not work. Because this function exists.)
 
-Note that for all fountains, use the magic moniker ``fountain''
-
-Calls back the user with either of:
+So, there are a few basic types of events, in general:
 
 @itemize
-@item
-
-@code{alreadyDone: true; status: false; err: \"event.alreadyDone\"}
-
-This returns for fountains that  have already given peanuts today (where
-today started at midnight, database local time)
 
 @item
-@code{ eventID: (NUM),  filename: \"blah.swf\",  asVersion: @{ 2,  3, or  not @}, status: true}
+Magic fountains
 
-For successfully registered events. Must  be completed or canceled using
-`INFINITY-END-EVENT', qv
+@item
+Shops
+
+@item
+Secrets and treasures
 
 @end itemize
+
+Each of these works a little differently.
+
+@subsection Usage
+
+The  basic data  element is  a  @code{moniker}, which  is typically  the
+representation of a  particular item in the world which  is the focus of
+the event. In  the current usage (Tootsville V/Romance 2),  this will be
+an UUID.
+
+@verbatim
+{ c: \"startEvent\", d: { moniker: \"moniker\" } }
+@end verbatim
+
+@subsection Responses
+
+There are several possible responses.
+
+@verbatim
+{ from: \"startEvent\",
+  status: false,
+  alreadyDone: true,
+  err: \"event.alreadyDone\",
+  error: \"User-visible error message\"
+  moniker: \"moniker\" }
+@end verbatim
+
+Some events cannot  be started more than once by  the same character, or
+more than once within a certain period of time, or more than once by the
+same  character within  a  certain  period of  time.  This  is a  simple
+rejection; there is not inherently any  explanation to the client of the
+circumstances --- in particular, the client  is not informed when (or by
+whom) the event can be fired again.
+
+@verbatim
+{ from: \"startEvent\",
+  status: true,
+  eventID: \"ID\" }
+@end verbatim
+
+This is the short form. It means  that the event can be started, and the
+caller had better know what to do about it; typically, that will only be
+to  turn  around  and  immediately call  `INFINITY-END-EVENT'  with  the
+provided event ID.
+
+@verbatim
+{ from: \"startEvent\",
+  status: true,
+  eventID: \"ID\",
+  filename: \"blah.swf\",
+  asVersion: ( 2 | 3 ) }
+@end verbatim
+
+This form  is archaic and won't  be returned right now,  but is included
+for  comparison  ---  and  to  make the  modern  long  form  make  sense
+by comparison.
+
+@verbatim
+{ from: \"startEvent\",
+  status: true,
+  eventID: \"ID\",
+  filename: \"blah.js\",
+  function: \"foo\",
+  asVersion: \"html5\" }
+@end verbatim
+
+This is the modern long form. The client is expected to:
+
+@itemize
+
+@item
+Download @code{blah.js}
+
+@item 
+
+Call   the  function   @code{Tootsville.Event[\"foo\"]}  ---   that  is,
+literally,  look  in  the   global  object  @code{Tootsville.Event}  for
+a function named @code{foo} --- with the event ID as its parameter.
+
+@end itemize
+
+In other words,
+
+@verbatim
+Tootsville.Event [ datagram.function ] ( datagram.eventID );
+@end verbatim
+
+@subsection Error response
+
+@verbatim
+{ from: \"startEvent\",
+  status: false,
+  err: \"error code\",
+  error: \"User-visible error message\" }
+@end verbatim
+
+The error code can be one of:
+
+@table @code
+
+@item eventType.notFound
+The @code{moniker} passed was invalid.
+
+@end table
+
+@subsection Ending an event
+
+This event is now open, and will remain open until it has been completed
+or canceled using `INFINITY-END-EVENT', q.v.
 "
-  (error 'unimplemented))
+  (quaestor-start-event moniker *Toot*))
 
-(definfinity end-event ((moniker) user recipient/s)
-  "Attempt to end an event begun by `INFINITY-START-EVENT'
+(definfinity end-event ((moniker id event-i-d status medal score) user recipient/s)
+  "Attempt to end an event begun by `INFINITY-START-EVENT', q.v.
 
- Parameters:
+@subsection Calling
 
-jso - JSON payload from the caller. Data: moniker = event moniker.
+@verbatim
+{ c: \"endEvent\",
+  d: { moniker: \"event moniker\",
+       ( id | eventID ): \"event ID\",
+       status: ( \"cmp\" | \"cxl\" ),
+       [ medal: \"medal\", ]
+       [ score: \"score\" ] } }
+@end verbatim
 
-u - The caller = the user performing the event
+This command terminates an event (such as a fountain, store purchase, or
+minigame) which was begun with `INFINITY-START-EVENT', qv.
 
-room - The  caller's room. For fountains, we'll use  this room's moniker
-to figure out which fountain is which
+The parameter @code{eventID} can be  referenced as @code{id} instead ---
+but  that  is  deprecated  (since Romance  1.0)  and  will  (eventually)
+be dropped.
 
-Throws:
+The status code is either @code{cmp}, if the event was completed in some
+way  (successfully  or  otherwise),  or @code{cxl},  if  the  event  was
+canceled before it reached any ind of completion.
 
-org.json.JSONException - if  JSON data can't be put into  a response, or
-gotten out of a command.
+The @code{score} and @code{medal} parameters are optional, and depend on
+the type  of event.  They should  never be  submitted with  a @code{cxl}
+cancel  packet, and  are  not  needed for  an  item  purchase. They  are
+sometimes  to be  used with  minigames. The  @code{score} has  a special
+relationship with magic fountains, described below.
 
-SQLException  - probably  means that  the moniker  is bad,  but I'm  not
-really doing much to validate it here
+@itemize
+
+@item
+In the  event of  a magic  fountain, the client  should submit  a random
+number between 1 and 100 as  the @code{score}. This will be ignored, and
+a number of peanuts will be awarded to the player.
+
+@item
+In  the  event of  a  purchase,  neither @code{score}  nor  @code{medal}
+are required.
+
+@item
+Other kinds of  events can pass a numeric @code{score},  or a string for
+@code{medal}, as appropriate to their needs.
+
+@end itemize
+
+@subsection Success Response to Canceled Event
+
+The response to a canceled (@code{status: \"cxl\"}) event will be of the
+form:
+
+@verbatim
+{ from: \"endEvent\",
+  status: true,
+  ended: \"eventID\",
+  canceled: true }
+@end verbatim
+
+@subsection Success Response to Completed Event
+
+The response  to a completed  (@code{status: \"cmp\"}) event will  be of
+the form:
+
+@verbatim
+{ from: \"endEvent\",
+  status: true,
+  ended: \"eventID\",
+  peanuts: peanuts,
+  fairyDust: fairyDust,
+  [ highScores: { 1: { points: points,
+                       userName: \"user name\" },
+                  2: ... 24: }, ]
+  totalPeanuts: total,
+  totalFairyDust: total,
+  [ gotHighScore: index ]
+@end verbatim
+
+The @code{endEvent} packet for a completed event indicates:
+
+@itemize
+
+@item
+The event  ID which  was ended  --- typically a  UUID. This  matches the
+@code{eventID}  returned   by  @code{startEvent}  and  passed   back  to
+@code{endEvent}.
+
+@item
+The  relative change  in peanuts  and  fairy dust  (positive means  more
+earned; negative means a net loss), and the player's new totals of each
+
+@item
+If the event is  a minigame or other event that could  have a high score
+list, up to 24 top scores are returned, each with a point score, an user
+name, and (if the event is that sort) possibly a medal earned. Note that 
+it is possible to get fewer than 24 scores back; conforming clients must 
+accept zero to at least 24.
+
+@item
+If the  event has a high  score list, and  the player has earned  a high
+score now, the index (from 1 = first place) which was achieved.
+
+@end itemize
+
+@subsection Error Responses
+
+An error response is of the form:
+
+@verbatim
+{ from: \"endEvent\",
+  status: false,
+  eventID: \"event UUID\",
+  err: \"error code\",
+  error: \"User-visible error message\" }
+@end verbatim
+
+The error code can be one of:
+
+@table @code
+
+@item cost
+The item to be purchased costs more peanuts than you have.
+
+@item badStatus
+The status passed was not one of @code{cmp} nor @code{cxl}
+
+@item eventID.notFound
+The event ID passed was not found
+
+@item eventID.notYours
+The event ID passed represents an event started by another player
+
+@item medal.notFound
+The medal passed was not valid
+
+@item score.range
+The score reported  was not valid; it  was not in the  range of possible
+scores for this event.
+
+@end table
 
  "
-  (error 'unimplemented))
+  (let* ((event-id (or event-i-d id))
+         (event (ignore-not-found (find-record 'quaestor-event :id event-id))))
+    (when (null event)
+      (return (list 404 (list :|from| "endEvent"
+                              :|status| :false
+                              :|err| "eventID.notFound"
+                              :|error| "You tried to end an event that was never started."))))
+    (unless (uuid:uuid= (Toot-uuid *Toot*) (quaestor-event-started-by event))
+      (return (list 403 (list :|from| "endEvent"
+                              :|status| :false
+                              :|err| "eventID.notYours"
+                              :|error| "You tried to end someone else's event."))))
+    (string-case status
+      ("cmp" (quaestor-complete-event event score medal))
+      ("cxl" (quaestor-cancel-event event))
+      (otherwise 
+       (list 400 (list :|from| "endEvent"
+                       :|status| :false
+                       :|err| "badStatus"
+                       :|error| "Your software tried to end an event with an unrecognized status"))))))
+
 (definfinity use-equipment ((|t| x y z on) user recipient/s)
   "useEquipment
 

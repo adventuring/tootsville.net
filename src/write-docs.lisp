@@ -204,7 +204,7 @@ The document was typeset with @uref{http://www.textinto.org/, GNU @TeX{}info}.
                        (or (eql (symbol-package symbol) (find-package :Tootsville))
                            (swank::symbol-external-p symbol)))
               (push symbol symbols)))
-          (dolist (symbol (sort (remove-duplicates symbols) #'string<))
+          (dolist (symbol (sort (remove-duplicates symbols) #'string-lessp))
             (write-docs-for-symbol symbol))))
       (princ (read-file-into-string (asdf:system-relative-pathname
                                      :Tootsville

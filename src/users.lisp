@@ -27,7 +27,7 @@
 
 (in-package :Tootsville)
 
-
+
 
 (defvar *user* nil
   "The currently-signed-in user, if any")

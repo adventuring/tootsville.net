@@ -226,12 +226,25 @@ server include:
 
 @item stairs
 
-@item
+@item sidewalk
 
-'GRASS','TALL-GRASS', 'WATER', 'UNWALKABLE',
-       'DOORMAT', 'PARKING', 'DRIVEWAY', 'STAIRS',
-       'SIDEWALK', 'COBBLES', 'SLIDE', 'FIREPOLE', 'GAME',
-       'ICE', 'SAND', 'SNOW', 'CHEESE', '
+@item cobbles
+
+@item slide
+
+@item firepole
+
+@item game
+
+@item ice
+
+@item sand
+
+@item snow
+
+@item cheese
+
+The stuff the moons are made of
 
 @end table
 

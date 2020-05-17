@@ -118,6 +118,7 @@ REST services for the front-end."
      (:file "package-post" :depends-on ("power-on-self-test"))
      (:file "command-line" :depends-on ("main" "logging" "write-docs-2"))
      (:file "endpoint" :depends-on ("package-post"))
+     (:file "quaestor" :depends-on ("package-post" "metronome" "types"))
      (:file "web"
             :depends-on ("view" "players" "errors" "config" "endpoint"))
      (:file "http-error" :depends-on ("web"))

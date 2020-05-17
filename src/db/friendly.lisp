@@ -173,7 +173,7 @@
   (equipped keyword))
 
 (defrecord store-item (:friendly "store_items")
-  (id number)
+  (uuid uuid) ;;; FIXME alter table to match
   (template number ref item-template)
   (qty number)
   (price number)
@@ -280,3 +280,17 @@
   (observed timestamp)
   (peer-address string)
   (attribs string))
+
+;; FIXME do the migration for these
+(defrecord quaestor-event (:friendly "quaestor_events")
+  (uuid uuid)
+  (source uuid)
+  (started-by uuid ref Toot)
+  (started-at timestamp)
+  (ended-at timestamp)
+  (completedp yornp)
+  (peanuts number)
+  (fairy-dust number)
+  (item uuid ref items)
+  (score number)
+  (medal keyword))

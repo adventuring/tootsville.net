@@ -753,6 +753,14 @@ Note that the current Tootsville V client does not make use of LABEL."
 (defun infinity-get-apple (client &optional packet)
   "Get the apple to get into, or out of, $Eden.
 
+@subsection Theory
+
+The ``apple''  is a seed  value for  a sort of  CHAP/HMAC authentication
+used only for children signing in to Tootsville. Essentially, the client
+will  ask  for an  ``apple,''  as  a seed  value  for  hashing with  the
+password.   The    client   sends    back   this   hash,    and   awaits
+parental permission.
+
 @subsection Apple-based authentication
 
 In the modern usage, the user who wishes to get authenticated connects
@@ -918,8 +926,7 @@ a one-shot event during the sign-up process.
 Passwords are downcased to make them case-insensitive
 
 @end itemize
-
-WRITEME"
+"
   (if-let (replace (and packet (getf packet :|replaceP|)))
     (string-case replace
       ("never" 
@@ -941,7 +948,7 @@ WRITEME"
 (defun login-fail (err2 msg client)
   "Sends a login failure message.
 
-@vebatim
+@verbatim
 { from: \"login\",
   status: false,
   err: \"login.fail\",

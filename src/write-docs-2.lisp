@@ -49,14 +49,44 @@ along with this program; if not,  write to the Free Software Foundation,
 Inc., 675 Mass Ave, Cambridge, MA 02139, USA."))))))
 
 (defun write-documentation (symbol s)
-  (format s "~2&@node ~a::~a~%@section ~:(~a~)~%"
-         (package-name (symbol-package symbol)) (symbol-name symbol)
-         (symbol-name symbol))
-  (dolist (kind '(function variable structure type setf))
-    (when-let (docu (documentation symbol kind))
-      (format s "~2&~:(~a~) names a ~(~a~):~2%~a" symbol kind docu))))
+  (when (or (boundp symbol)
+            (fboundp symbol)
+            (fboundp (list 'setf symbol))
+            (documentation symbol 'structure)
+            (documentation symbol 'type))
+    (format s "~2&@node ~a::~a~%@section ~:(~a~) ~:(~a~)~%"
+            (package-name (symbol-package symbol)) (symbol-name symbol)
+            (package-name (symbol-package symbol)) (symbol-name symbol))
+    (when (fboundp symbol)
+      (let ((kind (if (macro-function symbol) "macro" "function")))
+        (if-let (docu (documentation symbol 'function))
+          (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind docu)
+          (format s "~2&~:(~a~) names an undocumented ~a.~2%" symbol kind)))
+      (when-let (def (or (ignore-errors (sb-introspect:find-definition-source (coerce symbol 'function)))
+                         (ignore-errors (sb-introspect:find-definition-source (macro-function symbol)))))
+        (format s "~2&(Defined in file ~a)~2%"
+                (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
+                                      (asdf:component-pathname (asdf:find-system :Tootsville))))))
+    (when (fboundp (list 'setf symbol))
+      (if-let (docu (documentation symbol 'setf))
+        (format s "~2&(SETF ~:(~a~)) names a function:~2%~a" symbol docu)
+        (format s "~2&(SETF ~:(~a~)) names an undocumented function.~2%" symbol))
+      (when-let (def (ignore-errors (sb-introspect:find-definition-source (coerce (list 'setf symbol) 'function))))
+        (format s "~2&(Defined in file ~a)~2%"
+                (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
+                                      (asdf:component-pathname (asdf:find-system :Tootsville))))))
+    (when (boundp symbol)
+      (if-let (docu (documentation symbol 'variable))
+        (format s "~2&~:(~a~) names a variable:~2%~a~2%Its value is ~s"
+                symbol docu (symbol-value symbol))
+        (format s "~2&~:(~a~) names an undocumented variable with the value ~s"
+                symbol (symbol-value symbol))))
+    (dolist (kind '(structure type))
+      (when-let (docu (documentation symbol kind))
+        (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind docu)))))
 
 (defun gather-all-symbols ()
+  ;; XXX split into chapters by package
   (let (list)
     (do-all-symbols (symbol list)
       (when (member (symbol-package symbol)
@@ -239,7 +269,7 @@ in the Tootsville package and supporting packages.
 
 @menu
 * Copying:: The GNU Affero General Public License
-* Introduction:: What Tootsville Ⅴ (Romance Ⅱ) is all about
+* Introduction:: What Tootsville V (Romance II) is all about
 * Definitions:: The symbols documentation
 * Conclusion:: Time to go
 * Indices:: Concepts, functions, variables and data types
@@ -280,7 +310,11 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 @menu
 ")
       
-      (let ((defs (gather-all-symbols)))
+      (let ((defs (sort (gather-all-symbols) #'string-lessp
+                        :key (lambda (symbol)
+                               (format nil "~a::~a"
+                                       (package-name (symbol-package symbol))
+                                       (symbol-name symbol))))))
         (format docs "~{~%* ~a::~}" defs)
         (format docs "~&@end menu~2% ")
         (dolist (symbol defs)
