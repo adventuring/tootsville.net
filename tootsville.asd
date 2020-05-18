@@ -24,6 +24,7 @@
 ;;; PO Box 23095
 ;;;; Oakland Park, FL 33307-3095
 ;;; USA
+
 (cl:in-package :cl-user)
 
 (defpackage Tootsville-ASD
@@ -118,6 +119,7 @@ REST services for the front-end."
      (:file "package-post" :depends-on ("power-on-self-test"))
      (:file "command-line" :depends-on ("main" "logging" "write-docs-2"))
      (:file "endpoint" :depends-on ("package-post"))
+     (:file "cassandra" :depends-on ("package-post"))
      (:file "quaestor" :depends-on ("package-post" "metronome" "types"))
      (:file "web"
             :depends-on ("view" "players" "errors" "config" "endpoint"))

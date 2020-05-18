@@ -45,20 +45,6 @@
     ((:Y :A) t)
     ((:N :nil) nil)))
 
-(defun Toot-peanuts (Toot)
-  "How many magic peanuts does TOOT have?"
-  ;; TODO Toot-peanuts
-  (if (person-is-patron-p (find-reference Toot :player))
-      1000
-      100))
-
-(defun Toot-fairy-dust (Toot)
-  "How much fairy dust does TOOT have?"
-  ;; TODO Toot-fairy-dust
-  (if (person-is-patron-p (find-reference Toot :player))
-      1000
-      0))
-
 (defun Toot-presentation-name (Toot)
   "The form of the TOOT's name for display in the UI as an avatar label.
 

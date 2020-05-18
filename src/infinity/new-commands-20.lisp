@@ -294,7 +294,7 @@ Return:
                    :|n| u)
              :except *client*))
 
-(defun toot-list-message ()
+(defun Toot-list-message ()
   "Send a player (user) their list of Toots.
 
 Used primarily  in the  login process.  Might also  be used  for gifting
@@ -313,7 +313,7 @@ inventory back-and-forth later."
           (list :|status| :false
                 :|from| "tootList"))))
 
-(definfinity toot-list (nil u recipient/s)
+(definfinity Toot-list (nil u recipient/s)
   "Enumerates all Toots owned by the user.
 
 @subsection 200 OK
@@ -345,6 +345,7 @@ Each Toot object is as per `TOOT-INFO', q.v."
   (private-admin-message
    (format nil "Welcome to Tootsville, ~:(~a~)!" (Toot-name Toot))
    "Welcome  to Tootsville!  This is  Toot Square,  the center of town.")
+  (quaestor-new-Toot Toot)
   (make-record 'Toot-quiesced
                :Toot (Toot-uuid Toot)
                :world :chor

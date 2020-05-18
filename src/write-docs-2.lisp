@@ -27,27 +27,6 @@
 
 (in-package :tootsville)
 
-(defun inform-declt-of-agplv3 ()
-  "Adds the AGPLv3 to the list of licenses for DECLT."
-  (let ((licenses (intern "*LICENSES*" (find-package :net.didierverna.declt))))
-    (set licenses
-         (cons (eval licenses)
-               '((:agplv3
-                  "The GNU Affero General Public License"
-                  "This  program is  free  software; you  can redistribute  it
-and/or  modify it  under  the terms  of the  GNU  Affero General  Public
-License as  published by  the Free  Software Foundation;  either version
-3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program; if not,  write to the Free Software Foundation,
-Inc., 675 Mass Ave, Cambridge, MA 02139, USA."))))))
-
 (defun write-documentation (symbol s)
   (when (or (boundp symbol)
             (fboundp symbol)
@@ -263,9 +242,9 @@ This manual is based upon materials taken from Declt 2.3.
 @node Top, Copying, (dir), (dir)
 @top The Book of Romance II
 
-This is The Book of Romance II, describing the Romance II game core and
-Tootsville V in particular. This manual is generated from the docstrings found
-in the Tootsville package and supporting packages.
+This is The Book of Romance II, describing the Romance II game core
+and Tootsville V in particular. This manual is generated from the
+docstrings found in the Tootsville package and supporting packages.
 
 @menu
 * Copying:: The GNU Affero General Public License
@@ -281,19 +260,22 @@ in the Tootsville package and supporting packages.
 @node Copying, Introduction, Top, Top
 @unnumbered Copying
 @quotation
-This  program is  free  software; you  can redistribute  it
-and/or  modify it  under  the terms  of the  GNU  Affero General  Public
-License as  published by  the Free  Software Foundation;  either version
-3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+This program is  free software; you can redistribute  it and/or modify
+it  under the  terms  of  the GNU  Affero  General  Public License  as
+published by  the Free  Software Foundation; either  version 3  of the
+License, or (at your option) any later version.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program; if not,  write to the Free Software Foundation,
-Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+This program  is distributed in the  hope that it will  be useful, but
+WITHOUT   ANY  WARRANTY;   without  even   the  implied   warranty  of
+MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See the  GNU
+Affero General Public License for more details.
+
+You  should have  received a  copy of  the GNU  Affero General  Public
+License along with  this program (one is found in  this book); if not,
+write to the Free Software  Foundation, Inc., 675 Mass Ave, Cambridge,
+MA 02139, USA.
+
 @end quotation
 
 @node Introduction, Definitions, Copying, Top
@@ -325,7 +307,8 @@ Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 @node Credits, Conclusion, Definitions, Top
 @chapter Credits
 
-Tootsville is built upon a plethora of software. This is an attempt to convey at least a partial enumeration of the credits.
+Tootsville is built upon a plethora of software. This is an attempt to
+convey at least a partial enumeration of the credits.
 
 First, the most noticeable:
 

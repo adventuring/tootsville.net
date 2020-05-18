@@ -48,7 +48,7 @@
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
 (definfinity add-to-list (nil user recipient/s)
-  "add a user to a buddy list or ignore list (removed in 1.2)
+  "Add a user to a buddy list or ignore list (removed in 1.2)
 
 …using   the   traditional   (online-only,   no   notification   engine)
 mechanism    (using    out    of     band    methods).    Compare    vs.
@@ -67,11 +67,13 @@ This function was replaced  with `INFINITY-REQUEST-BUDDY' — requestBuddy
 (definfinity click ((on x y z with) user recipient/s)
   "Used by the client  to report a mouse click or  finger tap.
 
+@subsection Usage
+
 If the user  clicks on a placed-item, this method  should be called with
 the following syntax:
 
 @verbatim
-{\"c\":\"click\", \"d\":{ \"on\": itemID, \"x\": x, \"y\": y, \"z\": z, \"with\": mods } }
+{ \"on\": itemID, \"x\": x, \"y\": y, \"z\": z, \"with\": mods }
 @end verbatim
 
 Note that the (x,y,z) values passed  are relative to the origin point of
@@ -149,12 +151,12 @@ if (ev.type == ev.MIDDLE_CLICK) mods += \"2\";
 if (ev.type == ev.RIGHT_CLICK) mods += \"3\";
 if (ev.type == ev.MOUSE_WHEEL)
 { if (ev.delta < 0) mods += \"-\";
- if (ev.delta > 0) mods += \"+\"; }
+  if (ev.delta > 0) mods += \"+\"; }
 if (Keyboard.numLock) mods += \"N\";
 if (Keyboard.capsLock) mods += \"C\";
 @end verbatim
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
 
 @itemize
 
@@ -184,12 +186,24 @@ The click event is being ignored; ITEM-ID was not an interesting item to
 the server.
 "
   (error 'unimplemented))
+
 (definfinity create-user-house ((lot house index) user recipient/s)
   "Either claim the user's house and lot, or add a room to their house.
 
+@subsection Usage
+
+@verbatim
+{ lot: \"Lot ID\",
+  house: \"House ID\" }
+
+{ index: ROOM-INDEX,
+  connectTo: ROOM-INDEX,
+  connectAt: \"point moniker\" }
+@end verbatim
+
 Data describing the user's lot.
 
-When the player has  found an empty lot and wishes to  claim it as their
+When the player has found an empty lot and wishes to claim it as their
 own, they choose a base house item and send
 
 @verb{| { lot: lot-ID, house: house-ID },  |}
@@ -250,7 +264,11 @@ In 1.2 adding a room required only an index.
 (definfinity dofff ((&rest d) user recipient/s)
   "Doff all clothing items.
 
+@subsection Usage
+
 Takes no parameters.
+
+@subsection Limitations
 
 This does not  un-equip an item held in the  @code{TRUNK}. This does not
 remove or  alter a Toot's pattern.  For non-Toot avatars, this  does not
@@ -263,10 +281,18 @@ info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
 All clothing items have been removed."
   ;; TODO dofff
-  )
+  (error 'unimplemented))
 
 (definfinity don ((slot color) user recipient/s)
   "Don (or equip) an item
+
+@subsection Usage
+
+@verbatim
+{ slot: \"Slot name\",
+  itemID: \"Item ID\",
+  [ color: \"color ID\" ] }
+@end verbatim
 
 JSON  object has  the  item UUID  number to  be  worn (clothes,  pivitz,
 trunk).
@@ -323,9 +349,12 @@ that item).
 (definfinity echo ((&rest d) user recipient/s)
   "Echoes back the supplied JSON (or ActionScript) object to the client.
 
-This method exists solely for testing purposes.
+@subsection Usage
 
-Sends response containing:
+The datum (@code{d}) is returned identically, in a return element
+named literally @code{You said}.
+
+This method exists solely for testing purposes.
 
 @verbatim
 ⇒ { c: \"echo\", d: { foo: 42 } }
@@ -352,10 +381,12 @@ The response is echoed back to the user.
 The echo packet must be less  than 1,024 Unicode characters in length or
 it will be  truncated to 1,024 characters. No warning  will be issued to
 the user in the case of truncation."
-  (list :|from| "echo" :|status| t :|You said| (limit-string-length d 1024)))
+ (list 200 (list :|from| "echo"
+                 :|status| t
+                 :|You said| (limit-string-length d 1024)))
 
 (definfinity end-event ((moniker event-id score status) user recipient/s)
-  "End an event started by `INFINITY-START-EVENT'
+  "End an event started by `INFINITY-START-EVENT', i.e. a Quaestor Event.
 
 This method terminates an event (probably  a fountain, in 2.0) which was
 initiated by startEvent.
@@ -912,8 +943,8 @@ receive items.
 @verbatim
 
 { do: VERB (required)
- x: DEST, y: DEST, z: DEST (each optional, but if one is given, all 3 must be)
-facing: FACING (optional)
+  x: DEST, y: DEST, z: DEST (each optional, but if one is given, all 3 must be)
+  facing: FACING (optional)
 }
 @end verbatim
 
@@ -924,6 +955,7 @@ u - the user doing something
 @code{z} can no longer be omitted if @code{x} or @code{y} are specified.
 "
   (error 'unimplemented))
+
 (definfinity init-user-room ((room autoJoin) user recipient/s)
   "Create a user's private room (in their house).
 
@@ -992,7 +1024,10 @@ u - the user joining the room
 @subsection 410 Gone
 
 Removed in 2.0."
-  (error 'unimplemented))
+  (list 410 (list :|from| "join"
+		  :|status| :false
+		  :|err| "room.notFound"
+		  :|error| "There are no rooms in Tootsville V.")))
 
 (definfinity logout ((&rest d) user recipient/s)
   "Log out of this game session
@@ -1006,12 +1041,15 @@ of wasted wait time after it, which had ought to be enough time. This is
 no longer supported."
   (error 'unimplemented))
 
-(definfinity mail-customer-service ((&rest d) user recipient/s)
-  "  send an eMail to customer service (feedback)
+(definfinity mail-customer-service ((subject body) user recipient/s)
+  "Send an eMail to customer service (feedback)
 
- Parameters:
- jso - @{ subject: STRING, body: STRING @}
- u - the user sending the feedback
+@verbatim
+{ subject: STRING, body: STRING }
+@end verbatim
+
+This sends an email with the given subject and body to
+@code{support@Tootsville.org}.
 
  "
   (error 'unimplemented))
@@ -1019,24 +1057,27 @@ no longer supported."
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Handle looking at other user's inventories
 
-Parameters: jso - @{\"who\": the login name of the user of whom to get
-the inventory @}; optional \"type\": to filter by type.  (see
-`INFINITY-GET-INVENTORY-BY-TYPE' for details)
+@verbatim
+{ who: \"user-name\" }
 
-u  - The  user requesting  the inventory
+{ who: \"user-name\",
+  type: \"type-code\" }
+@end verbatim
 
-room  - The  room in
- which the  request occurs
+The optional type code is as per `INFINITY-GET-INVENTORY-BY-TYPE'.
 
-Throws: org.json.JSONException -  Thrown if
- the data  cannot be interpreted  from the  JSON objects passed  in, or
- conversely,  if  we   can't  encode  a  response  into   a  JSON  form
+When requesting the inventory of another player, only their public
+inventory will be returned.
 
-NotFoundException - Could not find a user with that name"
+"
   (error 'unimplemented))
 
 (definfinity ping ((ping-started) user recipient/s)
   "Send a ping to the server to get back a pong.
+
+@verbatim
+{ [ pingStarted: TIMESTAMP ] } 
+@end verbatim
 
 This also updates the user's last-active timestamp.
 
@@ -1075,84 +1116,95 @@ as well.
 
 @subsection Overviow of Prompts
 
-
  Server initiates prompt with:
 
 @verbatim
 
  { \"from\" : \"prompt\",
- \"id\" : $ID,
- \"label\" : $LABEL,
- \"label_en_US\" : $LABEL,
- \"title\" : $TITLE,
- [ \"attachUser\" : $AVATAR_LABEL || \"attachItem\" : $ITEM_ID ] ,
- \"msg\" : $TEXT,
- \"replies\" :
- {  $TOKEN :
- { \"label\" : $BUTTON_LABEL,
- \"label_en_US\" : $BUTTON_LABEL,
- \"type\" : $BUTTON_TYPE },
- [ … ]
- }
+   \"id\" : $ID,
+   \"label\" : $LABEL,
+   \"label_en_US\" : $LABEL,
+   \"title\" : $TITLE,
+   [ \"attachUser\" : $AVATAR_LABEL || \"attachItem\" : $ITEM_ID ] ,
+   \"msg\" : $TEXT,
+   \"replies\":
+     { $TOKEN :
+       { \"label\" : $BUTTON_LABEL,
+         \"label_en_US\" : $BUTTON_LABEL,
+         \"type\" : $BUTTON_TYPE },
+       [ … ]
+     }
  }
 
 @end verbatim
 
- Where:
+Where:
 
- $ID = arbitrary string with no \0 representing this question uniquely.
- This is not an user-visible string.
+$ID = arbitrary string with no \0 representing this question uniquely.
+This is not an user-visible string.
 
- $LABEL  =  concatenated to  the  window  title,  but  can be  used  to
- special-case / theme dialogs in future for certain purposes
+$LABEL  =  concatenated to  the  window  title,  but  can be  used  to
+special-case / theme dialogs in future for certain purposes
 
- $TITLE = dialog title
+$TITLE = dialog title
 
- Only one of  either ``attachUser'' or ``attachItem''  will be included.
- $AVATAR_LABEL is the full avatar label  of the user/avatar to which the
- prompt  should  be attached  —  including  ``$''  and instance  ID,  if
- necessary —  where $ITEM_ID is the  room variable item ID  for a placed
- item in the room.
+Only one of either ``attachUser'' or ``attachItem'' will be included.
+$AVATAR_LABEL is the full avatar label of the user/avatar to which the
+prompt should be attached — including ``$'' and instance ID, if
+necessary — where $ITEM_ID is the room variable item ID for a placed
+item in the room.
 
- $TEXT = message text, may have  \n, will often need word-wrapping, and
- ideally might make use of scroll bars
+$TEXT = message text, may have  \n, will often need word-wrapping, and
+ideally might make use of scroll bars
 
- The \"replies\"  assoc-array is of  arbitrary length,  where the
- key to each item is a $TOKEN,  again an arbitrary string without \0 to
- represent this response uniquely. This is not an user-visible string.
+The \"replies\" assoc-array is of arbitrary length, where the key to
+each item is a $TOKEN, again an arbitrary string without \0 to
+represent this response uniquely. This is not an user-visible string.
 
- $BUTTON_LABEL = the text to display. In future, the client may want to
- special-case specific text  to use icons or something:  e.g. \"OK\" will
- always be sent as precisely \"OK\" in English locale.
+$BUTTON_LABEL = the text to display. In future, the client may want to
+special-case specific text  to use icons or something:  e.g. \"OK\" will
+always be sent as precisely \"OK\" in English locale.
 
- $BUTTON_TYPE  = the  type of  the  button for  theming purposes  only.
- This is from the enumerated set [ \"aff\" | \"neg\" | \"neu\" ];
+$BUTTON_TYPE  = the  type of  the  button for  theming purposes  only.
+This is from the enumerated set [ \"aff\" | \"neg\" | \"neu\" ];
 
- aff = affirmative button, e.g. green button
+@table @code
 
- neg = negative button, e.g. red button
+@item aff
+affirmative button, e.g. green button
 
- neu = neutral button, e.g. purple button
+@item neg
+negative button, e.g. red button
 
- To  simplify future  i18n/l10n efforts,  the $LABEL  and $BUTTON_LABEL
- will always be sent twice. The user's current language version will be
- in  the \"label\"  properties. The  versions of  those strings  in the
- \"en_US\"  locale will  always be  in the  \"label_en_US\" properties.
- For purposes of theming and such, the label_en_US properties should be
- considered; the  \"label\" properties, however, should  always be used
- in presentation to the end-user.
+@item neu
+neutral button, e.g. purple button
+
+To simplify future i18n/l10n efforts, the $LABEL and $BUTTON_LABEL
+will always be sent twice. The user's current language version will be
+in the \"label\" properties. The versions of those strings in the
+\"en_US\" locale will always be in the \"label_en_US\" properties.
+For purposes of theming and such, the label_en_US properties should be
+considered; the \"label\" properties, however, should always be used
+in presentation to the end-user.
 
  Example:
 @verbatim
 
- { \"from\": \"prompt\", \"status\": \"true\",
- \"id\": \"fountain/tootSquare/Ã¾=?/x'deadbeef'\",
- \"label\": \"Fountain\", \"label_en_US\": \"Fountain\",
- \"title\": \"Make a Wish?\", \"msg\": \"Do you want to make a wish on the Toot Square fountain?\",
- \"replies\":
- { \"yes\": { \"label\": \"Make a Wish!\", \"label_en_US\": \"Make a Wish!\", \"type\": \"aff\" },
- \"no\": { \"label\": \"Not now\", \"label_en_US\": \"Not now\", \"type\": \"neg\" }
- }
+ { \"from\": \"prompt\",
+   \"status\": \"true\",
+   \"id\": \"fountain/tootSquare/Ã¾=?/x'deadbeef'\",
+   \"label\": \"Fountain\", 
+   \"label_en_US\": \"Fountain\",
+   \"title\": \"Make a Wish?\", 
+   \"msg\": \"Do you want to make a wish on the Toot Square fountain?\",
+   \"replies\":
+   { \"yes\": { \"label\": \"Make a Wish!\", 
+                \"label_en_US\": \"Make a Wish!\", 
+                \"type\": \"aff\" },
+     \"no\": { \"label\": \"Not now\", 
+               \"label_en_US\": \"Not now\", 
+               \"type\": \"neg\" }
+   }
  }
 
 @end verbatim
@@ -1165,44 +1217,47 @@ as well.
  e.g.
 
 @verbatim
- { \"c\":\"promptReply\", \"d\": { \"id\":  \"fountain/tootSquare/Ã¾=?/x'deadbeef'\", \"reply\": \"yes\" } }
+ { \"c\":\"promptReply\",
+   \"d\": { \"id\":  \"fountain/tootSquare/Ã¾=?/x'deadbeef'\", 
+            \"reply\": \"yes\" } }
 @end verbatim
 
 
- As a special-case, for the reply only, the special $TOKEN of \"close\"
- should  be  sent  if  the  user dismissed  the  dialog  box  with  the
- close button.
+As a special-case, for the reply only, the special $TOKEN of \"close\"
+should be sent if the user dismissed the dialog box with the close
+button.
 
- I'd  suggest that  the GUI  attach anonymous  functions with  the reply
- packets  already constructed  to  the various  dialog  box controls  at
- creation   time,  rather   than  trying   to  manage   some  queue   of
- pending prompts.
+I'd suggest that the GUI attach anonymous functions with the reply
+packets already constructed to the various dialog box controls at
+creation time, rather than trying to manage some queue of pending
+prompts.
 
- To handle user expectations, it would  be best to display the button in
- a \"down\"  state until receiving  the server's acknowledgement  of the
- \"promptReply\" and disallow multiple-clicking in the window.
+To handle user expectations, it would be best to display the button in
+a \"down\" state until receiving the server's acknowledgement of the
+\"promptReply\" and disallow multiple-clicking in the window.
 
- The server will respond with
+The server will respond with
 
 @verbatim
  { \"from\": \"promptReply\", \"status\": \"true\", \"id\": $ID }
 @end verbatim
 
 
- For debugging purposes, the server may reply with
+For debugging purposes, the server may reply with
 
 @verbatim
  { \"from\": \"promptReply\", \"status\": \"false\", \"err\": $ERR }
 @end verbatim
 
 
- Where $ERR  will be  a brief  description of the  problem.
+Where $ERR  will be  a brief  description of the  problem.
  
 @table @code
 
 @item reply.notFound
 
- a reply  button that was not a valid $TOKEN from the \"prompt\" command nor the special case @code{close}. 
+a reply button that was not a valid $TOKEN from the \"prompt\" command
+nor the special case @code{close}.
 
 @item id.notFound
 
@@ -1210,12 +1265,12 @@ a reply to a prompt that was not (recently) asked.
 
 @end table
 
- A prompt  ID is not valid  across sessions; pending prompts  should be
- auto-closed   on  logout.   Prompts   can,   however,  remain   active
- indefinitely, even across room joins.
+A prompt ID is not valid across sessions; pending prompts should be
+auto-closed on logout.  Prompts can, however, remain active
+indefinitely, even across room joins.
 
- Optional implementation:  the server may cancel  an outstanding prompt
- request by sending a packet with the following properties:
+Optional implementation: the server may cancel an outstanding prompt
+request by sending a packet with the following properties:
 
 @verbatim
  from: prompt
@@ -1223,11 +1278,11 @@ a reply to a prompt that was not (recently) asked.
  cancel: $ID
 @end verbatim
 
- Client applications may choose to dismiss the prompt automatically upon
- receiving such  a packet. Failure  to do so  is not an  error, however,
- later  attempting to  reply to  a canceled  prompt will  return status:
- @code{false,  err:  id.notFound}.  Clients must  accept  a  cancelation
- packet silently if they do not process it.
+Client applications may choose to dismiss the prompt automatically
+upon receiving such a packet. Failure to do so is not an error,
+however, later attempting to reply to a canceled prompt will return
+status: @code{false, err: id.notFound}.  Clients must accept a
+cancelation packet silently if they do not process it.
 
 @subsection Usage
 
@@ -1239,7 +1294,7 @@ a reply to a prompt that was not (recently) asked.
   (if-let (request (and (zerop (search "child-request-" id))
                         (find-record 'child-request
                                      :uuid (subseq id 14))))
-    (progn
+    (progn ; XXX factor out function
       (or
        (string-case reply
          ("affirm" (parent-grant-permission request))
@@ -1263,11 +1318,19 @@ a reply to a prompt that was not (recently) asked.
 (definfinity remove-from-list ((buddy ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
- jso - To remove a buddy: @{ buddy: (name) @};
+@subsection Usage
 
-or to attend to someone who had previously been ignored: @{ ignore: (name) @}
+To drop a buddy from the buddy list:
 
- u - The user whose buddy list or ignore list will be updated
+@verbatim
+{ buddy: \"user-name\" }
+@end verbatim
+
+To attend to someone who had previously been ignored:
+
+@verbatim
+{ ignore: \"name\" }
+@end verbatim
  "
   (error 'unimplemented))
 
@@ -1761,14 +1824,14 @@ is optional.
 
 @subsection Speech filtering
 
-NOTE @emph{This is not actually implemented in Tootsville V yet}
-
 There are two  kinds of filtering on text: foul  language, and obnoxious
 typing.
   
 Foul  language filtering  occurs when  there are  children or  sensitive
 players   nearby   (blacklist),   and   in   all   cases   for   certain
 stopwords (redlist).
+
+See `CASSANDRA-FILTER'.
 
 Obnoxious typing filtering  occurs all the time, and undoes  a couple of
 things that are --- well, just plain obnoxious.
@@ -1786,11 +1849,68 @@ repeated punctuation is preserved.
 
 @end itemize
 
- "
+See `CASSANDRA-OBNOXIOUS-FILTER'.
+
+@subsection Special character handling
+
+The first character of the speech can turn it into a special command
+of some kind.
+
+@table @code
+
+@item ~
+
+Commands beginning  with @code{~} should  be handled by the  client. A
+conforming  client should  never  forward any  command beginning  with
+@code{~} to the server.
+
+@item #
+Server commands  begin with @code{#}  (sharp sign / octothorpe  / hash
+sign).    A   server   command   is  any   unary   function   in   the
+@b{Tootsville-User} package. See `PARSE-OPERATOR-COMMAND' for details.
+
+@item @@
+@code{@@}-messages are whispered directly to the named character, if
+they are located somewhere in the nearby area.
+
+@item /
+Emotes begin with @code{/}.
+
+@item \ ! % _ ^ |
+
+These characters are reserved for future use.
+
+@end table
+
+@subsection Special commands
+
+@table @code
+
+@item ,credits
+Speaking @code{,credits} will send the server's credits as an admin
+message.
+
+@item ,disconnect
+Speaking  @code{,disconnect}   will  immediately  drop   the  client's
+connection   without    ceremony;   it's   used   for    testing   the
+auto-reconnection code.
+
+@item ,dumpthreads
+This will log  all active threads to  the server log. Note  that it is
+not an  operator command in this  context, but it is  identical to the
+operator command @code{#dumpthreads}.
+
+@end table
+
+"
   (when (emptyp speech)
     (return))
   (case (char speech 0)
-    (#\~ (v:warn :speak "Received a client command ~a" speech)) ; TODO
+	(#\~ (v:warn :speak "Received a client command ~a" speech)
+	 (private-admin-message "Client Command"
+				(format nil "~a should have been handled by your client software."
+					(first (split-sequence #\Space speech)))))
+	(return))
     (#\# (parse-operator-command speech)
          (return))
     (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
@@ -1816,33 +1936,35 @@ repeated punctuation is preserved.
        (toot-speak speech :Toot *Toot* :vol vol)))))
 
 (define-constant +credits+
-    "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
+"Tootsville V  by Bruce-Robert  Pocock at  the Corporation  for Inter-
+World Tourism and Adventuring.
 
-Special thanks to  Ali Dolan, Mariaelisa Greenwood,  Maureen Kenny, Levi
+Special thanks to Ali Dolan, Mariaelisa Greenwood, Maureen Kenny, Levi
 Mc Call, and Zephyr Salz.
 
-Tootsville  IV  by  Brandon  Booker, Gene  Cronk,  Robert  Dawson,  Eric
-Feiling,  Tim  Hays,  Sean  King, Mark  Mc  Corkle,  Cassandra  Nichol,
-Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC.
-"
-  :test 'equal)
+Tootsville  IV by  Brandon  Booker, Gene  Cronk,  Robert Dawson,  Eric
+Feiling,  Tim  Hays, Sean  King,  Mark  Mc Corkle,  Cassandra  Nichol,
+Bruce-Robert  Pocock, and  Ed Winkelman  at Res  Interactive, LLC.   "
+:test 'equal)
 
 (defun dump-credits ()
   "Send +CREDIT+ as a private admin message. Response to the ,credits user utterance."
   (private-admin-message "Credits" (docstring->html +credits+)))
 
 (definfinity start-event ((moniker) user recipient/s)
-  "Attempt to begin an event. Might return an error.
+  "Attempt to begin a Quaestor Event. Might return an error.
 
-@subsection What is an ``event''?
+The bulk of the actual work is in `QUASTOR-START-EVENT', q.v.
 
-Events,  in  the context  of  this  function, are  transactions  between
-a  player  and  the  world.  These transactions  might  yield  items  or
-currency (peanuts,  or fairy dust), so  they have to be  proxied through
-the central servers, because we can't  ultimately trust the users not to
-just     tap     Control+Shift+K      and     try     something     like
-@code{Tootsville.Game.addPeanuts  (1000000)}.   (Note,  that   will  ---
-obviously --- not work. Because this function exists.)
+@subsection What is a ``Quaestor Event''?
+
+Events, in  the context of  this function, are transactions  between a
+player  and  the  world.   These transactions  might  yield  items  or
+currency (peanuts, or fairy dust), so  they have to be proxied through
+the central servers,  because we can't ultimately trust  the users not
+to    just    tap    Control+Shift+K   and    try    something    like
+@code{Tootsville.Game.addPeanuts  (1000000)}.   (Note, that  will  ---
+obviously --- not work, because this function exists.)
 
 So, there are a few basic types of events, in general:
 
@@ -1856,6 +1978,9 @@ Shops
 
 @item
 Secrets and treasures
+
+@item
+Minigames
 
 @end itemize
 
@@ -1944,6 +2069,27 @@ In other words,
 @verbatim
 Tootsville.Event [ datagram.function ] ( datagram.eventID );
 @end verbatim
+
+The code in @code{blah.js} is required to use the opportunistic
+object-as-namespace initialization of the form:
+
+@verbatim
+if (!('Tootville' in window))
+ { Tootsville = { Event: { Foo: {} } }; }
+
+if (!('Event' in Tootsville))
+ { Tootsville.Event = { Foo: {} } }; }
+
+if (!('Foo' in Tootsville.Event))
+ { Tootsville.Event.Foo = {}; }
+
+Tootsville.Event.foo = function (eventID) { ... };
+
+Tootsville.Event.Foo.otherMethod = function ( ... ) { ... };
+@end verbatim
+
+See the front-end documentation for more details on the coding style
+used.
 
 @subsection Error response
 

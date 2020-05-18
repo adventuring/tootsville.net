@@ -307,3 +307,20 @@ See `COMPUTE-FOUNTAIN-RANDOM-FAIRY-DUST'."
   (without-medal (medal)
     (with-score-in-range (score 0 100)
       (quaestor-end-fountain event score))))
+
+
+
+(defun quaestor-new-Toot (Toot)
+  "Give the new TOOT their starting peanuts."
+  (make-record 'quaestor-event
+               :uuid (uuid:make-v4-uuid)
+               :source "new-game"
+               :started-by (Toot-uuid Toot)
+               :started-at (now)
+               :completedp t
+               :ended-at (now)
+               :peanuts 100
+               :fairy-dust 0
+               :item nil
+               :score 0
+               :medal nil))

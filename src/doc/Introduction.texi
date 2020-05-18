@@ -84,9 +84,143 @@ Database references are cached via MemCacheD
 
 @section Clusters
 
+There are four cluster types for Tootsville.
 
+@table @code
 
-@section AGPLv3
+@item local
+This refers to running a full Tootsville stack on a developer's workstation
 
-AGPLv3
+@item test.Tootsville.org
+This cluster is used for testing new builds and is the most unstable,
+often having a new release pushed to it every week --- sometimes,
+several in one day.
+
+@item qa.Tootsville.org
+This cluster is used for longer-term testing of the code before rolling it
+out to the general public.
+
+@item Tootsville.org
+This is the main production environment
+
+@end table
+
+@section Overview of Major Systems
+
+There are several major systems worth understanding from a higher
+level. Most of these are documented under specific functions that are
+critical in those subsystems.
+
+@subsection Methods of Connecting
+
+@subsubsection REST Requests
+
+WRITEME
+
+@subsubsection Infinity Mode communications
+
+WRITEME
+
+@subsubsection The Adult Sign-in Process
+
+WRITEME
+
+@subsubsection The Child Sign-in Process
+
+WRITEME
+
+@subsection In-Game Actions
+
+@subsubsection Moving in the Game
+
+WRITEME
+
+@subsubsection Speech and Related Things
+
+WRITEME
+
+@subsubsection Game Events System (including Store Items)
+
+WRITEME
+
+See `INFINITY-START-EVENT' and `INFINITY-END-EVENT' for an overview.
+
+@subsubsection Land Ownership
+
+WRITEME
+
+@subsubsection Clothing, Tools, and Equipment
+
+WRITEME
+
+@subsection World Simulation
+
+WRITEME
+
+@subsection Server-to-Server Streams
+
+WRITEME
+
+@subsection The front-end
+
+WRITEME
+
+@subsubsection Babylon.js
+
+WRITEME
+
+@subsubsection Gatekeeper
+
+WRITEME
+
+@subsubsection Peer-to-Peer Streams (WebRTC)
+
+WRITEME
+
+@subsubsection JSCL
+
+WRITEME
+
+@c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@section Back Story
+
+Once upon a time --- for all  fairy stories begin once upon a time ---
+but not  too very long ago,  there were a herd  of elephants wandering
+the  plains   of  Africa.  These  elephants   were  just  ``ordinary''
+elephants, but of course each of them had their own personality.
+
+...
+
+WRITEME
+
+...
+
+@subsection The Magic Mist and Mist Parrots
+
+The elephants discover the magic mist ... parrots guide them through ...
+
+WRITEME
+
+@subsection The Founding of Tootsville
+
+Discover the fountain ... wish things into being ... 
+
+WRITEME
+
+@subsection The Classical Period
+
+WRITEME
+
+@subsection The Evil Mayor and Shade
+
+WRITEME
+
+@subsection The Destruction of Tootsville
+
+WRITEME
+
+@subsection The Revival
+
+WRITEME
 
