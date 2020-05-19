@@ -1,4 +1,4 @@
-(in-package :Tootsville) ; -*- lisp -*-
+;; -*- lisp -*-
 
 ;;; legacy-commands.lisp is part of Tootsville
 ;;;
@@ -27,21 +27,9 @@
 ;;; USA
 
 
-;;;; Legacy ∞ mode options
-;;;
-;;; These options were in existence for Romance 1.1 and/or 1.2. Some are
-;;; deprecated;   others   are  now   useless   and   report  as   much.
-;;; Removed options will  return an HTTP 410 ``Gone''  message over REST
-;;; or the analogous reply over a stream connection.
-;;;
-;;; TODO a manual section explaining the differences under DEFINFINITY
-;;;
-;;; r ∈ ( :Tootanga :Moon :Other-moon  :Pink-moon :Space ) and right now
-;;; pinned at :Tootanga
-;;;
-;;; u is an @emph{authenticated} user object
-;;;
-;;; d is the d: element of the command already converted to plist form.
+(in-package :Tootsville)
+
+
 
 (definfinity add-furniture ((&rest d) user recipient/s)
   "Alias for `INFINITY-SET-FURNITURE', q.v."
@@ -53,6 +41,10 @@
 …using   the   traditional   (online-only,   no   notification   engine)
 mechanism    (using    out    of     band    methods).    Compare    vs.
 requestBuddy `INFINITY-REQUEST-BUDDY'
+
+@subsection Usage
+
+This command can no longer be used.
 
 @subsection 410 Gone
 
@@ -73,18 +65,25 @@ If the user  clicks on a placed-item, this method  should be called with
 the following syntax:
 
 @verbatim
-{ \"on\": itemID, \"x\": x, \"y\": y, \"z\": z, \"with\": mods }
+{ on: ITEM-ID, x: X, y: Y, z: Z, with: MODS }
 @end verbatim
 
 Note that the (x,y,z) values passed  are relative to the origin point of
 the item;  thus, if an  item is placed  at (200,200,200) and  is clicked
 at (210,210,210), the coördinates reported should be (10,10,10).
 
+If the  user clicks on the  ground, normally it will  result in walking,
+but it could instead be reported as:
+
+@verbatim
+{ x: X, y: Y, z: Z, with: MODS }
+@end verbatim
+
 @subsection Modifiers characters
 
-The mods string  can contain any of the following  symbols in any order,
-representing modifier keys that were held  down when the user clicked on
-the item:
+The modifiers  string can contain  any of  the following symbols  in any
+order,  representing modifier  keys that  were held  down when  the user
+clicked on the item:
 
 @table @samp
 @item \^
@@ -139,7 +138,8 @@ Less-than represents rolling a scroll knob left; greater-than, right.
 
 @subsection Flash details
 
-In the Flash MouseEvent object, you can create the \"mods\" with the following:
+In the  Flash MouseEvent object,  you can  create the \"mods\"  with the
+following:
 
 @verbatim
 var mods:String = \"\";
@@ -161,15 +161,12 @@ if (Keyboard.capsLock) mods += \"C\";
 @itemize
 
 @item
-
 The @samp{z} coördinate is no longer optional.
 
 @item
-
 A form of the @samp{click} command which omitted the @samp{on} parameter.
 
 @item
-
 The itemID is  an UUID Base64 string,  not a moniker string  — but these
 were always meant to be opaque identifiers.
 
@@ -187,7 +184,7 @@ the server.
 "
   (error 'unimplemented))
 
-(definfinity create-user-house ((lot house index) user recipient/s)
+(definfinity create-user-house ((lot house index connect-to connect-at) user recipient/s)
   "Either claim the user's house and lot, or add a room to their house.
 
 @subsection Usage
@@ -206,11 +203,17 @@ Data describing the user's lot.
 When the player has found an empty lot and wishes to claim it as their
 own, they choose a base house item and send
 
-@verb{| { lot: lot-ID, house: house-ID },  |}
+@verbatim
+ { lot: lot-ID, house: house-ID }
+@end verbatim
 
 When the player has a house and wishes to add a room, they send
 
- @verb{| { index: roomIndex, connectTo: roomIndex, connectAt: pointMoniker } |}
+ @verbatim
+ { index: roomIndex,
+    connectTo: roomIndex,
+    connectAt: pointMoniker } 
+@end verbatim
 
 @subsection 201 Created
 
@@ -264,9 +267,11 @@ In 1.2 adding a room required only an index.
 (definfinity dofff ((&rest d) user recipient/s)
   "Doff all clothing items.
 
+See also  `INFINITY-DOFF' for single items.
+
 @subsection Usage
 
-Takes no parameters.
+This command takes no parameters.
 
 @subsection Limitations
 
@@ -277,9 +282,16 @@ un-equip an item held in the @code{HAND}, @code{LHAND}, or @code{RHAND}.
 Sends two  responses: a success  reply from @code{doff}, then  total avatar
 info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
-@subsection 200 OK
+@subsection Status 200 OK
 
-All clothing items have been removed."
+All clothing items have been removed.
+
+@verbatim
+{ from: \"dofff\",
+  status: true }
+@end verbatim
+
+A separate @code{wardrobe} packet will be sent."
   ;; TODO dofff
   (error 'unimplemented))
 
@@ -289,8 +301,7 @@ All clothing items have been removed."
 @subsection Usage
 
 @verbatim
-{ slot: \"Slot name\",
-  itemID: \"Item ID\",
+{ slot: \"item-UUID\",
   [ color: \"color ID\" ] }
 @end verbatim
 
@@ -304,7 +315,7 @@ wear slots, see `INFINITY-ENUMERATE-WEAR-SLOTS' (new in 2.0).
 
 Response with total avatar info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
-Parameters: jso  - @verb{| {  slot: item-uuid }  |}
+Color ID is no longer allowed; it will be rejected.
 
 @subsection 200 OK
 
@@ -381,11 +392,11 @@ The response is echoed back to the user.
 The echo packet must be less  than 1,024 Unicode characters in length or
 it will be  truncated to 1,024 characters. No warning  will be issued to
 the user in the case of truncation."
- (list 200 (list :|from| "echo"
-                 :|status| t
-                 :|You said| (limit-string-length d 1024)))
+  (list 200 (list :|from| "echo"
+                  :|status| t
+                  :|You said| (limit-string-length d 1024))))
 
-(definfinity end-event ((moniker event-id score status) user recipient/s)
+(definfinity end-event ((moniker event-id score status medal) user recipient/s)
   "End an event started by `INFINITY-START-EVENT', i.e. a Quaestor Event.
 
 This method terminates an event (probably  a fountain, in 2.0) which was
@@ -395,6 +406,16 @@ For fountains, the score is ignored,  and a random number from 1..100 is
 used  as  the effective  score.  Since  fountains  (should) have  a  1:1
 points:peanuts ratio, this will earn  the player 1..100 peanuts randomly
 per fountain visit. Fountains do not respond with a @code{highScores} array.
+
+@subsection Usage
+
+@verbatim
+{ moniker: MONIKER,
+  eventID: EVENT-ID,
+  [ score: SCORE, ]
+  status: ( \"cxl\" | \"cmp\" ), 
+  [ medal: MEDAL ] }
+@end verbatim
 
 Input parameters are:
 @table @code
@@ -408,7 +429,7 @@ the event ID to be ended;
 one of ``@code{cxl}'' to cancel an event
  (in which case, @code{score} should be 0),
  or ``@code{cmp}'' to complete an event
-(@code{score} may be zero or more).
+\(@code{score} may be zero or more).
 @end table
 
 
@@ -507,15 +528,12 @@ These game actions are identified by function names beginning with
 @itemize
 
 @item
-
 `GAME-ACTION-START-SPORTS-BALL-GAME'
 
 @item
-
 `GAME-ACION-JOIN-CARD-GAME'
 
 @item
-
 `GAME-ACTION-TAG-YOU-RE-IT'
 
 @end itemize
@@ -564,7 +582,15 @@ u - The calling user. The calling user's avatar data will not be returned."
 (definfinity get-color-palettes (nil user recipient/s)
   "getColorPalettes
 
-@subsection 410 Gone
+@subsection Usage
+
+This command requires no parameters
+
+@subsection Status 200 OK
+
+WRITEME
+
+@subsection Status 410 Gone
 
 Removed.. This  routine appeared to be  unused by anyone in  Romance 1.1
 and was removed in 1.2.
@@ -585,8 +611,14 @@ during character creation, rather than  using hard-coded lists that have
 to be separately maintained in the client and server both."
   (error 'legacy-gone))
 
-(definfinity get-inventory ((&rest d) user recipient/s)
+(definfinity get-inventory (nil user recipient/s)
   "get all inventory for an user (themself) — both active and inactive
+
+@subsection Usage
+
+This command requires no parameters.
+
+@subsection Status 200 OK
 
 Returns a set of items as
 @verbatim
@@ -597,11 +629,11 @@ furniture with  placement data  will also  have x,  y, and  facing vars.
 Other attributes  are \"from\":\"inventory\",  \"type\": matching the  type of
 the question
 
-d — empty
+WRITEME
 
-u — The user whose inventory to be searched
 "
-  )
+  (error 'unimplemented))
+
 (definfinity get-Inventory-By-Type ((type) user recipient/s)
   "Get a subset of items from your own inventory
 
@@ -1025,9 +1057,9 @@ u - the user joining the room
 
 Removed in 2.0."
   (list 410 (list :|from| "join"
-		  :|status| :false
-		  :|err| "room.notFound"
-		  :|error| "There are no rooms in Tootsville V.")))
+                  :|status| :false
+                  :|err| "room.notFound"
+                  :|error| "There are no rooms in Tootsville V.")))
 
 (definfinity logout ((&rest d) user recipient/s)
   "Log out of this game session
@@ -1049,7 +1081,7 @@ no longer supported."
 @end verbatim
 
 This sends an email with the given subject and body to
-@code{support@Tootsville.org}.
+@code{support@@Tootsville.org}.
 
  "
   (error 'unimplemented))
@@ -1075,11 +1107,21 @@ inventory will be returned.
 (definfinity ping ((ping-started) user recipient/s)
   "Send a ping to the server to get back a pong.
 
+This also updates the user's last-active timestamp.
+
+@subsection Usage
+
 @verbatim
 { [ pingStarted: TIMESTAMP ] } 
 @end verbatim
 
-This also updates the user's last-active timestamp.
+Examples:
+
+@verbatim
+{ pingStarted: 1589849202000 }
+
+{}
+@end verbatim
 
 @subsection 200 OK
 
@@ -1114,7 +1156,13 @@ as well.
 (definfinity prompt-reply ((id reply) user recipient/s)
   "Accept a reply to a server-initiated prompt
 
-@subsection Overviow of Prompts
+@subsection Usage
+
+@verbatim
+{ id: ID, reply: TOKEN }
+@end verbatim
+
+@subsection Overview of Prompts
 
  Server initiates prompt with:
 
@@ -1178,6 +1226,8 @@ negative button, e.g. red button
 
 @item neu
 neutral button, e.g. purple button
+
+@end table
 
 To simplify future i18n/l10n efforts, the $LABEL and $BUTTON_LABEL
 will always be sent twice. The user's current language version will be
@@ -1284,12 +1334,7 @@ however, later attempting to reply to a canceled prompt will return
 status: @code{false, err: id.notFound}.  Clients must accept a
 cancelation packet silently if they do not process it.
 
-@subsection Usage
-
- Parameters:
- jso - in the form @{ id: $ID, reply: $TOKEN @}, as detailed above
-
- " 
+" 
   (v:info :prompt "Prompt reply: ~a → ~a" id reply)
   (if-let (request (and (zerop (search "child-request-" id))
                         (find-record 'child-request
@@ -1567,9 +1612,17 @@ as a string.
 
 \(Added in 1.1)
 
- jso - @{ buddy: LOGIN @}
+@subsection Usage
 
-u - user who is requesting the addition
+@verbatim
+   { buddy: LOGIN }
+@end verbatim
+
+Example
+
+@verbatim
+ { buddy: \"catvlle\" }
+@end verbatim
 
 @subsection Changes from 1.0 to 1.1
 
@@ -1581,10 +1634,10 @@ confirmed adding. AKA the Twitter vs. Facebook mechanisms.
 
 This is new in Romance 1.1
 "
-  (unicast (list :|from| "buddyRequest"
-                 :|status| t
-                 :|sender| (Toot-name *Toot*)
-                 :|signature| (generate-buddy-list-signature *Toot* buddy))))
+  (list 200 (list :|from| "buddyRequest"
+                  :|status| t
+                  :|sender| (Toot-name *Toot*)
+                  :|signature| (generate-buddy-list-signature *Toot* buddy))))
 
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users
@@ -1647,12 +1700,22 @@ encode a response into a JSON form
 
  This is used to compute the client's round-trip lag time.
 
- jso - @{ serverTime: LONG milliseconds since Unix epoch @}"
+@subsection Usage
+
+@verbatim
+{ serverTime: LONG milliseconds since Unix epoch }
+@end verbatim
+
+Example!:
+
+@verbatim
+{ serverTime: 1589850683000 }
+@end verbatim"
   (list 200 (list :|from| "serverTime"
                   :|status| t
                   :|serverTime| (* 1000
                                    (- (get-universal-time)
-                                      +Unix-time-in-Universal+)))))
+                                      +Unix-zero-in-universal-time+)))))
 
 (definfinity set-avatar-color ((base extra) user recipient/s)
   "Set the avatar base and extra (pad) colours for the given user.
@@ -1742,23 +1805,89 @@ slot is the item's UUID
   (error 'unimplemented))
 
 (definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
-  "setUserVar
+  "Set ``User Variables''
 
- public static void setUserVar(org.json.JSONObject jso,
- AbstractUser u,
- Room room)
- throws org.json.JSONException
+@subsection Usage
 
- Set user variable(s)
- Input: @{ key : value @} (one or more)
+@verbatim
+{ \"KEY\": \"VALUE\" [ ... ] }
 
- Parameters:
- jso - user variable(s) to set
- u - the user setting them
- room - the room in which the user is standing
- Throws:
- org.json.JSONException - if the JSO can't be decoded
+{ d: \"D-String\" }
 
+{ wtl: course: { COURSE }, facing: FACING }
+
+{ d3: course: { COURSE } }
+@end verbatim
+
+This is a legacy-type method.
+
+@subsection History (pre-2.0)
+
+Historically, arbitrary  attributes could be  attached to a user  in the
+game,  as transient  values  that  remained as  long  as  that user  was
+connected. Thus, any key:value pair could be ``advertised'' by a user by
+posting them to this method.
+
+@subsection Available Attributes (2.0)
+
+In  Romance II,  only  the  following ``user  variable''  key names  are
+actually supported:
+
+@table @code
+
+@item d
+
+This is the legacy ``d'' string  for purposes of positioning and guiding
+a  character. Since  it  was  designed for  a  2-dimensional space,  the
+coördinate space is treated as (x,z) rather than (x,y). Since Romance II
+clients are expected  to use @code{wtl} or @code{d3}  packets only, this
+will be translated into a @code{wtl} course and then transmitted.
+
+@item wtl
+
+See `INFINITY-WTL' for the structure of this linear course.
+
+@item d3
+
+This is an experimental format not used in Romance 2.0.
+
+@item xpr
+
+This sets the player's expression (on  their face); not yet supported in
+Tootsville V.
+
+@end table
+
+Any other KEY value will result in an error.
+
+@subsection 200 OK
+
+When all keys are set successfully, this will return with a packet like
+
+@verbatim
+{ from: \"setUserVar\",
+  status: true,
+  set: [ \"key\", ... ] }
+@end verbatim
+
+When some keys could not be set, they will be listed separately
+
+@verbatim
+{ from: \"setUserVar\",
+  status: true,
+  set: [ \"key\", ... ],
+  unset: [ \"key\", ... ] }
+@end verbatim
+
+@subsection 400 Illegal
+
+When no key is from the set of supported keys, an error is returned:
+
+@verbatim
+{ from: \"setUserVar\",
+  status: false,
+  unset: [ \"key\", ... ] }
+@end verbatim
  "
   (error 'unimplemented))
 
@@ -1768,9 +1897,11 @@ slot is the item's UUID
  Spawn an additional zone.
 
  
-@subsection Implementation in 5.0
+@subsection Implementation in 2.0
 
-We no longer have zones, but we can have server paritings 
+We no longer have zones, but we can have server paritings.
+
+This is used to establish a new server pairing ...
 
  "
   (error 'unimplemented))
@@ -1799,14 +1930,9 @@ We no longer have zones, but we can have server paritings
 (definfinity speak ((key speech vol) user recipient/s)
   "The user speaks SPEECH at volume VOL in public.
 
- Handle speech by the user.
+Handle speech by the user.
 
- Speech is public to all users in a room/area
-
- Emotes are simply speech beginning with \"/\". A few are special-cased.
- WRITEME: which emots are special-cased?
-
- Commands are speech beginning with \"#\"
+Speech is public to all users in an area.
 
 @subsection Usage
 
@@ -1906,11 +2032,11 @@ operator command @code{#dumpthreads}.
   (when (emptyp speech)
     (return))
   (case (char speech 0)
-	(#\~ (v:warn :speak "Received a client command ~a" speech)
-	 (private-admin-message "Client Command"
-				(format nil "~a should have been handled by your client software."
-					(first (split-sequence #\Space speech)))))
-	(return))
+    (#\~ (v:warn :speak "Received a client command ~a" speech)
+         (private-admin-message "Client Command"
+                                (format nil "~a should have been handled by your client software."
+                                        (first (split-sequence #\Space speech))))
+         (return))
     (#\# (parse-operator-command speech)
          (return))
     (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
@@ -1936,34 +2062,34 @@ operator command @code{#dumpthreads}.
        (toot-speak speech :Toot *Toot* :vol vol)))))
 
 (define-constant +credits+
-"Tootsville V  by Bruce-Robert  Pocock at  the Corporation  for Inter-
+    "Tootsville V by  Bruce-Robert Pocock at the  Corporation for Inter-
 World Tourism and Adventuring.
 
-Special thanks to Ali Dolan, Mariaelisa Greenwood, Maureen Kenny, Levi
+Special thanks to  Ali Dolan, Mariaelisa Greenwood,  Maureen Kenny, Levi
 Mc Call, and Zephyr Salz.
 
-Tootsville  IV by  Brandon  Booker, Gene  Cronk,  Robert Dawson,  Eric
-Feiling,  Tim  Hays, Sean  King,  Mark  Mc Corkle,  Cassandra  Nichol,
-Bruce-Robert  Pocock, and  Ed Winkelman  at Res  Interactive, LLC.   "
-:test 'equal)
+Tootsville  IV  by  Brandon  Booker, Gene  Cronk,  Robert  Dawson,  Eric
+Feiling,  Tim  Hays,  Sean  King,  Mark  Mc  Corkle,  Cassandra  Nichol,
+Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC. "
+  :test 'equal)
 
 (defun dump-credits ()
   "Send +CREDIT+ as a private admin message. Response to the ,credits user utterance."
-  (private-admin-message "Credits" (docstring->html +credits+)))
+  (private-admin-message "Credits" (docstring->html +credits+ +credits+)))
 
 (definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin a Quaestor Event. Might return an error.
 
-The bulk of the actual work is in `QUASTOR-START-EVENT', q.v.
+The bulk of the actual work is in `QUAESTOR-START-EVENT', q.v.
 
 @subsection What is a ``Quaestor Event''?
 
-Events, in  the context of  this function, are transactions  between a
-player  and  the  world.   These transactions  might  yield  items  or
-currency (peanuts, or fairy dust), so  they have to be proxied through
-the central servers,  because we can't ultimately trust  the users not
-to    just    tap    Control+Shift+K   and    try    something    like
-@code{Tootsville.Game.addPeanuts  (1000000)}.   (Note, that  will  ---
+Events,  in  the context  of  this  function, are  transactions  between
+a  player  and  the  world.  These transactions  might  yield  items  or
+currency (peanuts,  or fairy dust), so  they have to be  proxied through
+the central servers, because we can't  ultimately trust the users not to
+just     tap     Control+Shift+K      and     try     something     like
+@code{Tootsville.Game.addPeanuts  (1000000)}.   (Note,  that   will  ---
 obviously --- not work, because this function exists.)
 
 So, there are a few basic types of events, in general:
@@ -2272,31 +2398,43 @@ scores for this event.
                               :|err| "eventID.notYours"
                               :|error| "You tried to end someone else's event."))))
     (string-case status
-      ("cmp" (quaestor-complete-event event score medal))
-      ("cxl" (quaestor-cancel-event event))
-      (otherwise 
-       (list 400 (list :|from| "endEvent"
-                       :|status| :false
-                       :|err| "badStatus"
-                       :|error| "Your software tried to end an event with an unrecognized status"))))))
+                 ("cmp" (quaestor-complete-event event score medal))
+                 ("cxl" (quaestor-cancel-event event))
+                 (otherwise 
+                  (list 400 (list :|from| "endEvent"
+                                  :|status| :false
+                                  :|err| "badStatus"
+                                  :|error| "Your software tried to end an event with an unrecognized status"))))))
 
 (definfinity use-equipment ((|t| x y z on) user recipient/s)
-  "useEquipment
+  "The player wishes to use a piece of equipment on a particular item or place.
 
- WRITEME: Document this method brpocock@@star-hope.org
+@subsection Usage
 
- Parameters:
+@verbatim
+{ t: ( 1 | 2 ),
+  x: X, y: Y, z: Z }
+@end verbatim
 
-jso - @{ t: slot-type-char, x: target-x, y: target-y, z: target-z, [ on: target-name ] @}
+or
 
-u - WRITEME
+@verbatim
+{ t: ( 1 | 2 ),
+  on: \"ITEM-OR-CHARACTER-UUID\",
+  [ of: ( \"item\" | \"char\" ) ] }
+@end verbatim
 
-r - WRITEME
+The  @code{t} number  indicates  whether  the user's  currently-selected
+primary item (i.e.  the item equipped in their trunk)  is being used, or
+their  secondary item  (which is  not  supported). In  other words,  for
+Romance 1.1, 1.2, or 2.0, this must always be the number 1.
 
-Throws:
+In the first form, the user wants to use their equipment on an arbitrary
+point in space, whose coördinates are passed in.
 
-org.json.JSONException - WRITEME
+In  the  second  form,  the  user   wants  to  use  their  equipment  on
+a particular item or character. The optional @code{of} helps narrow down
+whether it should be an item or character.
 
-t ∈ 1,2 for primary or secondary item
  "
   (error 'unimplemented))

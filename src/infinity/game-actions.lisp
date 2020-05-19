@@ -31,6 +31,12 @@
 (defun game-action-start-sports-ball-game (action)
   "Start a SportsBall game.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
 Sending startSportsBallGame initiates a soccer or other game based on
 the same basic premise. The score board is initialized to 0 vs. 0
 points, and teams spot one another's goals with
@@ -47,6 +53,12 @@ WRITEME: Explain SportsBall sytem here.
 (defun game-action-sports-ball-goal (action)
   "Score a goal in a SportsBall game.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
 WRITEME
 
 See: `GAME-ACTION-START-SPORTS-BALL-GAME'"
@@ -55,13 +67,26 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME'"
 (defun game-action-start-sports-ball-timer (action)
   "Start a timer for a SportsBall game.
 
+@subsection Usage
+
 WRITEME
+
+@subsection Effects
+
+WRITEME
+
 
 See: `GAME-ACTION-START-SPORTS-BALL-GAME'"
   (error 'unimplemented))
 
 (defun game-action-pause-sports-ball-timer (action)
   "Pause the timer for a SportsBall game.
+
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
 
 WRITEME
 
@@ -71,6 +96,13 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME', `GAME-ACTION-START-SPORTS-BALL-TIMER'
 (defun game-action-start-sports-ball-timer (action)
   "Resume the timer for a SportsBall game after it had been paused.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See: `GAME-ACTION-START-SPORTS-BALL-GAME', `GAME-ACTION-START-SPORTS-BALL-TIMER'"
@@ -142,12 +174,28 @@ On success, the player receives a datagram such as
 @end verbatim
 
 The player is then able to issue other gameAction packets as described
-in the preceding overview."
+in the preceding overview.
+
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
+"
   (error 'unimplemented))
 
 (defun game-action-part-card-game (action)
   "Quit a card game at a card table.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
@@ -156,6 +204,13 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-shuffle (action)
   "Shuffle all cards into the deck.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
@@ -164,6 +219,13 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-deal (action)
   "Deal a card from the shuffled deck to another player without looking.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
@@ -172,6 +234,13 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-draw (action)
   "Draw a card from the shuffled deck into your hand.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
@@ -183,6 +252,13 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 The card may be played face-down or face-up, and at any place on the
 table.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 
 WRITEME
 
@@ -193,6 +269,13 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
   "Pick up a card from the table, placing it into your hand.
 
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
@@ -202,6 +285,13 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
   "Move a card around on the table.
 
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
@@ -211,6 +301,13 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
   "Re-order the cards in your hand.
 
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
@@ -223,6 +320,14 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 
 This action takes a bowling lane as an argument. The lane is reset and
 the scoreboard is wiped clear.
+
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 
 @subsection Overview of Bowling
 
@@ -256,12 +361,20 @@ WRITEME
 
 @subsection Starting a Bowling Game
 
+
 WRITEME"
   (error 'unimplemented))
 
 (defun game-action-bowling-reset-pins (action)
   "Reset the pins and move to the next player or frame of bowling.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-START-BOWLING' for an overview of bowling."
@@ -270,7 +383,13 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 (defun game-action-bowling-strike-pins (action)
   "Record the bowling ball striking the pins
 
+@subsection Usage
+
 WRITEME
+
+@subsection Effects
+
+WRITEME WRITEME
 
 See `GAME-ACTION-START-BOWLING' for an overview of bowling."
   (error 'unimplemented))
@@ -278,22 +397,43 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 (defun game-action-join-bowling-game (action)
   "Join a bowling game that's about to start
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-START-BOWLING' for an overview of bowling."
   (error 'unimplemented))
 
 (defun game-action-part-bowling-game (action)
- "Quit a bowling game that's about to start or already started.
+  "Quit a bowling game that's about to start or already started.
+
+@subsection Usage
 
 WRITEME
 
+@subsection Effects
+
+WRITEME
+WRITEME
+
 See `GAME-ACTION-START-BOWLING' for an overview of bowling."
- (error 'unimplemented))
+  (error 'unimplemented))
 
 (defun game-action-get-bowling-scorecard (action)
   "Get the scorecard for a bowling game in progress.
 
+@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
 WRITEME
 
 See `GAME-ACTION-START-BOWLING' for an overview of bowling."
@@ -302,5 +442,12 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 
 
 (defun game-action-tag-you-re-it (action)
-  "WRITEME"
+  "@subsection Usage
+
+WRITEME
+
+@subsection Effects
+
+WRITEME
+WRITEME"
   (error 'unimplemented))

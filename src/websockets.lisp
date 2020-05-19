@@ -445,7 +445,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
              (mapcar #'Toot (hunchensocket:clients *infinity-websocket-resource*))))
 
 (defun try-reconnect-Toot-name (Toot-name user)
-  (when (and Toot-name (plusp (length Toot-name)))
+  (when (and Toot-name (plusp (length Toot-name))
+             (not (equalp "$new Toot" Toot-name)))
     (if-let ((Toot (ignore-not-found (find-record 'Toot :name Toot-name))))
       (if (uuid:uuid= (Toot-player Toot) (person-uuid user))
           (progn (setf (Toot *client*) Toot)

@@ -30,7 +30,21 @@
 (definfinity add-journal-entry ((entry) u r)
   "Add a staff journal entry
 
-Legacy documentation:
+@subsection Usage
+
+@verbatim
+{ entry: \"journal text\" }
+@end verbatim
+
+Example
+
+@verbatim
+WRITEME
+@end verbatim
+
+WRITEME
+
+@subsection Legacy documentation:
 
 Staff members can create a journal entry which is stored for
 review in a customer service application such as Joshua. Creating
@@ -52,6 +66,23 @@ has now been re-created for the AGPL version of Romance.
 
 (definfinity doff ((slot type) user recipient/s)
   "Remove clothes or Pivitz.
+
+@subsection Usage
+
+@verbatim
+{ slot: \"SLOT\" }
+
+{ type: \"TYPE\" }
+@end verbatim
+
+Example
+
+@verbatim
+WRITEME
+@end verbatim
+
+WRITEME
+
 
 When  @code{type}  is  present,  it must  be  either  @code{clothes}  or
 @code{pivitz}.
@@ -76,6 +107,27 @@ has now been re-created for the AGPL version of Romance.
 
 (definfinity get-mail-in-box ((from limit) u r)
   "Get a listing of messages in an SMS mailbox.
+
+@subsection Usage
+
+@verbatim
+{ [ from: INDEX ],
+  [ limit: COUNT ] }
+@end verbatim
+
+Example
+
+@verbatim
+{}
+
+{ from: 10, limit: 10 }
+
+{ from: 0, limit: 100 }
+
+{ limit 100 }
+
+{ from: 10 }
+@end verbatim
 
 When specified, @code{from} is the index of the first message to return,
 and @code{limit} is the number of messages to return.
@@ -124,6 +176,12 @@ has now been re-created for the AGPL version of Romance.
 (definfinity get-passport (nil u r)
   "Get the list of places that the user has gotten a passport stamp at.
 
+@subsection Usage
+
+This command requires no parameters.
+
+WRITEME
+
 Passport stamps are not currently implemented but will be returning.
 
 @subsection Changes from 1.2 to 2.0
@@ -139,6 +197,24 @@ has now been re-created for the AGPL version of Romance.
 
 (definfinity send-mail-message ((to to-list subject body) u r)
   "Send an in-game SMS message
+
+@subsection Usage
+
+@verbatim
+{ ( to: \"RECIPIENT\" | toList: [ \"RECIPIENT\", ... ] ),
+  [ subject: \"\" ],
+  body: \"BODY\" )
+@end verbatim
+
+Example
+
+@verbatim
+{ to: \"shader\", subject: \"\", body: \"Hello there!\" }
+
+{ toList: [ \"catvlle\", \"pil\" ], body: \"Howdy\" }
+@end verbatim
+
+WRITEME
 
 Input: @code{subject} (must be blank);  @code{to}, the Toot name to whom
 to send the text; and @code{body} of the message.
@@ -173,6 +249,20 @@ Exactly one of @code{to} or @code{toList} must be specified
 
 (definfinity stamp-passport ((room) u r)
   "Stamp the Toot's passport
+
+@subsection Usage
+
+@verbatim
+WRITEME
+@end verbatim
+
+Example
+
+@verbatim
+WRITEME
+@end verbatim
+
+WRITEME
 
 @subsection Changes from 1.2 to 2.0
 

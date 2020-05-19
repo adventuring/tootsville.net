@@ -27,6 +27,15 @@
 
 (in-package :tootsville)
 
+(defun value-to-docbook (symbol)
+  (let ((value (symbol-value symbol)))
+    (cond
+      ((typep value 'number)
+       (format nil "~:d (#x~x)" value value))
+      ((typep value 'string)
+       (format nil "@verb{| ~s |}" value))
+      (t (format nil "of type ~s" (type-of value))))))
+
 (defun write-documentation (symbol s)
   (when (or (boundp symbol)
             (fboundp symbol)
@@ -57,9 +66,9 @@
     (when (boundp symbol)
       (if-let (docu (documentation symbol 'variable))
         (format s "~2&~:(~a~) names a variable:~2%~a~2%Its value is ~s"
-                symbol docu (symbol-value symbol))
+                symbol docu (value-to-docbook symbol))
         (format s "~2&~:(~a~) names an undocumented variable with the value ~s"
-                symbol (symbol-value symbol))))
+                symbol (value-to-docbook symbol))))
     (dolist (kind '(structure type))
       (when-let (docu (documentation symbol kind))
         (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind docu)))))

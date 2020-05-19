@@ -33,7 +33,27 @@
   "Quicklisp reload of the Tootsville package from disk.
 
 Reloads   the   ASDF   file   with   `ASDF:LOAD-ASD'   and   then   does
-a `QL:QUICKLOAD'. See `RELOAD-PRODUCTION'."
+a `QL:QUICKLOAD'. See `RELOAD-PRODUCTION'.
+
+@subsection Usage
+
+@verbatim
+#quick-reload
+@end verbatim
+
+Example:
+
+@example
+#quick-reload
+@end example
+
+@subsection Effects
+
+Sends    an   admin    message   with    ``Stand   by,''    then   calls
+`RELOAD-PRODUCTION'  (qv). When  completed, reports  the version  of the
+ASDF   component   now   loaded    (i.e.   the   version   number   from
+@code{tootsville.asd}).
+"
   (private-admin-message "#quick-reload" "Started quick reload. Stand by.")
   (reload-production)
   (format nil "Now running Tootsville.net server version ~a"
@@ -43,7 +63,25 @@ a `QL:QUICKLOAD'. See `RELOAD-PRODUCTION'."
   "Does a @code{git pull} in the server directory.
 
 See also  `TOOTSVILLE-USER::QUICK-RELOAD' to actually load  any new code
-that's downloaded."
+that's downloaded.
+
+@subsection Usage
+
+@verbatim
+#git-pull
+@end verbatim
+
+Example
+
+@example
+#git-pull
+@end example
+
+@subsection Effects
+
+Sends an admin message with ``stand by,'' then does a @code{git pull} in
+the  source directory  and returns  the  results (e.g.  ``Already up  to
+date.'' or otherwise)."
   (private-admin-message "#git-pull" "(stand by…)")
   (run-program (format nil "cd ~a; git pull"
                        (asdf:system-source-directory :Tootsville))
@@ -53,7 +91,23 @@ that's downloaded."
 (define-operator-command push-script (words u r)
   "Instruct clients to load a new  script file.
  
-Pushes a script filename to clients."
+Pushes a  script filename to clients.  The pathname must be  relative to
+the  @code{play.tootsville.org}  server  (or  its  equivalent  in  other
+clusters). Used to  push an emergency software  update without requiring
+players to reload.
+
+@subsection Usage
+
+@verbatim
+#push-script PATHNAME
+@end verbatim
+
+Example:
+
+@example
+#push-script /play/UI/UI.js
+@end example
+"
   (broadcast (list :|from| "newScript"
                    :|status| t
                    :|script| (first words))))
@@ -61,33 +115,81 @@ Pushes a script filename to clients."
 (define-operator-command ws-stats (words u r)
   "Returns some statistics about WebSockets connections.
 
-See `WS-STATS'."
+See `WS-STATS'.
+
+@subsection Usage
+
+@verbatim
+#ws-stats
+@end verbatim
+
+Example
+
+@example
+#ws-stats
+@end example"
   (format nil "This server is ~a.~2%~a"
           (machine-instance) (ws-stats)))
 
 (define-operator-command ws-bandwidth-by-source (words u r)
   "Returns some statistics about WebSockets bandwidth by source.
 
-See `WS-BANDWIDTH-BY-SOURCE'."
+See `WS-BANDWIDTH-BY-SOURCE'.
+
+@subsection Usage
+
+@verbatim
+#ws-bandwidth-by-source
+@end verbatim
+
+Example
+
+@example
+#ws-bandwidth-by-source
+@end example"
   (format nil "This server is ~a.~2%<pre>~a</pre>"
           (machine-instance) (ws-bandwidth-by-source)))
 
 (define-operator-command infinity-stats (words u r)
   "Returns some statistics about Infinity-mode requests.
 
-See `INFINITY-STATS'."
+See `INFINITY-STATS'.
+
+@subsection Usage
+
+@verbatim
+#infinity-stats
+@end verbatim
+
+Example
+
+@example
+#infinity-stats
+@end example
+"
   (format nil "This server is ~a.~2%~a"
           (machine-instance) (infinity-stats)))
 
 (define-operator-command doodle (words u r)
   "Change the colors of a Toot.
 
-Usage: #doodle WHO (base|pad|pattern) NEW-COLOR
+@subsection Usage
+
+@verbatim
+#doodle WHO ( base | pad | pattern ) NEW-COLOR
+@end verbatim
+
+Example
+
+@example
+#doodle catvlle base pink
+#doodle catvlle pattern black
+@end example
 
 The Toot's  color will immediately be  changed and be advertised  to any
 interested listener.
 
-NEW-COLOR can be in any format understood by `PARSE-COLOR24'."
+NEW-COLOR can be in any format understood by `PARSE-COLOR24', qv."
   (if (= 3 (length words))
       (let ((who (ignore-not-found (find-record 'Toot :name (first words)))))
         (if who
@@ -111,7 +213,17 @@ NEW-COLOR can be in any format understood by `PARSE-COLOR24'."
 (define-operator-command doodle-pattern (words u r)
   "Change the pattern of a Toot.
 
-Usage: #doodle-pattern WHO NEW-PATTERN
+@subsection Usage
+
+@verbatim
+#doodle-pattern WHO NEW-PATTERN
+@end verbatim
+
+Example
+
+@example
+#doodle-pattern catvlle hearts
+@end example
 
 As a special  case, \"Polka Dots\" should be passed  as POLKA-DOTS (with
 an hyphen),  as well  as any  other pattern names  with spaces  (such as
@@ -130,17 +242,43 @@ an hyphen),  as well  as any  other pattern names  with spaces  (such as
       "Usage: #doodle-pattern WHO PATTERN-NAME"))
 
 (define-operator-command server-list (words u r)
-  "Enumerate the servers active in this cluster."
-  (format nil "~{~a~^, ~}" (server-list)))
+  "Enumerate the servers active in this cluster.
+
+See `SERVER-LIST'
+
+@subsection Usage
+
+@verbatim
+#server-list
+@end verbatim
+
+Example
+
+@example
+#server-list
+@end example"
+  (format nil "<ul>~{<li>~a</li>~}</ul>" (server-list)))
 
 (define-operator-command at (words u r)
   "Issue an operator command on a particular server instance.
 
-Usage: #at SERVER #OTHER-COMMAND OTHER-PARAMS
+@subsection Usage
 
-For a list of servers, try #server-list
+@verbatim
+#at SERVER #OTHER-COMMAND OTHER-PARAMS
+#at #each #OTHER-COMMAND OTHER-PARAMS
+@end verbatim
 
-To issue a command on every server, send #at #each #OTHER-COMMAND"
+Examples
+
+@example
+#at game1.test.tootsville.net #ws-stats
+#at #each #git-pull
+@end example
+
+For a list of servers, see `SERVER-LIST'.
+
+To issue a command on every server, send @code{#at #each #OTHER-COMMAND}"
   (if (string-equal (machine-instance) (first words))
       (parse-operator-command (format nil "~{~a~^ ~}" (rest words)))
       (if (string-equal "#each" (first words))
@@ -150,12 +288,21 @@ To issue a command on every server, send #at #each #OTHER-COMMAND"
 (define-operator-command gc (words u r)
   "Perform immediate garbage collection.
 
-Usage:
+@subsection Usage
 
+@verbatim
 #gc
-
 #gc #full
+@end verbatim
 
+Examples:
+
+@example
+#gc
+#gc #full
+@end example
+
+Returns the same report as `MEM'
 "
   (if (and (<= 1 (length words))
            (string-equal "#full" (first words)))
@@ -166,10 +313,11 @@ Usage:
 (define-operator-command doc (words u r)
   "Obtain documentation string in raw form about a symbol.
 
-Syntax for use:
+@subsection Usage
 
+@verbatim
 #doc [PACKAGE] SYMBOL [TYPE]
-
+@end verbatim
 
 TYPE can  be VARIABLE,  FUNCTION, STRUCTURE,  TYPE, SETF,  or T.  If not
 supplied, defaults to FUNCTION.
@@ -178,13 +326,12 @@ PACKAGE is optional and defaults to TOOTSVILLE-USER.
 
 Examples of use:
 
+@example
 #doc cdr
-
 #doc doc function
-
 #doc Tootsville ws-stats
-
 #doc Tootsville ws-bandwidth-by-source function
+@end example
 
 This is based upon `DOCUMENTATION', qv."
   (format nil
@@ -206,6 +353,18 @@ This is based upon `DOCUMENTATION', qv."
 
 
 (define-operator-command apropos (words u r)
-  "Runs `APROPOS' for a remote user."
+  "Runs `APROPOS' for a remote user.
+
+@subsection Usage
+
+@verbatim
+#apropos EXPRESSION
+@end verbatim
+
+Example
+
+@example
+#apropos apropos
+@end example"
   (with-output-to-string (*standard-output*)
     (apropos (first words) :tootsville-user)))

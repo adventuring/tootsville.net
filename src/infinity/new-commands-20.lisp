@@ -33,12 +33,20 @@
 (definfinity enumerate-wear-slots (nil u recipient/s)
   "Enumerates all possible wear slots for any avatar.
 
+@subsection Usage
+
+This command  takes no arguments.  It returns the  wear-slots associated
+with the caller's avatar.
+
 @subsection 200 OK
 
 Returns     an     object     with     @code{status:     true,     from:
 \"enumerateWearSlots\"}, and a key @code{slots}  under which is an array
 of information about each wear  slot, in the format of `WEAR-SLOT-INFO',
-q.v."
+q.v.
+
+WRITEME -- example reply
+"
   (list 200
         (list :|status| t
               :|from| "enumerateWearSlots"
@@ -50,12 +58,22 @@ q.v."
 Note  that   several  other  commands  will   actually  return  wardrobe
 information packets.
 
+@subsection Usage
+
+This command requires no parameters.
+
 @subsection 200 OK
 
 The returned packet, aside from  the expected @code{ status: true, from:
 \"wardrobe\"},  contains a  key @code{wardrobe}  which in  turn contains
 a key @code{avatar} which itself contains the JSON data in the fromat of
 `TOOT-INFO', q.v.
+
+@verbatim
+{ from: \"wardrobe\",
+  status: true,
+  wardrobe: { avatar: { AVATAR INFO } } }
+@end verbatim
 
 @subsection Changes from 1.2 to 2.0
 
@@ -69,6 +87,7 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
               :|wardrobe| (list :|avatar| (Toot-info *Toot*)))))
 
 (defun sky-room-var (world)
+  "Returns the current state of the skies over WORLD."
   (assert (eql world :chor))
   (list :|sun|
         (let ((xy (sun-position)))
@@ -91,6 +110,9 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
                 :|φ| (third xyφ)))))
 
 (defun places-at-position (world lat long alt)
+  "Returns all Places at WORLD at LAT-itude, LONG-itude, ALT-itude.
+
+See `INFINITY-GET-ROOM-VARS' for a discussion of the Place system."
   (remove-if #'null
              (loop for la from (1- lat) upto (1+ lat)
                 append
@@ -102,6 +124,9 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
                                           :altitude alt)))))
 
 (defun local-room-vars ()
+  "Gets ``room variables'' local to *CLIENT*.
+
+See `INFINITY-GET-ROOM-VARS' for a discussion."
   (let* ((position (Toot-position *client*))
          (world (first position))
          (pos (rest position))
@@ -128,7 +153,25 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
     hash))
 
 (definfinity get-room-vars (nil u recipient/s)
-  "Returns room variables
+  "Returns ``room variables.''
+
+@subsection Usage
+
+This command requires no parameters.
+
+@subsection Historical Usage (Romance I)
+
+In Romance  I, the  server had  a library  of free-form  key-value pairs
+which were used to control each ``room,'' or screen, of the game.
+
+These   variables,  which   were  usually   edited  using   the  special
+``Zookeeper''  client by  Eric Feilding,  eventually metamorphosed  into
+a library of very specific ``room variables'' as described herein.
+
+We no longer support arbitrary key-value  pairs; at this point, all room
+variables are  specifically enumerated  in the  following documentation;
+however, future releases  could expand this list,  so conforming clients
+are required to accept and ignore unrecognized variables silently.
 
 @subsection Room Environment
 
@@ -138,17 +181,26 @@ These room  variables define the  general environment.
 @item s
 
 The Sky. Consists of the background (sky) texture file as a URL, or, the
-position of a sky object such as the sun, a moon, or a cloud.
+position of a sky object such as the sun, a moon, or a cloud. 
 
 @item f
 
-The Floor; no longer used in 5.0
+The Floor; no longer used in 2.0. (This was the actual SWF file that had
+the room background in it, in Romance I.)
 
 @item w
 
 The Weather, or overlay artwork. Used to indicate precipitation.
 
 @end table
+
+@subsection Sky Variables
+
+WRITEME
+
+@subsection Weather
+
+WRITEME
 
 @subsection Room Objects
 
@@ -173,20 +225,20 @@ Placed items, new form: JSON object
  world:  { world: lat: long: alt: },
  template:
  { id:
- name:
- description:
- trade: [  Y N X  ],
- avatar:
- energyKind:
- energyMax:
- onZero:
- wearSlot:
- weight: } }
+   name:
+   description:
+   trade: [  Y N X  ],
+   avatar:
+   energyKind:
+   energyMax:
+   onZero:
+   wearSlot:
+   weight: } }
 @end verbatim
 
 @item furn
 
-User-positioned items: key: “furn”
+User-positioned items: key: “furn” --- no longer used.
 
 @item text
 
@@ -248,6 +300,8 @@ The stuff the moons are made of
 
 @end table
 
+WRITEME --- there is more to explain.
+
 "
   (list 200 (local-room-vars)))
 
@@ -260,20 +314,26 @@ supported. Each ``wtl'' packet has a  start and end point, a start time,
 and a  speed; this  course is  enough information  for other  clients to
 determine where along the line (linear interpolation) the walker is now.
 
-Usage: 
+@subsection Usage
  
 @verbatim
-{  c:  wtl,  d:  {  course: {  startPosition:  {  x:  y:  z:  },
-endPosition: { x: y: z: }, speed: }, facing: }}
+{ course: 
+  { startPosition: {  x:  y:  z:  },
+    startTime: UNIX-TIME,
+    endPosition: { x: y: z: }, 
+    speed: SPEED }, 
+  facing: RADIANS }
 @end verbatim
 
-In return, all observers receive these ``wtl'' packets back
+In return, all observers receive these ``wtl'' packets back ... WRITEME
 
 Return: 
 
 @verbatim
 { from: \"wtl\", status: true, course: {}, facing:, u: UUID, n: NAME }
 @end verbatim
+
+WRITEME
 
 "
   (broadcast (list :|from| "wtl"
@@ -285,7 +345,17 @@ Return:
              :except *client*))
 
 (definfinity wtl-4 ((u course facing) u r)
-  "Walk the Line indirect refresher from observer"
+  "Walk the Line indirect refresher from observer
+
+@subsection Usage
+
+@verbatim
+{ u: \"TOOT-NAME\",
+  course: { COURSE },
+  facing: RADIANS }
+@end verbatim
+
+WRITEME"
   (broadcast (list :|from| "wtl"
                    :|status| t
                    :|course| course
@@ -298,7 +368,9 @@ Return:
   "Send a player (user) their list of Toots.
 
 Used primarily  in the  login process.  Might also  be used  for gifting
-inventory back-and-forth later."
+inventory back-and-forth later.
+
+WRITEME"
   (if-let (player-Toots (player-Toots))
     (list 200
           (list :|status| t
@@ -316,19 +388,35 @@ inventory back-and-forth later."
 (definfinity Toot-list (nil u recipient/s)
   "Enumerates all Toots owned by the user.
 
+@subsection Usage
+
+This command requires no parameters.
+
 @subsection 200 OK
 
 Returns  an object  with  @code{status: true,  from: \"tootList\"},  and
 a key @code{toots} under  which is the list of Toots  owned by the user.
-Each Toot object is as per `TOOT-INFO', q.v."
+Each Toot object is as per `TOOT-INFO', q.v.
+
+@verbatim
+{ from: \"tootList\",
+  status: true,
+  toots: [ { INFO }, ... ] }
+@end verbatim
+"
   (toot-list-message))
 
 (defun plist-with-index (list)
+  "Zip LIST with sequential numbers from 0, creating a plist whose keys are sequential integers."
   (loop for i from 0
      for el in list
      appending (list i el)))
 
 (defun random-start-wtl-for-Toot ()
+  "Designate a starting position in Toot Square for a Toot.
+
+Returns a WTL-type structure in a JSON string
+"
   (let* ((θ (random (* 2 pi)))
          (θ₂ (random (* 2 pi)))
          (ρ (+ 35 (random 100)))
@@ -342,6 +430,9 @@ Each Toot object is as per `TOOT-INFO', q.v."
                    :|facing| θ₂))))
 
 (defun make-new-Toot-state (Toot)
+  "Set up the state for TOOT, who has never logged in before.
+
+WRITEME"
   (private-admin-message
    (format nil "Welcome to Tootsville, ~:(~a~)!" (Toot-name Toot))
    "Welcome  to Tootsville!  This is  Toot Square,  the center of town.")
@@ -355,35 +446,35 @@ Each Toot object is as per `TOOT-INFO', q.v."
                :wtl (random-start-wtl-for-Toot)
                :d3 nil
                :emotion nil
-               :peanuts 120
-               :fairy-dust 0
                :attribs nil))
 
 (defun burgeon-quiesced-state (Toot)
+  "Restore quiescent state for TOOT as they return to the game."
   (let ((state (or (ignore-not-found
                      (find-record 'Toot-quiesced :Toot (Toot-uuid Toot)))
                    (make-new-Toot-state Toot))))
     (unicast (list :|status| t
                    :|from| "burgeon"
-                   :|world| (toot-quiesced-world state)
-                   :|latitude| (toot-quiesced-latitude state)
-                   :|longitude| (toot-quiesced-longitude state)
-                   :|altitude| (toot-quiesced-altitude state)
-                   :|wtl| (when-let (wtl (toot-quiesced-wtl state))
+                   :|world| (Toot-quiesced-world state)
+                   :|latitude| (Toot-quiesced-latitude state)
+                   :|longitude| (Toot-quiesced-longitude state)
+                   :|altitude| (Toot-quiesced-altitude state)
+                   :|wtl| (when-let (wtl (Toot-quiesced-wtl state))
                             (jonathan.decode:parse wtl))
-                   :|d3| (when-let (d3 (toot-quiesced-d3 state))
+                   :|d3| (when-let (d3 (Toot-quiesced-d3 state))
                            (jonathan.decode:parse d3))
-                   :|emotion| (toot-quiesced-emotion state)
-                   :|peanuts| (toot-quiesced-peanuts state)
-                   :|fairy-dust| (toot-quiesced-fairy-dust state)
-                   :|attribs| (toot-quiesced-attribs state)))
+                   :|emotion| (Toot-quiesced-emotion state)
+                   :|peanuts| (Toot-peanuts Toot)
+                   :|fairy-dust| (Toot-fairy-dust Toot)
+                   :|attribs| (Toot-quiesced-attribs state)))
     (setf (Toot-position (user-stream Toot)) (list (Toot-quiesced-world state)
                                                    (Toot-quiesced-latitude state)
                                                    (Toot-quiesced-longitude state)
                                                    (Toot-quiesced-altitude state)))))
 
 (defun update-Toot-last-active (Toot)
-  (setf (Toot-last-active Toot) (get-universal-time))
+  "Set the `TOOT-LAST-ACTIVE' time for TOOT to the present time."
+  (setf (Toot-last-active Toot) (now))
   (save-record Toot))
 
 (defun play-with-Toot (Toot)
@@ -422,6 +513,16 @@ CHARACTER must be the name of a Toot character owned by *USER*.
 { c: \"playWith\", d: { character: \"a-Toot-name\" } }
 @end verbatim
 
+@subsection Status 200 OK
+
+@verbatim
+{ from: \"playWith\",
+  status: true }
+@end verbatim
+
+WRITEME ---  lots of other stuff  happens here that a  conforming client
+must be aware of.
+
 @subsection Status 403 Not Your Toot
 
 *USER* must  be the owner  of the Toot named  CHARACTER, or you  will be
@@ -454,10 +555,43 @@ The Toot named CHARACTER must exist.
                 :|from| "playWith"
                 :|error| "No such Toot"))))
 
-(definfinity quiesce ((wtl d3 emotion peanuts fairy-dust
-                           world latitude longitude altitude)
+(definfinity quiesce ((wtl d3 emotion world latitude longitude altitude)
                       Toot r)
-  "Quiesce Toot values to database for logout"
+  "Quiesce Toot values to database for logout, or periodically as a backup.
+
+@subsection Usage
+
+@verbatim
+{ wtl: { course: { ... }, facing: RADIANS },
+  d3: { ... },
+  emotion: \"EXPRESSION\",
+  world: \"WORLD\",
+  latitude: LAT,
+  longitude: LONG,
+  altitude: ALT }
+
+WRITEME
+
+@subsection Status 200 OK
+
+WRITEME
+
+@verbatim
+{ from: \"quiesce\",
+  status: true }
+@end verbatim
+
+@subsection Asynchronous periodic demands
+
+WRITEME
+
+@verbatim
+{ from: \"quiesce\",
+  status: false }
+@end verbatim
+
+WRITEME
+"
   (when-let (old (ignore-not-found
                    (find-record 'Toot-quiesced :Toot (Toot-uuid Toot))))
     (destroy-record old))
@@ -470,17 +604,107 @@ The Toot named CHARACTER must exist.
                :wtl (jonathan.encode:to-json wtl)
                :d3 (jonathan.encode:to-json d3)
                :emotion emotion
-               :peanuts peanuts
-               :fairy-dust fairy-dust
                :observed (now))
   (list :|from| "quiesce"
         :|status| t))
 
 (definfinity consider-child-approval ((uuid) u r)
-  "Consider whether to approve a child's request"
-  (when-let (request (find-record 'child-request :uuid uuid))
+  "Consider whether to approve a child's request with ID UUID.
+
+@subsection Usage
+
+The client sends  this packet when the player, a  parent or guardian who
+has a  child Toot account on  their user profile, wishes  to be prompted
+again  as  to whether  to  approve  or deny  a  child  request with  the
+given UUID.
+
+@verbatim
+{ uuid: \"UUID-OF-REQUEST\" }
+@end verbatim
+
+The  client  will  receive  a  @code{prompt}  message  to  that  effect.
+See `INFINITY-PROMPT-REPLY' for a discussion of the @code{prompt} packet
+and its replies.
+
+There  is  no  direct  reply  to  this  packet,  only  the  asynchronous
+prompt (or admin error message, see below).
+
+@subsection Error conditions
+
+In the  event of  an error,  the player  will receive  an administrative
+message  explaining the  problem.  No machine-readable  error packet  is
+returned to the client.
+
+Possible error conditions include:
+
+@itemize
+
+@item
+The UUID represents a child request from another user's Toot
+
+@item
+The UUID  does not represent any  current child request; we  assume that
+this means  the relevant request once  existed, but was culled  after it
+aged out  --- but  we have  no way  of knowing  for sure,  since expired
+requests are hard deleted.
+
+@end itemize
+
+"
+  (if-let (request (find-record 'child-request :uuid uuid))
     (if (uuid:uuid= (Toot-player (find-reference request :Toot))
                     (person-uuid *user*))
         (send-parent-child-login-request request)
         (private-admin-message "Unable to approve request"
-                               "You are not the owner of that Toot"))))
+                               "You are not the owner of that Toot."))
+    (private-admin-message "Unable to approve request"
+                           "That request is no longer available."))
+  nil)
+
+(definfinity read-map (nil u r)
+  "Get the positions of badges and named locations on the map.
+
+@subsection Usage
+
+This command requires no parameters.
+
+@subsection Status 200 OK
+
+This returns  two lists,  a list of  named places, and  a list  of badge
+places. These make up the map of Tootanga.
+
+@verbatim
+{ from: \"readMap\",
+  status: true,
+  spots: [ TootSquare: [ 0, 0, 0, \"CHOR\", \"Toot Square\" ], ... ],
+  badges: [ ... ] }
+@end verbatim
+
+The  lists @code{spots}  and  @code{badges}  each consist  of  a set  of
+monikers or labels as keys.
+
+The  values of  each key  on @code{spots}  are the  latitude, longitude,
+altitude, world, and UI label for that spot.
+
+The values of each key on  @code{badges} are only a latitude, longitude,
+altitude, and world. The moniker itself represents the badge.
+
+An SVG graphic for each badge should be found on Jumbo in the form @code{https://jumbo.tootsville.org/Assets/Badges/5/BADGE-NAME.svg}.
+
+@subsection Overview of Spots and Badges
+
+A Spot,  or a Named  Place, associates a moniker  with a text  label and
+a position on  the map. These can be used  by certain operator commands,
+or by  users, and basically represent  what used to be  rooms in earlier
+versions of  Tootsville. We are  trying to enforce  the use of  the name
+``spot'' to  mean a  named place  to limit  the relative  confusion with
+Places found within the game world, such as cobblestone paths.
+
+A Badge represents a graphic that appears  on the Map App on the Tootnix
+Mobile phone. These  are usually magnets indicating a  special event, or
+a visit by a special character,  at that location. Little Reminders mice
+will be used to draw the players'  attention to these badges in order to
+garner attention to special events.
+
+"
+  (error 'unimplemented))

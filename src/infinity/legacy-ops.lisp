@@ -32,14 +32,22 @@
 (defconstant +builder-toot-hard-hat-template+ 2494)
 
 (define-operator-command $ (words user plane)
-  "Execute a command script
+  "Execute a command script.
 
-    Usage:
-@example
-#$ SCRIPT
-@end example
+@subsection Usage
 
-The script name must be a function previously defined by @samp{#SCRIPT}
+@verbatim
+#$ SCRIPT-NAME
+@end verbatim
+
+Example:
+
+@verbatim
+#$ do-something-funny
+@end verbatim
+
+The script name must be a function previously defined by @code{#SCRIPT};
+see `SCRIPT' operator command for details.
 
 "
   (error 'unimplemented))
@@ -47,21 +55,22 @@ The script name must be a function previously defined by @samp{#SCRIPT}
 (define-operator-command addevent (words user plane)
   "Add a GameEvent to a Zone
 
-    Add a GameEvent to a Zone. Must have staff level 4 (DESIGNER) to use
-    this command.
+@subsection Usage
 
-    Syntax for use:
-@example
+@verbatim
 #addevent [EVENTNAME]
-@end example
+@end verbatim
 
- Examples
+Examples:
+
 @example
  #addevent LaserTagGame
  #addevent PropsWeather
  #addevent ShaddowFalls
  #addevent Tootlympics
 @end example
+
+WRITEME
 "
   (error 'unimplemented))
 
@@ -71,7 +80,7 @@ The script name must be a function previously defined by @samp{#SCRIPT}
  WRITEME: Document this method brpocock@@star-hope.org
 
  "
-
+  
   (error 'unimplemented))
 (define-operator-command askme (words user plane)
   "
@@ -82,27 +91,40 @@ WRITEME
   (error 'unimplemented))
 
 (define-operator-command ban (words user plane)
-  "
+  "Ban a user persistently (permanently) from the game.
 
- Ban a user  permanently. Must have staff level 2  (MODERATOR) to use
- this command.
+@subsection Usage
 
- Syntax for use
-@example
+@verbatim
  #ban [REASONCODE] [LOGIN]
-@end example
+@end verbatim
 
  Examples
 @example
  #ban obs.rude pil
 @end example
 
-See Also: `OPERATOR-KICK'"
+See Also: `KICK'
+
+The  same reason  codes  and  syntax are  used  for  @code{#ban} as  for
+@code{#kick}, so refer to that section of the manual for reason codes.
+
+Unlike a @code{#kick}, a @code{#ban}  remains in effect persistently ---
+permanently, unless an operator reverses it."
   
   (error 'unimplemented))
 
 (define-operator-command banhammer (words user plane)
   "Ban an IP address from connecting.
+
+@subsection Usage
+
+@verbatim
+#banhammer #list
+#banhammer #user NICKNAME
+#banhammer #+ip ADDRESS
+#banhammer #-ip ADDRESS
+@end verbatim
 
 Bans can be listed using @samp{#banhammer #list}
 
@@ -116,19 +138,21 @@ expected to be the most common usage.
 
 Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 @samp{#-ip},   @samp{#user},    or   @samp{#list}.    For   @samp{#+ip},
-@samp{#-ip}, or @samp{#user}, an additional parameter is needed."
+@samp{#-ip}, or @samp{#user}, an additional parameter is needed.
+
+WRITEME
+"
   
   (error 'unimplemented))
 
 (define-operator-command beam (words user plane)
-  "
- throws org.json.JSONException,
- PrivilegeRequiredException
+  "Beam yourself to a different location.
 
- Beam yourself to a different location.
-
- Syntax for use:
- #beam LATITUDE LONGITUDE [ALTITUDE]
+@subsection Usage
+ 
+@verbatim
+#beam LATITUDE LONGITUDE [ALTITUDE]
+@end verbatim
 
 Altitude is optional.
 
@@ -146,7 +170,7 @@ since rooms as such no longer exist, we use latitude and longitude now.
                                   0))))
 
 (define-operator-command spawnroom (words user plane)
-  "
+  " WRITEME --- Legacy --- useless in 2.0
 
  Create  a new  room  in  the current  zone.  Must  have staff  level
  8 (DEVELOPER) to use this command.
@@ -176,8 +200,18 @@ Simply  reference a  range  of  users, for  testing  purposes. Takes  an
 optional  low and  high point,  or  runs 0…250000.  (250,000) This  will
 load their Toots, and seriously strain the caché and database subsystems.
 
+Afterwards, due to cache flooding,  database accesses may be slower than
+usual until things balance out to a more normal workload.
+
 Since this is designed  to stress the servers, it can  be called only by
-God (Pil)."
+God (Pil).
+
+@subsection Usage
+
+@verbatim
+#census
+@end verbatim
+"
   (if (equal (Toot-name *Toot*) "Pil")
       (let* ((low (if (<= 1 (length words))
                       (parse-integer (first words))
@@ -203,39 +237,47 @@ God (Pil)."
       "Only Pil can trigger a #census"))
 
 (define-operator-command clearbadge (words user plane)
-  "UNIMPLEMENTED
+  "Clear a badge off the map.
 
- Clear badges off of the map interface. Must have staff level 4 (DESIGNER) to use this command.
+UNIMPLEMENTED
 
- Syntax for use
- #clearbadge [LOGIN] [ROOM].
- Login
+@subsection Usage
 
- username of a character
- #me for the character you are logged in as
+@verbatim 
+#clearbadge [NICKNAME] [PLACENAME]
+#clearbadge #me [PLACENAME]
 
- Room
+#clearbadge #me #here
+#clearbadge [NICKNAME] #here
 
- room moniker of a room
- #here for the room you are currently in
- #all for every room
+#clearbadge #me #all
+#clearbadge [NICKNAME] #all
+@end verbatim
 
  Examples
+@example
  #clearbadge snowcone tootSquare
  #clearbadge snowcone #all
  #clearbadge snowcone #here
  #clearbadge #me #all
  #clearbadge #me #here
+@end example
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
+@subsection Badges
+
+See `SETBADGE' for a discussion of the map badges system.
 "
   (error 'unimplemented))
 
 (define-operator-command clearcache (words user plane)
-  "Forcibly clear all cachés (MemCacheD)"
+  "Forcibly clear all cachés (MemCacheD)
+
+@subsection Usage
+
+@verbatim
+#clearcache
+@end verbatim
+"
   (cl-memcached:mc-flush-all))
 
 (define-operator-command clearevent (words user plane)
@@ -264,73 +306,67 @@ Must have staff level 4 (DESIGNER) to use this command.
   (error 'unimplemented))
 
 (define-operator-command clearvar (words user plane)
-  "
+  "Clear a room variable
 
- Clear a room variable. Must have staff level 4 (DESIGNER) to use this command.
+@subsection Usage
 
- Syntax for use
- #clearvar @@[ROOM] [VARIABLE] [VALUE]
- #clearvar [VARIABLE] [VALUE]
+@verbatim 
+#clearvar @@[ROOM] [VARIABLE] [VALUE] 
+#clearvar [VARIABLE] [VALUE]
+@end verbatim
 
- See op_setvar(String[], AbstractUser, Room) to set a variable.
+Examples
 
- Examples
- #clearvar @@tootsSquareWest anim~ropes 2
- #clearvar anim~ropes 2
+@example 
+#clearvar @@tootsSquareWest anim~ropes 2 
+#clearvar anim~ropes 2
+@end example
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_setvar(String[], AbstractUser, Room), op_getvar(String[], AbstractUser, Room)
-"
+WRITEME"
   (error 'unimplemented))
 
 (define-operator-command cloneroom (words u plane)
-  "
- throws PrivilegeRequiredException
+  "Clone a room
+ 
+@subsection Usage
 
- clone a room
+@verbatim
+#cloneroom NEW-MONIKER
+#cloneroom OLD-MONIKER NEW-MONIKER
+@end verbatim
 
- Parameters:
- words - moniker of the new room
- u - user cloning the room
- r - room to be cloned, in which the user must currently be standing
- Throws:
- PrivilegeRequiredException - if the user doesn't have Designer level privileges, at least
+WRITEME
 "
   (error 'unimplemented))
 
 (define-operator-command createroom (words user plane)
-  "
- throws PrivilegeRequiredException,
- NotReadyException
+  "Create a new room
 
- WRITEME: Document this metho WRITEMEd brpocock@@star-hope.org
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
- NotReadyException - WRITEME
+WRITEME: Document this method brpocock@@star-hope.org
 "
   (error 'unimplemented))
 
 (define-operator-command dbcpinfo (words user plane)
   "Get information from the DBI (database) layer.
 
+
 Earlier versions of Romance were  Java-based, using the DBCP layer, thus
 the name.
 
+@subsection Usage
 
- Syntax for use:
- #dbcpinfo
+@verbatim 
+#dbcpinfo
+@end verbatim
 
  Examples:
- #dbcpinfo
+
+@example 
+#dbcpinfo
+@end example
+
+This identifies  the name  of the  database being  used, the  DBI driver
+type, and the active connection or connection pool.
 "
   (with-dbi (:friendly)
     (let ((driver (dbi:connection-driver-type *dbi-connection*)))
@@ -378,26 +414,37 @@ Usage: #drop ITEM-TEMPLATE-ID
 (define-operator-command dropkick (words user plane)
   "UNIMPLEMENTED
 
- Silently remove the named user from the game by disconnection. Must have staff level 4 (DESIGNER) to use this command.
+ 
+Silently remove the named user from the game by disconnection. Must have
+staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
  #dropkick [LOGIN]
 
  Examples
  #dropkick flappyperry
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
   (error 'unimplemented))
 
 (define-operator-command dumpthreads (words user plane)
   "Dump debugging information including all running threads to the server logs.
 
-Syntax for use:
- #dumpthreads"
+@subsection Usage
+
+@verbatim 
+#dumpthreads
+,dumpthreads
+@end verbatim
+
+Example
+
+@example
+#dumpthreads
+,dumpthreads
+@end example
+
+Note that this  can be invoked as @code{,dumpthreads}  by a non-operator
+user as well."
   (v:info :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
           (all-threads))
   (format nil "Dumped names of ~:d thread~:p" (length (all-threads))))
@@ -431,18 +478,22 @@ Syntax:
   (error 'unimplemented))
 
 (define-operator-command filter (words user plane)
-  "
+  "Test censorship rules against words or phrases
 
- Parameters:
- words - see op_testcensor(String[], AbstractUser, Room)
- u - see op_testcensor(String[], AbstractUser, Room)
- room - see op_testcensor(String[], AbstractUser, Room)
- See Also:
- op_testcensor(String[], AbstractUser, Room)
-"
+@subsection Usage
+
+@verbatim
+#filter EXPRESSION
+#filter #all EXPRESSION
+#filter #child EXPRESSION
+@end verbatim
+
+ 
+WRITEME"
   (error 'unimplemented))
 
 (defun json-to-html (json)
+  "Converts JSON to a set of key-value pairs in pretty-printed HTML form."
   (with-output-to-string (s)
     (doplist (key value json)
         (format s "~%<div><strong>~/HTML/</strong>: &nbsp; ~/HTML/</div>" key value))))
@@ -450,11 +501,19 @@ Syntax:
 (define-operator-command finger (words user plane)
   "Finger a user account. Return interesting details in an administrative message.
 
- Syntax for use:
- #finger TOOT
+@subsection Usage
 
- Examples:
- #finger mouser
+@verbatim
+#finger TOOT
+@end verbatim
+
+Examples:
+
+@example
+#finger mouser
+#finger shade
+@end example
+
 "
   (let* ((Toot (find-record 'Toot :name (first words)))
          (player (find-reference Toot :player)))
@@ -489,6 +548,13 @@ Syntax:
   "UNIMPLEMENTED
 
 Historically, this flushed the database write cache.
+
+@subsection Usage
+
+@verbatim
+#flush
+@end verbatim
+
 "
   (error 'unimplemented))
 
@@ -510,14 +576,21 @@ Historically, this flushed the database write cache.
   "Reads a configuration key. All WORDS are expected to be the keywords
 on the path to the config value.
 
- Syntax for use:
- #getconfig PROPERTY
+@subsection Usage
 
- Examples:
- #getconfig :taskmaster :devel
+@verbatim
+#getconfig PROPERTY
+#getconfig PROP1 PROP2 [...]
+@end verbatim
 
+Example:
+@example
+#getconfig taskmaster devel
+@end example
+
+Returns the value of the selected configuration property as a string.
  "
-  (format nil "<pre>~s</pre>"
+  (format nil "<pre>~/HTML/</pre>"
           (apply #'config (mapcar (compose #'make-keyword #'string-upcase) words))))
 
 (define-operator-command getevents (words user plane)
@@ -541,7 +614,18 @@ on the path to the config value.
   (error 'unimplemented))
 
 (define-operator-command getmotd (words user plane)
-  "Retrieve the current Message Of The Day as a server message."
+  "Retrieve the current Message Of The Day as a server message.
+
+@subsection Usage
+
+@verbatim
+#getmotd
+@end verbatim
+
+Example
+@example
+#getmotd
+@end example"
   *motd*)
 
 (define-operator-command getschedule (words user plane)
@@ -664,51 +748,49 @@ on the path to the config value.
   (error 'unimplemented))
 
 (define-operator-command give (words u plane)
-  "UNIMPLEMENTED
+  "Give an item as a gift to another user.
 
- throws NumberFormatException,
- org.json.JSONException,
- AlreadyExistsException
+@subsection Usage
 
- give a gift
+@verbatim
+#give ITEM USER
+@end verbatim
 
- usage: #give ITEM# USER
- WRITEME
+Example
 
- Parameters:
- words - item# to be given, and recipient
- u - the giver
- r - room in which the giver is standing
- Throws:
- NumberFormatException - if the item# given is not a number
- org.json.JSONException - WRITEME
- AlreadyExistsException - WRITEME
+@example
+#give CDCCA838-FB7B-423A-81DA-1514817598DB flappyperry
+@end example
+
+
+UNIMPLEMENTED
+
+The item to be gifted must be in your inventory. To give a new item see `GRANT'
 "
   (error 'unimplemented))
 
 (define-operator-command givehead (words user plane)
-  "UNIMPLEMENTED
- throws PrivilegeRequiredException
+  "Grants a new inventory item to a user and equips it.
 
- Give an inventory item to a user. Must have staff level 1 (STAFF) to use this command.
+NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
+@code{#givehead} equips  the item  and @code{#grant}  does not.  See also
+`GRANT'.
 
- NOTE: #grant and #givehead are identical.
+@subsection Usage
 
- Syntax for use
- #givehead [ITEM] [LOGIN]
- #grant [ITEM] [LOGIN]
+@verbatim
+#givehead TEMPLATE USER
+@end verbatim
 
- Examples
- #givehead 1337 louis
- #grant 1337 louis
+Example
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- PrivilegeRequiredException - requires staff level permissions
-"
+@example
+#givehead 1337 catvlle
+@end example
+ 
+This creates  a new item  from the  item template number  indicated, and
+equips it on the recipient. To give  a gift from your own inventory, see
+`GIVE'. To grant a new item without equipping it, see `GRANT'."
   (error 'unimplemented))
 
 (define-operator-command goto (words user plane)
@@ -728,55 +810,65 @@ on the path to the config value.
   (error 'unimplemented))
 
 (define-operator-command grant (words user plane)
-  "UNIMPLEMENTED
+  "Grants a new inventory item to a user.
 
- throws PrivilegeRequiredException
+NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
+@code{#givehead} equips  the item  and @code{#grant}  does not.  See also
+`GIVEHEAD'.
 
- Grant an item to a user. See op_givehead(String[], AbstractUser, Room)
+@subsection Usage
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- PrivilegeRequiredException - if the user doesn't have sufficient privileges
-"
+@verbatim
+#grant TEMPLATE USER
+@end verbatim
+
+Example
+
+@example
+#grant 1337 catvlle
+@end example
+ 
+This creates  a new item  from the  item template number  indicated, and
+gives it to the recipient. To give  a gift from your own inventory, see
+`GIVE'. To grant a new item and equipping it, see `GIVEHEAD'."
   (error 'unimplemented))
 
 (define-operator-command headcount (words user plane)
-  "UNIMPLEMENTED
+  "Get headcount information about the running system.
 
- Get headcount information about the running system. Must have staff level 1 (STAFF) to use this command.
+@subsection Usage
 
- Syntax for use
- #headcount #all
- #headcount #members
- #headcount #room
+@verbatim
+#headcount #all
+#headcount #members
+#headcount #room
+#headcount #highwater
+@end verbatim
 
- Examples
- #headcount #all
- #headcount #members
- #headcount #room
+Examples
 
- Parameters:
+@example
+#headcount #all
+#headcount #members
+#headcount #room
+#headcount #highwater
+@end example
 
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
+@subsection Headcount All
 
-u - The user invoking the operator command
+WRITEME
 
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
+@subsection Headcount Members
 
-See Also:
+WRITEME
 
- headcount_all(AbstractUser,                               Room)
+@subsection Headcount Room
 
- headcount_highwater(AbstractUser,                         Room)
+WRITEME
 
- headcount_rooms(AbstractUser,                             Room)
+@subsection Headcount Highwater
 
- headcount_members(AbstractUser, Room)
+WRITEME
 "
   (error 'unimplemented))
 
@@ -825,18 +917,26 @@ Throws:
   "Kick a user offline for a certain reason
 
   
-@subsection Syntax for use
+@subsection Usage
 
+@verbatim
 #kick [REASONCODE] [LOGIN]
+@end verbatim
 
 Kick LOGIN offline for REASONCODE
 
+@verbatim
 #kick #list
+@end verbatim
 
 List reason codes.
 
-@subsection Examples
- #kick obs.rude pil
+Example
+
+@example 
+#kick bully pil
+#kick #list
+@end example
 
 @subsection Reason Codes
 
@@ -909,38 +1009,40 @@ Lying about your birth date is against the law!
   (error 'unimplemented))
 
 (define-operator-command liftban (words user plane)
-  "UNIMPLEMENTED
+  "Lift the ban upon a user.
 
+@subsection Usage
 
- Lift the ban upon a user. Must have staff level 2 (MODERATOR) to use
- this command.
+@verbatim
+#liftban REASON USER yes
+@end verbatim
 
- NOTE: In order  to un-ban a user,  you must key in  the literal word
- “yes” as  the third parameter,  and supply the ban  reason as
- the first. This is to avoid accidentally lifting a ban.
+NOTE: In order to un-ban a user,  you must key in the literal word “yes”
+as the third parameter, and supply the  ban reason as the first. This is
+to avoid accidentally lifting a ban.
 
- Syntax for use
- #liftban [BANREASON] [USER] yes
+Example
 
- Examples
- #liftban CHEAT silly-biscuits yes
-
+@example
+#liftban CHEAT silly-biscuits yes
+@end example
 
 "
   (error 'unimplemented))
 
 (define-operator-command loadlists (words user plane)
-  "UNIMPLEMENTED
+  "Reload the censorship lists.
 
- Reload the censorship lists. Must have staff level 8 (DEVELOPER) to use this command.
+@subsection Usage
 
- Syntax for use
- #loadlists
+@verbatim
+#loadlists
+#loadlists #blacklist
+#loadlists #redlist
+@end verbatim
 
- Examples
- #loadlists
-
-
+This reloads the blacklist or  redlist from the database, discarding any
+unsaved or recent changes.
 "
   (error 'unimplemented))
 
@@ -949,11 +1051,32 @@ Lying about your birth date is against the law!
 
 This is an abbreviated version of the output of `ROOM'
  
-Syntax for use:
- #mem
+@subsection Usage
 
- Examples:
- #mem
+@verbatim
+#mem
+@end verbatim
+
+Example
+
+@example
+#mem
+@end example
+
+@subsection Example report
+
+@example
+This server is Inktomi.
+Dynamic space usage is:   756,315,840 bytes.
+Immobile space usage is:   31,537,408 bytes (134,512 bytes overhead).
+Read-only space usage is:           0 bytes.
+Static space usage is:          1,344 bytes.
+Control stack usage is:         9,656 bytes.
+Binding stack usage is:           832 bytes.
+Control and binding stack usage is for the current thread only.
+Garbage collection is currently enabled.
+@end example
+
 "
   (format nil "This server is ~a. <pre>~a</pre>"
           (machine-instance)
@@ -962,12 +1085,26 @@ Syntax for use:
 (define-operator-command metronome (words user plane)
   "Display information  about or  micromanage the metronome. 
 
- Syntax for use
+@subsection Usage
+
 @verbatim
- #metronome [OPTION]
+#metronome [OPTION]
 @end verbatim
 
- Options
+Examples
+@verbatim
+ #metronome #help
+ #metronome #rate
+ #metronome #last
+ #metronome #start
+ #metronome #stop
+ #metronome #restart
+ #metronome #tick
+ #metronome #list
+ #metronome #cancel <NAME>
+@end verbatim
+
+@subsubsection Options
 
 @table @code
 @item #help
@@ -992,18 +1129,6 @@ List all tasks scheduled with the metronome
 Cancel a specific task by name
 @end table
 
- Examples
-@verbatim
- #metronome #help
- #metronome #rate
- #metronome #last
- #metronome #start
- #metronome #stop
- #metronome #restart
- #metronome #tick
- #metronome #list
- #metronome #cancel <NAME>
-@end verbatim
 
 @subsection Changes from 1.2 to 2.0
 
@@ -1047,14 +1172,21 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
 (define-operator-command motd (words user plane)
   "Set the  message of the day.
 
- Syntax for use:
- #motd [MESSAGE...]
+@subsection Usage
 
- Examples:
- #motd I am setting the message of the day
+@verbatim
+#motd The new message of the day, literally.
+@end verbatim
+
+ 
+Example:
+
+@example
+ #motd Don't forget that Hallowe'en in Tootsville is on the 30th --- get your costumes ready!
+@end example
 
  The message of the day is echoed  to every user as they sign in, before
- they choose a Toot."
+ they choose a Toot. It is @emph{not} echoed to children."
   (when (not (emptyp words))
     (setf *motd* (format nil "~{~a~^ ~}" words))))
 
@@ -1069,33 +1201,32 @@ UNIMPLEMENTED
   (error 'unimplemented))
 
 (define-operator-command nuke (words user plane)
-  "
- throws PrivilegeRequiredException
+  "Forcibly disconnect everyone in a room.
 
- Forcibly disconnect everyone in a room.
-
- Parameters:
- words - the name of the room to be nuked
- u - The user (operator) executing this instruction
- room - The room to be nuked
- Throws:
- PrivilegeRequiredException - WRITEME
+WRITEME
 "
   (error 'unimplemented))
 
 (define-operator-command parentapproves (words user plane)
   "Signal that a parent approves a user signing in.
 
-Syntax:
+@subsection Usage
 
+@verbatim
 #parentapproves TOOT
+@end verbatim
 
 Example:
 
+@example
 #parentapproves Pil
+@end example
+
+@subsection Limitations
 
 This is only useful if TOOT is a child Toot account has begun to sign in
-and requested parent permission.
+and requested  parent permission ---  that is,  there must be  a pending
+child request from TOOT.
 
  "
   (error 'unimplemented))
@@ -1103,11 +1234,17 @@ and requested parent permission.
 (define-operator-command ping (words user plane)
   "Ping the  server, to force  a neutral administrative  message reply.
  
- Syntax for use
- #ping
+@subsection Usage
 
- Examples
- #ping"
+@verbatim
+#ping
+@end verbatim
+
+Example:
+
+@example
+#ping
+@end example"
   "Pong!")
 
 (define-operator-command place (words user plane)
@@ -1120,16 +1257,63 @@ and requested parent permission.
  explicitly-issued  polygon  string.  The  event region  ID  will  be
  automatically assigned.
 
- Usage:
- #place WHERE #item ITEM-NUMBER
- #place WHERE #room MONIKER
- #place WHERE #vitem PAID-ITEM-NUMBER
- #place WHERE #item2 ITEM-NUMBER PAID-ITEM-NUMBER
- #place WHERE #exit MONIKER
- #place WHERE #mini MINIGAME-MONIKER
- #place WHERE #walk
- WHERE := #here | #here-tiny | #here-big | x,y~x,y~x,y~x,y polygon list
+ @subsection Usage
 
+@verbatim
+#place WHERE #item ITEM-NUMBER 
+#place WHERE #room MONIKER 
+#place WHERE #vitem PAID-ITEM-NUMBER 
+#place WHERE #item2 ITEM-NUMBER PAID-ITEM-NUMBER 
+#place WHERE #exit MONIKER 
+#place WHERE #mini MINIGAME-MONIKER 
+#place WHERE #walk
+
+WHERE := #here | #here-tiny | #here-big | x,z~x,z~x,z~x,z polygon list
+@end verbatim
+
+Examples:
+
+@example
+#place #here #item 1337
+#place #here #room TootSweets
+#place #here #vitem 42
+#place #here #item2 1337 42
+#place #here-tiny #exit TootSquare
+#place #here #mini Minigame.js minigame
+#place #here-big #walk
+@end example
+
+WRITEME
+
+@subsection Placing an item
+
+WRITEME
+
+@subsection Placing a ``room'' marker
+
+WRITEME
+
+@subsection Placing a shop item
+
+WRITEME
+
+@subsection Archaïc: @code{#item2}
+
+This is no longer supported in Romance 2.0.
+
+WRITEME
+
+@subsection Placing an exit (teleporter)
+
+WRITEME
+
+@subsection Placing a minigame
+
+WRITEME
+
+@subsection Placing a walkable space
+
+WRITEME
 "
   (error 'unimplemented))
 
@@ -1145,39 +1329,59 @@ and requested parent permission.
 
 (define-operator-command put (words user plane)
   "
- throws PrivilegeRequiredException
 
- WRITEME: Document this method brpocock@@star-hope.org
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
+ 
+WRITEME: Document this method brpocock@@star-hope.org
 "
   (error 'unimplemented))
 
 (define-operator-command rc (words user plane)
   "UNIMPLEMENTED
- 
- Run   an   RC  (RunCommands)   script.   Both   the  â€œsystem   run
- commandsâ€  (â€œrunâ€)  method  and   the  â€œnew  zone  run
+
+Run   an    RC   (RunCommands)   script.   Both    the   â€œsystem   run
+ commandsâ€   (â€œrunâ€)  method   and  the   â€œnew  zone   run
  commandsâ€ (â€œnewZoneâ€) method will be executed; the
+
+@subsection Usage
+
+@verbatim
+#rc
+@end verbatim
+
+Example:
+
+@example
+#rc
+@end example
+
+WRITEME
+
 "
   (error 'unimplemented))
 
 (define-operator-command reboot (words user plane)
   "Restart the game server.
 
- No, really; this  actually kills the game server with  an error exit so
- that it will (hopefully) be restarted by SystemD.
+No, really;  this actually kills the  game server with an  error exit so
+that it will (hopefully) be restarted by SystemD.
 
- Syntax for use:
- #reboot
+@subsection Usage
 
- Examples:
- #reboot"
+@verbatim 
+#reboot
+@end verbatim
+
+Example:
+
+@example
+#reboot
+@end example
+
+@subsection Actual Effects
+
+The server  will quit with  Unix exit status 66  in 3 seconds  after the
+command is received.
+"
   (private-admin-message "Bye!" "This server is rebooting in 3 seconds.")
   (sleep 3)
   (sb-ext:quit :unix-status 66))
@@ -1185,11 +1389,24 @@ and requested parent permission.
 (define-operator-command reloadconfig (words user plane)
   "Reloads configuration properties.
 
- Syntax for use:
- #reloadconfig
+@subsection Usage
 
- Examples:
- #reloadconfig
+@verbatim
+#reloadconfig
+@end verbatim
+
+Example
+
+@example
+#reloadconfig
+@end example
+
+@subsection Effect
+ 
+Reloads                         the                        configuration
+file (.config/Tootsville/Tootsville.config.lisp under the server owner's
+home directory).  See `LOAD-CONFIG'. Reports  back the file  loaded, and
+the author and write date of the file.
 "
   (let ((info (load-config)))
     (format nil "Reloaded configuration from pathname ~a, truename ~a, on host ~a.
@@ -1198,48 +1415,45 @@ Read at ~a. File write date ~a, author ~a."
             (getf info :read) (getf info :file-write-date) (getf info :author))))
 
 (define-operator-command retire (words user plane)
-  "UNIMPLEMENTED
+  "Retire a server,
 
-TODO -- evacuate and then restart a server node -- UNIMPLEMENTED
+ Forces  a  server to  retire.  This  will disconnect  anyone  currently
+ connected via WebSockets to that  server; they should reconnect through
+ the load balancer. Use @code{#evacuate}  to first move users to another
+ server (see `EVACUATE').
 
- Forces a  zone to retire.  This will disconnect anyone  currently in
- the zone.  Use #evacuate to  move users  to another zone.  Must have
- staff level 8 (DEVELOPER) to use this command.
+ @subsection Usage
 
- Syntax for use
- #retire [ZONE]
- #retire
-
- Examples
- #retire dottie
- #retire
-
- Parameters:
-
-words  - The  command parameter  s (whitespace-delimited  list) provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
+@verbatim
+#retire SERVER
+#retire
+@end verbatim
+ 
+Examples
+@example
+#retire game3.test.tootsville.org
+#retire
+@end example
 "
   (error 'unimplemented))
 
 (define-operator-command run (words u r)
   "Run an arbitrary nullary Lisp function or method
 
-Syntax:
+@subsection USave
 
+@verbatim
 #run FUNCTION
+#run PACKAGE FUNCTION
+@end verbatim
 
 Examples:
 
+@example
 #run ws-stats
-
 #run infinity-stats
-
 #run sb-ext quit
+@end example
 
 @subsection Changes in 2.0
 
@@ -1267,17 +1481,28 @@ WRITEME"
 (define-operator-command scotty (words user plane)
   "Force a user to relocate to another location
 
-Usage:
+@subsection Usage
 
+@verbatim
+#scotty TOOT NAMED-PLACE
 #scotty TOOT LATITUDE LONGITUDE [ALTITUDE] [WORLD]
+@end verbatim
 
 Altitude is optional and defaults to 0.
 
 World is optional and defaults to CHOR.
 
+Examples
+
+@example
+#scotty mouser TootSquareWest
+#scotty mouser -1 0 0 CHOR
+#scotty mouser -1 0
+@end example
+
 @subsection Changes from 1.2 to 2.0
 
-In 1.2, this movesd an user into another room.
+In 1.2, this moved an user into another room.
 
  Syntax for use:
  #scotty [LOGIN] [ROOM]
@@ -1289,74 +1514,87 @@ In 1.2, this movesd an user into another room.
 (define-operator-command setavatarcolors (words user plane)
   "Sets the  base and extra colors  of a user's avatar.  
 
- Syntax for use:
- #setavatarcolors [LOGIN] [BASE] [EXTRA]
+@subsection Usage
 
-  The  \"CSS   style\"  uses  a   decimal  triplet  in   the  form
- rgb(R,G,B) (the literal string \"rgb(\" identifies it).
+@verbatim
+#setavatarcolors LOGIN BASE EXTRA
+@end verbatim
 
- The \"HTML style\" uses  a # sign followed by either  3 or 6 hex
- characters, in the form #RGB or #RRGGBB.
+Each of BASE and EXTRA can be specified in a number of formats.
 
-Basic Toot avatar colors can be passed as named strings.
+@itemize
 
+@item
+CSS  Style uses  a decimal  triplet  in the  form @code{rgb(r,g,b)}  ---
+identified by the literal string @code{rgb}. Each  of R, G, and B are in
+the range 0 to 255.
 
+@item
+HTML Style uses  a @code{#} sign plus  either 3 or 6  hex characters, in
+the form @code{#rgb} or @code{#rrggbb}. The @code{#} sign is optional.
 
- Examples:
+@item
+Named colors are supported as per `PARSE-COLOR24'
 
- #setavatarcolors mouser #000000 #ffffff
+@end itemize
 
- #setavatarcolors mouser rgb(0,0,0) rgb(255,255,255)
+Examples:
+
+@example
+#setavatarcolors mouser #000000 #ffffff
+#setavatarcolors mouser rgb(0,0,0) rgb(255,255,255)
+@end example
+
+See also `DOODLE' for a similar-but-different way to set avatar colors.
 "
   (error 'unimplemented))
 
 (define-operator-command setbadge (words user plane)
-  "UNIMPLEMENTED
+  "Set the badge on  a map area.
 
-Set the badge on  a map area.
+@subsection Usage
 
- 
- Syntax for use:
-
+@verbatim
 #setbadge
+#setbadge BADGE MONIKER
+#setbadge #me MONIKER
+#setbadge BADGE #here
+#setbadge #me #here
+@end verbatim
 
- #setbadge BADGE MONIKER
+NOTE:  Using #setbadge  with no  parameters will  assume default  values
+which are identical to typing #setbadge #me #here
 
- #setbadge BADGE #here
+Examples:
 
- #setbadge #me MONIKER
-
- 
- NOTE: Using #setbadge with no  parameters will assume default values
- which are identical to typing #setbadge #me #here
-
- Examples:
-
- #setbadge snowcone tootSquareWest
-
- #setbadge #me tootSquare
-
- #setbadge snowcone #here
-
- #setbadge #me #here
+@example
+#setbadge snowcone TootSquareWest
+#setbadge #me TootSquare
+#setbadge snowcone #here
+#setbadge #me #here
+@end example
 
  "
   (error 'unimplemented))
 
 (define-operator-command setconfig (words user plane)
-  "UNIMPLEMENTED
+  "Set a config property.
 
- Set a config property.
-
- Syntax for use:
- #setconfing PROPERTY VALUE
+@subsection Usage
+ 
+@verbatim
+#setconfig PROPERTY VALUE
+#setconfig PROP1 PROP2 VALUE
+@end verbatim
 
 PROPERTY is a  sequence of keywords, which must be  delimited by spaces.
 Omit the leading : on the keyword names.
 
- Examples:
- 
+Examples:
+
+@example
 #setconfig rollbar access-token 1234567890
+@end example
 
 Changes  made   with  this   command  are   only  effective   until  the
 configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
@@ -1420,11 +1658,16 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
   (error 'unimplemented))
 
 (define-operator-command shout (words user plane)
-  "Speak in another zone. This is intended for using operator commands in a remote zone, not normal chat messages. Must have staff level 2 (MODERATOR) to use this command.
+  "Speak in another zone.
 
- Syntax for use:
+This  is intended  for using  operator commands  in a  remote zone,  not
+normal  chat  messages.
 
- #shout [ZONE] [ROOM] [COMMAND...]
+WRITEME
+
+@subsection Usage
+
+#shout [ZONE] [ROOM] [COMMAND...]
 
  Examples:
 
@@ -1438,82 +1681,105 @@ See modern version `TOOTSVILLE-USER::AT' also
   (error 'unimplemented))
 
 (define-operator-command spawnzone (words user plane)
-  "
+  "Create a new zone.
 
- Create a new zone. Must have staff level 8 (DEVELOPER) to use this command.
+  Syntax for use
+  #spawnzone [ZONE]
 
- Syntax for use
- #spawnzone [ZONE]
+  Examples
+  #spawnzone Cupcake
 
- Examples
- #spawnzone Cupcake
-
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
+WRITEME
 "
   (error 'unimplemented))
 
 (define-operator-command speak (words user plane)
   "UNIMPLEMENTED
 
- Allows a user to speak. Must have staff level 2 (MODERATOR) to use this command.
+  Allows a user to speak. Must have staff level 2 (MODERATOR) to use this command.
 
- Syntax for use
- #speak [LOGIN]
+  Syntax for use
+  #speak [LOGIN]
 
- Examples
- #speak flappyperry
+  Examples
+  #speak flappyperry
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
-"
+  Parameters:
+  words - The command parameters (whitespace-delimited list) provided after the # command name
+  u - The user invoking the operator command
+  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
+  "
   (error 'unimplemented))
 
 (define-operator-command stfu (words user plane)
   "Silences a user.
 
-WRITEME
+@subsection Usage
 
- Syntax for use:
+@verbatim
+#stfu TOOT
+#stfu TOOT MINUTES
+@end verbatim
 
- #stfu [LOGIN]
+Example
 
- Examples:
+@example
+#stfu louis
+#stfu louis 30
+@end example
 
- #stfu flappyperry
+@subsection Effects
 
- "
+This sets an attribute on TOOT  that prevents them from actually sending
+any public  speech messages;  however, @emph{that  user will  not know}.
+The  user will  see their  own  speech, but  it  will not  be echoed  to
+anyone else.
+
+In other words,  this basically sets up  a global ignore of  the user to
+whom it is applied.
+
+If no  time limit is  given, it is effective  for 24 Earth  hours (1,440
+Earth minutes).
+  "
   (error 'unimplemented))
 
 (define-operator-command testcensor (words user plane)
   "UNIMPLEMENTED
 
- Test a message with the censor, displays the filter result.
+  Test a message with the censor, displays the filter result.
 
- Syntax for use:
+  Syntax for use:
 
- #testcensor [MESSAGE]
+  #testcensor [MESSAGE]
 
- Examples:
- #testcensor This message will be filtered and the result will be displayed.
+  Examples:
+  #testcensor This message will be filtered and the result will be displayed.
 
- "
+  "
   (error 'unimplemented))
 
 (define-operator-command time (words user plane)
   "Displays a message  with the current server time.
- 
-Syntax for use:
- #time
+  
+@subsection Usage
 
- Examples:
- #time
+@verbatim
+#time
+@end verbatim
 
- "
+Example
+
+@example
+#time
+@end example
+
+@subsection Example Reply
+
+@example
+Now  it is  2020-05-18T02:14:08.676610-04:00 (Universal:  3,798,771,248;
+Unix: 1,589,782,448)
+@end example
+  "
   (format nil "Now it is ~a (Universal: ~:d; Unix: ~:d)"
           (now) (get-universal-time) (- (get-universal-time) +unix-time-in-universal+)))
 
@@ -1536,11 +1802,17 @@ Syntax for use:
 
 Mnemonic: Ventriloquism
 
- Syntax for use:
- #v LOGIN MESSAGE...
+@subsection Usage
 
- Examples:
- #v flappyperry I like to cause trouble in tootsville
+@verbatim
+#v LOGIN MESSAGE...
+@end verbatim
+
+Example:
+
+@example
+#v mayor-louis I like to cause trouble in tootsville
+@end example
 
 See `INFINITY-SPEAK'
 
@@ -1564,23 +1836,22 @@ This no longer allows ventriloquism of operator commands &c.
   (error 'unimplemented))
 
 (define-operator-command wall (words user plane)
-  "Write to all players
+  "Write to all players.
 
- Sends an pop-up message to everyone currently online.
+Sends an admin (parrot) pop-up message to everyone currently online.
 
- Syntax for use:
- #wall [MESSAGE...]
+@subsection Usage
 
- Examples:
- #wall This message will go to everyone currently on-line.
+@verbatim
+#wall MESSAGE...
+@end verbatim
 
- Parameters:
+Example
 
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
+@example
+#wall This message will go to everyone currently on-line.
+@end example
 "
-  
   (broadcast
    (list :|from| "admin"
          :|status| t
@@ -1590,13 +1861,19 @@ after the # command name
 (define-operator-command wallops (words user plane)
   "Write to all operators
 
- Sends an pop-up message to all  staff members in the zone. 
+Sends an pop-up message to all Builder Toots currently online
 
- Syntax for use:
- #wallops [MESSAGE...]
+@subsection Usage
 
- Examples:
- #wallops This message will go to all other staff members in this zone.
+@verbatim
+#wallops MESSAGE
+@end verbatim
+
+Example
+
+@example
+#wallops This message will go to all other staff members in this zone.
+@end example
 
  "
   (error 'unimplemented))
@@ -1626,10 +1903,7 @@ This can be -1 under certain circumstances.
   (error 'unimplemented))
 
 (define-operator-command warn (words user plane)
-  "
- throws NotFoundException
-
- Warn a user about breaking a rule. Must have staff level 2 (MODERATOR) to use this command.
+  "Warn a user about breaking a rule.
 
  Syntax for use: #warn [REASONCODE] [LOGIN]
 
@@ -1637,6 +1911,8 @@ This can be -1 under certain circumstances.
  #warn obs.rude pil
 
  Reason Codes:
+
+WRITEME ... these are no longer used ...  see `KICK' for the current list
 
  PER.MAIL = Don't share personal information like eMail addresses!
  PER.NAME = Don't share personal information like your real name!
@@ -1658,26 +1934,23 @@ This can be -1 under certain circumstances.
 words  - The  command  parameters  (whitespace-delimited list)  provided
 after the # command name
 
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-
-Throws:
- NotFoundException - if the warning reason code is not valid
- See Also:
- op_kick(String[], AbstractUser, Room), op_ban(String[], AbstractUser, Room)
 "
   (error 'unimplemented))
 
 (define-operator-command whatis (words user plane)
   "Displays information about an item template. 
 
- Syntax for use
- #whatis ITEM-TEMPLATE
+@subsection Usage
 
- Examples
- #whatis 1337
+@verbatim
+#whatis ITEM-TEMPLATE
+@end verbatim
+
+Example:
+
+@example
+#whatis 1337
+@end example
 
  "
   (unless (= 1 (length words))
@@ -1688,22 +1961,30 @@ Throws:
     (let ((template (find-record 'item-template :id item-id)))
       (return (format nil "~{~a: ~a~%<BR>~}"
                       (item-template-info template))))))
+
 (define-operator-command whereami (words user plane)
   "Return an administrative message with the  name of the server to which
  the player is currently connected.
 
- Syntax for use:
- #whereami
+@subsection Usage
 
- Examples:
- #whereami
+@verbatim
+#whereami
+@end verbatim
+
+Example:
+
+@example
+#whereami
+@end example
+
+The  response admin  message is  simply the  machine name  to which  you
+are connected.
 "
   (machine-instance))
 
 (define-operator-command whereis (words user plane)
-  "
-
- Find  out in  what what  room a  character is  standing, if  s/he is
+  "Find  out in  what what  room a  character is  standing, if  s/he is
  logged in at the moment. Must  have staff level 2 (MODERATOR) to use
  this command.
 
@@ -1736,12 +2017,7 @@ See Also:
   (error 'unimplemented))
 
 (define-operator-command who (words user plane)
-  "
- throws PrivilegeRequiredException,
- NotFoundException
-
- Displays a  list of everyone  currently in  a room. Must  have staff
- level 2 (MODERATOR) to use this command.
+  "Displays a  list of everyone  currently in  a room.
 
  Syntax for use
  #who [ROOM]
@@ -1753,33 +2029,26 @@ See Also:
  Examples
  #who tootSquare
  #whereis
-
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-
-Throws:
- PrivilegeRequiredException - if the user calling isn't a staff member
- NotFoundException - if the chosen room does not exist
 "
   (error 'unimplemented))
 
 (define-operator-command whoami (words user plane)
   "Cause  the character  to speak  his/her  name in  the current  room.
- Appears as dialogue in the form:  ``Hello, my name is NAME.'' Must have
- staff level 1 (STAFF) to use this command.
+ Appears as dialogue in the form:  ``Hello, my name is NAME.''
 
- Syntax for use:
- #whoami
+@subsection Usage
 
- Examples:
- #whoami
+@verbatim
+#whoami
+@end verbatim
+
+Example:
+
+@example
+#whoami
+@end example
+
+Note that the response is public speech; everyone in the room will see it.
 "
   (toot-speak (format nil "Hello, my name is ~a." (Toot-name *Toot*)))
   nil)
@@ -1788,21 +2057,26 @@ Throws:
   "Ask  the  server who  it  is.  This  command should  return  version
  information on some of the critical classes used in the game server.
  
- Syntax for use:
- #whoareyou
+@subsection Usage
 
- Examples:
- #whoareyou
+@verbatim
+#whoareyou
+@end verbatim
 
- Parameters:
+Example:
 
-words  - The  command  parameters  (whitespace-delimited list)  provided
- after the # command name
+@example
+#whoareyou
+@end example
+ 
+@subsection Example Response
 
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
+@example
+This server is Inktomi, a X86-64  Intel(R) Core(TM) i7 CPU 860 @ 2.80GHz
+running    Linux   5.6.8-300.fc32.x86_64    with   SBCL    2.0.1-1.fc32.
+Quicklisp    dist   version    2020-04-27;   Ultralisp    dist   version
+20200501011006; Tootsville version 0.6.4
+@end example
 "
   (format nil "This server is ~a, a ~a ~a running ~a ~a with ~a ~a.
 Quicklisp dist version ~a; 

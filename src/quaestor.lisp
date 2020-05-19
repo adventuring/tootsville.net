@@ -193,8 +193,8 @@ without any peanuts, fairy dust, or items being awarded (nor charged).
   "Compute the total balance of peanuts that TOOT has earned over the course of the game."
   (cadar (db-select-all 
           :friendly 
-          (format nil "select sum(peanuts) from quastor_events
-where toot='~a' and completedp = 'Y'"
+          (format nil "select sum(peanuts) from quaestor_events
+where started_by='~a' and completedp = 'Y'"
                   (uuid-to-base64 (etypecase Toot
                                     (Toot (Toot-uuid Toot))
                                     (uuid:uuid Toot)))))))
@@ -203,8 +203,8 @@ where toot='~a' and completedp = 'Y'"
   "Compute the total balance of fairy dust that TOOT has earned over the course of the game."
   (cadar (db-select-all 
           :friendly 
-          (format nil "select sum(fairy_dust) from quastor_events 
-where toot='~a' and completedp = 'Y'"
+          (format nil "select sum(fairy_dust) from quaestor_events 
+where started_by='~a' and completedp = 'Y'"
                   (uuid-to-base64 (etypecase Toot
                                     (Toot (Toot-uuid Toot))
                                     (uuid:uuid Toot)))))))

@@ -172,8 +172,9 @@
   (Toot uuid ref Toot)
   (equipped keyword))
 
+;; FIXME do the migration for these
 (defrecord store-item (:friendly "store_items")
-  (uuid uuid) ;;; FIXME alter table to match
+  (uuid uuid)
   (template number ref item-template)
   (qty number)
   (price number)
@@ -275,13 +276,10 @@
   (wtl string)
   (d3 string)
   (emotion keyword)
-  (peanuts number)
-  (fairy-dust number)
   (observed timestamp)
   (peer-address string)
   (attribs string))
 
-;; FIXME do the migration for these
 (defrecord quaestor-event (:friendly "quaestor_events")
   (uuid uuid)
   (source uuid)
