@@ -41,13 +41,11 @@ be disconnected.")
 This includes  the authentication packet.  Clients must sign  in without
 issuing an exorbitant number of commands or they will be disconnected. ")
 
-(defvar *client* nil)
+(defvar *client* nil
+  "The currently-active client session.")
 
 (defvar *websocket-server* nil
   "The Hunchentoot/Hunchensocket server object for WebSockets.")
-
-(defvar *websocket-maintenance-thread* nil
-  "A thread which culls dead connections and periodically logs statistics about active WebSockets connections.")
 
 (defvar *ws-connections* 0
   "The number of times that someone has connected ever. @emph{NOT} the same as @emph{active} connections.")
@@ -692,8 +690,7 @@ See `+PRE-LOGIN-MAX-TIME+' and `+PRE-LOGIN-MAX-COMMANDS+'.
   "Stop listening for websocket connections and disable the maintenance thread."
   (when *websocket-server*
     (hunchentoot:stop *websocket-server*)
-    (setf *websocket-server* nil)
-    (join-thread *websocket-maintenance-thread*)))
+    (setf *websocket-server* nil)))
 
 
 
