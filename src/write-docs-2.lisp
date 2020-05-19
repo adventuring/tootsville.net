@@ -47,6 +47,7 @@
             (package-name (symbol-package symbol)) (symbol-name symbol))
     (when (fboundp symbol)
       (let ((kind (if (macro-function symbol) "macro" "function")))
+        (format s "~&@findex ~:(~a~)" symbol)
         (if-let (docu (documentation symbol 'function))
           (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind docu)
           (format s "~2&~:(~a~) names an undocumented ~a.~2%" symbol kind)))
@@ -56,6 +57,8 @@
                 (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
                                       (asdf:component-pathname (asdf:find-system :Tootsville))))))
     (when (fboundp (list 'setf symbol))
+      (format s "~&@findex ~:(~a~), SetF
+@findex SetF ~:(~a~)" symbol symbol)
       (if-let (docu (documentation symbol 'setf))
         (format s "~2&(SETF ~:(~a~)) names a function:~2%~a" symbol docu)
         (format s "~2&(SETF ~:(~a~)) names an undocumented function.~2%" symbol))
@@ -64,12 +67,14 @@
                 (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
                                       (asdf:component-pathname (asdf:find-system :Tootsville))))))
     (when (boundp symbol)
+      (format s "~&@vindex ~:(~a~)" symbol)
       (if-let (docu (documentation symbol 'variable))
         (format s "~2&~:(~a~) names a variable:~2%~a~2%Its value is ~s"
                 symbol docu (value-to-docbook symbol))
         (format s "~2&~:(~a~) names an undocumented variable with the value ~s"
                 symbol (value-to-docbook symbol))))
     (dolist (kind '(structure type))
+      (format s "~&@tindex ~:(~a~)" symbol)
       (when-let (docu (documentation symbol kind))
         (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind docu)))))
 
