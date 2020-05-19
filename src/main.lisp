@@ -406,7 +406,7 @@ Hopefully you've already tested the changes?"
     (string (regex-replace-all "([@{}])" string "@\\1"))))
 
 (defun describe-system (system s)
-  (format s "~2%@section Credits for System ~:(~a~)" (double-@ (asdf:component-name system)))
+  (format s "~2%@section System ~:(~a~)" (double-@ (asdf:component-name system)))
   (when-let (description (asdf:system-description system))
     (format s "~2% ~a" (double-@ description)))
   (when-let (author (asdf:system-author system)) 
@@ -414,7 +414,11 @@ Hopefully you've already tested the changes?"
   (when-let (maintainer (asdf:system-maintainer system))
     (format s "~2%Maintainer: ~a" (double-@ maintainer)))
   (when-let (license (asdf:system-license system))
-    (format s "~2%License: ~a" (double-@ license))))
+    (format s "~2%License: ~a" (double-@ license)))
+  (when-let (readme (or (probe-file (asdf:system-relative-pathname system "CREDITS"))
+                        (probe-file (asdf:system-relative-pathname system "CREDITS.txt"))))
+    (format s "~2%@verbatim~%~a~%@end verbatim~2%"
+            (read-file-into-string readme))))
 
 (defun all-credits ()
   (let ((systems-seen (list))
