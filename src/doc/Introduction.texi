@@ -2,6 +2,7 @@
 
 This is the manual for the tootsville server for CIWTA.
 
+@node Who are CIWTA?
 @section Who are CIWTA?
 
 CIWTA, The Corporation  for Inter-World Tourism and  Adventuring, is the
@@ -13,7 +14,10 @@ For more information about CIWTA, visit the web site at
 @url{https://www.ciwta.org/}
 
 
+@node What is Tootsville?
 @section What is Tootsville?
+
+@cindex Tootsville, what is
 
 Tootsville is a massively-multiplayer online rôle-playing game
 (MMORPG) in which players control colorful, elephant-like characters
@@ -28,7 +32,11 @@ members) is now the flagship for the ongoing development of Romance Ⅱ.
 As such, Romance is highly and unapologetically targeted at present
 towards the needs of Tootsville.
 
+@node What is the Romance Game System?
+
 @section What is the Romance Game System?
+
+@cindex Romance Game System, what is
 
 Romance is the name of the game system which runs Tootsville, and
 which could, in future, be adapted to run other games as well.
@@ -46,6 +54,8 @@ based on  a model  in which peer-to-peer  communications are  used for
 real  time activities,  while  the central  servers  are reserved  for
 persisting the world's state while it is quiescent.
 
+@node Technology Stack
+
 @section Technology Stack
 
 Romance is built up of the following technology stack:
@@ -60,6 +70,8 @@ The  client  and peer-to-peer  application  is  written in  JavaScript
 (ECMAScript 6 level), and compressed using the Google Closure Compiler
 into an optimized and minified form.
 @end itemize
+
+@node Affiliated Services
 
 @section Affiliated Services
 
@@ -77,12 +89,16 @@ The Tootsbook blog is a WordPress installation
 @item
 The 
 @item
-The central database server is a MariaDB serve.
+The central database server is a MariaDB server.
 @item
 Database references are cached via MemCacheD
 @end itemize
 
+@node Clusters
+
 @section Clusters
+
+@cindex Clusters, types of
 
 There are four cluster types for Tootsville.
 
@@ -105,6 +121,8 @@ This is the main production environment
 
 @end table
 
+@node Overview of Major Systems
+
 @section Overview of Major Systems
 
 There are several major systems worth understanding from a higher
@@ -115,9 +133,15 @@ critical in those subsystems.
 
 @subsubsection REST Requests
 
+@cindex REST interface
+@cindex Authentication, REST
+
 WRITEME
 
 @subsubsection Infinity Mode communications
+
+@cindex Infinity Mode, Overview
+@cindex Authentication, Infinity Mode
 
 WRITEME
 
@@ -131,11 +155,49 @@ WRITEME
 
 @subsection In-Game Actions
 
+
 @subsubsection Moving in the Game
 
-WRITEME
+@cindex Movement, Overview
+
+There have been 3 systems for character movement.
+
+The  oldest dates  back to  Tootsville I  and was  the @code{d}  method.
+This is no  longer in use. For documentation, to  the extent any exists,
+refer to Tootsville IV docs. In brief, it allowed a Toot to do basically
+the  same  thing  as  the  @code{wtl}  method,  only  it  compacted  the
+description into a string joined with @verb{|~|} characters.
+
+The current @emph{status  quō} method is the “d₂” method,  or ``walk the
+line''  (@code{wtl})  method. The  basic  concept  is that  each  Toot's
+position is determined  by a linear interpolation along  a straight line
+described  by  a start  and  end  position,  a  speed of  movement,  and
+a  start time.  Thus,  all  clients should  be  able  to reliably  place
+a character at the same point on  the line, regardless of any lag in the
+transmission. See @ref{INFINITY-WTL}- for a discussion of this method.
+
+A more  complex system  being designed  for post-5.0  use is  the ``d₃''
+method,  which  allows the  client  to  perform pathfinding  and  create
+a Bezier  spline walk pattern. This  system is loosely supported  by the
+server but in non-specific ways. 
 
 @subsubsection Speech and Related Things
+
+@cindex Speech, Overview
+
+Speech mostly consists of public  messages. Each public message contains
+a volume level, speech contents, and  musical key (for the Toot sounds).
+@ref{INFINITY-SPEAK} handles the bulk of speech.
+
+Private messaging is accomplished by  whispering to another player using
+@code{@@}  messages —  i.e. the  message begins  with @code{@@}  and the
+other player's name, and is processed
+
+Operator (Builder  Toot) commands begin  with a  # and are  processed by
+the server.
+
+Client-side commands  begin with a  ~ and  are processed by  the client,
+without ever sending them to the server.
 
 WRITEME
 
@@ -143,7 +205,7 @@ WRITEME
 
 WRITEME
 
-See `INFINITY-START-EVENT' and `INFINITY-END-EVENT' for an overview.
+See @ref{INFINITY-START-EVENT} and @ref{INFINITY-END-EVENT} for an overview.
 
 @subsubsection Land Ownership
 
@@ -152,6 +214,19 @@ WRITEME
 @subsubsection Clothing, Tools, and Equipment
 
 WRITEME
+
+@subsubsection Metronome
+
+The metronome system allows tasks to  occur on a recurring basis without
+having  to keep  their own  timing threads  open all  the time.  It also
+provides for one-shot events to run at a specific future time.
+
+The  main   point  of   entry  for  scheduling   a  Metronome   task  is
+DO-METRONOME.    The    metronome     thread    itself    relies    upon
+RUN-METRONOME-TASKS to actually start tasks on each cycle.
+
+Programmers are  strongly encouraged  to schedule tasks  using Metronome
+throughout the game code.
 
 @subsection World Simulation
 
@@ -182,6 +257,8 @@ WRITEME
 WRITEME
 
 @c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@node Back Story
 
 @section Back Story
 
