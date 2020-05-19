@@ -69,7 +69,7 @@ See `RUN-METRONOME-TASKS'"
      if (when-let (th (metronome-task-thread task))
           (if (thread-alive-p th)
               t
-              (progn (join-thread th)
+              (progn (ignore-errors (join-thread th))
                      nil)))
      do (v:warn :metronome "Still running: ~a" (metronome-task-thread task))
      else collect task))
