@@ -27,30 +27,66 @@
 
 (in-package :tootsville)
 
-(defun value-to-docbook (symbol)
+(defun value-to-texi (symbol)
   (let ((value (symbol-value symbol)))
     (cond
+      ((typep value 'boolean) (princ-to-string value))
+      ((null value) "NIL")
       ((typep value 'number)
        (format nil "~:d (#x~x)" value value))
       ((typep value 'string)
        (format nil "@verb{| ~s |}" value))
+      ((typep value 'symbol)
+       (format nil "@verb{| ~s |}" value))
       (t (format nil "of type ~s" (type-of value))))))
 
+(defun texi-ref (string)
+  (when (or (find #\{ string) (find #\} string))
+    (setf string
+          (regex-replace-pairs '(("^([^@]*)}" . "@}")
+                                 ("^([^@]*){" "@{"))
+                               string)))
+  (regex-replace-all
+   "`([^']+)'" string
+   (lambda (target start end 
+            match-start match-end
+            reg-starts reg-ends)
+     (declare (ignore start end match-start match-end))
+     (let ((quoted (subseq target (elt reg-starts 0)
+                           (elt reg-ends 0))))
+       (if (find #\: quoted)
+           (let ((package-name (subseq quoted 0 
+                                       (position #\: quoted)))
+                 (symbol-name (subseq quoted
+                                      (position #\: quoted :from-end t))))
+             (if (ignore-errors (find-symbol symbol-name (find-package package-name)))
+                 (format nil "@ref{~a ~a}" package-name symbol-name)
+                 quoted))
+           (if-let (sym (find-symbol quoted))
+             (format nil "@ref{~a ~a}" 
+                     (package-name (symbol-package sym))
+                     (symbol-name sym))
+             quoted))))))
+
 (defun write-documentation (symbol s)
+  (when (char= #\% 
+               (elt (symbol-name symbol) (1- (length (symbol-name symbol)))))
+    (return-from write-documentation nil))
   (when (or (boundp symbol)
             (fboundp symbol)
             (fboundp (list 'setf symbol))
             (documentation symbol 'structure)
             (documentation symbol 'type))
-    (format s "~2&@node ~a::~a~%@section ~:(~a~) ~:(~a~)~%"
-            (package-name (symbol-package symbol)) (symbol-name symbol)
-            (package-name (symbol-package symbol)) (symbol-name symbol))
+    (format s "~2&@node ~a ~a~%@section ~:(~a~)::~:(~a~)~%"
+            (package-name (symbol-package symbol)) (double-@ (symbol-name symbol))
+            (package-name (symbol-package symbol)) (double-@ (symbol-name symbol)))
     (when (fboundp symbol)
       (let ((kind (if (macro-function symbol) "macro" "function")))
         (format s "~&@findex ~:(~a~)" symbol)
         (if-let (docu (documentation symbol 'function))
-          (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind docu)
-          (format s "~2&~:(~a~) names an undocumented ~a.~2%" symbol kind)))
+          (format s "~2&~:(~a~) names a ~a, with lambda list ~s:~2%~a" symbol kind
+                  (function-lambda-list symbol) (texi-ref docu))
+          (format s "~2&~:(~a~) names an undocumented ~a, with lambda list ~s.~2%" symbol kind (function-lambda-list symbol))))
       (when-let (def (or (ignore-errors (sb-introspect:find-definition-source (coerce symbol 'function)))
                          (ignore-errors (sb-introspect:find-definition-source (macro-function symbol)))))
         (format s "~2&(Defined in file ~a)~2%"
@@ -60,23 +96,26 @@
       (format s "~&@findex ~:(~a~), SetF
 @findex SetF ~:(~a~)" symbol symbol)
       (if-let (docu (documentation symbol 'setf))
-        (format s "~2&(SETF ~:(~a~)) names a function:~2%~a" symbol docu)
-        (format s "~2&(SETF ~:(~a~)) names an undocumented function.~2%" symbol))
+        (format s "~2&(SETF ~:(~a~)) names a function, with lambda list ~s:~2%~a" symbol (function-lambda-list symbol)
+                (texi-ref docu))
+        (format s "~2&(SETF ~:(~a~)) names an undocumented function, with lambda list ~s.~2%" symbol
+                (function-lambda-list symbol)))
       (when-let (def (ignore-errors (sb-introspect:find-definition-source (coerce (list 'setf symbol) 'function))))
-        (format s "~2&(Defined in file ~a)~2%"
-                (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
-                                      (asdf:component-pathname (asdf:find-system :Tootsville))))))
+        (when-let (path (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
+                                              (asdf:component-pathname (asdf:find-system :Tootsville))))
+          (format s "~2&(Defined in file ~a)~2%"
+                  path))))
     (when (boundp symbol)
       (format s "~&@vindex ~:(~a~)" symbol)
       (if-let (docu (documentation symbol 'variable))
-        (format s "~2&~:(~a~) names a variable:~2%~a~2%Its value is ~s"
-                symbol docu (value-to-docbook symbol))
-        (format s "~2&~:(~a~) names an undocumented variable with the value ~s"
-                symbol (value-to-docbook symbol))))
+        (format s "~2&~:(~a~) names a variable:~2%~a~2%Its value is ~a"
+                symbol (texi-ref docu) (value-to-texi symbol))
+        (format s "~2&~:(~a~) names an undocumented variable with the value ~a"
+                symbol (value-to-texi symbol))))
     (dolist (kind '(structure type))
-      (format s "~&@tindex ~:(~a~)" symbol)
       (when-let (docu (documentation symbol kind))
-        (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind docu)))))
+        (format s "~&@tindex ~:(~a~)" symbol)
+        (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind (texi-ref docu))))))
 
 (defun gather-all-symbols ()
   ;; XXX split into chapters by package
@@ -84,8 +123,12 @@
     (do-all-symbols (symbol list)
       (when (member (symbol-package symbol)
                     (mapcar #'find-package '(Tootsville Tootsville-User Dreamhost
-                                             Rollbar Thread-pool-taskmaster Chœrogryllum)))
-        (push symbol list)))))
+                                             Rollbar Thread-pool-taskmaster Chœrogryllum
+                                             Bordeaux-Threads
+                                             Alexandria
+                                             Common-Lisp)))
+        (push symbol list)))
+    (reverse (remove-duplicates list))))
 
 (defun write-docs ()
   "Write out the documentation in TeΧinfo format."
@@ -253,7 +296,7 @@ This manual is based upon materials taken from Declt 2.3.
 @contents
 
 @ifnottex
-@node Top, Copying, (dir), (dir)
+@node Top
 @top The Book of Romance II
 
 This is The Book of Romance II, describing the Romance II game core
@@ -271,7 +314,7 @@ docstrings found in the Tootsville package and supporting packages.
 @insertcopying
 @end ifnottex
 
-@node Copying, Introduction, Top, Top
+@node Copying
 @unnumbered Copying
 @quotation
 
@@ -292,7 +335,7 @@ MA 02139, USA.
 
 @end quotation
 
-@node Introduction, Definitions, Copying, Top
+@node Introduction
 @chapter Introduction ~2%"
               (asdf:component-version (asdf:find-system :Tootsville)))
       (princ (alexandria:read-file-into-string
@@ -300,7 +343,7 @@ MA 02139, USA.
              docs)
       (format docs "
 
-@node Definitions, Conclusion, Introduction, Top
+@node Definitions
 @chapter Definitions
 
 @menu
@@ -318,7 +361,7 @@ MA 02139, USA.
       
       (format docs "
 
-@node Credits, Conclusion, Definitions, Top
+@node Credits
 @chapter Credits
 
 Tootsville is built upon a plethora of software. This is an attempt to
@@ -342,7 +385,7 @@ First, the most noticeable:
       
       (format docs "
 
-@node Conclusion, Indices, Credits, Top
+@node Conclusion
 @chapter Conclusion
 
 
@@ -351,7 +394,7 @@ First, the most noticeable:
               (merge-pathnames #p"src/doc/Conclusion.texi" source-dir))
              docs)
       
-      (format docs "@node Indices, , Conclusion, Top
+      (format docs "@node Indices
 @appendix Indices
 @menu
 * Concept index::
@@ -364,7 +407,7 @@ First, the most noticeable:
 @c -------------
 @c Concept index
 @c -------------
-@node Concept index, Function index, Indices, Indices
+@node Concept index
 @appendixsec Concepts
 @printindex cp
 
@@ -374,7 +417,7 @@ First, the most noticeable:
 @c --------------
 @c Function index
 @c --------------
-@node Function index, Variable index, Concept index, Indices
+@node Function index
 @appendixsec Functions
 @printindex fn
 
@@ -384,7 +427,7 @@ First, the most noticeable:
 @c --------------
 @c Variable index
 @c --------------
-@node Variable index, Data type index, Function index, Indices
+@node Variable index
 @appendixsec Variables
 @printindex vr
 
@@ -394,7 +437,7 @@ First, the most noticeable:
 @c ---------------
 @c Data type index
 @c ---------------
-@node Data type index, , Variable index, Indices
+@node Data type index
 @appendixsec Data types
 @printindex tp
 
