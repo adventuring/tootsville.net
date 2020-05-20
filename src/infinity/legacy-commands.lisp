@@ -396,86 +396,6 @@ the user in the case of truncation."
                   :|status| t
                   :|You said| (limit-string-length d 1024))))
 
-(definfinity end-event ((moniker event-id score status medal) user recipient/s)
-  "End an event started by `INFINITY-START-EVENT', i.e. a Quaestor Event.
-
-This method terminates an event (probably  a fountain, in 2.0) which was
-initiated by startEvent.
-
-For fountains, the score is ignored,  and a random number from 1..100 is
-used  as  the effective  score.  Since  fountains  (should) have  a  1:1
-points:peanuts ratio, this will earn  the player 1..100 peanuts randomly
-per fountain visit. Fountains do not respond with a @code{highScores} array.
-
-@subsection Usage
-
-@verbatim
-{ moniker: MONIKER,
-  eventID: EVENT-ID,
-  [ score: SCORE, ]
-  status: ( \"cxl\" | \"cmp\" ), 
-  [ medal: MEDAL ] }
-@end verbatim
-
-Input parameters are:
-@table @code
-@item moniker
-the event's moniker;
-@item eventID
-the event ID to be ended;
-@item score
- the earned score, in points (not peanuts);
-@item status
-one of ``@code{cxl}'' to cancel an event
- (in which case, @code{score} should be 0),
- or ``@code{cmp}'' to complete an event
-\(@code{score} may be zero or more).
-@end table
-
-
-@subsection 200 OK
-
-Response:  JSON sent  to user:
-
-@verbatim
-{ ended:  event ID,
- peanuts: number  of  peanuts earned,
- highScores: array of  scores, indexed by position on the
- high score  list (1..24), each  of which  contains: { points:  number of
- points  scored by  the  high-scoring  user; userName:  the  name of  the
- user },
- totalPeanuts: user's new total peanut balance }
-@end verbatim
-
-Additionally, if this user earned a  high score on this event, s/he will
-get the attribute in the top  level of the response as \"gotHighScore\":
-with the value being the position  number which was earned. For example,
-earning no  high score omits the  \"gotHighScore\" attribute altogether;
-earning  the third  highest score  will return  instead @code{\"gotHighScore\":
-3}.
-
-@subsection Changes from 1.0 to 1.1
-
-Added the @code{status} parameter. In 1.1, this was optional and defaulted to
- @code{cmp}.
-
-@subsection Changes from 1.1 to 1.2
-
-Made the @code{status} parameter mandatory.
-
-@subsection Changes from 1.2 to 2.0
-
-In 1.0 - 1.2, the primary use of this was for out-of-world Flash minigames,
-with the fountains as a secondary usage. In 2.0, this is used for fountains as
-well as treasure chests (magic boxes, &c).
-
-The Flash minigames would report a score, and a server-side table would scale
-that score to an appropriate number of peanuts earned.
-
-Now, the @code{score} and @code{highScores} functionality is ignored and the
-caller should listen for a subsequent gift of peanuts, fairy dust, or an item. "
-  (error 'unimplemented))
-
 (definfinity finger ((&rest Toots-with-keys) user recipient/s)
   "Get public info for a list of Toots.
 
@@ -829,7 +749,11 @@ not the Universal time, and in milliseconds, not seconds."
                                1000))))
 
 (definfinity get-session-apple ((&rest d) user recipient/s)
-  "Initialise a session key for stream or batch mode operations (Unused now)
+  "Initialise a session key for stream or batch mode operations.
+
+Note that this command is still available, but only in the pre-login
+phase of communications; once signed it, it will signal an error if
+called.
 
 @subsection 410 Gone
 

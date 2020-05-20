@@ -703,7 +703,8 @@ altitude, world, and UI label for that spot.
 The values of each key on  @code{badges} are only a latitude, longitude,
 altitude, and world. The moniker itself represents the badge.
 
-An SVG graphic for each badge should be found on Jumbo in the form @code{https://jumbo.tootsville.org/Assets/Badges/5/BADGE-NAME.svg}.
+An SVG graphic for each badge should be found on Jumbo in the form
+@code{https://jumbo.tootsville.org/Assets/Badges/5/BADGE-NAME.svg}.
 
 @subsection Overview of Spots and Badges
 

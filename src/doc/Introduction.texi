@@ -136,6 +136,10 @@ critical in those subsystems.
 @cindex REST interface
 @cindex Authentication, REST
 
+REST  calls  can be  anonymous  (or  public), or  require  third-party
+authentication, i.e. Firebase credentials.
+
+
 WRITEME
 
 @subsubsection Infinity Mode communications
@@ -143,13 +147,210 @@ WRITEME
 @cindex Infinity Mode, Overview
 @cindex Authentication, Infinity Mode
 
-WRITEME
+In the beginning, Tootsville I, the Hillside Demo, there was SmartFox
+Server. This was a chat server designed to work over an XML protocol
+with Adobe Flash clients. Tootsville I was built on this SmortFox
+Server and the SmartFox client software that went with it.
+
+Unfortunately, SFS was not able to scale up with Tootsville's growth,
+and was very resource-intensive on the server side, so Bruce-Robert
+Pocock, the Chief Engineer at Res Interactive, brought in a Java-based
+chat server that he had written, named Braque. Braque was renamed
+Appius Claudius Caecus, and became the first Roman of the Romance Game
+System.
+
+In order to convince the SmartFox Client software in the Tootsville
+Flosh client program (first Nightmare, and later Persephone) to
+communicate with Appius, we had to advertise a SmartFox version number
+--- so, in order to ensure that we had a sufficiently high version
+number, and since EcmaScript uses floating-point numbers, we chose
+Infinity.
+
+The protocol gradually turned into a JSON-oriented library of
+functions, leaving behind the SFS protocols (although some SFS
+concepts remained, such as room variables and user variables, in
+various forms).
+
+The modern version of Infinity Protocol over WebSockets and TCP
+streaming is known as version Alef-Null, which is a fascinating maths
+concept that refers to a certain kind of Infinity.
+
+There are 3 types of authentication supported for Infinity mode: Adult
+Sign-In, Child Sign-In, and Server-to-Server.
+
+Before authenticating, a very limited vocabulary is available; see
+@ref{TOOTSVILLE INFINITY-PRE-LOGIN} for a discussion of what is
+available to end users. Server-to-server connections send their
+authentication in advance.
+
+Once authenticated, the vocabulary grows extensively. See
+@ref{TOOTSVILLE DEFINFINITY} for an overview of Infinity Mode commands
+and how they can also be called as REST endpoints. Commands begin with
+@code{INFINITY-}, and can be found alphabetically in
+@ref{Definitions}. Here are a selection, sorted alphabetically, of
+commands available in 2.0. Note that some of these are deprecated or
+no longer useful, but all commands since 1.0 are still included in the
+vocabulary, including some which were originally Res Interactive
+proprietary extensions.
+
+@subsubsection Infinity Mode Commands index
+
+@itemize
+@item
+@ref{TOOTSVILLE INFINITY-ADD-FURNITURE}
+@item
+@ref{TOOTSVILLE INFINITY-ADD-TO-LIST}
+@item
+@ref{TOOTSVILLE INFINITY-CLICK}
+@item
+@ref{TOOTSVILLE INFINITY-CONSIDER-CHILD-APPROVAL}
+@item
+@ref{TOOTSVILLE INFINITY-DOFFF}
+@item
+@ref{TOOTSVILLE INFINITY-DOFF}
+@item
+@ref{TOOTSVILLE INFINITY-DON}
+@item
+@ref{TOOTSVILLE INFINITY-ECHO}
+@item
+@ref{TOOTSVILLE INFINITY-END-EVENT}
+@item
+@ref{TOOTSVILLE INFINITY-ENUMERATE-WEAR-SLOTS}
+@item
+@ref{TOOTSVILLE INFINITY-FINGER}
+@item
+@ref{TOOTSVILLE INFINITY-FROM-AVATARS}
+@item
+@ref{TOOTSVILLE INFINITY-GAME-ACTION}
+@item
+@ref{TOOTSVILLE INFINITY-GET-AVATARS}
+@item
+@ref{TOOTSVILLE INFINITY-GET-COLOR-PALETTES}
+@item
+@ref{TOOTSVILLE INFINITY-GET-INVENTORY-BY-TYPE}
+@item
+@ref{TOOTSVILLE INFINITY-GET-INVENTORY}
+@item
+@ref{TOOTSVILLE INFINITY-GET-ONLINE-USERS}
+@item
+@ref{TOOTSVILLE INFINITY-GET-ROOM-LIST}
+@item
+@ref{TOOTSVILLE INFINITY-GET-ROOM-VARS}
+@item
+@ref{TOOTSVILLE INFINITY-GET-SERVER-TIME}
+@item
+@ref{TOOTSVILLE INFINITY-GET-SESSION-APPLE}
+@item
+@ref{TOOTSVILLE INFINITY-GET-STORE-ITEM-INFO}
+@item
+@ref{TOOTSVILLE INFINITY-GET-USER-LISTS}
+@item
+@ref{TOOTSVILLE INFINITY-GET-WALLET}
+@item
+@ref{TOOTSVILLE INFINITY-GET-ZONE-LIST}
+@item
+@ref{TOOTSVILLE INFINITY-GIVE}
+@item
+@ref{TOOTSVILLE INFINITY-GO}
+@item
+@ref{TOOTSVILLE INFINITY-INIT-USER-ROOM}
+@item
+@ref{TOOTSVILLE INFINITY-JOIN}
+@item
+@ref{TOOTSVILLE INFINITY-LOGOUT}
+@item
+@ref{TOOTSVILLE INFINITY-MAIL-CUSTOMER-SERVICE}
+@item
+@ref{TOOTSVILLE INFINITY-PEEK-AT-INVENTORY}
+@item
+@ref{TOOTSVILLE INFINITY-PING}
+@item
+@ref{TOOTSVILLE INFINITY-PLAY-WITH}
+@item
+@ref{TOOTSVILLE INFINITY-PROMPT-REPLY}
+@item
+@ref{TOOTSVILLE INFINITY-QUIESCE}
+@item
+@ref{TOOTSVILLE INFINITY-READ-MAP}
+@item
+@ref{TOOTSVILLE INFINITY-REMOVE-FROM-LIST}
+@item
+@ref{TOOTSVILLE INFINITY-REPORT-BUG}
+@item
+@ref{TOOTSVILLE INFINITY-REPORT-USER}
+@item
+@ref{TOOTSVILLE INFINITY-REQUEST-BUDDY}
+@item
+@ref{TOOTSVILLE INFINITY-SEND-OUT-OF-BAND-MESSAGE}
+@item
+@ref{TOOTSVILLE INFINITY-SERVER-TIME}
+@item
+@ref{TOOTSVILLE INFINITY-SET-AVATAR-COLOR}
+@item
+@ref{TOOTSVILLE INFINITY-SET-FURNITURE}
+@item
+@ref{TOOTSVILLE INFINITY-SET-ROOM-VAR}
+@item
+@ref{TOOTSVILLE INFINITY-SET-USER-VAR}
+@item
+@ref{TOOTSVILLE INFINITY-SPAWN-ZONE}
+@item
+@ref{TOOTSVILLE INFINITY-SPEAK}
+@item
+@ref{TOOTSVILLE INFINITY-START-EVENT}
+@item
+@ref{TOOTSVILLE INFINITY-TOOT-LIST}
+@item
+@ref{TOOTSVILLE INFINITY-USE-EQUIPMENT}
+@item
+@ref{TOOTSVILLE INFINITY-WARDROBE}
+@item
+@ref{TOOTSVILLE INFINITY-WTL-4}
+@item
+@ref{TOOTSVILLE INFINITY-WTL}
+@end itemize
+
+@node The Adult Sign-In Process
 
 @subsubsection The Adult Sign-in Process
 
+Adults signing in must be first authenticated by an outside
+provider. Presently we're using Firebase for that purpose. Long-term,
+post-5.0 we'd like to switch to handling pure OAuth on our own, but
+migrating from Firebase could be problematic and take some time to
+phase in, so we'd prefer to do that before we reach too large a
+critical mass of users.
+
+Once the client has performed authentication and received its tokens,
+it will send a login packet that is authenticated by @ref{TOOTSVILLE
+WEBSOCKET-AUTHENTICATE} and @ref{TOOTSVILLE FIND-USER-FOR-JSON}.
+
 WRITEME
 
+@node The Child Sign-In Process
+
 @subsubsection The Child Sign-in Process
+
+Child sign-ins are conducted using the @ref{TOOTSVILLE
+INFINITY-GET-APPLE} function.
+
+WRITEME
+
+@node The Server-to-Server Sign-In Process
+
+@subsubsection The Server-to-Server Sign-In Process
+
+Server-to-Server peering occurs on TCP port 5005, and is accessible
+only via the ::1 (loopback) interface. This means that, in order to
+create a server-to-server peering, the connection must be tunneled
+over ssh first. Since this is an unattended server process, this
+requires the use of public/private key pairs to establish trust
+between servers.
+
+The server-to-server stream uses JSON packets packaged into a simple
+ANSI-control-characters-based streaming protocol.
+
+Sign-in occurs as follows . . . WRITEME
 
 WRITEME
 
@@ -168,13 +369,14 @@ refer to Tootsville IV docs. In brief, it allowed a Toot to do basically
 the  same  thing  as  the  @code{wtl}  method,  only  it  compacted  the
 description into a string joined with @verb{|~|} characters.
 
-The current @emph{status  quō} method is the “d₂” method,  or ``walk the
-line''  (@code{wtl})  method. The  basic  concept  is that  each  Toot's
-position is determined  by a linear interpolation along  a straight line
-described  by  a start  and  end  position,  a  speed of  movement,  and
-a  start time.  Thus,  all  clients should  be  able  to reliably  place
-a character at the same point on  the line, regardless of any lag in the
-transmission. See @ref{INFINITY-WTL}- for a discussion of this method.
+The current @emph{status quō} method is the “d₂” method, or ``walk the
+line'' (@code{wtl}) method. The basic concept is that each Toot's
+position is determined by a linear interpolation along a straight line
+described by a start and end position, a speed of movement, and a
+start time.  Thus, all clients should be able to reliably place a
+character at the same point on the line, regardless of any lag in the
+transmission. See @ref{TOOTSVILLE INFINITY-WTL}- for a discussion of
+this method.
 
 A more  complex system  being designed  for post-5.0  use is  the ``d₃''
 method,  which  allows the  client  to  perform pathfinding  and  create
@@ -185,9 +387,10 @@ server but in non-specific ways.
 
 @cindex Speech, Overview
 
-Speech mostly consists of public  messages. Each public message contains
-a volume level, speech contents, and  musical key (for the Toot sounds).
-@ref{INFINITY-SPEAK} handles the bulk of speech.
+Speech mostly consists of public messages. Each public message
+contains a volume level, speech contents, and musical key (for the
+Toot sounds).  @ref{TOOTSVILLE INFINITY-SPEAK} handles the bulk of
+speech.
 
 Private messaging is accomplished by  whispering to another player using
 @code{@@}  messages —  i.e. the  message begins  with @code{@@}  and the
@@ -205,13 +408,43 @@ WRITEME
 
 WRITEME
 
-See @ref{INFINITY-START-EVENT} and @ref{INFINITY-END-EVENT} for an overview.
+See @ref{TOOTSVILLE INFINITY-START-EVENT} and @ref{TOOTSVILLE
+INFINITY-END-EVENT} for an overview.
 
 @subsubsection Land Ownership
 
 WRITEME
 
 @subsubsection Clothing, Tools, and Equipment
+
+Clothing, Tools, and Equipment are ``just'' items which happen to be
+able to be held in a player's inventory. This is largely a function of
+the weight assigned and the carrying capacity of the character.
+
+These items feature a Wear Slot value. A Wear Slot indicates a point
+on an avatar at which a fiece of clothing can be mounted, or an item
+can be held. These slots are distinct to an avatar type, so UltraToot
+has different Wear Slots than, say, Jack or Welduh.
+
+Wear Slots have valences that allow multiple layers of clothing to
+occupy the same essential slot: eg, a T-shirt under a blazer. Some
+articles of clothing may be defined to block other slots or other
+valences; eg a full-length dress might block a shirt or pants both.
+
+Items have energy, which can be measured in a continuous or discrete
+way. Continuous energy types are effectively a continuum of rational
+values, and energy can be expended in any fraction of that
+amount. Discrete energy types are an integer counter, and a specefic
+count is displayed to the user. When an item's energy reaches zero, it
+can vanish, or just remain in inventory awaiting a recharge.
+
+Equipment and tools have special hooks to enable them to be ``used''
+in the game world. First, they must be held in the player's trunk (for
+avatars with hands, they can be in the left or right hand). Second,
+there must be a ``power'' associated with the item, which requires a
+client-side function specialized on the item's template ID. This hook
+may be a simple wrapper around reporting back to the server, or it can
+be as ornate as necessary.
 
 WRITEME
 
@@ -238,7 +471,59 @@ WRITEME
 
 @subsection The front-end
 
-WRITEME
+The front-end services of Tootsville are provided by a JavaScript
+program, in the repository
+@url{https://github.com/adventuring/tootsville.org}.
+
+@subsubsection Coding Standard
+
+In general, the following coding standards apply to the front-end:
+
+@itemize
+@item
+Everything should be in the global @code{Tootsville}
+object-as-namespace.
+@item
+Within that object, each subsystem has its own object-as-namespace.
+@item
+Namespaces and classes use CamelCase, functions, variables, and object
+property names user lowerCamelCase names.
+@item
+When defining any object in the global namespace, it must be defined
+in such a way that reloading the file is idempotent, and it must not
+erase any other members that may have been added into the same
+object-as-namespace.
+@end itemize
+
+The effects of this is that a typical Javascript source file will
+need to contain a series of declarations like this:
+
+@verbatim
+if (!('Tootsville' in window))
+{ Tootsville = {}; }
+
+if (!('Namespace' in Tootsville))
+{ Tootsville.Namespace = {}; }
+
+Tootsville.Namespace.funcName =
+ function (lambda, list)
+ { ... };
+
+Tootsville.Namespace.object =
+ { foo: 42 };
+@end verbatim
+
+Note, in particular, that we @emph{must not} do something like:
+
+@verbatim
+Tootsville.Namespace =
+  { funcName: function () { ... } };
+@end verbatim
+
+This would potentially remove other objects in the
+@code{Tootsville.Namespace} namespace that may have been defined by
+other users.
+
 
 @subsubsection Babylon.js
 
@@ -287,17 +572,52 @@ WRITEME
 
 @subsection The Classical Period
 
+For many years, the Toots expanded their domain across the south and
+west of Tootanga.
+
 WRITEME
 
 @subsection The Evil Mayor and Shade
 
-WRITEME
+All was well and good, until the arrival of Shade. Shade was a monster
+made up of black and purple smoke, with glowing orange eyes, created
+from bad wishes --- any wishes that weren't for good. Shade and his
+team of Shaddows --- Welduh, Smudge, Nevermind, and others --- arrived
+on the scene and started making trouble for the Toots.
+
+Some Toots even joined up with Shade and his Shaddows, and traveled to
+the evil valley of Shaddowfalls in the northeastern mountains.
+
+Zap and the others used their power to keep Shade at bay, although
+from time to time Shade won small victories, at one time even changing
+all of Tootsville into Shadesville for a couple of weeks.
+
+To fight the ongoing perils of Shade, the Toot Troops were organized,
+a scouting-type organization that kept the Shaddows on notice.
+
+Then, Shade came up with his greatest plan --- he replaced the mayor
+of Tootsville with the evil mayor, a hollow Toot full of smoke and
+stuffed with straw. The evil mayor helped Shade get into the
+underground Troops bunker and disconnect the water leading to the Toot
+Square Fountain. Smudge went around and poisoned all of the other
+wishing fountains, leaving the Toots without any source of Wish
+Magic. Ogres took control of the Enchanted Forest and kept the Toot
+Fairies from bringing in any Fairy Dust.
 
 @subsection The Destruction of Tootsville
 
-WRITEME
+Things were bleak. Tootsville fell, and the Toots one by one
+disappeared, leaving behind nothing but a field of purple volcanic
+dust and Shade.
 
 @subsection The Revival
 
-WRITEME
+Not everyone was destroyed. Pil, the most powerful Toot of all,
+protected some of the other Toots from Shade. Codfish-Howie and
+Catvlle got together and revived the original 8 Toots, then more and
+more. They trapped Shade in a forcefield of his own evil magic in
+Shaddowfalls, and began to rebuild Tootsville, starting with the
+iconic Toot Square Fountain.
+
+That brings us to today.
 

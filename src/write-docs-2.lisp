@@ -307,6 +307,7 @@ docstrings found in the Tootsville package and supporting packages.
 * Copying:: The GNU Affero General Public License
 * Introduction:: What Tootsville V (Romance II) is all about
 * Definitions:: The symbols documentation
+* Javascript:: The front-end documentation
 * Conclusion:: Time to go
 * Indices:: Concepts, functions, variables and data types
 @end menu
@@ -359,6 +360,9 @@ MA 02139, USA.
         (dolist (symbol defs)
           (write-documentation symbol docs)))
       
+      (princ (read-file-into-string (merge-pathnames #p"../tootsville.org/dist/doc.texi"
+						     source-dir))
+	     docs)
       (format docs "
 
 @node Credits
@@ -367,13 +371,76 @@ MA 02139, USA.
 Tootsville is built upon a plethora of software. This is an attempt to
 convey at least a partial enumeration of the credits.
 
-First, the most noticeable:
+First, the most directly responsible:
+
+Tootsville is a production of the Corporation for Inter-World Tourism
+and Adventuring, a not-for-profit corporation in the State of Florida,
+United States.
 
 ~a
 
+@node Major Support Software
+@section Major Support Software
+
+The following support software is used in the development of
+Tootsville:
+
+@itemize
+@item
+The Linux® Kernel
+@item
+The Gnu Operating System, by the Free Software Foundation
+@item
+The Fedora Distribution
+@item
+Emacs text editor and integrated development environment (IDE)
+@item
+Firefox web browser
+@item
+Chromium web browser
+@item
+Gimp graphics editor
+@item
+Inkscape graphics editor
+@item
+Blender graphics editor
+@item
+FFMPEG video and audio transcoder
+@item
+Audacity sound editor
+@item
+Rosegarden music editor
+@end itemize
+
+We'd also like to mention that we test with the following web browsers
+
+@itemize
+@item
+Firefox for macOS and Microsoft Windows
+@item
+Epiphany (Gnome Web)
+@item
+Google Chrome for Linux, macOS, and Microsoft Windows
+@item
+Opera
+@item
+Microsoft Edge for macOS and Microsoft Windows
+@item
+Apple Safari for macOS
+@end itemize
+
+@node Systems
+@section Systems
+
+The following systems (libraries) are compiled into the Tootsville server
+
 ~a
 
-@subsection The Steel Bank Common Lisp compiler
+@node SBCL Credits
+@section The Steel Bank Common Lisp compiler
+
+Tootsville is developed and compiled using the Steel Bank Common Lisp
+compiler
 
 @verbatim
 ~a
@@ -385,8 +452,18 @@ First, the most noticeable:
       
       (format docs "
 
-@node Conclusion
-@chapter Conclusion
+@node Javascript Tools
+@section Javascript Tools
+
+The Javascript front-end to Tootsville is developed using the
+following additional tools:
+
+@itemize
+@item
+Babylon.JS 3D rendering library
+@item
+Google Closure Javascript compressor
+@end itemize
 
 
 ")

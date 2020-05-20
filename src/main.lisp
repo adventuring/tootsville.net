@@ -406,7 +406,7 @@ Hopefully you've already tested the changes?"
     (string (regex-replace-all "([@{}])" string "@\\1"))))
 
 (defun describe-system (system s)
-  (format s "~2%@section System ~:(~a~)" (double-@ (asdf:component-name system)))
+  (format s "~2%@subsection System ~:(~a~)" (double-@ (asdf:component-name system)))
   (when-let (description (asdf:system-description system))
     (format s "~2% ~a" (double-@ description)))
   (when-let (author (asdf:system-author system)) 
