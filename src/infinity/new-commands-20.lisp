@@ -248,9 +248,11 @@ Text items: key: \"text\" + unique-ID = value
 
 @subsection Places
 
-Places are regions of the room  defined by polygonal outlines. These are
-held in Room Variables with names of the form \"zone\" plus an arbitrary
-identifier.  The  contents  of  the room  variable  are  a  @emph{key}
+@cindex Places, within the game
+
+Places  are regions  of the  game space  defined by  polygonal outlines.
+These are held in Room Variables with names of the form \"zone\" plus an
+arbitrary identifier. The contents of the room variable are a @emph{key}
 followed by \":\" and a series of coördinates.
 
 Each coördinate pair is given as x,y,z in decimal, literally, like:
@@ -264,11 +266,17 @@ server include:
 
 @item grass
 
+This  is  the  default Place  kind;  any  area  of  ground that  is  not
+explicitly part of some other kind of Place is grass.
+
 @item tallGrass
 
 @item water
 
 @item unwalkable
+
+This demarcates an invisible obstacle  — a collision-only object — which
+prevents avatars from entering that space.
 
 @item doormat
 
@@ -288,6 +296,8 @@ server include:
 
 @item game
 
+This space is part of an in-world game; e.g. a soccer field.
+
 @item ice
 
 @item sand
@@ -297,6 +307,10 @@ server include:
 @item cheese
 
 The stuff the moons are made of
+
+@item pit
+
+A bottomless pit
 
 @end table
 
