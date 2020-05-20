@@ -253,3 +253,10 @@ be in the world, and not owned by any other player."
         :|obstruct| (list :|point| (wear-slot-obstruct-point wear-slot)
                           :|min| (wear-slot-obstruct-min wear-slot)
                           :|max| (wear-slot-obstruct-max wear-slot))))
+
+(defun place-string-circle (radius x-center z-center segments)
+  (format nil "~{~{~8,6f,0,~8,6f~}~^~~~}" 
+          (loop for i from 1.0 below segments 
+             collecting (list
+                         (+ x-center (* radius (cos (* 2 pi (/ i segments)))))
+                         (+ z-center (* radius (sin (* 2 pi (/ i segments)))))))))
