@@ -435,9 +435,9 @@ Returns a WTL-type structure in a JSON string
          (θ₂ (random (* 2 pi)))
          (ρ (+ 35 (random 100)))
          (x (* ρ (cos θ)))
-         (y (* ρ (sin θ))))
-    (to-json (list :|course| (list :|endPoint| (list :|x| x :|y| y :|z| 0)
-                                   :|startPoint| (list :|x| x :|y| y :|z| 0)
+         (z (- (abs (* ρ (sin θ))))))
+    (to-json (list :|course| (list :|endPoint| (list :|x| x :|y| 0 :|z| z)
+                                   :|startPoint| (list :|x| x :|y|0y :|z| z)
                                    :|speed| 0
                                    :|startTime| (* 1000 (- (get-universal-time)
                                                            +unix-zero-in-universal-time+)))
