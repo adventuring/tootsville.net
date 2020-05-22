@@ -26,7 +26,7 @@ Inter-World Tourism and Adventuring. ALL RIGHTS RESERVED.
 medium, must be approved by CIWTA.}
 
 If you would like to use Tootsville Materials of any kind in your own
-work, contact the Cadre at @code{cadre@ciwta.org}, or write to:
+work, contact the Cadre at @code{cadre@@ciwta.org}, or write to:
 
 @verbatim
 PO Box 23095
