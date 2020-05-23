@@ -462,8 +462,44 @@ Uses the first, alphabetically speaking."
 
 
 
+(defun send-parent-child-login-email (request)
+  "Send a parent child's REQUEST to play via email."
+  (let* ((Toot (find-reference request :Toot))
+         (*user* (find-reference Toot :player)))
+    (cl-smtp:send-email
+     (config :email :noreply :smtp)
+     (format nil "\"~a\" <~a>" 
+             (config :email :noreply :from)
+             (config :email :noreply :from-address))
+     (format nil "\"~a\" <~a>"
+             (user-display-name)
+             (person-first-email *user*))
+     (format nil "~a, your child wants to play as ~:(~a~)"
+             (user-given-name)
+             (Toot-Name Toot))
+     (format nil "~a:
+
+Your child wanto to play in Tootsville using the ~:(~a~) 
+account that you created for them.
+
+You can approve or deny this request for one hour by visiting:
+ 
+https://www.tootsville.org/play/#child-request=~a
+
+If you don't approve, your child cannot play online.
+
+\(This is an automated email that you receive as a player
+of Tootsville who has created a child account. Write to 
+support@tootsville.org if you have any questions.)"
+             (user-display-name)
+             (Toot-name Toot)
+             (child-request-uuid request))
+     :ssl :tls
+     :authentication (list (config :email :noreply :from-address)
+                           (config :email :noreply :password)))))
+
 (defun send-parent-child-login-request (request)
-  "Send a parent a child's REQUEST to play"
+  "Send a parent a child's REQUEST to play as a popup in game."
   (unicast (list :|from| "prompt"
                  :|status| t
                  :|id| (format nil "child-request-~a" (child-request-uuid request))
@@ -548,11 +584,10 @@ WRITEME"
                                 :Toot (Toot-UUID Toot)
                                 :placed-at (now)
                                 :response ""))))
-    (unless (user-online-p (find-reference Toot :player))
-      (return-from login-child
-        (list 400 (list :|error| "Your parent or guardian is not online, and we can not send them an email."))))
-    (let ((*user* (find-reference Toot :player)))
-      (send-parent-child-login-request request)))
+    (if-let (*user* (let ((user (find-reference Toot :player)))
+                      (and (user-online-p user) user)))
+      (send-parent-child-login-request request)
+      (send-parent-child-login-email request)))
   (list 200 (list :|message| "Waiting for permission…")))
 
 (defun pending-child-approval-request (user)
