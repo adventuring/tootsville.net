@@ -52,6 +52,7 @@ REST services for the front-end."
                :cl-dbi
                :cl-memcached
                :cl-ppcre
+               :cl-smtp
                :cljwt-custom
                :clouchdb
                :cxml
