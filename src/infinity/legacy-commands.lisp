@@ -1981,7 +1981,7 @@ operator command @code{#dumpthreads}.
      (when (search ",credits" speech)
        (dump-credits)
        (setf speech "📜"))
-     (let ((vol (when (member vol '("shout" "whisper") :test 'equal)
+     (let ((vol (when (member vol '("shout" "whisper") :test 'equalp)
                   vol)))
        (toot-speak speech :Toot *Toot* :vol vol)))))
 
