@@ -133,6 +133,7 @@ REST services for the front-end."
                                             "http-status-messages"))
      (:file "websockets" :depends-on ("acceptor"))
      (:file "tcp-stream" :depends-on ("websockets"))
+     (:file "messaging" :depends-on ("websockets" "tcp-stream" "characters"))
      (:file "main" :depends-on ("config" "view" "package-post" "acceptor"))
      (:module "db"
               :depends-on ("package-post")
@@ -143,6 +144,25 @@ REST services for the front-end."
                            (:file "db-central" :depends-on ("maria" "generic-db"))
                            (:file "friendly" :depends-on ("db-central"))))
      (:file "lib/twilio/twilio-simple")
+     (:module "characters"
+              :depends-on ()
+              :components
+              ((:file "robots")
+               (:file "characters" :depends-on ("robots"))
+               (:file "robo-toot" :depends-on ("characters"))
+               (:module "named"
+                        :depends-on ("robo-toot")
+                        :components
+                        ((:file "zap")
+                         (:file "flora")
+                         (:file "superstar")
+                         (:file "lil-mc")
+                         (:file "cupid")
+                         (:file "moo")
+                         (:file "dottie")
+                         (:file "sparkle")
+                         (:file "doodle")))))
+                        
      (:module "auth"
               :depends-on ("package-post" "users")
               :components

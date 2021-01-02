@@ -232,27 +232,6 @@ Active Clients (~:d secs): ~:d (~:d%)."
 
 (pushnew 'find-infinity-websocket-resource hunchensocket:*websocket-dispatch-table*)
 
-(defun broadcast (message &key near except)
-  "Broadcast MESSAGE to all ∞ Mode listeners connected who are near NEAR.
-
-NEAR is a Toot  character who is the epicenter of  the message, which is
-currently ignored.
-
-EXCEPT is  a user  or Toot who  does not need  to receive  the broadcast
-message (usually the originator)"
-  (declare (ignore near))
-  (ws-broadcast *infinity-websocket-resource* message 
-                :except (user-stream except))
-  (tcp-broadcast message))
-
-(defun unicast (message &optional (user (active-player)))
-  "Send MESSAGE directly to USER (which may be a Person or Toot)"
-  (if-let ((client (user-stream user)))
-    (with-websocket-disconnections (client)
-      (ws-unicast message client))
-    (v:warn :stream "Unable to transmit unicast message to ~a: not connected"
-            user)))
-
 (defun streams-near (&optional (Toot *Toot*))
   "Find the streams assocated with users whose Toots are near TOOT."
   (declare (ignore Toot))

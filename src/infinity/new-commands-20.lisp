@@ -437,7 +437,7 @@ Returns a WTL-type structure in a JSON string
          (x (* ρ (cos θ)))
          (z (- (abs (* ρ (sin θ))))))
     (to-json (list :|course| (list :|endPoint| (list :|x| x :|y| 0 :|z| z)
-                                   :|startPoint| (list :|x| x :|y|0y :|z| z)
+                                   :|startPoint| (list :|x| x :|y|0 :|z| z)
                                    :|speed| 0
                                    :|startTime| (* 1000 (- (get-universal-time)
                                                            +unix-zero-in-universal-time+)))
