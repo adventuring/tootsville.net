@@ -1851,7 +1851,7 @@ This is used to establish a new server pairing ...
       (private-admin-message "Can't do that"
                              "Not an operator command"))))
 
-(definfinity speak ((key speech vol) user recipient/s)
+(definfinity speak ((&key speech vol) user recipient/s)
   "The user speaks SPEECH at volume VOL in public.
 
 Handle speech by the user.
