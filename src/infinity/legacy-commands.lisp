@@ -247,14 +247,14 @@ In 1.2 adding a room required only an index.
          ((null (lot-owner-Toot lot))
           ;; claim a lot and build a basic house
           (unless (or (null index) (and (numberp index) (zerop index)))
-            (infinity-error 400 :empty-lot-use-house-not-index))
+            (error 'infinity-error :http-status 400 :memo :empty-lot-use-house-not-index))
           (setf (lot-owner-Toot lot) (Toot-uuid *Toot*))
           ;; TODO check house is an house
           ;; TODO place house on lot
           )
          ((equal (lot-owner-Toot lot) (Toot-uuid *Toot*))
           (unless (null house)
-            (infinity-error 400 :did-you-want-house-or-room))
+            (error 'infinity-error :http-status 400 :memo :did-you-want-house-or-room))
           (when (or (null index)
                     (not (numberp index))
                     (zerop index)
@@ -355,7 +355,7 @@ that item).
   (unless (null color)
     (error 'infinity-error :http-status 400 :memo :cannot-select-color))
   ;; TODO don
-  )
+  (error 'unimplemented))
 
 (definfinity echo ((&rest d) user recipient/s)
   "Echoes back the supplied JSON (or ActionScript) object to the client.
@@ -1556,7 +1556,7 @@ confirmed adding. AKA the Twitter vs. Facebook mechanisms.
 
 @subsection New in 1.1
 
-This is new in Romance 1.1
+This was new in Romance 1.1
 "
   (list 200 (list :|from| "buddyRequest"
                   :|status| t
@@ -1851,7 +1851,7 @@ This is used to establish a new server pairing ...
       (private-admin-message "Can't do that"
                              "Not an operator command"))))
 
-(definfinity speak ((&key speech vol) user recipient/s)
+(definfinity speak ((key speech vol) user recipient/s)
   "The user speaks SPEECH at volume VOL in public.
 
 Handle speech by the user.
@@ -1968,7 +1968,7 @@ operator command @code{#dumpthreads}.
     ((#\\ #\! #\% #\_ #\^ #\|) 
      (v:warn :speak "command not supported ~a" speech)
      (private-admin-message "Oops"
-                            "Try saying something that does not start with ~c" (char speech 0))) ; XXX
+                            (format nil "Try saying something that does not start with ~c" (char speech 0)))) ; XXX
     (otherwise
      (when (search ",dumpthreads" speech)
        (v:debug :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
@@ -2310,7 +2310,7 @@ scores for this event.
 
 @end table
 
- "
+"
   (let* ((event-id (or event-i-d id))
          (event (ignore-not-found (find-record 'quaestor-event :id event-id))))
     (when (null event)
@@ -2332,7 +2332,7 @@ scores for this event.
                                   :|err| "badStatus"
                                   :|error| "Your software tried to end an event with an unrecognized status"))))))
 
-(definfinity use-equipment ((|t| x y z on) user recipient/s)
+(definfinity use-equipment ((|t| x y z on of) user recipient/s)
   "The player wishes to use a piece of equipment on a particular item or place.
 
 @subsection Usage
@@ -2362,5 +2362,5 @@ In  the  second  form,  the  user   wants  to  use  their  equipment  on
 a particular item or character. The optional @code{of} helps narrow down
 whether it should be an item or character.
 
- "
+"
   (error 'unimplemented))
