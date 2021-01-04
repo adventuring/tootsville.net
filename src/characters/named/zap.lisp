@@ -32,18 +32,14 @@
 (defmethod initialize-robot ((robot robot) (Toot-name (eql :zap)))
   (initialize-robo-Toot robot))
 
-(defmethod robo-Toot-heard ((robot robo-Toot) (listener-name (eql :Zap)) speaker mode heard)
-  (warn "Unhandled: “~a” (mode ~s)" (lastcar heard) mode))
-
-(defmethod robo-Toot-heard ((robot robo-Toot) (listener-name (eql :Zap)) speaker (mode null) heard)
+(robo-Toot-heard* (Zap nil)
   (robo-match ("Zap")
     (robo-set-mode how-are-you)
     (robo-Toot-say robot "Hello, ~a. How are you?" (Toot-name speaker))))
 
 (robo-Toot-heard* (Zap how-are-you)
   (robo-match ("good")
-    (robo-Toot-say robot "I'm glad to hear that")))
+    (robo-Toot-say robot "I'm glad to hear that"))
+  (robo-match ("you\\?" "yourself\\?" "how are you" "you doing\\?" "howdy do")
+    (robo-Toot-say robot "I'm doing well, thanks for asking")))
   
-  
-  
-

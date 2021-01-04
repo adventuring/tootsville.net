@@ -56,11 +56,14 @@
   ;; TODO
   t)
 
-(defun robot-broadcast (message near)
-  (v:info :robots "Robots hear message: ~a" message)
+(defun robot-broadcast (message near &key except)
+  (v:info :robots "Robots hear message: ~s" message)
   (dolist (robot (hash-table-values *robots*))
-    (when (nearp robot near)
+    (when (and (nearp robot near) (not (equalp except robot)))
       (robot-unicast message robot))))
 
 (defmethod robot-unicast (message (robot robot))) ; default no-op
+
+(defmethod user-stream ((robot robot))
+  nil)
 

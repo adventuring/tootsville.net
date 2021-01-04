@@ -6,9 +6,9 @@
 
 (defmethod robo-Toot-handle (robo-Toot from status message))
 
-(defmethod robo-Toot-heard (robo-Toot listener-name speaker mode heard)
+(defmethod robo-Toot-heard ((robo-Toot robot) listener-name speaker mode heard)
   (v:warn :Robot "Unhandled speech or mode, ~:(~a~) did not hear “~a” in mode ~s"
-        listener-name heard mode))
+        listener-name (lastcar heard) mode))
 
 (defmethod robo-Toot-listen (robo-Toot listener-name speaker text extra-class)
   (when (string-equal listener-name (Toot-name speaker))
@@ -102,22 +102,31 @@
   t)
 
 (defmethod robo-Toot-say (robot format &rest format-args)
-  (broadcast (list :|from| (Toot-name (Toot robot))
+  (broadcast (list :|from| "pub"
                    :|id| (Toot-UUID (Toot robot))
                    :|t| (apply #'format nil format format-args)
-                   :|x| (list))
+                   :|x| nil)
              :near (Toot-position robot)
              :except robot))
 
 (defmacro robo-Toot-heard* ((listener mode) &body body)
-  `(defmethod robo-Toot-heard ((robot robo-Toot) (listener-name (eql ,(make-keyword (string listener))))
-                               speaker (mode (eql ,(make-keyword (string mode)))) heard)
-     ,@body))
+  `(defmethod robo-Toot-heard ((robot robot) (listener-name (eql ,(make-keyword (string listener))))
+                               speaker (mode ,(cond
+                                                ((null mode) 'null)
+                                                ((eql mode t) 't)
+                                                (t `(eql ,(make-keyword (string mode))))))
+                               heard)
+     ,@body
+     (call-next-method)))
 
 (defmacro robo-set-mode (mode)
   `(setf (gethash speaker (robo-Toot-mode (context robot))) ,(make-keyword (string mode))))
 
-(defmacro robo-match ((string) &body body)
-  `(when (cl-ppcre:scan ,string (string-downcase (lastcar heard)))
-     ,@body))
+(defmacro robo-match ((&rest strings) &body body)
+  `(let ((mention (string-downcase (lastcar heard))))
+     (when (or ,@(loop for string in strings
+                       collecting `(cl-ppcre:scan ,(string-downcase string) mention)))
+       (v:info :robots "Matched ~s to “~a”" ',strings mention)
+       ,@body
+       (return-from robo-toot-heard t))))
 
