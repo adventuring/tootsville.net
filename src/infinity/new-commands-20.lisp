@@ -1,7 +1,7 @@
 ;;; new-commands-20.lisp is part of Tootsville
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
-;;; Res  Interactive LLC;  Copyright  © 2018-2020,  the Corporation  for
+;;; Res  Interactive LLC;  Copyright  © 2018-2021,  the Corporation  for
 ;;; Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;; This program is Free Software: you can redistribute it and/or modify
@@ -437,7 +437,7 @@ Returns a WTL-type structure in a JSON string
          (x (* ρ (cos θ)))
          (z (- (abs (* ρ (sin θ))))))
     (to-json (list :|course| (list :|endPoint| (list :|x| x :|y| 0 :|z| z)
-                                   :|startPoint| (list :|x| x :|y|0 :|z| z)
+                                   :|startPoint| (list :|x| x :|y| 0 :|z| z)
                                    :|speed| 0
                                    :|startTime| (* 1000 (- (get-universal-time)
                                                            +unix-zero-in-universal-time+)))

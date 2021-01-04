@@ -2,7 +2,7 @@
 ;;;
 ;;;; src/characters/robot.lisp is part of Tootsville
 ;;;
-;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2020  The
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -32,29 +32,35 @@
 (defvar *robots* (make-hash-table :test 'equalp))
 
 (defclass robot ()
-  ((Toot :accessor Toot :initform nil :initarg :Toot :type 'Toot)
+  ((Toot :accessor Toot :initarg :Toot :type 'Toot)
    (context :accessor context :initform nil)
    (location :accessor Toot-position :initform (list :CHOR 0 0 0))))
+
+(defmethod print-object ((robot robot) s)
+  (format s "#<Robot for Toot ~a; context ~s>"
+          (Toot-name (Toot robot))
+          (context robot)))
 
 (defun robotp (user)
   (typep user 'robot))
 
-(defmethod initialize-robot (robot Toot-name)
-  (warn "No initializer for robot ~a" Toot-name))
+(defmethod initialize-robot ((robot robot) (Toot-name symbol))
+  (error "No initializer for robot ~:(~a~) (~s)" Toot-name robot))
 
-(defmethod initialize-instance :after (robot &key Toot &allow-other-keys)
+(defmethod initialize-instance :after ((robot robot) &key Toot &allow-other-keys)
   (check-type Toot Toot)
   (initialize-robot robot (make-keyword (string-upcase (Toot-name Toot))))
   (setf (gethash (Toot-name Toot) *robots*) robot))
 
-(defun nearp (robot place)
+(defmethod nearp ((robot robot) place)
   ;; TODO
   t)
 
 (defun robot-broadcast (message near)
+  (v:info :robots "Robots hear message: ~a" message)
   (dolist (robot (hash-table-values *robots*))
     (when (nearp robot near)
       (robot-unicast message robot))))
 
-(defmethod robot-unicast (message robot)) ; default no-op
+(defmethod robot-unicast (message (robot robot))) ; default no-op
 

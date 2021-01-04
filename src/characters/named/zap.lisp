@@ -1,10 +1,49 @@
-(defmethod initialize-robot (robot (Toot-name (eql :zap)))
+;;;; -*- lisp -*-
+;;;
+;;;; src/characters/named/zap.lisp is part of Tootsville
+;;;
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
+;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
+;;;
+;;;; This  program is  Free  Software: you  can  redistribute it  and/or
+;;;; modify it under the terms of  the GNU Affero General Public License
+;;;; as published by  the Free Software Foundation; either  version 3 of
+;;;; the License, or (at your option) any later version.
+;;;
+;;; This program is distributed in the  hope that it will be useful, but
+;;; WITHOUT  ANY   WARRANTY;  without  even  the   implied  warranty  of
+;;; MERCHANTABILITY or  FITNESS FOR  A PARTICULAR  PURPOSE. See  the GNU
+;;; Affero General Public License for more details.
+;;;
+;;; You should  have received a  copy of  the GNU Affero  General Public
+;;; License    along     with    this     program.    If     not,    see
+;;; <https://www.gnu.org/licenses/>.
+;;;
+;;; You can reach CIWTA at https://ciwta.org/, or write to us at:
+;;;
+;;; PO Box 23095
+;;;; Oakland Park, FL 33307-3095
+;;; USA
+
+(in-package :Tootsville)
+
+
+
+(defmethod initialize-robot ((robot robot) (Toot-name (eql :zap)))
   (initialize-robo-Toot robot))
 
-(defmethod robo-Toot-heard :after (robot (listener-name (eql :zap)) speaker (mode null) heard)
-  (when (find "Zap" (last heard))
-    (setf (gethash speaker (robo-Toot-mode robo-Toot)) :how-are-you)
+(defmethod robo-Toot-heard ((robot robo-Toot) (listener-name (eql :Zap)) speaker mode heard)
+  (warn "Unhandled: “~a” (mode ~s)" (lastcar heard) mode))
+
+(defmethod robo-Toot-heard ((robot robo-Toot) (listener-name (eql :Zap)) speaker (mode null) heard)
+  (robo-match ("Zap")
+    (robo-set-mode how-are-you)
     (robo-Toot-say robot "Hello, ~a. How are you?" (Toot-name speaker))))
+
+(robo-Toot-heard* (Zap how-are-you)
+  (robo-match ("good")
+    (robo-Toot-say robot "I'm glad to hear that")))
+  
   
   
 

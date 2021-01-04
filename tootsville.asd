@@ -2,7 +2,7 @@
 ;;;
 ;;;; tootsville.asd is part of Tootsville
 ;;;
-;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2020  The
+;;;; Copyright  © 2008-2017  Bruce-Robert  Pocock;  © 2018-2021  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
@@ -161,7 +161,19 @@ REST services for the front-end."
                          (:file "moo")
                          (:file "dottie")
                          (:file "sparkle")
-                         (:file "doodle")))))
+                         (:file "doodle")
+                         (:file "picasso")
+                         (:file "harmony")
+                         (:file "props")
+                         (:file "rad")
+                         (:file "chaos")
+                         (:file "smudge")
+                         (:file "sploot")
+                         (:file "nevermind")
+                         (:file "shade")
+                         (:file "jack")
+                         (:file "snowcone")
+                         (:file "mayor-louis")))))
                         
      (:module "auth"
               :depends-on ("package-post" "users")
