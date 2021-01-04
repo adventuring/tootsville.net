@@ -82,6 +82,7 @@ a constant; it should be updated in a later release."
 (defun ensure-Toot (Toot)
   (etypecase Toot
     (Toot Toot)
+    (Robot (Toot Toot))
     (string (find-record 'Toot :name Toot))
     (uuid:uuid (find-record 'Toot :uuid Toot))))
 

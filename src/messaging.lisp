@@ -41,7 +41,7 @@ message (usually the originator)"
   (ws-broadcast *infinity-websocket-resource* message 
                 :except (user-stream except))
   (tcp-broadcast message)
-  (robot-broadcast message near))
+  (robot-broadcast message near :except except))
 
 (defun unicast (message &optional (user (active-player)))
   "Send MESSAGE directly to USER (which may be a Person or Toot)"

@@ -416,11 +416,10 @@ names of Toots."
 
 (defun from-avatars (Toots-with-keys)
   (let ((hash (make-hash-table :test 'equal)))
-    (list :|avatars| 
-          (loop for (key Toot) on Toots-with-keys by #'cddr
+    (loop for (key Toot) on Toots-with-keys by #'cddr
              do (setf (gethash (princ-to-string key) hash)
-                      (Toot-info (ensure-Toot Toot)))
-             return hash)
+                      (Toot-info (ensure-Toot Toot))))
+    (list :|avatars| hash
           :|from| "avatars"
           :|inRoom| "@Tootsville"
           :|status| t)))

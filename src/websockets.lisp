@@ -264,11 +264,12 @@ Active Clients (~:d secs): ~:d (~:d%)."
   (or (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*)
       (when-let (stream (find Toot 
                               (remove-if-not 
-                               #'Toot
-                               (hunchensocket:clients
-                                *infinity-websocket-resource*))
+                               #'Toot (hunchensocket:clients
+                                       *infinity-websocket-resource*))
                               :key #'Toot :test #'Toot=))
-        (setf (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*) stream))))
+        (setf (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot))
+                       *ws-client-for-Toot*)
+              stream))))
 
 (defun force-close-hunchensocket (client)
   "Attempt to destroy the connection to CLIENT"
@@ -307,6 +308,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defun websockets-unicast-low-level% (message user-stream)
   (hunchensocket:send-text-message user-stream message)
   (v:info :stream "Unicast to ~a: ~:d character~:p" user-stream (length message))
+  (format *Trace-output* "[~a] ~a" (if-let (Toot (Toot user-stream)) (Toot-name Toot)) message)
   (incf *ws-chars-unicast* (length message)))
 
 (defun ws-unicast (message user)
@@ -419,7 +421,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defun connected-Toots ()
   "All Toots currently connected"
   (remove-if #'null
-             (mapcar #'Toot (hunchensocket:clients *infinity-websocket-resource*))))
+             (append (mapcar #'Toot (hunchensocket:clients *infinity-websocket-resource*))
+                     (mapcar #'Toot (hash-table-values *Robots*)))))
 
 (defun try-reconnect-Toot-name (Toot-name user)
   (when (and Toot-name (plusp (length Toot-name))
@@ -507,7 +510,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   (make-hash-table :test 'equal :weakness :value))
 
 (defvar *ws-client-for-Toot* 
-  (make-hash-table :test 'equal :weakness :value))
+  (make-hash-table :test 'equalp :weakness :value))
 
 (defun ws-sign-in-user (client &optional (user *user*))
   "Sign in USER on CLIENT connection.

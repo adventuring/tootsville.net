@@ -104,10 +104,30 @@
 (defmethod robo-Toot-say (robot format &rest format-args)
   (broadcast (list :|from| "pub"
                    :|id| (Toot-UUID (Toot robot))
+                   :|u| (Toot-name (Toot robot))
                    :|t| (apply #'format nil format format-args)
                    :|x| nil)
              :near (Toot-position robot)
              :except robot))
+
+(defmethod robo-Toot-go-to (robot x y z)
+  (destructuring-bind (world start-x start-y start-z) (Toot-position robot)
+    (let ((facing 0)) ; FIXME
+      (broadcast (list :|from| "wtl"
+                       :|status| t
+                       :|course| (list :|speed| 0.1
+                                       :|startTime| (timestamp-to-unix (now))
+                                       :|startPoint| (list :|x| start-x
+                                                           :|y| start-y
+                                                           :|z| start-z)
+                                       :|endPoint| (list :|x| x
+                                                         :|y| y
+                                                         :|z| z))
+                       :|facing| facing
+                       :|u| (Toot-UUID (Toot robot))
+                       :|n| (Toot-name (Toot robot))))
+      ;; FIXME: Adjust over time
+      (setf (Toot-position robot) (list world x y z)))))
 
 (defmacro robo-Toot-heard* ((listener mode) &body body)
   `(defmethod robo-Toot-heard ((robot robot) (listener-name (eql ,(make-keyword (string listener))))
