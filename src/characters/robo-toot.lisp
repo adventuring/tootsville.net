@@ -28,8 +28,9 @@
     (v:info :Robot "[~:(~a~)] ~:(~a~): “~a”" listener-name (Toot-name speaker) text)
     (robo-Toot-heard robo-Toot listener-name speaker mode-for-speaker heard-from-speaker)))
 
-(defmethod robot-unicast (robo-Toot message)
+(defmethod robot-unicast (message (robo-Toot robot))
   (destructuring-bind (&key |from| |status| &allow-other-keys) message
+    (v:info :Robots "[~a] Handle message from ~a" (Toot-name (Toot robo-Toot)) |from|)
     (robo-Toot-handle robo-Toot (make-keyword |from|) |status| message)))
 
 (defmethod robo-Toot-handle (robo-Toot (from (eql :|logOK|)) status message))

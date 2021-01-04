@@ -62,8 +62,6 @@
     (when (and (nearp robot near) (not (equalp except robot)))
       (robot-unicast message robot))))
 
-(defmethod robot-unicast (message (robot robot))) ; default no-op
-
 (defmethod user-stream ((robot robot))
   nil)
 
