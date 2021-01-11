@@ -29,17 +29,4 @@
 
 
 
-(defmethod initialize-robot ((robot robot) (Toot-name (eql :nevermind)))
-  (initialize-robo-Toot robot))
-
-(robo-Toot-heard* (nevermind nil)
-  (robo-match ("nevermind")
-    (robo-set-mode how-are-you)
-    (robo-Toot-say robot "Hello, ~a. How are you?" (Toot-name speaker))))
-
-(robo-Toot-heard* (nevermind how-are-you)
-  (robo-match ("good")
-    (robo-Toot-say robot "I'm glad to hear that"))
-  (robo-match ("you\\?" "yourself\\?" "how are you" "you doing\\?" "howdy do")
-    (robo-Toot-say robot "I'm doing well, thanks for asking")))
-  
+(define-character Nevermind Shaddow)

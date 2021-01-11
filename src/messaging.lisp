@@ -53,3 +53,7 @@ message (usually the originator)"
       (v:warn :stream "Unable to transmit unicast message to ~a: not connected"
               user))))
 
+
+(defun find-thread (name)
+  (remove-if-not (lambda (thread) (search name (thread-name thread)))
+                 (all-threads)))

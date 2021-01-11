@@ -1,6 +1,7 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; src/characters/named/lil-mc.lisp is part of Tootsville
+;;;; src/characters/personalities/toot-personality.lisp is part of
+;;;; Tootsville
 ;;;
 ;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -29,4 +30,28 @@
 
 
 
-(define-character Lil-MC Basic-8)
+(define-personality Toot)
+
+(define-personality Basic-8 Toot)
+
+(define-reply (Basic-8 nil)
+  (robot-match ("you from earth" "you from (chœrogryllum|choerogryllum)"
+                "you from this planet")
+    (robot-set-mode from-earth)
+    (robot-say robot "I'm from Earth, originally, but now I live here on Chœrogryllum.")))
+
+(define-reply (Basic-8 from-earth)
+  (robot-match ("from earth")
+    (robot-say robot "I grew up on Earth as an elephant, before coming through the Mist to Tootsville")))
+                
+
+(define-reply (Toot nil)
+  (robot-match ((Toot-name (Toot robot)))
+    (robot-set-mode how-are-you)
+    (robot-say robot "Hello, ~a. How are you?" (Toot-name speaker))))
+
+(define-reply (Toot how-are-you)
+  (robot-match ("good")
+    (robot-say robot "I'm glad to hear that"))
+  (robot-match ("you\\?" "yourself\\?" "how are you" "you doing\\?" "howdy do")
+    (robot-say robot "I'm doing well, thanks for asking")))

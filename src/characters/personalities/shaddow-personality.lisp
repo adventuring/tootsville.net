@@ -1,6 +1,7 @@
 ;;;; -*- lisp -*-
 ;;;
-;;;; src/characters/named/lil-mc.lisp is part of Tootsville
+;;;; src/characters/personalities/shaddow-personality.lisp is part of
+;;;; Tootsville
 ;;;
 ;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
 ;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
@@ -29,4 +30,5 @@
 
 
 
-(define-character Lil-MC Basic-8)
+(define-personality Shaddow)
+

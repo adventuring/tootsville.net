@@ -29,17 +29,10 @@
 
 
 
-(defmethod initialize-robot ((robot robot) (Toot-name (eql :zap)))
-  (initialize-robo-Toot robot))
+(define-character Zap Basic-8)
 
-(robo-Toot-heard* (Zap nil)
-  (robo-match ("Zap")
-    (robo-set-mode how-are-you)
-    (robo-Toot-say robot "Hello, ~a. How are you?" (Toot-name speaker))))
+(define-reply (Zap nil)
+  (robot-match ("^yo(!)?$")
+    (robot-say robot "Yo!")))
 
-(robo-Toot-heard* (Zap how-are-you)
-  (robo-match ("good")
-    (robo-Toot-say robot "I'm glad to hear that"))
-  (robo-match ("you\\?" "yourself\\?" "how are you" "you doing\\?" "howdy do")
-    (robo-Toot-say robot "I'm doing well, thanks for asking")))
   

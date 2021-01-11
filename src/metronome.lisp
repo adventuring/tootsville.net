@@ -81,7 +81,8 @@ Typically these  tasks are scheduled in  one of three ways.  They may be
 scheduled to occur at a given frequency in seconds, at a single time, or
 at a give frequency up until a certain time.
 
-Tasks are usually created by `DO-METRONOME', which in turn uses `METRONOME-REGISTER' to safely enqueue the tasks with locking.
+Tasks are usually created by `DO-METRONOME', which in turn uses
+`METRONOME-REGISTER' to safely enqueue the tasks with locking.
 
 The metronome runs  at approximately 1 second resolution,  but steps its
 time forward at precisely 1 second  intervals, so no task will be missed
@@ -101,7 +102,7 @@ opportunity and have to wait for the next window."
                               :name (format nil "Metronome: ~a"
                                             (metronome-task-name task)))))
          (when (and (metronome-task-one-shot-time task)
-                    (< (metronome-task-one-shot-time task) now))
+                    (<= (metronome-task-one-shot-time task) now))
            (make-thread (metronome-task-function task)
                         :name (format nil "Metronome: ~a"
                                       (metronome-task-name task)))

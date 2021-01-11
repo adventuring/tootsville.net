@@ -159,6 +159,14 @@ Active Clients (~:d secs): ~:d (~:d%)."
   "Handle errors caused by surprise disconnections by CLIENT."
   `(handler-case
        (progn ,@body)
+     (type-error (c)
+       (if (and (eql (sb-impl::expected-type c) 'sb-thread:mutex)
+                  (null (sb-impl::datum c)))
+           (progn (v:warn :stream "Type-error: mutex is null on stream for ~a"
+                          ,client)
+                  (force-close-hunchensocket ,client)
+                  (incf *ws-surprise-disconnects*))
+           (error c)))
      (sb-int:broken-pipe (c)
        (v:warn :stream "Disconnect detected on ~a for ~a"
                (stream-error-stream c) ,client)
@@ -412,17 +420,22 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 
 (defun all-connected () 
   (hunchensocket:clients *infinity-websocket-resource*))
+
 (defun who-is-connected ()
   "All users currently connected"
   (remove-if #'null
              (mapcar #'user-account
-                     (hunchensocket:clients *infinity-websocket-resource*))))
+                     (all-connected))))
 
 (defun connected-Toots ()
   "All Toots currently connected"
   (remove-if #'null
-             (append (mapcar #'Toot (hunchensocket:clients *infinity-websocket-resource*))
+             (append (mapcar #'Toot (all-connected))
                      (mapcar #'Toot (hash-table-values *Robots*)))))
+
+(defun connected-Toot-names ()
+  "The names of all Toots currently connected"
+  (mapcar #'Toot-name (connected-Toots)))
 
 (defun try-reconnect-Toot-name (Toot-name user)
   (when (and Toot-name (plusp (length Toot-name))

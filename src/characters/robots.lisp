@@ -33,23 +33,20 @@
 
 (defclass robot ()
   ((Toot :accessor Toot :initarg :Toot :type 'Toot)
-   (context :accessor context :initform nil)
+   (heard :initform (make-hash-table :test 'equalp) :accessor robot-has-heard)
+   (personality :initarg :personality :reader robot-personality)
+   (mode :accessor robot-mode :initform (make-hash-table :test 'equalp))
    (location :accessor Toot-position :initform (list :CHOR 0 0 0))))
 
 (defmethod print-object ((robot robot) s)
-  (format s "#<Robot for Toot ~a; context ~s>"
-          (Toot-name (Toot robot))
-          (context robot)))
+  (format s "#<Robot ~a>"
+          (Toot-name (Toot robot))))
 
 (defun robotp (user)
   (typep user 'robot))
 
-(defmethod initialize-robot ((robot robot) (Toot-name symbol))
-  (error "No initializer for robot ~:(~a~) (~s)" Toot-name robot))
-
 (defmethod initialize-instance :after ((robot robot) &key Toot &allow-other-keys)
   (check-type Toot Toot)
-  (initialize-robot robot (make-keyword (string-upcase (Toot-name Toot))))
   (setf (gethash (Toot-name Toot) *robots*) robot))
 
 (defmethod nearp ((robot robot) place)

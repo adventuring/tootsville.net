@@ -643,6 +643,9 @@ This might  include sending  a pending  child prompt."
       (send-parent-child-login-request request))))
 
 (defun reap-uninteresting-child-requests ()
+  "Remove uninteresting requests from the child_requests table.
+
+Normally run by the metronome periodically."
   (v:info :child-request "Reaping denied requests (2 hours): ~s"
           (db-select-all :friendly
                          "DELETE FROM child_requests WHERE denied_at IS NOT NULL AND denied_at < CURRENT_TIMESTAMP - INTERVAL 2 HOUR"))

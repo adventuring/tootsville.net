@@ -29,17 +29,6 @@
 
 
 
-(defmethod initialize-robot ((robot robot) (Toot-name (eql :chaos)))
-  (initialize-robo-Toot robot))
+(define-character Chaos Shaddow)
 
-(robo-Toot-heard* (chaos nil)
-  (robo-match ("chaos")
-    (robo-set-mode how-are-you)
-    (robo-Toot-say robot "Hello, ~a. How are you?" (Toot-name speaker))))
-
-(robo-Toot-heard* (chaos how-are-you)
-  (robo-match ("good")
-    (robo-Toot-say robot "I'm glad to hear that"))
-  (robo-match ("you\\?" "yourself\\?" "how are you" "you doing\\?" "howdy do")
-    (robo-Toot-say robot "I'm doing well, thanks for asking")))
   

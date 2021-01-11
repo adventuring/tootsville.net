@@ -102,3 +102,11 @@ Returns all items in that volume which are not in a character's inventory."
                            :longitude longitude
                            :altitude altitude
                            :world world)))
+
+
+
+(defun square (x) (* x x))
+
+(defun distance (x₁ y₁ z₁ x₂ y₂ z₂)
+  (sqrt (+ (square (- x₂ x₁)) (square (- y₁ y₂)) (square (- z₁ z₂)))))
+
