@@ -37,7 +37,6 @@ currently ignored.
 
 EXCEPT is  a user  or Toot who  does not need  to receive  the broadcast
 message (usually the originator)"
-  (declare (ignore near))
   (ws-broadcast *infinity-websocket-resource* message 
                 :except (user-stream except))
   (tcp-broadcast message)
@@ -53,6 +52,13 @@ message (usually the originator)"
       (v:warn :stream "Unable to transmit unicast message to ~a: not connected"
               user))))
 
+(defun peer-address (Toot)
+  (if-let (stream (user-stream Toot))
+    (format nil "inet:~a"
+            (string-trim " " (second (split-sequence #\: (second (split-sequence #\, (second (split-sequence #\" (format nil "~s" (slot-value stream 'hunchensocket::input-stream))))))))))
+    (if-let (robot (gethash (Toot-name Toot) *robots*))
+      "robot"
+      "unknown")))
 
 (defun find-thread (name)
   (remove-if-not (lambda (thread) (search name (thread-name thread)))

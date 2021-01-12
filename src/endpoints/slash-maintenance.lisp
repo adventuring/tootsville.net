@@ -132,3 +132,7 @@ Build starting at: ~a" (now))
     (uiop:chdir (asdf:system-relative-pathname :Tootsville "./src/lib/jscl/"))
     (load (asdf:system-relative-pathname :Tootsville "./src/lib/jscl/jscl.lisp"))
     (funcall (intern "BOOTSTRAP-CORE" :jscl/bootstrap))))
+
+(define-maintenance-task quit
+    ("Quit running" 10 10)
+  (stop-production))

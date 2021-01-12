@@ -431,6 +431,7 @@ Hopefully you've already tested the changes?"
            (pushnew system systems-seen :test 'equalp)
            (describe-system system s)
            (dolist (other-system (mapcar #'asdf:find-system
-                                         (asdf:component-sideway-dependencies system)))
+                                         (remove-if #'consp
+                                                    (asdf:component-sideway-dependencies system))))
              (unless (member other-system systems-seen)
                (pushnew other-system systems :test 'equalp))))))))

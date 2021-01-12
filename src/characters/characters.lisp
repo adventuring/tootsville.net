@@ -39,27 +39,18 @@
        ())))
 
 (defmacro define-character (name &optional personality)
-  (setf (gethash name *npc-list*) name)
   (let ((full-name (intern (concatenate 'string "ROBOT-" (string-upcase name))))
         (personality-name (when personality
                             (intern (concatenate 'string (string-upcase personality) "-PERSONALITY")))))
     `(progn
-       (defclass ,full-name (,(or personality-name 'robot)) ())
-       (defmethod initialize-instance :after ((robot ,full-name) &key &allow-other-keys)
-         (let* ((quiesced (ignore-errors (find-record 'Toot-quiesced :Toot (Toot-uuid (Toot robot)))))
-                (wtl (jonathan.decode:parse (or (and quiesced (Toot-quiesced-wtl quiesced))
-                                                (random-start-wtl-for-Toot)))))
-           (setf (Toot-position robot) (destructuring-bind (&key |course| |facing|) wtl
-                                         (declare (ignore |facing|))
-                                         (let ((start-point (getf |course| :|startPoint|)))
-                                           (destructuring-bind (&key |x| |y| |z|) start-point
-                                             (list :chor |x| |y| |z|))))))))))
+       (setf (gethash ',name *npc-list*) ',name)
+       (defclass ,full-name (,(or personality-name 'robot)) ()))))
 
 (defun init-characters ()
   "Initialize non-player characters in the game world."
-
   (dohash ((name kind) *npc-list*)
     (let ((full-name (intern (concatenate 'string "ROBOT-" (string-upcase name)))))
       (unless (gethash (string name) *robots*)
         (make-instance full-name
-                       :Toot (find-record 'Toot :name (string-capitalize name)))))))
+                       :Toot (find-record 'Toot :name (string-capitalize name))))))
+  (hash-table-keys *npc-list*))

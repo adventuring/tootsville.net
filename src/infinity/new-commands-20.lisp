@@ -611,12 +611,13 @@ WRITEME
     (destroy-record old))
   (make-record 'Toot-quiesced
                :Toot (Toot-uuid Toot)
-               :world world
-               :latitude latitude
-               :longitude longitude
-               :altitude altitude
+               :world (or world :chor)
+               :latitude (or latitude 0)
+               :longitude (or longitude 0)
+               :altitude (or altitude 0)
                :wtl (jonathan.encode:to-json wtl)
                :d3 (jonathan.encode:to-json d3)
+               :peer-address (peer-address Toot)                                 
                :emotion emotion
                :observed (now))
   (list :|from| "quiesce"

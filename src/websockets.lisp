@@ -160,8 +160,8 @@ Active Clients (~:d secs): ~:d (~:d%)."
   `(handler-case
        (progn ,@body)
      (type-error (c)
-       (if (and (eql (sb-impl::expected-type c) 'sb-thread:mutex)
-                  (null (sb-impl::datum c)))
+       (if (and (eql (type-error-expected-type c) 'sb-thread:mutex)
+                  (null (type-error-datum c)))
            (progn (v:warn :stream "Type-error: mutex is null on stream for ~a"
                           ,client)
                   (force-close-hunchensocket ,client)
@@ -406,6 +406,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   "The number of seconds from Universal Time Epoch to Unix Epoch.")
 
 (defun ayt-idle-users ()
+  "Send Are You There to idle (websocket) users"
   (let ((server-time (* 1000 (- (get-universal-time) +unix-time-in-universal+)))
         (idle-time (* 1000 (- (- (get-universal-time) +ws-idle-seconds+)
                               +unix-time-in-universal+))))
@@ -418,23 +419,24 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                         :|idleTime| idle-time)
                   client))))
 
-(defun all-connected () 
+(defun all-connected ()
+  "All clients connected via websockets"
   (hunchensocket:clients *infinity-websocket-resource*))
 
 (defun who-is-connected ()
-  "All users currently connected"
+  "All users currently connected via websockets"
   (remove-if #'null
              (mapcar #'user-account
                      (all-connected))))
 
 (defun connected-Toots ()
-  "All Toots currently connected"
+  "All Toots currently connected — players or NPCs"
   (remove-if #'null
              (append (mapcar #'Toot (all-connected))
                      (mapcar #'Toot (hash-table-values *Robots*)))))
 
 (defun connected-Toot-names ()
-  "The names of all Toots currently connected"
+  "The names of all Toots currently connected — players or NPCs"
   (mapcar #'Toot-name (connected-Toots)))
 
 (defun try-reconnect-Toot-name (Toot-name user)
