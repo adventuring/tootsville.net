@@ -295,7 +295,8 @@ or exit the REPL.")
                                 (asdf:find-system  :Tootsville)))
   (swank:set-package :Tootsville)
   (start)
-  (banner))
+  (banner)
+  (init-characters))
 
 (defun destroy-all-listeners ()
   "Destroy all Hunchentoot listener threads violently.

@@ -55,3 +55,7 @@
     (robot-say robot "I'm glad to hear that"))
   (robot-match ("you\\?" "yourself\\?" "how are you" "you doing\\?" "howdy do")
     (robot-say robot "I'm doing well, thanks for asking")))
+
+(define-reply (Toot nil)
+  (robot-match ("\\bfuck" "\\bshit" "\\bdamn" "\\bgoddamn?\\b" )
+    (robot-say robot "Maybe you should not use that kind of language around here.")))

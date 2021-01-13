@@ -162,6 +162,7 @@ In Romance  1, this command took  a room moniker as  its sole parameter;
 since rooms as such no longer exist, we use latitude and longitude now.
 
 "
+  (check-type words list)
   (list 200 (list :|from| "beam"
                   :|latitude| (parse-integer (first words))
                   :|longitude| (parse-integer (second words))

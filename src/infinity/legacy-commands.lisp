@@ -1985,21 +1985,21 @@ operator command @code{#dumpthreads}.
        (toot-speak speech :Toot *Toot* :vol vol)))))
 
 (define-constant +credits+
-    "Tootsville V by  Bruce-Robert Pocock at the  Corporation for Inter-
+    "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-
 World Tourism and Adventuring.
 
-Special thanks to Ali Dolan, Mariaelisa Greenwood, Levi Mc Call, and
-Zephyr Salz.
+Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
+Levi Mc Call, and Zephyr Salz.
 
 In memory of the contributions of Maureen Kenny.
 
-Tootsville  IV  by  Brandon  Booker, Gene  Cronk,  Robert  Dawson,  Eric
-Feiling,  Tim  Hays,  Sean  King,  Mark  Mc  Corkle,  Cassandra  Nichol,
+Tootsville IV by Brandon Booker, Gene Cronk, Robert Dawson, Eric
+Feiling, Tim Hays, Sean King, Mark Mc Corkle, Cassandra Nichol,
 Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC."
   :test 'equal)
 
 (defun dump-credits ()
-  "Send +CREDIT+ as a private admin message. Response to the ,credits user utterance."
+  "Send +CREDITS+ as a private admin message. Response to the ,credits user utterance."
   (private-admin-message "Credits" (docstring->html +credits+ '+credits+)))
 
 (definfinity start-event ((moniker) user recipient/s)

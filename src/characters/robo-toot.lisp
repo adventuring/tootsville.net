@@ -127,7 +127,8 @@
 (defmethod robot-handle (robot (from (eql :|pub|)) status message)
   "Handle message pub (public speech) for robots"
   (destructuring-bind (&key |t| |u| |x| |id| &allow-other-keys) message
-    (let ((speaker (or (find-record 'Toot :uuid |id|) (find-record 'Toot :name |u|))))
+    (if-let ((speaker (or (ignore-errors (find-record 'Toot :uuid |id|))
+                       (ignore-errors (find-record 'Toot :name |u|)))))
       (robot-listen robot (make-keyword (string-upcase (Toot-name (Toot robot))))
                     speaker |t| |x|))))
 

@@ -29,6 +29,7 @@
 
 
 
+
 (defconstant +pre-login-max-time+ 5
   "How many seconds does a client have to authenticate?
 
@@ -240,18 +241,16 @@ Active Clients (~:d secs): ~:d (~:d%)."
 
 (pushnew 'find-infinity-websocket-resource hunchensocket:*websocket-dispatch-table*)
 
-(defun streams-near (&optional (Toot *Toot*))
-  "Find the streams assocated with users whose Toots are near TOOT."
-  (declare (ignore Toot))
-  (error 'unimplemented))
-
 (defmethod user-stream ((null null))
+  "Returns null for null input"
   nil)
 
 (defmethod user-stream ((true (eql t)))
+  "Sometimes this arose during testing, but it should never"
   (error "Not a user — T"))
 
 (defmethod user-stream ((client ws-client))
+  "Identity: return the client as it is already a stream"
   client)
 
 (defmethod user-stream ((user person))
@@ -290,20 +289,23 @@ Active Clients (~:d secs): ~:d (~:d%)."
             (setq write-lock nil))))))
   (hunchensocket:client-disconnected *infinity-websocket-resource* client))
 
-(defun ws-broadcast (res message &key except)
-  "Low-level broadcast MESSAGE to all WebSocket clients of resource RES.
+(defun ws-broadcast (res message &key near except)
+  "Low-level broadcast MESSAGE to all WebSocket clients of resource RES near NEAR except EXCEPT.
 
 You almost certainly don't want to call this --- you want `BROADCAST'."
+  (declare (ignore near)) ; TODO
   (ws-bandwidth-record message (length (hunchensocket:clients res)))
-  (let ((message (ensure-message-is-characters message)))
+  (let ((message (ensure-message-is-characters message))
+        (clients (remove-if (lambda (client) (equalp client except))
+                            (hunchensocket:clients res))))
     (lparallel:pmapcar
      (lambda (client)
-       (unless (eql client except)
-         (with-websocket-disconnections (client)
-           (hunchensocket:send-text-message client message)
-           (incf *ws-chars-broadcast* (length message)))))
-     (hunchensocket:clients res))
-    (v:info :stream "Broadcast to ~a: ~:d character~:p" res (length message))))
+       (with-websocket-disconnections (client)
+         (hunchensocket:send-text-message client message)
+         (incf *ws-chars-broadcast* (length message))))
+     clients)
+    (v:info :stream "Broadcast to ~a (~:d client~:p): ~:d character~:p"
+            res (length clients) (length message))))
 
 (defun ensure-message-is-characters (message)
   "Convert MESSAGE into a string of characters, probably as JSON."
@@ -392,11 +394,13 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
       (disconnect-no-login client)) 
   (websocket-authenticate client message))
 
+
+(declaim (optimize (debug 3)))
 (defmethod hunchensocket:text-message-received ((res infinity-websocket-resource)
                                                 client message)
   (incf *ws-chars-received* (length message))
   (setf (last-active client) (get-universal-time))
-  (with-websocket-disconnections (client)
+  (progn ; with-websocket-disconnections (client)
     (if (user-account client)
         (ws-to-infinity client message)
         (ws-without-login client message))))
@@ -722,7 +726,7 @@ Note that the current Tootsville V client does not make use of LABEL."
                        :|title| title
                        :|label| label
                        :|message| message))
-        (format t "Admin message to ~a: “~a”: “~a” (~a)"
+        (v:info :admin "Admin message to ~a: “~a”: “~a” (~a)"
                 (or *user* "nobody")
                 title message label))))
 
@@ -1103,6 +1107,7 @@ If a parent has already authorized this Toot, they'll sign right in."
 
 
 (defun kick (client title message reason-code)
+  "Kick CLIENT off with TITLE and MESSAGE and REASON-CODE."
   (private-admin-message title message :user client)
   (unicast (list :|from| "kick"
                  :|status| t
@@ -1113,9 +1118,11 @@ If a parent has already authorized this Toot, they'll sign right in."
     (hunchensocket:close-connection client)))
 
 (defun kick-child-time-up (Toot)
-  (kick client
+  "Kick TOOT as the child's time to play has expired."
+  (kick (user-stream Toot)
         "Time's Up"
-        "You have run out of time to play in Tootsville. Ask your parent or guardian if you want to play longer. See you soon!"
+        "You have run out of time to play in Tootsville. Ask your \
+parent or guardian if you want to play longer. See you soon!"
         "child"))
 
 (defun consider-child-kick (Toot)

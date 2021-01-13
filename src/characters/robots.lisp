@@ -49,9 +49,6 @@ Pulls quiesced data, where available, or creates a new one with
    (walk-the-line :accessor robot-course))
   (:documentation "An in-game robot character"))
 
-(defmethod initialize-instance :after ((robot robot) &key &allow-other-keys)
-  (setf (robot-course robot) (restore-robot-wtl robot)))
-
 (defun robotp (user)
   "Is USER a robot?
 
@@ -62,12 +59,87 @@ USER may be a robot or a Toot that is controlled by a robot."
 
 (defmethod initialize-instance :after ((robot robot) &key Toot &allow-other-keys)
   (check-type Toot Toot)
-  (setf (gethash (Toot-name Toot) *robots*) robot))
+  (setf (gethash (Toot-name Toot) *robots*) robot
+        (robot-course robot) (restore-robot-wtl robot))
+  (v:info :robots "Added a robot: ~:(~a~)" (Toot-name Toot)))
+
+(defstruct game-point
+  latitude
+  longitude
+  altitude
+  world
+  x
+  y
+  z)
+
+(defmethod world ((cons cons))
+  (first cons))
+
+(defmethod latitude ((cons cons))
+  (second cons))
+
+(defmethod longitude ((cons cons))
+  (third cons))
+
+(defmethod altitude ((cons cons))
+  (fourth cons))
+
+(defmethod latitude ((game-point game-point))
+  (game-point-latitude game-point))
+
+(defmethod longitude ((game-point game-point))
+  (game-point-longitude game-point))
+
+(defmethod altitude ((game-point game-point))
+  (game-point-altitude game-point))
+
+(defmethod world ((game-point game-point))
+  (game-point-world game-point))
+
+(defmethod latitude ((robot robot))
+  (wtl-course-latitude (robot-course robot)))
+
+(defmethod longitude ((robot robot))
+  (wtl-course-longitude (robot-course robot)))
+
+(defmethod altitude ((robot robot))
+  (wtl-course-altitude (robot-course robot)))
+
+(defmethod world ((robot robot))
+  (wtl-course-world (robot-course robot)))
+
+(defmethod latitude (thing)
+  (wtl-course-latitude (wtl-course thing)))
+
+(defmethod longitude (thing)
+  (wtl-course-longitude (wtl-course thing)))
+
+(defmethod altitude (thing)
+  (wtl-course-altitude (wtl-course thing)))
+
+(defmethod world (thing)
+  (wtl-course-world (wtl-course thing)))
+
+(defmethod Toot-robot ((Toot Toot))
+  (gethash (Toot-name Toot) *robots*))
+
+(defun Toot-quiesced-data (Toot)
+  (find-record 'Toot-quiesced :Toot (Toot-UUID Toot)))
+
+(defmethod wtl-course ((Toot Toot))
+  (if (robotp Toot)
+      (robot-course (Toot-robot Toot))
+      (parse-wtl-for-robot (jonathan.decode:parse
+                            (Toot-quiesced-wtl
+                             (Toot-quiesced-data Toot))))))
 
 (defmethod nearp ((robot robot) place)
-  "Is ROBOT near PLACE?"
-  ;; TODO
-  t)
+  "Is ROBOT near PLACE?" ; FIXME, do better
+  (or (null place)
+      (and (= (latitude place) (latitude robot))
+           (= (longitude place) (longitude robot))
+           (= (altitude place) (altitude robot))
+           (eql (world place) (world robot)))))
 
 (defun robot-broadcast (message near &key except)
   "Broadcast MESSAGE to all robots near NEAR, except robot EXCEPT."
@@ -112,13 +184,10 @@ USER may be a robot or a Toot that is controlled by a robot."
                        :altitude (or |altitude| 0)
                        :world (or |world| :chor)))))
 
-(defmethod Toot-position ((robot robot)) ; FIXME — do a lerpxo
-  (let ((course (robot-course robot)))
-    (wtl-course-end-point course)))
-
 (defmethod Toot-position ((robot robot))
-  (let ((wtl (robot-course robot)))
-    (destructuring-bind (x₁ y₁ z₁) (wtl-course-start-point wtl))))
+  (let ((course (robot-course robot)))
+    (with-slots (world latitude longitude altitude) course
+      (list world latitude longitude altitude))))
 
 (defmethod robot-say (robot format &rest format-args)
   "Robot ROBOT says the string formatted from FORMAT and FORMAT-ARGS."
@@ -172,16 +241,16 @@ USER may be a robot or a Toot that is controlled by a robot."
                        :|facing| facing
                        :|u| (Toot-UUID (Toot robot))
                        :|n| (Toot-name (Toot robot))))
-      (setf (robot-wtl robot) (make-wtl-course
-                               :start-time start-time
-                               :end-time end-time
-                               :start-point (list start-x start-y start-z)
-                               :end-point (list x y z)
-                               :latitude (wtl-course-latitude (robot-wtl robot))
-                               :longitude (wtl-course-longitude (robot-wtl robot))
-                               :alitude (wtl-course-altitude (robot-wtl robot))
-                               :world (wtl-course-world (robot-wtl robot))
-                               :speed 0.1)))))
+      (setf (robot-course robot) (make-wtl-course
+                                  :start-time start-time
+                                  :end-time end-time
+                                  :start-point (list start-x start-y start-z)
+                                  :end-point (list x y z)
+                                  :latitude (wtl-course-latitude (robot-course robot))
+                                  :longitude (wtl-course-longitude (robot-course robot))
+                                  :altitude (wtl-course-altitude (robot-course robot))
+                                  :world (wtl-course-world (robot-course robot))
+                                  :speed 0.1)))))
 
 (defmacro robot-set-mode (mode)
   `(setf (gethash speaker (robot-mode robot)) ,(make-keyword (string mode))))
@@ -196,12 +265,14 @@ USER may be a robot or a Toot that is controlled by a robot."
      ,@body
      (return-from robot-heard t)))
 
+(defun listener-name (listener)
+  (let ((robot-name (intern (concatenate 'string "ROBOT-" (string-upcase listener)))))
+    (if (find-class robot-name nil)
+        robot-name
+        (intern (concatenate 'string (string-upcase listener) "-PERSONALITY")))))
 
 (defmacro define-reply ((listener mode) &body body)
-  (let ((listener-name (let ((robot-name (intern (concatenate 'string "ROBOT-" (string-upcase listener)))))
-                         (if (find-class robot-name nil)
-                             robot-name
-                             (intern (concatenate 'string (string-upcase listener) "-PERSONALITY"))))))
+  (let ((listener-name (listener-name listener)))
     `(defmethod robot-heard ((robot ,listener-name)
                              speaker (mode ,(cond
                                               ((null mode) 'null)

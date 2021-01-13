@@ -32,3 +32,8 @@
 
 (define-personality Shaddow)
 
+(define-reply (Shaddow nil)
+  (robot-match ("Shaddow")
+    (robot-say robot "I'm a Shaddow.")
+    (do-after (3)
+      (robot-say robot "Shade is the best."))))

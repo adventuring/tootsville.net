@@ -176,3 +176,7 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
   (do-metronome (:frequency (* 4 60 60)
                             :name "Reap uninteresting child requests")
     (reap-uninteresting-child-requests)))
+
+(defmacro do-after ((time) &body body)
+  `(do-metronome (:one-shot-time (+ (get-universal-time) ,time))
+     ,@body))

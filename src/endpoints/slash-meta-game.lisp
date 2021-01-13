@@ -173,7 +173,8 @@ href=\"http://goethe.tootsville.org/devel/docs/Tootsville/"
                                       ("&" "&amp;")
                                       ("<" "&lt;")
                                       (#.(string #\sub) . "<")
-                                      ("\\n\\n" . "</p><p>")
+                                      ("\\n\\n" . "</p>
+<p>")
                                       ("`([A-Z0-9+/-])'" . "<b class=\"fn-ref\">\\1</b>")
                                       ("@url{(.*?)}" . "<a href=\"\\1\">\\1</a>")
                                       ("@samp{(.*?)}" . "<tt>\\1</tt>")
