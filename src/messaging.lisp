@@ -37,7 +37,8 @@ currently ignored.
 
 EXCEPT is  a user  or Toot who  does not need  to receive  the broadcast
 message (usually the originator)"
-  (ws-broadcast *infinity-websocket-resource* message 
+  (ws-broadcast *infinity-websocket-resource* message
+                :near near
                 :except (user-stream except))
   (tcp-broadcast message)
   (robot-broadcast message near :except except))

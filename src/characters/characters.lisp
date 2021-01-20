@@ -46,8 +46,6 @@
        (setf (gethash ',name *npc-list*) ',name)
        (defclass ,full-name (,(or personality-name 'robot)) ()))))
 
-
-
 (defun init-characters ()
   "Initialize non-player characters in the game world."
   (dohash ((name kind) *npc-list*)

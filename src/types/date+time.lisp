@@ -78,5 +78,8 @@ reasons, eg, COPPA."
 TIME defaults to the present (@code{(NOW)})."
   (format-timestring nil time :format +rfc-1123-format+))
 
+(defun get-Unix-time (&optional (universal-time (get-universal-time)))
+  (+ universal-time +Unix-zero-in-universal-time+))
+
 (defconstant +Unix-zero-in-universal-time+ 2208988800
   "The Unix zero timestamp occurs at Universal Time 2,208,988,800seconds.")

@@ -369,6 +369,7 @@ Now, we also report (at least) X-FADU, fairy dust.
                           :x-fadu (Toot-fairy-dust Toot))))
 
 (defun rename-Toot (Toot new-name)
+  "Rename TOOT to NEW-NAME."
   (assert (potential-Toot-name-p new-name) (new-name)
           "~a is not in the format of a Toot name" new-name)
   (let ((old-name (Toot-name Toot)))
@@ -386,6 +387,7 @@ Now, we also report (at least) X-FADU, fairy dust.
               (signal c)))))))
 
 (defun destroy-Toot (Toot)
+  "Prompt (with `CERROR') to `DESTROY-RECORD' TOOT"
   (let ((Toot (ensure-Toot Toot)))
     (cerror "Continue" "About to destroy the Toot ~a for all time." Toot)
     (destroy-record Toot)))
@@ -393,11 +395,19 @@ Now, we also report (at least) X-FADU, fairy dust.
 
 
 (defun demand-quiesce-Toot (Toot)
+  "Send TOOT a demand that it quiesce a copy of itself to the database"
   (unicast (list :|from| "quiesce"
                  :|status| :false
                  :|request| t)
            Toot))
 
 (defun quiesce-connected-Toots ()
-  (dolist (Toot (connected-Toots))
-    (demand-quiesce-Toot Toot)))
+  "Send every Toot a demand that it quiesce itself to the database.
+
+FIXME: IGNORE-NOT-FOUND is because ... um ... Superstar sucks.
+
+See: `DEMAND-QUIESCE-TOOT', `CONNECTED-TOOTS'"
+  (lparallel:pmapcar (lambda (Toot)
+                       (ignore-not-found (demand-quiesce-Toot Toot)))
+                     (connected-Toots)))
+

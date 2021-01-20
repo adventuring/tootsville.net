@@ -588,7 +588,8 @@ WRITEME
 
 @subsection Status 200 OK
 
-WRITEME
+Upon success, the client whose status was saved is notified by a
+message of the form:
 
 @verbatim
 { from: \"quiesce\",
@@ -597,20 +598,35 @@ WRITEME
 
 @subsection Asynchronous periodic demands
 
-WRITEME
+From time to time, clients may be asked to update their quiescent
+state. When a client receives a message of the form:
 
 @verbatim
 { from: \"quiesce\",
   status: false }
 @end verbatim
 
-WRITEME
+… they are expected to submit a quiesce message to the central
+servers.
 "
-  (when-let (old (ignore-not-found
-                   (find-record 'Toot-quiesced :Toot (Toot-uuid Toot))))
-    (destroy-record old))
+
+  (find-record 'Toot :UUID (Toot-UUID Toot)) ; signals an error if not found
+  
+  (if-let (old (ignore-not-found (find-record 'Toot-quiesced :Toot (Toot-UUID Toot))))
+    (progn (setf (Toot-quiesced-Toot old) (Toot-UUID Toot)
+                 (Toot-quiesced-world old) (or world :chor)
+                 (Toot-quiesced-latitude old) (or latitude 0)
+                 (Toot-quiesced-longitude old) (or longitude 0)
+                 (Toot-quiesced-altitude old) (or altitude 0)
+                 (Toot-quiesced-wtl old) (jonathan.encode:to-json wtl)
+                 (Toot-quiesced-d3 old) (jonathan.encode:to-json d3)
+                 (Toot-quiesced-peer-address old) (peer-address Toot)
+                 (Toot-quiesced-emotion old) (or emotion "")
+                 (Toot-quiesced-observed old) (now))
+           (save-record old))
+          
   (make-record 'Toot-quiesced
-               :Toot (Toot-uuid Toot)
+               :Toot (Toot-UUID Toot)
                :world (or world :chor)
                :latitude (or latitude 0)
                :longitude (or longitude 0)
@@ -619,7 +635,7 @@ WRITEME
                :d3 (jonathan.encode:to-json d3)
                :peer-address (peer-address Toot)                                 
                :emotion emotion
-               :observed (now))
+               :observed (now)))
   (list :|from| "quiesce"
         :|status| t))
 

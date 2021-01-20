@@ -30,8 +30,8 @@
 
 
 (defmethod robot-handle (robot from status message)
-  (v:warn :robot "Unhandled message from ~a (~:[false~;true~]), robots don't know about that message source"
-          from status))
+  (v:warn :robot "Unhandled message from ~a (~:[false~;true~]), robots don't know about that message source (status ~s)"
+          from status status))
 
 (defmethod robot-heard ((robot robot) speaker mode heard)
   (v:warn :Robot "Unhandled speech or mode, ~s did not hear “~a” in mode ~s"
@@ -54,11 +54,17 @@
     (v:info :Robot "~:(~a~) ~:(~a~): “~a”" robot (Toot-name speaker) text)
     (robot-heard robot speaker mode-for-speaker heard-from-speaker)))
 
-(defmethod robot-unicast (message (robot robot))
+(defmethod robot-unicast ((message cons) (robot robot))
   "Send MESSAGE to ROBOT individually."
   (destructuring-bind (&key |from| |status| &allow-other-keys) message
-    (v:info :Robots "~a Handle message from ~a (~:[false~;true~])" robot |from| |status|)
-    (robot-handle robot (make-keyword |from|) |status| message)))
+    (let ((status (if (and |status| (not (eql :false |status|)))
+                      t nil)))
+      (v:info :Robots "~a Handle message from ~a (~:[false~;true~])" robot |from| status)
+      (robot-handle robot (make-keyword |from|) status message))))
+
+(defmethod robot-unicast ((message string) (robot robot))
+  "Send MESSAGE to ROBOT individually."
+  (robot-unicast (jonathan.decode:parse message) robot))
 
 (defmethod robot-unicast (message (Toot Toot))
   "Send MESSAGE to the robot piloting TOOT"

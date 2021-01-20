@@ -173,7 +173,7 @@ since rooms as such no longer exist, we use latitude and longitude now.
 (define-operator-command spawnroom (words user plane)
   " WRITEME --- Legacy --- useless in 2.0
 
- Create  a new  room  in  the current  zone.  Must  have staff  level
+ Create a new room in the current zone.  Must have staff level
  8 (DEVELOPER) to use this command.
 
  Syntax for use

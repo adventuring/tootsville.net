@@ -1985,8 +1985,7 @@ operator command @code{#dumpthreads}.
        (toot-speak speech :Toot *Toot* :vol vol)))))
 
 (define-constant +credits+
-    "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-
-World Tourism and Adventuring.
+    "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
 
 Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
 Levi Mc Call, and Zephyr Salz.

@@ -152,7 +152,7 @@ Signals NOT-FOUND if none are found."
 
 Returns all results in a list, so don't use it with a (potentially) large set.
 
-Uses MemCache when available."
+Uses MemCacheD when available."
   (destructuring-bind (table &key pull)
       (if (consp table) table (list table))
     (declare (ignore pull))

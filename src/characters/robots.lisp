@@ -32,6 +32,12 @@
 (defvar *robots* (make-hash-table :test 'equalp)
   "All robots currently active in the game world from this node.")
 
+(defmethod find-robot ((name string))
+  (gethash name *robots*))
+
+(defmethod find-robot ((Toot Toot))
+  (gethash (Toot-name Toot) *robots*))
+
 (defun restore-robot-wtl (robot)
   "Restore the walk-the-line positioning data for ROBOT
 
@@ -44,7 +50,7 @@ Pulls quiesced data, where available, or creates a new one with
 
 (defclass robot ()
   ((Toot :accessor Toot :initarg :Toot :type 'Toot)
-   (heard :initform (make-hash-table :test 'equalp) :accessor robot-has-heard)
+   (heard :initform (make-hash-table :test 'equalp :synchronized t) :accessor robot-has-heard)
    (mode :accessor robot-mode :initform (make-hash-table :test 'equalp))
    (walk-the-line :accessor robot-course))
   (:documentation "An in-game robot character"))
@@ -55,7 +61,7 @@ Pulls quiesced data, where available, or creates a new one with
 USER may be a robot or a Toot that is controlled by a robot."
   (or (typep user 'robot)
       (and (typep user 'Toot)
-           (gethash (Toot-name user) *robots*))))
+           (find-robot user))))
 
 (defmethod initialize-instance :after ((robot robot) &key Toot &allow-other-keys)
   (check-type Toot Toot)
@@ -121,12 +127,13 @@ USER may be a robot or a Toot that is controlled by a robot."
   (wtl-course-world (wtl-course thing)))
 
 (defmethod Toot-robot ((Toot Toot))
-  (gethash (Toot-name Toot) *robots*))
+  (find-robot Toot))
 
 (defun Toot-quiesced-data (Toot)
   (find-record 'Toot-quiesced :Toot (Toot-UUID Toot)))
 
 (defmethod wtl-course ((Toot Toot))
+  "Get the walk-the-line course of Toot"
   (if (robotp Toot)
       (robot-course (Toot-robot Toot))
       (parse-wtl-for-robot (jonathan.decode:parse
@@ -161,7 +168,29 @@ USER may be a robot or a Toot that is controlled by a robot."
   latitude
   longitude
   altitude
-  world)
+  world
+  facing)
+
+(defmethod current-position ((course wtl-course))
+  (let ((now (get-Unix-time)))
+    (if (> now (or (wtl-course-end-time course) 0))
+        (wtl-course-end-point course)
+        (destructuring-bind (x₁ y₁ z₁) (wtl-course-start-point course)
+          (destructuring-bind (x₂ y₂ z₂) (wtl-course-end-point course)
+            (let* ((δ-x (- x₂ x₁))
+                   (δ-y (- y₂ y₁))
+                   (δ-z (- z₂ z₁))
+                   (δ-τ (- (wtl-course-end-time course)
+                           (wtl-course-start-time course)))
+                   (τ (- now (wtl-course-start-time course)))
+                   (fraction (/ τ δ-τ))
+                   (x (+ x₁ (* δ-x fraction)))
+                   (y (+ y₁ (* δ-y fraction)))
+                   (z (+ z₁ (* δ-z fraction))))
+              (list x y z)))))))
+
+(defmethod current-position ((robot robot))
+  (current-position (wtl-course robot)))
 
 (defun parse-wtl-for-robot (wtl)
   "Parse the WTL JSON into a WTL-Course structure "
@@ -206,11 +235,11 @@ USER may be a robot or a Toot that is controlled by a robot."
   (let ((wtl (robot-course robot)))
     (with-slots (speed start-time end-time
                  start-point end-point
-                 latitude longitude altitude world)
+                 latitude longitude altitude world facing)
         wtl
         (destructuring-bind (x₁ y₁ z₁) start-point
           (destructuring-bind (x₂ y₂ z₂) end-point
-            (list :|facing| 0 ; FIXME
+            (list :|facing| facing
                   :|course| (list :|speed| speed
                                   :|startTime| start-time
                                   :|endTime| end-time
@@ -221,36 +250,48 @@ USER may be a robot or a Toot that is controlled by a robot."
                                   :|altitude| altitude
                                   :|world| world)))))))
 
-(defmethod robot-go-to (robot x y z)
-  (destructuring-bind (start-x start-y start-z) (Toot-position robot)
-    (let* ((facing 0) ; FIXME
-           (distance (distance start-x start-y start-z x y z))
-           (start-time (timestamp-to-unix (now)))
-           (end-time (+ start-time (* 1000 (/ distance 10)))))
-      (broadcast (list :|from| "wtl"
-                       :|status| t
-                       :|course| (list :|speed| 0.1
-                                       :|startTime| start-time
-                                       :|startPoint| (list :|x| start-x
-                                                           :|y| start-y
-                                                           :|z| start-z)
-                                       :|endTime| end-time
-                                       :|endPoint| (list :|x| x
-                                                         :|y| y
-                                                         :|z| z))
-                       :|facing| facing
-                       :|u| (Toot-UUID (Toot robot))
-                       :|n| (Toot-name (Toot robot))))
-      (setf (robot-course robot) (make-wtl-course
-                                  :start-time start-time
-                                  :end-time end-time
-                                  :start-point (list start-x start-y start-z)
-                                  :end-point (list x y z)
-                                  :latitude (wtl-course-latitude (robot-course robot))
-                                  :longitude (wtl-course-longitude (robot-course robot))
-                                  :altitude (wtl-course-altitude (robot-course robot))
-                                  :world (wtl-course-world (robot-course robot))
-                                  :speed 0.1)))))
+(defun relative-facing (x₁ z₁ x₂ z₂)
+  (if (and (= x₁ x₂) (= z₁ z₂))
+      nil
+      (atan (/ (- z₂ z₁) (- x₂ x₁)))))
+
+(defmethod robot-go-to (robot x y z &optional (speed 0.1))
+  "Plot a course for ROBOT to walk to X,Y,Z in their current sector."
+  (let* ((course (robot-course robot))
+         (start-point (current-position course))
+         (x₁ (first start-point))
+         (y₁ (second start-point))
+         (z₁ (third start-point))
+         (facing (or (relative-facing x₁ z₁ x z)
+                     (wtl-course-facing course)))
+         (distance (distance x₁ y₁ z₁ x y z))
+         (start-time (timestamp-to-unix (now)))
+         (end-time (+ start-time (* 1000 (/ distance (/ 1 speed))))))
+    (broadcast (list :|from| "wtl"
+                     :|status| t
+                     :|course| (list :|speed| speed
+                                     :|startTime| start-time
+                                     :|startPoint| (list :|x| x₁
+                                                         :|y| y₁
+                                                         :|z| z₁)
+                                     :|endTime| end-time
+                                     :|endPoint| (list :|x| x
+                                                       :|y| y
+                                                       :|z| z))
+                     :|facing| facing
+                     :|u| (Toot-UUID (Toot robot))
+                     :|n| (Toot-name (Toot robot)))
+               :except robot)
+    (setf (robot-course robot) (make-wtl-course
+                                :start-time start-time
+                                :end-time end-time
+                                :start-point (list x₁ y₁ z₁)
+                                :end-point (list x y z)
+                                :latitude (wtl-course-latitude (robot-course robot))
+                                :longitude (wtl-course-longitude (robot-course robot))
+                                :altitude (wtl-course-altitude (robot-course robot))
+                                :world (wtl-course-world (robot-course robot))
+                                :speed 0.1))))
 
 (defmacro robot-set-mode (mode)
   `(setf (gethash speaker (robot-mode robot)) ,(make-keyword (string mode))))

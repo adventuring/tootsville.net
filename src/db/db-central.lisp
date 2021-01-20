@@ -113,7 +113,15 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
 (defun base64-to-uuid (value)
   (uuid:byte-array-to-uuid
    (cl-base64:base64-string-to-usb8-array
-    (format nil "~a==" value))))
+    (concatenate 'string value "=="))))
+
+(let ((uuid (uuid:make-v4-uuid)))
+  (assert (uuid:uuid= uuid (base64-to-uuid (uuid-to-base64 uuid))))
+  (assert (equal (uuid-to-base64 uuid) (uuid-to-base64 uuid)))
+  (assert (uuid:uuid= uuid (uri-to-uuid (uuid-to-uri uuid))))
+  (assert (equalp (uuid:uuid-to-byte-array uuid)
+                  (cl-base64:base64-string-to-usb8-array
+                   (concatenate 'string (uuid-to-base64 uuid) "==")))))
 
 (defgeneric column-load-value (value type)
   (:documentation "For a column of TYPE, interpret raw VALUE")
@@ -197,7 +205,8 @@ Used in `DEFRECORD', qv."
                               (number (uuid:byte-array-to-uuid
                                        (integer-to-byte-vector ,name)))
                               (string (uuid:byte-array-to-uuid
-                                       (cl-base64:base64-string-to-usb8-array ,name)))))
+                                       (cl-base64:base64-string-to-usb8-array
+                                        (concatenate 'string ,name "=="))))))
                     (:timestamp `(etypecase ,name
                                    (timestamp ,name)
                                    (number (universal-to-timestamp ,name))
@@ -341,7 +350,7 @@ Identity is determined by the ID column, ~A."
                 id-accessor)
        (if more
            (and (,$fname a b) (apply ',$fname a more))
-           (equalp (,id-accessor a) (,id-accessor b))))))
+           (equal (,id-accessor a) (,id-accessor b))))))
 
 (defun defrecord/save-record-with-id-column (name database table columns)
   (when (id-column-for name)

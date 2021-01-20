@@ -46,7 +46,7 @@
                 
 
 (define-reply (Toot nil)
-  (robot-match ((Toot-name (Toot robot)))
+  (robot-match ((string-downcase (Toot-name (Toot robot))))
     (robot-set-mode how-are-you)
     (robot-say robot "Hello, ~a. How are you?" (Toot-name speaker))))
 

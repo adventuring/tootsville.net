@@ -207,17 +207,19 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (pre-login-commands :accessor pre-login-commands :initform +pre-login-max-commands+)
    (connect-time :reader connect-time :initform (get-universal-time))
    (last-active :accessor last-active :initform (get-universal-time))
-   (location :accessor Toot-position :initform (list :CHOR 0 0 0))))
+   (location :accessor Toot-position :initform (list :chor 0 0 0))))
 
 (defun Toot-world (client)
-  (first (Toot-position client)))
+  (wtl-course-world (fixme)))
 
 (defmethod Toot-position ((Toot Toot))
-  (Toot-position (user-stream Toot)))
+  (if-let (stream (user-stream Toot))
+    (Toot-position stream)
+    (Toot-position (Toot-robot Toot))))
 
 (defmethod Toot-position ((null null))
-  (v:warn :stream "Toot-position called with NIL")
-  (list :char 0 0 1000))
+  (v:warn :null "Toot-position called with NIL")
+  (list :chor 0 0 1000))
 
 (defmethod print-object ((client ws-client) s)
   (format s "#<WS-Client from ~a~:[ without user~;~:* for ~a~]~:[ (no Toot)~;~:* (~a)~]>"
