@@ -297,6 +297,9 @@ limitations under the License. |#
                               :utf-8 #'drakma:url-encode))
                      +gravatar-base-uri+)))
 
+#| --------------- end Gravatar code |#
+
+
 
 (defun person-is-patron-p (person)
   "Returns true if PERSON is a patron of CIWTA.

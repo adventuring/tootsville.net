@@ -81,15 +81,15 @@ See `COLOR24'."
   "Encode PATHNAME as a JSON object"
   (%to-json
    `(:|isA| "pathname"
-      :|host| ,(typecase (pathname-host pathname)
-                 #+sbcl (sb-impl::unix-host (machine-instance))
-                 (t (princ-to-string (pathname-host pathname))))
-      :|device| ,(pathname-device pathname)
-      :|directory| ,(uiop:split-string (pathname-directory pathname)
-                                       :separator "/")
-      :|name| ,(pathname-name pathname)
-      :|version| ,(pathname-version pathname)
-      :|type| ,(pathname-type pathname))))
+     :|host| ,(typecase (pathname-host pathname)
+                #+sbcl (sb-impl::unix-host (machine-instance))
+                (t (princ-to-string (pathname-host pathname))))
+     :|device| ,(pathname-device pathname)
+     :|directory| ,(uiop:split-string (pathname-directory pathname)
+                                      :separator "/")
+     :|name| ,(pathname-name pathname)
+     :|version| ,(pathname-version pathname)
+     :|type| ,(pathname-type pathname))))
 
 (defmethod jonathan::%to-json ((symbol symbol))
   "Supply a Lisp symbol in JavaScirpt string form"

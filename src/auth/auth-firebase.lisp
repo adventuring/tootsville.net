@@ -113,12 +113,24 @@
   (equalp #(105 106 154)
           (extract-certificate-base64
            "-----BEGIN CERTIFICATE-----
-aaaaa
+aWqa
 -----END CERTIFICATE-----")))
 
 (defun base64-from-uri-form (token)
   (substitute #\+ #\-
               (substitute #\/ #\_ token)))
+
+(defun pad-to-multiple-of-8 (string)
+  (let ((rem (mod (length string) 8)))
+    (if (zerop rem)
+        string
+        (concatenate 'string string
+                     (make-string (- 8 rem) :initial-element #\=)))))
+
+(defun base64-decode% (string)
+  (base64:base64-string-to-usb8-array
+   (base64-from-uri-form
+    (pad-to-multiple-of-8 string))))
 
 (defun check-firebase-id-token (token)
   (multiple-value-bind (claims header digest claims$ header$)
@@ -129,7 +141,8 @@ aaaaa
        (extract google-account-keys
                 (make-keyword (gethash "kid" header))))
       ;; FIXME: JWT verification
-      #+ (or) (multiple-value-bind (payload-claims payload-header)
+      #+(or)
+      (multiple-value-bind (payload-claims payload-header)
                   (handler-bind
                       ((cljwt-custom:invalid-rs256-signature
                         (lambda (c)
@@ -137,7 +150,7 @@ aaaaa
                     (cljwt-custom:verify token
                                          (crypto:make-cipher
                                           :rc5 :mode :ces
-                                          :key (base64:base64-string-to-usb8-array digest))
+                                          :key (base64-decode% digest))
                                          (gethash "alg" header)
                                          :fail-if-unsecured t
                                          :fail-if-unsupported t)))

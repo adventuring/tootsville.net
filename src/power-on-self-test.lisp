@@ -86,6 +86,7 @@ a moment and try that again.~%" c)
       (stop))))
 
 
+
 (defun power-on-self-test (&key (exitp nil))
   "Perform some sanity checking as a part of testing.
 
@@ -98,15 +99,15 @@ need to be expanded a great deal to increase confidence in these tests."
           (funcall test)
         (sb-kernel:redefinition-with-defun (c) nil)
         (warning (c)
-          (v:error :power-on-self-test "~&WARNING: ~s~%~:*~A" c)
+          (v:error :power-on-self-test "~&WARNING: ~s: ~s~%~:*~A" test c)
           (uiop/image:print-condition-backtrace c :stream *error-output*)
           (incf warnings))
         (error (c)
-          (v:error :power-on-self-test "~&ERROR: ~s~%~:*~A" c)
+          (v:error :power-on-self-test "~&ERROR: ~s: ~s~%~:*~A" test c)
           (uiop/image:print-condition-backtrace c :stream *error-output*)
           (incf errors))
         (serious-condition (c)
-          (v:error :power-on-self-test "~&SERIOUS-CONDITION: ~s~%~:*~A" c)
+          (v:error :power-on-self-test "~&SERIOUS-CONDITION: ~s: ~s~%~:*~A" test c)
           (uiop/image:print-condition-backtrace c :stream *error-output*)
           (incf serious))))
     (v:info :power-on-self-test

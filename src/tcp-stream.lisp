@@ -31,6 +31,7 @@
 
 (defvar *tcp-listener* nil)
 (defvar *tcp-clients* (make-hash-table :test 'equalp))
+(defvar *tcp-peer-traffic* 0)
 
 (defstruct tcp-client
   socket
@@ -39,16 +40,26 @@
   peer)
 
 (defun tcp-unicast (message tcp-client)
+  "Writes MESSAGE to TCP-CLIENT.
+
+MESSAGE is encoded with a SOH (start of heading, ASCII value 1),
+followed by the length of the message in base-36, then STX (start of
+text, ASCII value 2), the message itself, and a final ETX (end of
+text, ASCII value 3)."
+  (tcp-bandwidth-record message)
   (format (usocket:socket-stream tcp-client) 
           "~36r~a" (length message) message))
 
 (defun tcp-format-error (tcp-client)
+  "Send a format error to TCP-CLIENT.
+
+This is the character EM, End of Medium, ASCII value 25 (decimal)."
   (write-char #\EM tcp-client))
 
 (defun tcp-stream-authenticate (client auth$)
   "Private server-to-server messaging authentication.
 
-Tunnelled   over   SSH,   so   a   simple   non-cryptographically-secure
+Tunnelled over SSH, so a simple non-cryptographically-secure
 authentication is all that's performed here.
 
 TODO: This is not implemented."
@@ -62,16 +73,20 @@ TODO: This is not implemented."
 (defun tcp-broadcast (message)
   (let ((message (ensure-message-is-characters message)))
     (dolist (client (hash-table-values *tcp-clients*))
-      ;; TODO
-      )))
+      (tcp-unicast message client))))
 
-(defun tcp-handle-peer-request (json)
-  ;; TODO!
-  )
+(defun tcp-bandwidth-record (message &optional (multiplier 1))
+  (incf *tcp-peer-traffic* (* multiplier (length message))))
+
+(defun tcp-handle-peer-request (message peer)
+  (with-simple-restart (continue "Restart ∞ request processor")
+    (tcp-bandwidth-record message)
+    (tcp-reply (call-infinity-from-stream (jonathan.decode:parse message))
+               peer)))
 
 (defun tcp-process-packet (packet tcp-client)
   (if-let (peer (tcp-client-peer tcp-client))
-    (tcp-handle-peer-request (jonathan.decode:parse packet))
+    (tcp-handle-peer-request (jonathan.decode:parse packet) peer)
     (tcp-stream-authenticate tcp-client packet)))
 
 (defun tcp-socket-input (tcp-client)
@@ -99,6 +114,9 @@ TODO: This is not implemented."
   (gethash (usocket:get-peer-address socket) *tcp-clients*))
 
 (defun start-tcp-listener (&optional (host "::1") (port 2773))
+  "Start listening for TCP peers on interface HOST and PORT.
+
+The default PORT is 2773."
   (setf *tcp-listener* (usocket:socket-listen host port :backlog 256))
   (loop
      (lparallel::pmapcar 

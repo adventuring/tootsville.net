@@ -57,6 +57,10 @@ message (usually the originator)"
               user))))
 
 (defmethod peer-address ((Toot Toot))
+  "Get the peer address of TOOT.
+
+Returns inet: + the Internet protocol address, for connected
+users. For robots, returns robot:, and otherwise returns unknown:"
   (if-let (stream (user-stream Toot))
     (peer-address stream)
     (if-let (robot (gethash (Toot-name Toot) *robots*))
@@ -64,9 +68,11 @@ message (usually the originator)"
       "unknown:")))
 
 (defmethod peer-address (stream)
+  "Get the Internet address of STREAM (a Hunchensocket stream)"
   (format nil "inet:~a"
           (string-trim " " (second (split-sequence #\: (second (split-sequence #\, (second (split-sequence #\" (format nil "~s" (slot-value stream 'hunchensocket::input-stream)))))))))))
 
 (defun find-thread (name)
+  "Find any thread whose name includes NAME"
   (remove-if-not (lambda (thread) (search name (thread-name thread)))
                  (all-threads)))

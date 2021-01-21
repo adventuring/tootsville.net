@@ -87,8 +87,6 @@ servers
 @item
 The Tootsbook blog is a WordPress installation
 @item
-The 
-@item
 The central database server is a MariaDB server.
 @item
 Database references are cached via MemCacheD

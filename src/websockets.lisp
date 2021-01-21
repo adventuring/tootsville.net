@@ -209,8 +209,17 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (last-active :accessor last-active :initform (get-universal-time))
    (location :accessor Toot-position :initform (list :chor 0 0 0))))
 
-(defun Toot-world (client)
-  (wtl-course-world (Toot client)))
+(defmethod Toot ((null null))
+  nil)
+
+(defmethod Toot-world (client)
+  (Toot-world (Toot client)))
+
+(defmethod Toot-world ((Toot Toot))
+  :chor) ; FIXME
+
+(defmethod Toot-world ((null null))
+  :chor)
 
 (defmethod Toot-position ((Toot Toot))
   (if-let (stream (user-stream Toot))
@@ -388,9 +397,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
         (*Toot* (Toot client))
         (*client* client))
     (with-simple-restart (continue "Restart ∞ request processor")
-      (ws-reply (let ((json (jonathan.decode:parse message)))
-                  (ws-bandwidth-record json)
-                  (call-infinity-from-stream json))
+      (ws-bandwidth-record message)
+      (ws-reply (call-infinity-from-stream (jonathan.decode:parse message))
                 client))))
 
 (defun ws-without-login (client message)

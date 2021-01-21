@@ -55,9 +55,11 @@
                   "never"))
           (if (metronome-task-thread task) "running" "waiting")))
 
-(defvar *metronome-next-tick* (get-universal-time))
+(defvar *metronome-next-tick* (get-universal-time)
+  "The time at which the Metronome should next ``tick''.")
 
-(defvar *metronome-task-lock* nil)
+(defvar *metronome-task-lock* nil
+  "A lock used to protect inter-thread access to the Metronome tasks.")
 
 (defun metronome-idle-tasks ()
   "Returns only those Metronome tasks without a live thread.
@@ -130,13 +132,20 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
 
 (defmacro do-metronome ((&key frequency one-shot-time name)
                         &body body)
+  "Perform BODY as a metronome facility named NAME, at FREQUENCY or once at ONE-SHOT-TIME.
+
+FREQUENCY is given in seconds, or ONE-SHOT-TIME is given in Universal
+time. When both are given, the facility will execute at the rate of
+FREQUENCY until a final execution at ONE-SHOT-TIME.
+"
   `(metronome-register (make-metronome-task
                         :frequency ,frequency
                         :one-shot-time ,one-shot-time
                         :name ,name
                         :function (lambda () ,@body))))
 
-(defvar *the-metronome-thread* nil)
+(defvar *the-metronome-thread* nil
+  "The thread from which the metronome's coördination efforts are conducted.")
 
 (defun start-metronome-thread% ()
   "See `START-GAME-METRONOME'"
@@ -159,6 +168,7 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
   (register-metronome-tasks))
 
 (defun stop-game-metronome ()
+  "Stop the metronome facility by canceling all tasks and stopping the metronome thread."
   (dolist (task *metronome-tasks*)
     (v:warn :metronome "Canceling task ~a" task)
     (metronome-remove task))
@@ -167,10 +177,32 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
   (join-thread *the-metronome-thread*))
 
 (defun register-metronome-tasks ()
+  "Register certain metronome tasks for miscellaneous services.
+
+This is a list of specific facilities that are started up during the
+system boot process.
+
+@table @code
+
+@item Websocket AYT facility
+This facility, `AYT-IDLE-USERS' runs every 120 seconds to detect and
+disconnect users who are no longer actually connected. (Note that AYT
+is netspeak for ``are you there?'')
+
+@item Toot Quiesce facility
+This facility runs every 600 seconds to asks Toots to quiesce themselves
+to the database. See `QUIESCE-CONNECTED-TOOTS'.
+
+@item Reap uninteresting child requests
+See `REAP-UNINTERESTING-CHILD-REQUESTS'. Every 4 hours clears out some
+uninteresting records from the ``child\_requests'' database table.
+
+@end table
+"
   (do-metronome (:frequency 120
                             :name "Websocket AYT facility")
     (ayt-idle-users))
-  (do-metronome (:frequency 300
+  (do-metronome (:frequency 600
                             :name "Toot Quiesce facility")
     (quiesce-connected-Toots))
   (do-metronome (:frequency (* 4 60 60)
@@ -178,5 +210,8 @@ Most  users  will  prefer  `DO-METRONOME' for  that  purpose.  See  also
     (reap-uninteresting-child-requests)))
 
 (defmacro do-after ((time) &body body)
+  "Perform BODY after TIME seconds have elapsed.
+
+Uses a one-shot-timer metronome facility."
   `(do-metronome (:one-shot-time (+ (get-universal-time) ,time))
      ,@body))

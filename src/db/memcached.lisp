@@ -32,11 +32,15 @@
 
 
 (defun query-to-memcache-key (db prepared args)
+  "Creates a key based on DB, PREPARED statement, and ARGS suitable for MemCacheD.
+
+Currently uses `SHA1-HEX' of a particular stringified form"
   (declare (ignore db)) ; TODO?
   (let ((query (format nil "~a~{~a~^~}" prepared args)))
     (sha1-hex query)))
 
 (defmacro with-memcached-query ((db query args &key (timeout (* 60 60 4))) &body body)
+  "Execute BODY only if the QUERY's value is not found in MemCacheD."
   (let (($db (gensym "DB-"))
         ($query (gensym "QUERY-"))
         ($key (gensym "KEY-"))
@@ -55,7 +59,7 @@
                  (if-let (,$value (memcached-get-key ,$key))
                    (apply #'values (read-from-string ,$value))
                    (progn
-                     (v:warn :memcached "Cache miss on ~a" ,$key)
+                     #+(or) (v:warn :memcached "Cache miss on ~a" ,$key)
                      (let ((,$value (multiple-value-list (,$body))))
                        (cl-memcached:mc-store
                                 ,$key
@@ -81,6 +85,11 @@
 
 
 (defun connect-cache ()
+  "Connect to MemCacheD.
+
+Configuration comes from `DB-CONFIG' path (:cache (:ip :port :name)).
+
+The pool size will be `PROCESSOR-COUNT', clamped to 3-15."
   (setf cl-memcached:*mc-use-pool* t)
   (dolist (server (car (db-config :cache)))
     (setf cl-memcached:*memcache*
@@ -125,6 +134,13 @@
 
 
 (defun powerset (list)
+  "Create a powerset of the unordered elements of LIST.
+
+@verbatim
+(powerset '(:a :b :c))
+((:A :B :C) (:B :C) (:A :C) (:C) (:A :B) (:B) (:A) NIL)
+@end verbatim
+"
   (if list
       (mapcan (lambda (el) (list (cons (car list) el) el))
               (powerset (cdr list)))
