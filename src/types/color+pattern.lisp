@@ -300,14 +300,36 @@ lowest 8 bits, the blue channel."
   :test 'equalp)
 
 (defun parse-color24 (color)
-  "Parse COLOR as a name for a color, or a hex 24-bit color value."
+  "Parse COLOR as a name for a color, or a hex 24-bit color value.
+
+It can also be an HTML-style or CSS-style value.
+
+
+"
   (integer-to-color24
    (etypecase color
-     (string (if-let (as (assoc (substitute #\- #\Space color)
-                                +color24-names+ :test #'string-equal))
-               (cdr as)
-               (parse-number color :radix 16)))
-     (number color))))
+     (string (cond ((string-equal "rgb(" color :end2 4)
+                    (register-groups-bind (r g b)
+                        ("rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)" color)
+                      (logior (ash (parse-integer r) 16)
+                              (ash (parse-integer g) 8)
+                              (parse-integer b))))
+                   ((char= #\# (char color 0))
+                    (ecase (length color)
+                      (4 (let ((cc (concatenate 'string
+                                                (string (char color 1))
+                                                (string (char color 1))
+                                                (string (char color 2))
+                                                (string (char color 2))
+                                                (string (char color 3))
+                                                (string (char color 3)))))
+                           (parse-number cc :radix 16)))
+                      (7 (parse-number (subseq color 1) :radix 16))))
+                   (t (if-let (as (assoc (substitute #\- #\Space color)
+                                         +color24-names+ :test #'string-equal))
+                        (cdr as)
+                        (parse-number color :radix 16)))))
+     (number color)))))
 
 (defun color24-name (color)
   "Given COLOR, return the name or hex string for it.
