@@ -29,6 +29,9 @@
 
 
 
+(defvar *banhammer* (make-hash-table :test 'equal)
+  "A list of IP addresses which are banned from connecting.")
+
 (defun broadcast (message &key near except)
   "Broadcast MESSAGE to all ∞ Mode listeners connected who are near NEAR.
 
@@ -53,13 +56,16 @@ message (usually the originator)"
       (v:warn :stream "Unable to transmit unicast message to ~a: not connected"
               user))))
 
-(defun peer-address (Toot)
+(defmethod peer-address ((Toot Toot))
   (if-let (stream (user-stream Toot))
-    (format nil "inet:~a"
-            (string-trim " " (second (split-sequence #\: (second (split-sequence #\, (second (split-sequence #\" (format nil "~s" (slot-value stream 'hunchensocket::input-stream))))))))))
+    (peer-address stream)
     (if-let (robot (gethash (Toot-name Toot) *robots*))
-      "robot"
-      "unknown")))
+      "robot:"
+      "unknown:")))
+
+(defmethod peer-address (stream)
+  (format nil "inet:~a"
+          (string-trim " " (second (split-sequence #\: (second (split-sequence #\, (second (split-sequence #\" (format nil "~s" (slot-value stream 'hunchensocket::input-stream)))))))))))
 
 (defun find-thread (name)
   (remove-if-not (lambda (thread) (search name (thread-name thread)))

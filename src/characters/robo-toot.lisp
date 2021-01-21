@@ -63,7 +63,7 @@
       (robot-handle robot (make-keyword |from|) status message))))
 
 (defmethod robot-unicast ((message string) (robot robot))
-  "Send MESSAGE to ROBOT individually."
+  "Send the JSON string MESSAGE to ROBOT individually."
   (robot-unicast (jonathan.decode:parse message) robot))
 
 (defmethod robot-unicast (message (Toot Toot))

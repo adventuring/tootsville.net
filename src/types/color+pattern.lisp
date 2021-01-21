@@ -308,6 +308,7 @@ It can also be an HTML-style or CSS-style value.
 "
   (integer-to-color24
    (etypecase color
+     (color24 (return-from parse-color24 color))
      (string (cond ((string-equal "rgb(" color :end2 4)
                     (register-groups-bind (r g b)
                         ("rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)" color)
@@ -329,7 +330,7 @@ It can also be an HTML-style or CSS-style value.
                                          +color24-names+ :test #'string-equal))
                         (cdr as)
                         (parse-number color :radix 16)))))
-     (number color)))))
+     (number color))))
 
 (defun color24-name (color)
   "Given COLOR, return the name or hex string for it.

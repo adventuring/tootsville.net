@@ -302,7 +302,6 @@ USER may be a robot or a Toot that is controlled by a robot."
                                                      (string-downcase string)
                                                      string)
                                                 mention)))
-     (v:info :robots "Matched ~s to “~a”" ',strings mention)
      ,@body
      (return-from robot-heard t)))
 
@@ -313,13 +312,15 @@ USER may be a robot or a Toot that is controlled by a robot."
         (intern (concatenate 'string (string-upcase listener) "-PERSONALITY")))))
 
 (defmacro define-reply ((listener mode) &body body)
-  (let ((listener-name (listener-name listener)))
+  (let ((listener-name (listener-name listener))
+        (docstring (if (stringp (first body)) (first body) nil)))
     `(defmethod robot-heard ((robot ,listener-name)
                              speaker (mode ,(cond
                                               ((null mode) 'null)
                                               ((eql mode t) 't)
                                               (t `(eql ,(make-keyword (string mode))))))
                              heard)
+       ,docstring
        (let ((mention (string-downcase (lastcar heard))))
          ,@body
          (call-next-method)))))

@@ -75,19 +75,49 @@ WRITEME
   (error 'unimplemented))
 
 (define-operator-command agent (words user plane)
-  "
+  "Set the clothing and colors of a robot to match the invoking user.
 
- WRITEME: Document this method brpocock@@star-hope.org
+@subsection Usage
 
- "
-  
-  (error 'unimplemented))
-(define-operator-command askme (words user plane)
-  "
-
-WRITEME
+@verbatim
+ #agent robot-name
+@end verbatim
 "
-  
+  (error 'unimplemented))
+
+(define-operator-command askme (words user plane)
+  "Used to test the question-and-answer subsystem.
+
+@subsection Usage
+
+@verbatim
+ #askme
+@end verbatim
+
+@subsection 200 OK
+
+Returns a fixed JSON sequence that prompts the user to answer a
+meaningless question.
+
+@verbatim
+{ title: \"Title Here\",
+  label: \"example\",
+  label_en_US: \"example\",
+  attachUser: (the user name of the invoking user),
+  id: \"example/2134§þ=?/x'<>'\\\\\\\",:/blah\",
+  msg: \"Because it's really important to me that you are able to hear this question and give me an informed answer, I want to know: “Can you hear me now?”\",
+  replies:
+  { si: { label: \"Yes\",
+          type: \"aff\",
+          label_en_US: \"YES\" },
+    no: { label: \"No\",
+          type: \"neg\",
+          label_en_US: \"NO\" },
+    maybe: { label: \"Maybe. I'm not really sure. This one is mostly just in here to be a really long answer.\",
+             type: \"neu\",
+             label_en_US: \"MEBBE\" } } }
+@end verbatim
+" 
   (error 'unimplemented))
 
 (define-operator-command ban (words user plane)
@@ -142,8 +172,22 @@ Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
 WRITEME
 "
-  
-  (error 'unimplemented))
+  (string-case (first words)
+    ("#list" (list-banhammers))
+    ("#user" (banhammer-ip-address (user-ip (user-stream (find-Toot-by-name (second words))))))
+    ("#+ip" (banhammer-ip-address (second words)))
+    ("#-ip" (un-banhammer-ip-address (second words)))))
+
+(defun list-banhammers ()
+  (format nil "<ul>~{<li>~a</li>~}</ul>" (hash-table-keys *banhammer*)))
+
+(defun banhammer-ip-address (address)
+  (setf (gethash (concatenate 'string "inet:" address) *banhammer*) t)
+  (format nil "Banned address inet:~a" address))
+
+(defun un-banhammer-ip-address (address)
+  (remhash (concatenate 'string "inet:" address) *banhammer*)
+  (format nil "Address ~a can connect" address))
 
 (define-operator-command beam (words user plane)
   "Beam yourself to a different location.
@@ -168,7 +212,10 @@ since rooms as such no longer exist, we use latitude and longitude now.
                   :|longitude| (parse-integer (second words))
                   :|altitude| (if (< 2 (length words))
                                   (parse-integer (third words))
-                                  0))))
+                                  0)
+                  :|world| (if (< 3 (length words))
+                               (string-upcase (fourth words))
+                               "CHOR"))))
 
 (define-operator-command spawnroom (words user plane)
   " WRITEME --- Legacy --- useless in 2.0
@@ -1339,9 +1386,9 @@ WRITEME: Document this method brpocock@@star-hope.org
 (define-operator-command rc (words user plane)
   "UNIMPLEMENTED
 
-Run   an    RC   (RunCommands)   script.   Both    the   â€œsystem   run
- commandsâ€   (â€œrunâ€)  method   and  the   â€œnew  zone   run
- commandsâ€ (â€œnewZoneâ€) method will be executed; the
+Run an RC (RunCommands) script.  Both the “system run
+commands” (“run”) method and the “new zone run commands” (“newZone”)
+method will be executed; the
 
 @subsection Usage
 
@@ -1510,7 +1557,24 @@ In 1.2, this moved an user into another room.
 
  Examples:
  #scotty mouser tootSquareWest"
-  (error 'unimplemented))
+  (check-type words list)
+  (let ((latitude (parse-integer (second words)))
+        (longitude (parse-integer (third words)))
+        (altitude (if (< 2 (length words))
+                                  (parse-integer (third words))
+                                  0))
+        (world (if (< 3 (length words))
+                               (string-upcase (fourth words))
+                               "CHOR")))
+    (unicast (list :|from| "beam"
+                   :|latitude| latitude
+                   :|longitude| longitude
+                   :|altitude| altitude
+                   :|world| world)
+             (find-Toot-by-name (first words)))
+    (list 200
+          (format nil "Beamed ~a to (~:d, ~:d, ~:d) in ~a"
+                  (first words) latitude longitude altitude world))))
 
 (define-operator-command setavatarcolors (words user plane)
   "Sets the  base and extra colors  of a user's avatar.  

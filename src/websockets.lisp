@@ -210,7 +210,7 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (location :accessor Toot-position :initform (list :chor 0 0 0))))
 
 (defun Toot-world (client)
-  (wtl-course-world (fixme)))
+  (wtl-course-world (Toot client)))
 
 (defmethod Toot-position ((Toot Toot))
   (if-let (stream (user-stream Toot))
@@ -300,14 +300,15 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   (let ((message (ensure-message-is-characters message))
         (clients (remove-if (lambda (client) (equalp client except))
                             (hunchensocket:clients res))))
-    (lparallel:pmapcar
-     (lambda (client)
-       (with-websocket-disconnections (client)
-         (hunchensocket:send-text-message client message)
-         (incf *ws-chars-broadcast* (length message))))
-     clients)
-    (v:info :stream "Broadcast to ~a (~:d client~:p): ~:d character~:p"
-            res (length clients) (length message))))
+    (when clients
+      (lparallel:pmapcar
+       (lambda (client)
+         (with-websocket-disconnections (client)
+           (hunchensocket:send-text-message client message)
+           (incf *ws-chars-broadcast* (length message))))
+       clients)
+      (v:info :stream "Broadcast to ~a (~:d client~:p): ~:d character~:p"
+              res (length clients) (length message)))))
 
 (defun ensure-message-is-characters (message)
   "Convert MESSAGE into a string of characters, probably as JSON."
@@ -320,7 +321,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defun websockets-unicast-low-level% (message user-stream)
   (hunchensocket:send-text-message user-stream message)
   (v:info :stream "Unicast to ~a: ~:d character~:p" user-stream (length message))
-  (format *Trace-output* "[~a] ~a" (if-let (Toot (Toot user-stream)) (Toot-name Toot)) message)
+  (format *trace-output* "[~a] ~a" (if-let (Toot (Toot user-stream)) (Toot-name Toot)) message)
   (incf *ws-chars-unicast* (length message)))
 
 (defun ws-unicast (message user)
@@ -336,6 +337,9 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 
 (defmethod hunchensocket:client-connected ((res infinity-websocket-resource) client)
   (v:info :stream "WebSocket connection on ~a from ~a" res client)
+  (when (gethash (peer-address client) *banhammer*)
+    (v:warn :stream "Banhammer forbids connection from ~a" client)
+    (force-close-hunchensocket client))
   (incf *ws-connections*))
 
 (defmethod hunchensocket:client-disconnected ((res infinity-websocket-resource) client)

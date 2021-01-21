@@ -32,6 +32,7 @@
 
 
 (defun query-to-memcache-key (db prepared args)
+  (declare (ignore db)) ; TODO?
   (let ((query (format nil "~a~{~a~^~}" prepared args)))
     (sha1-hex query)))
 
@@ -56,6 +57,12 @@
                    (progn
                      (v:warn :memcached "Cache miss on ~a" ,$key)
                      (let ((,$value (multiple-value-list (,$body))))
+                       (cl-memcached:mc-store
+                                ,$key
+                                (trivial-utf-8:string-to-utf-8-bytes (format nil "~s" ,$value))
+                                :timeout ,timeout
+                                :command :set)
+                       #+(or)
                        (v:warn :memcached "Caching ~:d values: ~a"
                                (length ,$VALUE)
                                (cl-memcached:mc-store

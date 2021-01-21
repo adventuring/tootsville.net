@@ -35,15 +35,14 @@
 (define-personality Basic-8 Toot)
 
 (define-reply (Basic-8 nil)
-  (robot-match ("you from earth" "you from (chœrogryllum|choerogryllum)"
-                "you from this planet")
+  (robot-match ("you from earth.*\\?" "you from (chœrogryll?um|cho?e?rogryll?um).*\\?"
+                "you from this planet.*\\?" "you from around here.*\\?")
     (robot-set-mode from-earth)
     (robot-say robot "I'm from Earth, originally, but now I live here on Chœrogryllum.")))
 
 (define-reply (Basic-8 from-earth)
   (robot-match ("from earth")
     (robot-say robot "I grew up on Earth as an elephant, before coming through the Mist to Tootsville")))
-                
 
 (define-reply (Toot nil)
   (robot-match ((string-downcase (Toot-name (Toot robot))))
@@ -57,5 +56,5 @@
     (robot-say robot "I'm doing well, thanks for asking")))
 
 (define-reply (Toot nil)
-  (robot-match ("\\bfuck" "\\bshit" "\\bdamn" "\\bgoddamn?\\b" )
+  (robot-match ("\\bfuck" "\\bshit" "\\bdamn" "\\bgod-?d?amn?\\b" )
     (robot-say robot "Maybe you should not use that kind of language around here.")))

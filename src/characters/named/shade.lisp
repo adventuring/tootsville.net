@@ -32,7 +32,7 @@
 (define-character Shade)
 
 (define-reply (Shade nil)
-  (robot-match ("Shade")
+  (robot-match ("shade")
     (robot-say robot "I'm Shade. I'm the leader of the Shaddows.")
     (do-after (10)
       (robot-say robot "I was trapped in Shaddow Falls by Zap and his do-gooder friends."))))
