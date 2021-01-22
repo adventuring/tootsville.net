@@ -30,7 +30,8 @@
 
 
 (defmethod robot-handle (robot from status message)
-  (v:warn :robot "Unhandled message from ~a (~:[false~;true~]), robots don't know about that message source (status ~s)"
+  (v:warn :robot "Unhandled message from ~a (~:[false~;true~]), ~
+robots don't know about that message source (status ~s)"
           from status status))
 
 (defmethod robot-heard ((robot robot) speaker mode heard)

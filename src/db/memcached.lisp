@@ -77,6 +77,9 @@ Currently uses `SHA1-HEX' of a particular stringified form"
                        (apply #'values ,$value)))))
              (cl-memcached::memcached-server-unreachable (c)
                (declare (ignore c))
+               (,$body))
+             (pooler::pool-item-creation-error (c)
+               (declare (ignore c))
                (,$body)))
            (progn
              (run-async #'connect-cache)

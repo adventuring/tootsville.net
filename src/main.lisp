@@ -106,7 +106,7 @@ If NAME is omitted, a generic name will be created based on FUNCTION."
                               "{~a}: working" (thread-name (current-thread)))
                 (funcall function))
            (verbose:info '(:threadpool-worker :async-worker :worker-finish)
-                         "{~a}: done (~f sec)" (thread-name (current-thread))
+                         "{~a}: done (~,2f sec)" (thread-name (current-thread))
                          (/ (- (get-internal-real-time) start-time)
                             internal-time-units-per-second))
            (setf (sb-thread:thread-name (current-thread)) idle-name)))))))
@@ -368,6 +368,7 @@ allowing SystemD to start a new instance in case of a fatal error."
 (defun stop-production ()
   (stop-listening-for-websockets)
   (ws-evacuate-all)
+  (stop-game-metronome)
   (stop)
   (sb-ext:quit :unix-status 0))
 

@@ -135,7 +135,7 @@ XXX is there a better status for updates?
          (with-errors-as-http (422 "Gender")
            (assert (member (the string new-value)
                            '("☿" "♀" "♂") :test #'string=)))
-         (setf (person-gender *user*) (ecase (char new-value 0)
+         (setf (person-gender *user*) (ecase (char (the string new-value) 0)
                                         (#\☿ :X)
                                         (#\♀ :F)
                                         (#\♂ :M))))
@@ -178,7 +178,7 @@ Requires a body with fields to be changed, and their new values. TODO.
                                             (or (Toot-last-active Toot) (now))))))))
           (format nil "~{~:(~a~)~^~%~}"
                   (mapcar #'Toot-name
-                          (sort (player-Toots)
+                          (sort (the list (player-Toots))
                                 #'timestamp>
                                 :key (lambda (Toot)
                                        (or (Toot-last-active Toot)
@@ -207,7 +207,7 @@ which  in  turn contains  an  array  of  Toot  names, ordered  by  their
                                            (timestamp-to-universal
                                             (or (Toot-last-active Toot) (now))))))))
           (list :|toots| (mapcar #'Toot-name
-                                 (sort (player-Toots)
+                                 (sort (the list (player-Toots))
                                        #'timestamp>
                                        :key (lambda (Toot)
                                               (or (Toot-last-active Toot)

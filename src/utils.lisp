@@ -62,3 +62,15 @@
      collect key into keys
      collect value into values
      finally (return (list keys values))))
+
+
+
+(defun sync ()
+  (dolist (stream (list *standard-output* *error-output* *trace-output* *query-io*))
+    (finish-output stream))
+  (uiop:run-program "sync")
+  (values))
+
+(defun chdir (new-path)
+  (setf *default-pathname-defaults* (merge-pathnames new-path)))
+

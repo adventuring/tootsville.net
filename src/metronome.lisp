@@ -68,13 +68,11 @@ Also reaps (by joining) finished threads.
 
 See `RUN-METRONOME-TASKS'"
   (loop for task in *metronome-tasks*
-     if (when-let (th (metronome-task-thread task))
-          (if (thread-alive-p th)
-              t
-              (progn (ignore-errors (join-thread th))
-                     nil)))
-     do (v:warn :metronome "Still running: ~a" (metronome-task-thread task))
-     else collect task))
+        unless (when-let (th (metronome-task-thread task))
+                 (if (thread-alive-p th)
+                     (v:warn :metronome "Still running: ~a" (metronome-task-thread task))
+                     (ignore-errors (join-thread th))))
+          collect task))
 
 (defun run-metronome-tasks ()
   "Runs tasks scheduled for the game's metronome.
@@ -93,6 +91,11 @@ due to system scheduler tie-ups.
 Tasks are not allowed to ``stack up;'' if a task has not finished by the
 time  its  next  execution  window   comes  around,  it  will  miss  its
 opportunity and have to wait for the next window."
+  (let ((lost-time (- (get-universal-time) *metronome-next-tick*)))
+    (when (> lost-time 90)
+      (v:warn :metronome "Skipping Metronome ahead: ~:d seconds have passed"
+              lost-time)
+      (setf *metronome-next-tick* (- (get-universal-time) 30))))
   (loop for now from *metronome-next-tick* 
      below (get-universal-time)
      do
@@ -109,7 +112,7 @@ opportunity and have to wait for the next window."
                         :name (format nil "Metronome: ~a"
                                       (metronome-task-name task)))
            (metronome-remove task)))
-     do (setf *metronome-next-tick* now)))
+        do (setf *metronome-next-tick* now)))
 
 (defun metronome-remove (task)
   "Safely remove TASK from the metronome's schedule.

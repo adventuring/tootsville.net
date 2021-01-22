@@ -1200,3 +1200,10 @@ Calling this with an adult's Toot is funny, but not helpful."
                           :|url| "https://wiki.Tootsville.org/wiki/Parental_Approval_Denied")))
     (v:warn '(:child :stream) "~a is not online to get denied" Toot)))
 
+
+(defun ws-evacuate-all (&optional (resource *infinity-websocket-resource*))
+  "Evacuate all connected players to other servers."
+  (ws-broadcast resource
+                '(:|from| "migrate"
+                  :|status| t
+                  :|newConnection| "#same")))
