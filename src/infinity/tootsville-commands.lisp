@@ -28,7 +28,12 @@
 
 
 (definfinity add-journal-entry ((entry) u r)
-  "Add a staff journal entry
+  "Add a staff journal entry.
+
+The staff journal entries are recorded to the database
+for later review.
+
+UNIMPLEMENTED in 2.0.
 
 @subsection Usage
 
@@ -39,12 +44,11 @@
 Example
 
 @verbatim
-WRITEME
+{ entry: \"nothing to report\" }
 @end verbatim
 
-WRITEME
 
-@subsection Legacy documentation:
+@subsection Romance 1.2 documentation
 
 Staff members can create a journal entry which is stored for
 review in a customer service application such as Joshua. Creating
@@ -78,11 +82,10 @@ has now been re-created for the AGPL version of Romance.
 Example
 
 @verbatim
-WRITEME
+{ type: \"pivitz\" }
+
+{ slot: \"1D94E6C7-8643-48AE-81A4-8B0C3EB36A7A\" }
 @end verbatim
-
-WRITEME
-
 
 When  @code{type}  is  present,  it must  be  either  @code{clothes}  or
 @code{pivitz}.
@@ -176,13 +179,11 @@ has now been re-created for the AGPL version of Romance.
 (definfinity get-passport (nil u r)
   "Get the list of places that the user has gotten a passport stamp at.
 
+Passport stamps are not currently implemented but will be returning.
+
 @subsection Usage
 
 This command requires no parameters.
-
-WRITEME
-
-Passport stamps are not currently implemented but will be returning.
 
 @subsection Changes from 1.2 to 2.0
 
@@ -214,8 +215,6 @@ Example
 { toList: [ \"catvlle\", \"pil\" ], body: \"Howdy\" }
 @end verbatim
 
-WRITEME
-
 Input: @code{subject} (must be blank);  @code{to}, the Toot name to whom
 to send the text; and @code{body} of the message.
 
@@ -232,6 +231,8 @@ This command was formerly a proprietary extension for Tootsville.com and
 has now been re-created for the AGPL version of Romance.
 
 @subsection 200 OK
+
+The “SMS” message was sent.
 
 @subsection 400 Bad Request
 
@@ -250,23 +251,28 @@ Exactly one of @code{to} or @code{toList} must be specified
 (definfinity stamp-passport ((room) u r)
   "Stamp the Toot's passport
 
+Passports are not currently implemented in Tootsville V, but will be
+returning.
+
 @subsection Usage
 
 @verbatim
-WRITEME
+{ room: \"SPOT-MONIKER\" }
 @end verbatim
 
 Example
 
 @verbatim
-WRITEME
+{ room: \"tootSquare\" }
 @end verbatim
-
-WRITEME
 
 @subsection Changes from 1.2 to 2.0
 
 Passports stamps are temporarily unavailable.
+
+``room'' was previously a room moniker, but will now be a ``spot''
+moniker of a Spot in the game world. Despite the change, the key name
+remains ``room.''
 
 @subsection Formerly Proprietary Extension
 

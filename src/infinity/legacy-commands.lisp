@@ -367,21 +367,24 @@ named literally @code{You said}.
 
 This method exists solely for testing purposes.
 
-@verbatim
-⇒ { c: \"echo\", d: { foo: 42 } }
+@subsubsection Parameters
 
-{ from: \"echo\", status: true, \"You said\": { foo: 42 } }
-@end verbatim
-
-Note that the field name is literally ``@samp{You said:}.''
-
-Parameters:
 @table @code
 @item jso
 Any JSON object, the contents of which will be returned to the caller.
 @item u
 The user calling (to whom the response is sent)
 @end table
+
+@subsection Example
+
+@verbatim
+⇒ { c: \"echo\", d: { foo: 42 } }
+
+{ from: \"echo\", status: true, \"You said\": { foo: 42 } }
+@end verbatim
+
+Note that the field name is literally @samp{You said} with a space.
 
 @subsection 200 OK
 
@@ -399,7 +402,13 @@ the user in the case of truncation."
 (definfinity finger ((&rest Toots-with-keys) user recipient/s)
   "Get public info for a list of Toots.
 
-Reply format:
+@subsection Usage
+
+@verbatim
+{ c: \"finger\", d: { key: \"toot-name\", ... } }
+@end verbatim
+
+@subsection Reply format
 
 @verbatim
 { from: avatars, status: true, avatars: { 0: { TOOT-INFO … }, … }
@@ -426,6 +435,8 @@ names of Toots."
 
 (definfinity game-action ((&rest more-params &key action &allow-other-keys) user recipient/s)
   "Send an in-world game's action.
+
+@gaindex Overview of Game Actions
 
 These are actions that affect in-world minigames.
 
@@ -466,6 +477,8 @@ version of the ``GAME-ACTION-function-name'' that will actually handle
 it.
 
 Refer to the individual game action functions for further details.
+
+See Appendix 8 for an index of game actions.
 
 @subsection Status 400 Error
 
@@ -1367,13 +1380,21 @@ trace or something.
  @item navigator.vendorSub
  JavaScript: navigator.vendorSub
  @item screen.height
- JavaScript: screen.height; ActionScript: flash.system.Capabilities.screenResolutionX
+ JavaScript: screen.height; 
+
+ ActionScript: flash.system.Capabilities.screenResolutionX
  @item screen.width
- JavaScript: screen.width; ActionScript: flash.system.Capabilities.screenResolutionY
+ JavaScript: screen.width; 
+
+ ActionScript: flash.system.Capabilities.screenResolutionY
  @item screen.availHeight
- JavaScript: screen.availHeight; ActionScript: flash.display.Stage.fullScreenHeight
+ JavaScript: screen.availHeight; 
+
+ ActionScript: flash.display.Stage.fullScreenHeight
  @item screen.availWidth
- JavaScript: screen.availWidth; ActionScript: flash.display.Stage.fullScreenWidth
+ JavaScript: screen.availWidth; 
+
+ ActionScript: flash.display.Stage.fullScreenWidth
  @item window.outerHeight
  JavaScript: window.outerheight note case
  @item window.outerWidth
@@ -1386,7 +1407,8 @@ trace or something.
  JavaScript: the window.name property of the highest parent of this window (frame); e.g.
 @verbatim
  var topWindow = window.parent;
- for (; topWindow.parent != topWindow; topWindow = topWindow.parent)
+ for (; topWindow.parent != topWindow;
+        topWindow = topWindow.parent)
  ;
  info [\"window.windowName\"] = topWindow.name;
 @end verbatim
@@ -1501,7 +1523,9 @@ trace or something.
  \"screenDPI\": flash.system.Capabilities.screenDPI,
  \"version\": flash.system.Capabilities.version
  },
- \"displayState\": ( flash.display.Stage.displayState == FULL_SCREEN_INTERACTIVE ? \"fullScreen\" : \"window\" ),
+ \"displayState\": ( flash.display.Stage.displayState == 
+                                                 FULL_SCREEN_INTERACTIVE ?
+                                             \"fullScreen\" : \"window\" ),
  \"frameRate\": flash.display.Stage.frameRate,
  \"quality\": flash.display.Stage.quality,
  \"scaleMode\": flash.display.Stage.scaleMode
@@ -1798,9 +1822,22 @@ There are no longer room variables (as such) in Romance 2.0.
 { d3: course: { COURSE } }
 
 { xpr: \"expression\" }
+
+{ sN: \"D-String\" }
+
+{ shotN: course: { COURSE }, facing: FACING }
 @end verbatim
 
-This is a legacy-type method.
+This is a legacy-type method, which is provided for the convenience of
+client implementors.
+
+@subsection Example
+
+@verbatim
+{ d: \"100~100~200~200~NE~6029604401000\",
+  s0: \"100~100~300~300~NE~6029604401000\",
+  xpr: \"smile\" }
+@end verbatim
 
 @subsection History (pre-2.0)
 
@@ -1824,6 +1861,8 @@ no ``z'' coördinate given. Since Romance II clients are expected to
 use @code{wtl} or @code{d3} packets only, this will be translated into
 a @code{wtl} course and then transmitted.
 
+See `INFINITY-WTL' for a discussion of its structure.
+
 @item wtl
 See `INFINITY-WTL' for the structure of this linear course.
 
@@ -1834,6 +1873,17 @@ support more complex path descriptions.
 @item xpr
 This sets the player's expression (on  their face); not yet supported in
 Tootsville V.
+
+@item s@i{N}
+
+This is a shot position in @code{d} form, where @i{N} is an arbitrary
+unique identifier chosen by the client. See `INFINITY-SHOOT' for
+another way to provide this data.
+
+@item shot@i{N}
+
+This is a shot position in @code{wtl} form, where @i{N} is an
+arbitrary unique identifier chosen by the client.
 
 @end table
 

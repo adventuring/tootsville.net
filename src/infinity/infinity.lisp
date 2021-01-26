@@ -125,13 +125,13 @@ like Romans.
 
 In order to  negotiate a connection between Appius  and SmartFox client,
 we had to provide a version identifier,  so we set the version number to
-“infinity.”
+``infinity.''
 
-With the  adoption of the gossipnet  for Romance Ⅱ, we  had to increment
-the  version from  infinity, which  brings us  to ℵ₀  (read: Alef-Null),
-which is a particular kind of infinity  that is not as big as some other
-kinds  of  infinity, as  silly  as  that mathematical  construction  may
-sound (yes, that's real maths).
+With the adoption of the gossipnet for Romance II, we had to increment
+the version from infinity, which brings us to ℵ@sub{0} (read: Alef-Null),
+which is a particular kind of infinity that is not as big as some
+other kinds of infinity, as silly as that mathematical construction
+may sound (yes, that's real maths).
 
 @subsection Wire protocols
 
@@ -175,9 +175,9 @@ The special @samp{logOK} packet type  is used only for acknowledging and
 promulgating login events through the grid. This actually dates back all
 the way to the SmartFox server's protocols, so it's an odd duck.
 
-@item
-Commands    that    instigate    an    action    are    identified    by
-a @samp{c} attribute.
+@item 
+Commands that instigate an action are identified by a @samp{c}
+attribute.
 
 @item
 Commands that provide information about the world, usually as a reaction
@@ -185,8 +185,6 @@ to another event,  are called Gatekeeper messages and  are identified by
 a @samp{from} attribute.
 
 @end enumerate
-
-XXX WRITEME
 
 @subsection logOK datagrams
 
@@ -254,18 +252,27 @@ been some kind of request error and data is not available.
 For a complete enumeration 
 
 "
-  (let ((legacy-name (symbol-munger:lisp->camel-case (string name)))
-        (docstring (when (stringp (first body)) (first body)))
-        (body (if (stringp (first body)) (rest body) body))
-        (infinity-name (intern (concatenate 'string "INFINITY-" (string name))))
-        (λ-list (if (eql '&rest (first lambda-list))
-                    lambda-list
-                    (cons '&key lambda-list))))
+  (let* ((legacy-name (symbol-munger:lisp->camel-case (string name)))
+         (docstring (if (stringp (first body))
+                        (first body)
+                        (format nil "Infinity mode command ~a" legacy-name)))
+         (docstring-first (first-paragraph docstring))
+         (docstring-rest (subseq docstring (length docstring-first)))
+         (docstring-with-prefix (format nil "~a~2%@icindex ~a: ~a~2%Lisp ~a = JSON ~a~2%~a"
+                                        docstring-first
+                                        legacy-name docstring-first
+                                        name legacy-name
+                                        docstring-rest))
+         (body (if (stringp (first body)) (rest body) body))
+         (infinity-name (intern (concatenate 'string "INFINITY-" (string name))))
+         (λ-list (if (eql '&rest (first lambda-list))
+                     lambda-list
+                     (cons '&key lambda-list))))
     (push (cons (string name) infinity-name) *infinity-ops*)
     (push (cons legacy-name infinity-name) *infinity-ops*)
     `(progn
        (defun ,infinity-name (d ,user-var ,plane-var)
-         ,docstring
+         ,docstring-with-prefix
          (declare (ignorable ,user-var ,plane-var))
          (block nil (catch 'infinity
                       (destructuring-bind (,(first λ-list) ,@(mapcar (lambda (sym)
@@ -287,19 +294,27 @@ For a complete enumeration
   (:use :CL :CL-User :Bordeaux-Threads :Tootsville))
 
 (defmacro define-operator-command (command (words user plane) &body body)
-  (let ((docstring (if (stringp (first body)) (first body)
-                       (format nil "Undocumented operator command ~a" command)))
-        (body (if (stringp (first body)) (rest body) body))
-        (command (if (find-symbol (string command) :CL)
-                     (concatenate 'string "*" (string command))
-                     command)))
+  (let* ((docstring (if (stringp (first body))
+                        (first body)
+                        (format nil "Undocumented operator command ~a" command)))
+         (docstring-first (first-paragraph docstring))
+         (docstring-rest (subseq docstring (length docstring-first)))
+         (docstring-with-prefix (format nil "~a~2%@ocindex #~a: ~a~2%~a"
+                                        docstring-first
+                                        (string-downcase command)
+                                        docstring-first
+                                        docstring-rest))
+         (body (if (stringp (first body)) (rest body) body))
+         (command (if (find-symbol (string command) :CL)
+                      (concatenate 'string "*" (string command))
+                      command)))
     `(progn
        (defun ,(intern (string command) (find-package :Tootsville-User)) (&rest ,words)
-         ,docstring
+         ,docstring-with-prefix
          (declare (ignorable ,words))
          (let ((,user *Toot*) (,plane (Toot-world *client*)))
            (declare (ignorable ,user ,plane))
-           (if (and *Toot* (builder-Toot-p *Toot*))
+           (if (or (null *Toot*) (and *Toot* (builder-Toot-p *Toot*)))
                (let ((reply (block nil (progn ,@body))))
                  (when (stringp reply)
                    (private-admin-message

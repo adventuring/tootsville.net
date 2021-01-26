@@ -71,7 +71,7 @@ is not in this manual."
                                  ("^([^@]*){" "@{"))
                                string)))
   (regex-replace-all
-   "`([^']+)'" string
+   "`([^`'][^']*)'" string
    (lambda (target start end 
             match-start match-end
             reg-starts reg-ends)
@@ -383,6 +383,12 @@ except that this permission notice may be translated as well.
 
 @c pathname index
 @defindex pn
+@c Infinity mode commands
+@defindex ic
+@c Operator commands
+@defindex oc
+@c Game Actions
+@defindex ga
 
 @titlepage
 @title The Book of Romance II
@@ -471,8 +477,8 @@ as well, whose documentation may not have been included here.
                     (package-name (symbol-package symbol))))
           (write-documentation symbol docs)))
       
-      (princ (read-file-into-string (merge-pathnames #p"../tootsville.org/dist/doc.texi"
-						     source-dir))
+      (princ (texi-ref (read-file-into-string (merge-pathnames #p"../tootsville.org/dist/doc.texi"
+						               source-dir)))
 	     docs)
       (format docs "
 
@@ -591,6 +597,9 @@ Google Closure Javascript compressor
 * Variable index::
 * Data type index::
 * Pathname index::
+* Infinity Mode commands::
+* Operator commands::
+* Game Actions::
 @end menu
 
 
@@ -637,6 +646,26 @@ Google Closure Javascript compressor
 @node Pathname index
 @appendixsec Pathnames
 @printindex pn
+
+@page
+
+@c Infinity Mode commands
+@node Infinity Mode commands
+@appendixsec Infinity Mode commands
+@printindex ic
+
+@page
+
+@c Operator commands
+@node Operator commands
+@appendixsec Operator commands
+@printindex oc
+@page
+
+@c Game Actions
+@node Game Actions
+@appendixsec Game Actions
+@printindex ga
 
 @bye
 

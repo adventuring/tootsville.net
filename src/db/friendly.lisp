@@ -139,9 +139,9 @@
   (default-base-color color24)
   (default-alt-color color24)
   (avatar string)
-  (energy-kind keyword)
+  (energy-kind keyword) ; COUNTABLE or UNCOUNTABLE, or null
   (energy-max number)
-  (on-zero keyword)
+  (on-zero keyword) ; VANISH or EMPTY
   (wear-slot number ref wear-slot)
   (weight number)
   (avatar-scale-x number)

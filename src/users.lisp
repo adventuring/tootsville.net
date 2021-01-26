@@ -557,7 +557,10 @@ Returns NIL."
   nil)
 
 (defun parent-deny-permission (request &key (via "web"))
-  "WRITEME
+  "The parent who was given REQUEST has denied permission via VIA.
+
+The child who placed REQUEST is @i{not} being given permission to play
+in Tootsville.
 
 Returns NIL"
   (let ((Toot (find-reference request :Toot)))

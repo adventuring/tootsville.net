@@ -31,6 +31,8 @@
 (defun game-action-start-sports-ball-game (action)
   "Start a SportsBall game.
 
+@gaindex startSportsBallGame
+
 @subsection Usage
 
 A @code{gameAction} packet of the form:
@@ -69,6 +71,8 @@ WRITEME: Explain SportsBall sytem here.
 (defun game-action-sports-ball-goal (action)
   "Score a goal in a SportsBall game.
 
+@gaindex sportsBallGoal
+
 @subsection Usage
 
 WRITEME
@@ -82,6 +86,8 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME'"
 
 (defun game-action-start-sports-ball-timer (action)
   "Start a timer for a SportsBall game.
+
+@gaindex startSportsBallTimer
 
 @subsection Usage
 
@@ -98,6 +104,8 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME'"
 (defun game-action-pause-sports-ball-timer (action)
   "Pause the timer for a SportsBall game.
 
+@gaindex pauseSportsBallTimer
+
 @subsection Usage
 
 WRITEME
@@ -111,6 +119,8 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME', `GAME-ACTION-START-SPORTS-BALL-TIMER'
 
 (defun game-action-start-sports-ball-timer (action)
   "Resume the timer for a SportsBall game after it had been paused.
+
+@gaindex startSportsBallTimer
 
 @subsection Usage
 
@@ -128,6 +138,8 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME', `GAME-ACTION-START-SPORTS-BALL-TIMER'
 
 (defun game-action-join-card-game (action)
   "Start playing a card game.
+
+@gaindex joinCardGame
 
 @subsection Usage
 
@@ -214,6 +226,8 @@ WRITEME
 (defun game-action-part-card-game (action)
   "Quit a card game at a card table.
 
+@gaindex partCardGame
+
 @subsection Usage
 
 WRITEME
@@ -228,6 +242,8 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 
 (defun game-action-card-game-shuffle (action)
   "Shuffle all cards into the deck.
+
+@gaindex cardGameShuffle
 
 @subsection Usage
 
@@ -244,6 +260,8 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-deal (action)
   "Deal a card from the shuffled deck to another player without looking.
 
+@gaindex cardGameDeal
+
 @subsection Usage
 
 WRITEME
@@ -259,6 +277,8 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-draw (action)
   "Draw a card from the shuffled deck into your hand.
 
+@gaindex cardGameDraw
+
 @subsection Usage
 
 WRITEME
@@ -273,6 +293,8 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 
 (defun game-action-card-game-play (action)
   "Play a card from your hand, placing it on the table.
+
+@gaindex cardGamePlay
 
 The card may be played face-down or face-up, and at any place on the
 table.
@@ -293,6 +315,7 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-take (action)
   "Pick up a card from the table, placing it into your hand.
 
+@gaindex cardGameTake
 
 @subsection Usage
 
@@ -309,6 +332,7 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-move (action)
   "Move a card around on the table.
 
+@gaindex cardGameMove
 
 @subsection Usage
 
@@ -325,6 +349,7 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 (defun game-action-card-game-arrange (action)
   "Re-order the cards in your hand.
 
+@gaindex cardGameArrange
 
 @subsection Usage
 
@@ -342,6 +367,8 @@ See `GAME-ACTION-JOIN-CARD-GAME' for an overview of card table games."
 
 (defun game-action-start-bowling (action)
   "Start a bowling game.
+
+@gaindex startBowling
 
 This action takes a bowling lane as an argument. The lane is reset and
 the scoreboard is wiped clear.
@@ -390,6 +417,8 @@ WRITEME"
 (defun game-action-bowling-reset-pins (action)
   "Reset the pins and move to the next player or frame of bowling.
 
+@gaindex resetBowlingPins
+
 @subsection Usage
 
 WRITEME
@@ -405,6 +434,8 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 (defun game-action-bowling-strike-pins (action)
   "Record the bowling ball striking the pins
 
+@gaindex bowlingStrikePins
+
 @subsection Usage
 
 WRITEME
@@ -418,6 +449,8 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 
 (defun game-action-join-bowling-game (action)
   "Join a bowling game that's about to start
+
+@gaindex joinBowlingGame
 
 @subsection Usage
 
@@ -434,6 +467,8 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 (defun game-action-part-bowling-game (action)
   "Quit a bowling game that's about to start or already started.
 
+@gaindex partBowlingGame
+
 @subsection Usage
 
 WRITEME
@@ -448,6 +483,8 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 
 (defun game-action-get-bowling-scorecard (action)
   "Get the scorecard for a bowling game in progress.
+
+@gaindex getBowlingScorecard
 
 @subsection Usage
 
@@ -465,6 +502,8 @@ See `GAME-ACTION-START-BOWLING' for an overview of bowling."
 
 (defun game-action-tag-you-re-it (action)
   "@subsection Usage
+
+@gaindex tagYouReIt
 
 WRITEME
 

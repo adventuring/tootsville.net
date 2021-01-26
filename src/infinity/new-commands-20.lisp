@@ -35,17 +35,23 @@
 
 @subsection Usage
 
-This command  takes no arguments.  It returns the  wear-slots associated
+This command takes no arguments.  It returns the wear-slots associated
 with the caller's avatar.
+
+See `WEAR-SLOT-INFO' for the format of the reply data.
 
 @subsection 200 OK
 
-Returns     an     object     with     @code{status:     true,     from:
-\"enumerateWearSlots\"}, and a key @code{slots}  under which is an array
-of information about each wear  slot, in the format of `WEAR-SLOT-INFO',
-q.v.
+Returns an object with @code{status: true, from:
+\"enumerateWearSlots\"}, and a key @code{slots} under which is an
+array of information about each wear slot, in the format of
+`WEAR-SLOT-INFO', q.v.
 
-WRITEME -- example reply
+@verbatim
+{ from: \"enumerateWearSlots\",
+  status: true,
+  slots: [ WEAR-SLOT-INFO, WEAR-SLOT-INFO, ... ] }
+@end verbatim
 "
   (list 200
         (list :|status| t
@@ -87,7 +93,25 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
               :|wardrobe| (list :|avatar| (Toot-info *Toot*)))))
 
 (defun sky-room-var (world)
-  "Returns the current state of the skies over WORLD."
+  "Returns the current state of the skies over WORLD.
+
+This data is in the form of a Plist suitable for JSON-ification. It's
+expected to be used by `LOCAL-ROOM-VARS' particularly, q.v.
+
+When WORLD is CHOR (Chœrogryllum), the sky will contain a sun, and
+three moons. For each body, the X and Y positions will be returned; in
+addition, for each moon, the phase (φ) of the moon will be returned.
+
+@subsection Example structure
+
+@verbatim
+{ sun: { x: 120, y: 120 },
+  moon: { x: 120, y: 120, φ: 1 },
+  othM: { x: 120, y: 120, φ: 1 },
+  pink: { x: 120, y: 120, φ: 1 } }
+@end verbatim
+
+"
   (assert (eql world :chor))
   (list :|sun|
         (let ((xy (sun-position)))
@@ -159,6 +183,8 @@ See `INFINITY-GET-ROOM-VARS' for a discussion."
 
 This command requires no parameters.
 
+@cindex Room Variables
+
 @subsection Historical Usage (Romance I)
 
 In Romance  I, the  server had  a library  of free-form  key-value pairs
@@ -198,6 +224,8 @@ The Weather, or overlay artwork. Used to indicate precipitation.
 
 WRITEME
 
+See `SKY-ROOM-VAR'
+
 @subsection Weather
 
 WRITEME
@@ -207,8 +235,26 @@ WRITEME
 @table @code
 @item item
 
-Placed items: key: “item” + Unique-ID = value: item-description \"~\"
-x-position \"~\" y-position \"~\" facing \"~\" z-position
+A placed item can be represented by an encoded string form (``item''),
+or a JSON structure (``itm2'').
+
+The older style uses a key beginning with @code{item} and an unique
+identifier string, followed by a @code{~} delimited list of:
+description, X position, Y position, facing, and (optional) Z
+position.
+
+If the Z position is omitted, then the value given for Y position
+should be used for Z instead. (The Y axis used to run across the
+floor.)
+
+The facing value can be given in radians, or as a special moniker from
+the set: @code{N NE E SE S SW W NW}
+
+@example
+itemfoo123: \"flowerPot~100~931~N\"
+itembar456: \"flowerPot~100~0~1.23412952423~931\"
+@end example
+
 
 @item itm2
 
@@ -244,6 +290,10 @@ User-positioned items: key: “furn” --- no longer used.
 
 Text items: key: \"text\" + unique-ID = value
 
+Text to be displayed atop another item. The value might be x~z~string
+or itm2-id~attachment~string. In the latter form, the text is attached
+to the model of the ``itm2'' given at the attachment point.
+
 @end table
 
 @subsection Places
@@ -255,9 +305,10 @@ These are held in Room Variables with names of the form \"zone\" plus an
 arbitrary identifier. The contents of the room variable are a @emph{key}
 followed by \":\" and a series of coördinates.
 
-Each coördinate pair is given as x,y,z in decimal, literally, like:
-\"100,0,200\". They are separated with \"~\". To stop one polygon and start
-on another, give \"~~\" with no coördinates between.
+Each coördinate pair/triplet is given as x,y,z in decimal, literally,
+like: \"100,0,200\". When only two coördinates are supplied, they
+represent x and z. They are separated with \"~\". To stop one polygon
+and start on another, give \"~~\" with no coördinates between.
 
 The key of a Place specifies its purpose. The keys understood by the
 server include:
@@ -275,8 +326,8 @@ explicitly part of some other kind of Place is grass.
 
 @item unwalkable
 
-This demarcates an invisible obstacle  — a collision-only object — which
-prevents avatars from entering that space.
+This demarcates an invisible obstacle --- a collision-only object ---
+which prevents avatars from entering that space.
 
 @item doormat
 
@@ -306,7 +357,7 @@ This space is part of an in-world game; e.g. a soccer field.
 
 @item cheese
 
-The stuff the moons are made of
+The stuff the moons are made of. (Fight me.)
 
 @item pit
 
@@ -314,13 +365,15 @@ A bottomless pit
 
 @end table
 
-WRITEME --- there is more to explain.
+WRITEME --- there is more to explain about room variables.
 
 "
   (list 200 (local-room-vars)))
 
 (definfinity wtl ((course facing) u r)
   "Walk the Line
+
+@cindex Walking the Line
 
 Users send  a ``wtl''  packet when  they're moving  in a  straight line;
 while  other  (arc)  shapes   were  considered,  they're  not  currently
@@ -341,13 +394,41 @@ determine where along the line (linear interpolation) the walker is now.
 
 In return, all observers receive these ``wtl'' packets back ... WRITEME
 
-Return: 
+@subsection Reply
 
 @verbatim
 { from: \"wtl\", status: true, course: {}, facing:, u: UUID, n: NAME }
 @end verbatim
 
-WRITEME
+@subsection Future Directions
+
+There is limited, partial, and broken support for the new @code{d3}
+system which will eventually supersede @code{wtl} in Romance 2, but it
+is not useful today. Use @code{wtl} in new code.
+
+@subsection See Also
+
+See `INFINITY-SET-USER-VAR' for discussion of an alternative way to
+submit a @code{wtl} packet or the legacy @code{d} form (see below).
+
+@subsection Changes from 1.1
+
+In Romance 1.0 and 1.1, the usual way to walk was using the @code{d}
+user variable, which was a string encoding very similar to the intent
+of @code{wtl}. The @code{d} string was developed by Robert Dawson and
+Bruce-Robert Pocock to cover up network latency by providing a
+concrete (linear interpolated) position for each character at all
+times, no matter how laggy players' network connections were. 
+
+In the Persephone client software, these were sometimes referred to as
+a @code{datList}.
+
+@code{d} strings consisted of a @code{~} delimited list of either
+x1~z1~x2~z2~facing~startTime or x1~y1~x2~y2~facing~startTime~z1~z2.
+Note how the two-coördinate form uses x,z with y pinned at zero.
+
+As with @code{wtl}, @code{facing} can be supplied in either radians or
+as a value from the list @code{N NE E SE S SW W NW}.
 
 "
   (broadcast (list :|from| "wtl"
@@ -377,6 +458,17 @@ WRITEME"
                    :|u| (Toot-uuid (find-record 'Toot :name u))
                    :|n| u)
              :except *client*))
+
+(definfinity shoot ((i course facing) u r)
+  "Fire a shot from a projectile device.
+
+WRITEME
+
+@subsection See also
+
+See also the `INFINITY-SET-USER-VAR' command for an alternative way to
+promulgate shots."
+  (error 'unimplemented))
 
 (defun Toot-list-message ()
   "Send a player (user) their list of Toots.

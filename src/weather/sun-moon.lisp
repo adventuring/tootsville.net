@@ -37,6 +37,10 @@
             (* 2000 (/ (sin θ) 2))))))
 
 (defun moon-position (moon-or-period &optional (time (get-universal-time)))
+  "Returns the relative position of MOON-OR-PERIOD in the sky at TIME.
+
+Returns the coördinates in (x,y,φ) triplet list form, where φ
+represents the phase of the moon."
   (let ((period (etypecase moon-or-period
                   (symbol
                    (ecase moon-or-period

@@ -330,10 +330,10 @@ Yes, this item can be traded (given away or dropped).
 @item N
 No, this item cannot be traded (given away or dropped).
 
-@item X
-As @code{N}, but also, this item @b{should not} be
-visible to the player holding it (e.g. in inventory).
-This code represents the value ``hidden''.
+@item X 
+As @code{N}, but also, this item @i{should not} be visible to
+the player holding it (e.g. in inventory).  This code represents the
+value ``hidden''.
 
 @end table
 
@@ -371,7 +371,7 @@ be equipped, if any.
 The weight of instances of this template
 
 @end table
-"
+
 
   (list :|id| (item-template-id template)
         :|name| (item-template-name template)
@@ -388,7 +388,7 @@ The weight of instances of this template
         :|weight| (item-template-weight template)
         :|scale| (list :|x| (item-template-avatar-scale-x template)
                        :|y| (item-template-avatar-scale-y template)
-                       :|z| (item-template-avatar-scale-z template))))
+                       :|z| (item-template-avatar-scale-z template)))")
 
 
 

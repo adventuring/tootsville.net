@@ -185,128 +185,13 @@ Once authenticated, the vocabulary grows extensively. See
 @ref{TOOTSVILLE DEFINFINITY} for an overview of Infinity Mode commands
 and how they can also be called as REST endpoints. Commands begin with
 @code{INFINITY-}, and can be found alphabetically in
-@ref{Definitions}. Here are a selection, sorted alphabetically, of
-commands available in 2.0. Note that some of these are deprecated or
-no longer useful, but all commands since 1.0 are still included in the
-vocabulary, including some which were originally Res Interactive
-proprietary extensions.
+@ref{Definitions}.
 
-@subsubsection Infinity Mode Commands index
+Note that some of these are deprecated or no longer useful, but all
+commands since 1.0 are still included in the vocabulary, including
+some which were originally Res Interactive proprietary extensions.
 
-@itemize
-@item
-@ref{TOOTSVILLE INFINITY-ADD-FURNITURE}
-@item
-@ref{TOOTSVILLE INFINITY-ADD-TO-LIST}
-@item
-@ref{TOOTSVILLE INFINITY-CLICK}
-@item
-@ref{TOOTSVILLE INFINITY-CONSIDER-CHILD-APPROVAL}
-@item
-@ref{TOOTSVILLE INFINITY-DOFFF}
-@item
-@ref{TOOTSVILLE INFINITY-DOFF}
-@item
-@ref{TOOTSVILLE INFINITY-DON}
-@item
-@ref{TOOTSVILLE INFINITY-ECHO}
-@item
-@ref{TOOTSVILLE INFINITY-END-EVENT}
-@item
-@ref{TOOTSVILLE INFINITY-ENUMERATE-WEAR-SLOTS}
-@item
-@ref{TOOTSVILLE INFINITY-FINGER}
-@item
-@ref{TOOTSVILLE INFINITY-FROM-AVATARS}
-@item
-@ref{TOOTSVILLE INFINITY-GAME-ACTION}
-@item
-@ref{TOOTSVILLE INFINITY-GET-AVATARS}
-@item
-@ref{TOOTSVILLE INFINITY-GET-COLOR-PALETTES}
-@item
-@ref{TOOTSVILLE INFINITY-GET-INVENTORY-BY-TYPE}
-@item
-@ref{TOOTSVILLE INFINITY-GET-INVENTORY}
-@item
-@ref{TOOTSVILLE INFINITY-GET-ONLINE-USERS}
-@item
-@ref{TOOTSVILLE INFINITY-GET-ROOM-LIST}
-@item
-@ref{TOOTSVILLE INFINITY-GET-ROOM-VARS}
-@item
-@ref{TOOTSVILLE INFINITY-GET-SERVER-TIME}
-@item
-@ref{TOOTSVILLE INFINITY-GET-SESSION-APPLE}
-@item
-@ref{TOOTSVILLE INFINITY-GET-STORE-ITEM-INFO}
-@item
-@ref{TOOTSVILLE INFINITY-GET-USER-LISTS}
-@item
-@ref{TOOTSVILLE INFINITY-GET-WALLET}
-@item
-@ref{TOOTSVILLE INFINITY-GET-ZONE-LIST}
-@item
-@ref{TOOTSVILLE INFINITY-GIVE}
-@item
-@ref{TOOTSVILLE INFINITY-GO}
-@item
-@ref{TOOTSVILLE INFINITY-INIT-USER-ROOM}
-@item
-@ref{TOOTSVILLE INFINITY-JOIN}
-@item
-@ref{TOOTSVILLE INFINITY-LOGOUT}
-@item
-@ref{TOOTSVILLE INFINITY-MAIL-CUSTOMER-SERVICE}
-@item
-@ref{TOOTSVILLE INFINITY-PEEK-AT-INVENTORY}
-@item
-@ref{TOOTSVILLE INFINITY-PING}
-@item
-@ref{TOOTSVILLE INFINITY-PLAY-WITH}
-@item
-@ref{TOOTSVILLE INFINITY-PROMPT-REPLY}
-@item
-@ref{TOOTSVILLE INFINITY-QUIESCE}
-@item
-@ref{TOOTSVILLE INFINITY-READ-MAP}
-@item
-@ref{TOOTSVILLE INFINITY-REMOVE-FROM-LIST}
-@item
-@ref{TOOTSVILLE INFINITY-REPORT-BUG}
-@item
-@ref{TOOTSVILLE INFINITY-REPORT-USER}
-@item
-@ref{TOOTSVILLE INFINITY-REQUEST-BUDDY}
-@item
-@ref{TOOTSVILLE INFINITY-SEND-OUT-OF-BAND-MESSAGE}
-@item
-@ref{TOOTSVILLE INFINITY-SERVER-TIME}
-@item
-@ref{TOOTSVILLE INFINITY-SET-AVATAR-COLOR}
-@item
-@ref{TOOTSVILLE INFINITY-SET-FURNITURE}
-@item
-@ref{TOOTSVILLE INFINITY-SET-ROOM-VAR}
-@item
-@ref{TOOTSVILLE INFINITY-SET-USER-VAR}
-@item
-@ref{TOOTSVILLE INFINITY-SPAWN-ZONE}
-@item
-@ref{TOOTSVILLE INFINITY-SPEAK}
-@item
-@ref{TOOTSVILLE INFINITY-START-EVENT}
-@item
-@ref{TOOTSVILLE INFINITY-TOOT-LIST}
-@item
-@ref{TOOTSVILLE INFINITY-USE-EQUIPMENT}
-@item
-@ref{TOOTSVILLE INFINITY-WARDROBE}
-@item
-@ref{TOOTSVILLE INFINITY-WTL-4}
-@item
-@ref{TOOTSVILLE INFINITY-WTL}
-@end itemize
+See Appendix 6 for an index of Infinity Mode commands.
 
 @node The Adult Sign-In Process
 

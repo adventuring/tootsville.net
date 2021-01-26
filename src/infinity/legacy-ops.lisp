@@ -40,7 +40,7 @@
 #$ SCRIPT-NAME
 @end verbatim
 
-Example:
+@subsection Example
 
 @verbatim
 #$ do-something-funny
@@ -55,22 +55,24 @@ see `SCRIPT' operator command for details.
 (define-operator-command addevent (words user plane)
   "Add a GameEvent to a Zone
 
+UNIMPLEMENTED
+
 @subsection Usage
 
 @verbatim
 #addevent [EVENTNAME]
 @end verbatim
 
-Examples:
+@subsection Examples
 
-@example
+@verbatim
  #addevent LaserTagGame
  #addevent PropsWeather
  #addevent ShaddowFalls
  #addevent Tootlympics
-@end example
+@end verbatim
 
-WRITEME
+This is not currently implemented.
 "
   (error 'unimplemented))
 
@@ -127,20 +129,22 @@ meaningless question.
 
 @verbatim
  #ban [REASONCODE] [LOGIN]
+ #ban #list
 @end verbatim
 
- Examples
-@example
- #ban obs.rude pil
-@end example
+@subsection Examples
+@verbatim
+ #ban BULLY pil
+ #ban #list
+@end verbatim
 
-See Also: `KICK'
+@code{#ban #list} is identical to @code{#kick #list}, for convenience.
 
-The  same reason  codes  and  syntax are  used  for  @code{#ban} as  for
-@code{#kick}, so refer to that section of the manual for reason codes.
+The same reason codes and syntax are used for @code{#ban} as for
+@code{#kick}, so refer to `TOOTSVILLE-USER::KICK' for reason codes.
 
-Unlike a @code{#kick}, a @code{#ban}  remains in effect persistently ---
-permanently, unless an operator reverses it."
+Unlike a @code{#kick}, a @code{#ban} remains in effect persistently
+--- permanently, unless an operator reverses it."
   
   (error 'unimplemented))
 
@@ -223,21 +227,23 @@ since rooms as such no longer exist, we use latitude and longitude now.
  Create a new room in the current zone.  Must have staff level
  8 (DEVELOPER) to use this command.
 
- Syntax for use
+@subsection Usage
+
+@verbatim
  #spawnroom [MONIKER] [TITLE] [SWF]
  #spawnroom [MONIKER] [TITLE]
+@end verbatim
 
  NOTE: Uses tootCastleJoust.swf as default. This can be set after the
  room has been created by setting the 'f' room variable.
 
- Examples
+@subsection Examples
+
+@verbatim
  #spawnroom tootCastleJoust2 Joust2 tootCastleJoust.swf
  #spawnroom tootCastleJoust2 Joust2
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
 "
   (error 'unimplemented))
 
@@ -287,13 +293,13 @@ God (Pil).
 (define-operator-command clearbadge (words user plane)
   "Clear a badge off the map.
 
-UNIMPLEMENTED
+This is not yet implemented for Tootsville V.
 
 @subsection Usage
 
 @verbatim 
-#clearbadge [NICKNAME] [PLACENAME]
-#clearbadge #me [PLACENAME]
+#clearbadge [NICKNAME] [SPOT]
+#clearbadge #me [SPOT]
 
 #clearbadge #me #here
 #clearbadge [NICKNAME] #here
@@ -302,25 +308,35 @@ UNIMPLEMENTED
 #clearbadge [NICKNAME] #all
 @end verbatim
 
- Examples
-@example
+@subsection Examples
+
+@verbatim
  #clearbadge snowcone tootSquare
  #clearbadge snowcone #all
  #clearbadge snowcone #here
  #clearbadge #me #all
  #clearbadge #me #here
-@end example
+@end verbatim
 
 @subsection Badges
 
-See `SETBADGE' for a discussion of the map badges system.
+See `TOOTSVILLE-USER::SETBADGE' for a discussion of the map badges system.
 "
   (error 'unimplemented))
 
 (define-operator-command clearcache (words user plane)
   "Forcibly clear all cachés (MemCacheD)
 
+Flush all contents of the MemCacheD server. This may negatively impact
+the system's performance.
+
 @subsection Usage
+
+@verbatim
+#clearcache
+@end verbatim
+
+@subsection Example
 
 @verbatim
 #clearcache
@@ -329,13 +345,11 @@ See `SETBADGE' for a discussion of the map badges system.
   (cl-memcached:mc-flush-all))
 
 (define-operator-command clearevent (words user plane)
-  "UNIMPLEMENTED
+  "Clear a GameEvent from a Zone. 
 
-Clear a GameEvent from a Zone. 
+UNIMPLEMENTED
 
-Must have staff level 4 (DESIGNER) to use this command.
-
- Syntax for use
+ Usage
  #clearevent [EVENTNAME]
 
  Examples
@@ -354,27 +368,29 @@ Must have staff level 4 (DESIGNER) to use this command.
   (error 'unimplemented))
 
 (define-operator-command clearvar (words user plane)
-  "Clear a room variable
+  "Clear a room variable.
 
 @subsection Usage
 
 @verbatim 
-#clearvar @@[ROOM] [VARIABLE] [VALUE] 
+#clearvar @[ROOM] [VARIABLE] [VALUE] 
 #clearvar [VARIABLE] [VALUE]
 @end verbatim
 
-Examples
+@subsection Examples
 
-@example 
-#clearvar @@tootsSquareWest anim~ropes 2 
+@verbatim
+#clearvar @tootsSquareWest anim~ropes 2 
 #clearvar anim~ropes 2
-@end example
+@end verbatim
 
 WRITEME"
   (error 'unimplemented))
 
 (define-operator-command cloneroom (words u plane)
-  "Clone a room
+  "Clone a room. (no longer supported)
+
+This is no longer supported in Tootsville V.
  
 @subsection Usage
 
@@ -383,14 +399,28 @@ WRITEME"
 #cloneroom OLD-MONIKER NEW-MONIKER
 @end verbatim
 
-WRITEME
+@subsection Legacy Operator Command
+
+This command existed in Romance 1.2, but is no longer effective.
+
 "
   (error 'unimplemented))
 
 (define-operator-command createroom (words user plane)
-  "Create a new room
+  "Create a new room. (no longer supported)
 
-WRITEME: Document this method brpocock@@star-hope.org
+This is no longer supported in Tootsville V.
+ 
+@subsection Usage
+
+@verbatim
+#createroom NEW-MONIKER
+@end verbatim
+
+@subsection Legacy Operator Command
+
+This command existed in Romance 1.2, but is no longer effective.
+
 "
   (error 'unimplemented))
 
@@ -429,29 +459,29 @@ connection: ~/HTML/; working: ~/HTML/"
               (db-select-all :friendly "select true")))))
 
 (define-operator-command dress (words user plane)
-  "UNIMPLEMENTED
+  "Force a character to wear a specific clothing item.
 
- Force a character to wear a specific clothing item. Must have staff level 4 (DESIGNER) to use this command.
+UNIMPLEMENTED
 
- Syntax for use
- #dress [LOGIN] [ITEM] [optional: COLOUR]
+@subsection Usage
+@verbatim
+ #dress [LOGIN] [ITEM]
+ #dress [LOGIN] [ITEM] [COLOUR]
+@end verbatim
 
- Examples
+@subsection Examples
+@verbatim
  #dress flappyperry 1337
+@end verbatim
 
- Parameters:
- words - login name, item ID, and optional colour string (see Colour.Colour(String))
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- Throws:
- DataException - if the colour is bad
- NumberFormatException - if the colour is bad
 "
   (error 'unimplemented)
   )
 
 (define-operator-command drop (words user plane)
-  "UNIMPLEMENTED
+  "Drop an item
+
+UNIMPLEMENTED
 
 Find an item in your inventory based upon the item ID # and drop it (to the world).
 
@@ -460,17 +490,22 @@ Usage: #drop ITEM-TEMPLATE-ID
   (error 'unimplemented))
 
 (define-operator-command dropkick (words user plane)
-  "UNIMPLEMENTED
+  "Silently disconnect a user
 
+UNIMPLEMENTED
  
 Silently remove the named user from the game by disconnection. Must have
 staff level 4 (DESIGNER) to use this command.
 
- Syntax for use
+@subsection Usage
+@verbatim
  #dropkick [LOGIN]
+@end verbatim
 
- Examples
+@subsection Example
+@verbatim
  #dropkick flappyperry
+@end verbatim
 "
   (error 'unimplemented))
 
@@ -484,7 +519,7 @@ staff level 4 (DESIGNER) to use this command.
 ,dumpthreads
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #dumpthreads
@@ -498,35 +533,50 @@ user as well."
   (format nil "Dumped names of ~:d thread~:p" (length (all-threads))))
 
 (define-operator-command enablepathfinder (words user plane)
-  "UNIMPLEMENTED
+  "Temporary test routine for testing pathfinders on users
 
- Temporary test routine for testing pathfinders on users
+UNIMPLEMENTED
 
-Syntax:
+@subsection Usage
+@verbatim
+#enablepathfinder (true|false)
+@end verbatim
 
-#enablepathfinder (true|false)"
-  (error 'unimplemented))
+@subsection Examples
+@verbatim
+#enablepathfinder true
+#enablepathfinder false
+@end verbatim"
+  (string-case (first words)
+    ("true" (error 'unimplemented))
+    ("false" "Pathfinder is not enabled.")
+    (t (error 'unimplemented))))
 
 (define-operator-command evacuate (words user plane)
-  "UNIMPLEMENTED
+  "Evacuate all users from the current Zone to another Zone.
 
- Evacuate all users from your current Zone into another Zone. Will error if the Zone specified does not exist. Must have staff level 8 (DEVELOPER) to use this command.
+UNIMPLEMENTED
 
- Syntax for use
- #evacuate [ZONE]
+Evacuate all users from your current server into another server. Will
+error if the server specified does not exist in the cluster.
 
- Examples
- #evacuate dottie
+@subsection Usage
+@verbatim
+ #evacuate [SERVER]
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
+@subsection Example
+@verbatim
+ #evacuate game2
+@end verbatim
+
 "
   (error 'unimplemented))
 
 (define-operator-command filter (words user plane)
   "Test censorship rules against words or phrases
+
+UNIMPLEMENTED
 
 @subsection Usage
 
@@ -547,7 +597,9 @@ WRITEME"
         (format s "~%<div><strong>~/HTML/</strong>: &nbsp; ~/HTML/</div>" key value))))
 
 (define-operator-command finger (words user plane)
-  "Finger a user account. Return interesting details in an administrative message.
+  "Finger a user account. 
+
+Return interesting details in an administrative message.
 
 @subsection Usage
 
@@ -555,13 +607,30 @@ WRITEME"
 #finger TOOT
 @end verbatim
 
-Examples:
+@subsection Examples
 
 @example
 #finger mouser
 #finger shade
 @end example
 
+@subsection Changes since 1.2
+
+The format of the response has changed slightly, but is similar.
+
+@subsection Response
+
+@quotation 
+
+Mouser is a Toot with base color red, pad color black, and pattern
+black spots. This is an adult's account. (sensitive player) (patron)
+The user has 2,130 peanuts, 100 fairy dust, and was last active
+@@2021-01-26T04:02:55.600079Z (Earth time; two minutes ago; Blanksday,
+the eleventh of Procavia, 153) The player owning Mouser is John
+Doe (jdoe@@gmail.com). Toot: 5112AE4B-0F8D-4823-AFD7-EC4119001D04,
+player: AC14ABCF-518D-4DC5-B783-3A4DFE4838B2
+
+@end quotation
 "
   (let* ((Toot (find-record 'Toot :name (first words)))
          (player (find-reference Toot :player)))
@@ -584,7 +653,7 @@ Examples:
             (Toot-peanuts Toot) (Toot-fairy-dust Toot)
             (Toot-last-active Toot)
             (human-duration (timestamp-difference (now)
-                                                  (Toot-last-active Toot)))
+                                                 (Toot-last-active Toot)))
             (Chœrogryllum:date-string (timestamp-to-universal (Toot-last-active Toot)))
             (Toot-name Toot)
             (person-display-name player)
@@ -593,9 +662,9 @@ Examples:
             (person-uuid player))))
 
 (define-operator-command flush (words user plane)
-  "UNIMPLEMENTED
+  "Historically, this flushed the database write caché.
 
-Historically, this flushed the database write cache.
+This command is not currently implemented. It is a no-op.
 
 @subsection Usage
 
@@ -603,26 +672,37 @@ Historically, this flushed the database write cache.
 #flush
 @end verbatim
 
+@subsection Changes from 1.2
+
+This command is not effective in Romance II. In Romance 1, it was used
+to flush the database write caché, which at times could be several
+minutes behind the database's on-disk version. This should no longer
+be a concern in 2020 and beyond, but the command is retained as a
+no-op. It might be re-activated in future as needed.
 "
-  (error 'unimplemented))
+  "Thanks, but I don't have a write caché to flush.")
 
 (define-operator-command game (words user plane)
-  "UNIMPLEMENTED
+  "Send a command to the operator command interpreter for a running game.
 
- Send a command into the operator command interpreter for a running game (if that game provides one)
+UNIMPLEMENTED
 
- Usage: #game gameClass (strings...)
+Send a command into the operator command interpreter for a running
+game (if that game provides one)
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing. The GameEvent must be attached thereunto.
+@subsection Usage
+@verbatim
+#game gameClass (strings...)
+@end verbatim
+
 "
   (error 'unimplemented))
 
 (define-operator-command getconfig (words user plane)
-  "Reads a configuration key. All WORDS are expected to be the keywords
-on the path to the config value.
+  "Reads a configuration key. 
+
+All WORDS are expected to be the keywords on the path to the config
+value.
 
 @subsection Usage
 
@@ -631,33 +711,39 @@ on the path to the config value.
 #getconfig PROP1 PROP2 [...]
 @end verbatim
 
-Example:
-@example
+@subsection Example
+@verbatim
 #getconfig taskmaster devel
-@end example
+@end verbatim
 
-Returns the value of the selected configuration property as a string.
+Returns the value of the selected configuration property as a
+string. If the selected property is a key with multiple values (as a
+property list --- plist) associated with it, returns the entire
+plist (and possibly, nested plists).
  "
   (format nil "<pre>~/HTML/</pre>"
           (apply #'config (mapcar (compose #'make-keyword #'string-upcase) words))))
 
 (define-operator-command getevents (words user plane)
-  "UNIMPLEMENTED
+  "List GameEvents in your current Zone
 
- List GameEvents in your current Zone. Must have staff level 4 (DESIGNER) to use this command.
+UNIMPLEMENTED
 
- Syntax for use
+Must have staff level 4 (DESIGNER) to use this command.
+
+@subsection Usage
+@verbatim
  #getevents
+@end verbatim
 
- Examples
+@subsection Example
+@verbatim
  #getevents
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_addevent(String[], AbstractUser, Room), op_getevents(String[], AbstractUser, Room)
+@subsection See Also
+
+See also `TOOTSVILLE-USER::ADDEVENT'
 "
   (error 'unimplemented))
 
@@ -670,128 +756,121 @@ Returns the value of the selected configuration property as a string.
 #getmotd
 @end verbatim
 
-Example
+@subsection Example
 @example
 #getmotd
 @end example"
   *motd*)
 
 (define-operator-command getschedule (words user plane)
-  "
+  "Get schedule
 
- WRITEME: Document this method brpocock@@star-hope.org
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
+Gets all scheduled events in the metronome system, with their
+schedules.
 "
-  (error 'unimplemented))
+  (format nil "<section><h2>Schedule</h2>~{<p>~/HTML/</p>~}</section>"
+          (metronome-idle-tasks)))
 
 (define-operator-command getschedulefor (words user plane)
-  "UNIMPLEMENTED
+  "Get scheduled events for a particular class (scheduled by that class)
 
- Get scheduled events for a particular class (scheduled by that class)
+UNIMPLEMENTED 
 
- Parameters:
- words - Specify the class's full, canonical name
- u - the user invoking
- room - the room in which the user is standing
- Throws:
- PrivilegeRequiredException - if the user doesn't have at least moderator privilege level
- ClassNotFoundException - is the class requested can't be found (probably a typo)
 "
   (error 'unimplemented))
 
 (define-operator-command getuvar (words user plane)
-  "UNIMPLEMENTED
+  "Get a user variable.
 
- Get a user variable. Must have staff level 4 (DESIGNER) to use this command.
+UNIMPLEMENTED
 
- Syntax for use
+  Must have staff level 4 (DESIGNER) to use this command.
+
+@subsection Usage
+@verbatim
  #getuvar [LOGIN] [VARIABLE]
- User Name
+@end verbatim
 
  user name of a character
  #me for the user you are logged in as
 
- Examples
+@subsection Examples
+@verbatim
  #getuvar mouser d
  #getuvar #me d
+@end verbatim
 
- See Also:
- op_setuvar(String[], AbstractUser, Room), op_getuvars(String[], AbstractUser, Room)
+@subsection See Also
+
+See also `TOOTSVILLE-USER::SETUVAR', `TOOTSVILLE-USER::GETUVARS'
 "
   (error 'unimplemented))
 
 (define-operator-command getuvars (words user plane)
-  "UNIMPLEMENTED
+  "Get all user variables for a given user.
 
- Get all user variables for a given user. Must have staff level 4 (DESIGNER) to use this command.
+UNIMPLEMENTED
 
- Syntax for use
- #getuvars [LOGIN].
- User Name
+@subsection Usage
+@verbatim
+ #getuvars [LOGIN]
+ #getuvars #me
+@end verbatim
 
- user name of a character
- #me for the user you are logged in as
 
- Examples
+@subsection Examples
+@verbatim
  #getuvars mouser
  #getuvars #me
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_setuvar(String[], AbstractUser, Room), op_getuvar(String[], AbstractUser, Room)
+@subsection See Also
+
+See also `TOOTSVILLE-USER::SETUVAR', `TOOTSVILLE-USER::GETUVAR'
 "
   (error 'unimplemented))
 
 (define-operator-command getvar (words user plane)
-  "UNIMPLEMENTED
+  "Get a room variable.
 
- Get a room variable. Must have staff level 4 (DESIGNER) to use this command.
-
- Syntax for use
- #getvar @@[ROOM] [VARIABLE]
+@subsection Usage
+@verbatim
+ #getvar @[ROOM] [VARIABLE]
  #getvar [VARIABLE]
+@end verbatim
 
- Examples
- #getvar @@tootsSquareWest anim~ropes
+@subsection Examples
+@verbatim
+ #getvar @tootsSquareWest anim~ropes
  #getvar anim~ropes
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_setvar(String[], AbstractUser, Room), op_clearvar(String[], AbstractUser, Room), op_getvars(String[], AbstractUser, Room)
+@subsection See Also
+
+See also `TOOTSVILLE-USER::SETVAR', `TOOTSVILLE-USER::CLEARVAR',
+`TOOTSVILLE-USER::GETVARS'
 "
   (error 'unimplemented))
 
 (define-operator-command getvars (words user plane)
-  "UNIMPLEMENTED
+  "Get all room variables.
 
- Get all room variables. Must have staff level 4 (DESIGNER) to use this command.
-
- Syntax for use
+@subsection Usage
+@verbatim
  #getvars [ROOM]
  #getvars
+@end verbatim
 
- Examples
+@subsection Examples
+@verbatim
  #getvars tootsSquare
  #getvars
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_setvar(String[], AbstractUser, Room), op_clearvar(String[], AbstractUser, Room), op_getvar(String[], AbstractUser, Room)
+@subsection See Also
+
+See also `TOOTSVILLE-USER::SETVAR', `TOOTSVILLE-USER::CLEARVAR',
+`TOOTSVILLE-USER::GETVAR'
 "
   (error 'unimplemented))
 
@@ -804,7 +883,7 @@ Example
 #give ITEM USER
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #give CDCCA838-FB7B-423A-81DA-1514817598DB flappyperry
@@ -830,7 +909,7 @@ NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 #givehead TEMPLATE USER
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #givehead 1337 catvlle
@@ -842,19 +921,9 @@ equips it on the recipient. To give  a gift from your own inventory, see
   (error 'unimplemented))
 
 (define-operator-command goto (words user plane)
-  "UNIMPLEMENTED
+  "WRITEME
 
- throws PrivilegeRequiredException
-
- WRITEME: Document this method brpocock@@star-hope.org
-
- Parameters:
- words - WRITEME
- u - WRITEME
- room - WRITEME
- Throws:
- PrivilegeRequiredException - WRITEME
-"
+UNIMPLEMENTED"
   (error 'unimplemented))
 
 (define-operator-command grant (words user plane)
@@ -870,7 +939,7 @@ NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 #grant TEMPLATE USER
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #grant 1337 catvlle
@@ -893,7 +962,7 @@ gives it to the recipient. To give  a gift from your own inventory, see
 #headcount #highwater
 @end verbatim
 
-Examples
+@subsection Examples
 
 @example
 #headcount #all
@@ -927,49 +996,34 @@ who have been online since the last boot.
     ("#highwater" (error 'unimplemented))))
 
 (define-operator-command inv (words user plane)
-  "UNIMPLEMENTED
+  "Get a user's inventory
 
- throws PrivilegeRequiredException
+Get inventory  items for  a particular user.  By default,  this will
+bring up  only the active  items --- e.g. clothing being  worn, and
+so forth.
 
- Get inventory  items for  a particular user.  By default,  this will
- bring up  only the active  items â€”  e.g. clothing being  worn, and
- so forth.
+@subsection Usage
 
- To get all active inventory for an user: #inv LOGIN
+To get all active inventory for an user: @code{#inv LOGIN}
 
- To get  all inventory for an  user, active or inactive  (this may be
- very long!): #inv LOGIN #all
+To get  all inventory for an  user, active or inactive  (this may be
+very long!): @code{ #inv LOGIN #all }
 
- To  get inventory  of a  particular type,  active or  inactive: #inv
- LOGIN #type TYPE
+To get inventory of a particular type, active or inactive: @code{#inv
+LOGIN #type TYPE }
 
- The    type    strings    accepted    are    those    accepted    by
- Commands.do_getInventoryByType(JSONObject,  AbstractUser,   Room)  ;
- this means that both the  $SPECIFIC-TYPE and TYPE-SET-NAME forms are
- accepted. The list  of specific types might include  e.g. $Hair, and
- a  type-set-name  might  be  something like  clothing.  The  set  of
- available type-set-names is specified in the configuration file.
+The type strings accepted are those accepted by
+`INFINITY-GET-INVENTORY-BY-TYPE'; this means that both the
+$SPECIFIC-TYPE and TYPE-SET-NAME forms are accepted. The list of
+specific types might include e.g. $Hair, and a type-set-name might be
+something like clothing.  The set of available type-set-names is
+specified in the configuration file.
 
- Parameters:
-
-words - User  name, and optional tag  #all to show all  items instead of
-just  active, or  optional tag  #type  and a  type string  for items  of
-a     specific      type.     For      item     types,      refer     to
-Commands.do_getInventoryByType(JSONObject, AbstractUser,  Room) â€” note
-that this supports only a single item type (or type-set)
-
-u - user calling this command
-
-room - the room in which that user is standing
-
-Throws:
- PrivilegeRequiredException - if the user lacks staff privileges to invoke this command
 "
   (error 'UNIMPLEMENTED))
 
 (define-operator-command kick (words user plane)
-  "Kick a user offline for a certain reason
-
+  "Kick a user offline for a certain reason.
   
 @subsection Usage
 
@@ -985,7 +1039,7 @@ Kick LOGIN offline for REASONCODE
 
 List reason codes.
 
-Example
+@subsection Example
 
 @example 
 #kick bully pil
@@ -1048,16 +1102,17 @@ Lying about your birth date is against the law!
       (error 'unimplemented)))
 
 (define-operator-command king (words user plane)
-  "UNIMPLEMENTED
+  "Upgrade a user account
 
- Apply  a  gift  membership  to   an  user.  Must  have  staff  level
- 4 (DESIGNER) to use this command.
-
- Syntax for use
+@subsection Usage
+@verbatim
  #king [DAYS] [LOGIN]
+@end verbatim
 
- Examples
+@subsection Example
+@verbatim
  #king 2 flappyperry
+@end verbatim
 
 "
   (error 'unimplemented))
@@ -1071,15 +1126,15 @@ Lying about your birth date is against the law!
 #liftban REASON USER yes
 @end verbatim
 
-NOTE: In order to un-ban a user,  you must key in the literal word “yes”
-as the third parameter, and supply the  ban reason as the first. This is
-to avoid accidentally lifting a ban.
+NOTE: In order to un-ban a user, you must key in the literal word
+@code{yes} as the third parameter, and supply the ban reason as the
+first. This is to avoid accidentally lifting a ban.
 
-Example
+@subsection Example
 
-@example
+@verbatim
 #liftban CHEAT silly-biscuits yes
-@end example
+@end verbatim
 
 "
   (error 'unimplemented))
@@ -1111,7 +1166,7 @@ This is an abbreviated version of the output of `ROOM' on the server.
 #mem
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #mem
@@ -1154,7 +1209,7 @@ output of @code{mem} was quite differently formatted.
 #metronome [OPTION]
 @end verbatim
 
-Examples
+@subsection Examples
 @verbatim
  #metronome #help
  #metronome #rate
@@ -1244,7 +1299,7 @@ Use #metronome #list to enumerate tasks."
 @end verbatim
 
  
-Example:
+@subsection Example
 
 @example
  #motd Don't forget that Hallowe'en in Tootsville is on the 30th --- get your costumes ready!
@@ -1310,7 +1365,7 @@ WRITEME
 #parentapproves TOOT
 @end verbatim
 
-Example:
+@subsection Example
 
 @example
 #parentapproves Pil
@@ -1334,7 +1389,7 @@ child request from TOOT.
 #ping
 @end verbatim
 
-Example:
+@subsection Example
 
 @example
 #ping
@@ -1365,7 +1420,7 @@ Example:
 WHERE := #here | #here-tiny | #here-big | x,z~x,z~x,z~x,z polygon list
 @end verbatim
 
-Examples:
+@subsection Examples
 
 @example
 #place #here #item 1337
@@ -1412,25 +1467,28 @@ WRITEME
   (error 'unimplemented))
 
 (define-operator-command purgephysics (words user plane)
-  "Purge pending physics interactions. UNIMPLEMENTED"
+  "Purge pending physics interactions. 
+
+UNIMPLEMENTED."
   (error 'unimplemented))
 
 (define-operator-command push (words user plane)
-  "UNIMPLEMENTED
+  "WRITEME
 
- WRITEME"
+ UNIMPLEMENTED"
   (error 'unimplemented))
 
 (define-operator-command put (words user plane)
-  "
+  "WRITEME
 
- 
-WRITEME: Document this method brpocock@@star-hope.org
+UNIMPLEMENTED
 "
   (error 'unimplemented))
 
 (define-operator-command rc (words user plane)
-  "UNIMPLEMENTED
+  "Run an RC (Run Commands) script.
+
+UNIMPLEMENTED
 
 Run an RC (RunCommands) script.  Both the “system run
 commands” (“run”) method and the “new zone run commands” (“newZone”)
@@ -1442,11 +1500,11 @@ method will be executed; the
 #rc
 @end verbatim
 
-Example:
+@subsection Example
 
-@example
+@verbatim
 #rc
-@end example
+@end verbatim
 
 WRITEME
 
@@ -1465,11 +1523,11 @@ that it will (hopefully) be restarted by SystemD.
 #reboot
 @end verbatim
 
-Example:
+@subsection Example
 
-@example
+@verbatim
 #reboot
-@end example
+@end verbatim
 
 @subsection Actual Effects
 
@@ -1489,7 +1547,7 @@ command is received.
 #reloadconfig
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #reloadconfig
@@ -1511,23 +1569,23 @@ Read at ~a. File write date ~a, author ~a."
 (define-operator-command retire (words user plane)
   "Retire a server,
 
- Forces  a  server to  retire.  This  will disconnect  anyone  currently
- connected via WebSockets to that  server; they should reconnect through
- the load balancer. Use @code{#evacuate}  to first move users to another
- server (see `EVACUATE').
+Forces  a  server to  retire.  This  will disconnect  anyone  currently
+connected via WebSockets to that  server; they should reconnect through
+the load balancer. Use @code{#evacuate}  to first move users to another
+server (see `EVACUATE').
 
- @subsection Usage
+@subsection Usage
 
 @verbatim
 #retire SERVER
 #retire
 @end verbatim
  
-Examples
-@example
+@subsection Examples
+@verbatim
 #retire game3.test.tootsville.org
 #retire
-@end example
+@end verbatim
 "
   (error 'unimplemented))
 
@@ -1541,13 +1599,13 @@ Examples
 #run PACKAGE FUNCTION
 @end verbatim
 
-Examples:
+@subsection Examples
 
-@example
+@verbatim
 #run ws-stats
 #run infinity-stats
 #run sb-ext quit
-@end example
+@end verbatim
 
 @subsection Changes in 2.0
 
@@ -1567,9 +1625,16 @@ In 2.x:
     (otherwise "Improper usage: #run FUNCTION or #run PACKAGE FUNCTION")))
 
 (define-operator-command saveroomvars (words user plane)
-  "UNIMPLEMENTED
+  "Save room variables.
 
-WRITEME"
+No longer used.
+
+@subsection Legacy Usage (1.2)
+
+In Romance 1.2, this would save the effective room variables in a room
+to the database permanently.  Now, all things that room variables used
+to represent are already persisted to the database.
+"
   (error 'unimplemented))
 
 (define-operator-command scotty (words user plane)
@@ -1586,19 +1651,19 @@ Altitude is optional and defaults to 0.
 
 World is optional and defaults to CHOR.
 
-Examples
+@subsection Examples
 
-@example
+@verbatim
 #scotty mouser TootSquareWest
 #scotty mouser -1 0 0 CHOR
 #scotty mouser -1 0
-@end example
+@end verbatim
 
 @subsection Changes from 1.2 to 2.0
 
 In 1.2, this moved an user into another room.
 
- Syntax for use:
+ Usage:
  #scotty [LOGIN] [ROOM]
 
  Examples:
@@ -1649,7 +1714,7 @@ Named colors are supported as per `PARSE-COLOR24'
 
 @end itemize
 
-Examples:
+@subsection Examples
 
 @example
 #setavatarcolors mouser #000000 #ffffff
@@ -1676,14 +1741,14 @@ See also `DOODLE' for a similar-but-different way to set avatar colors.
 NOTE:  Using #setbadge  with no  parameters will  assume default  values
 which are identical to typing #setbadge #me #here
 
-Examples:
+@subsection Examples
 
-@example
+@verbatim
 #setbadge snowcone TootSquareWest
 #setbadge #me TootSquare
 #setbadge snowcone #here
 #setbadge #me #here
-@end example
+@end verbatim
 
  "
   (error 'unimplemented))
@@ -1698,14 +1763,14 @@ Examples:
 #setconfig PROP1 PROP2 VALUE
 @end verbatim
 
-PROPERTY is a  sequence of keywords, which must be  delimited by spaces.
+PROPERTY is a sequence of keywords, which must be delimited by spaces.
 Omit the leading : on the keyword names.
 
-Examples:
+@subsection Example
 
-@example
+@verbatim
 #setconfig rollbar access-token 1234567890
-@end example
+@end verbatim
 
 Changes  made   with  this   command  are   only  effective   until  the
 configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
@@ -1714,81 +1779,119 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
   (error 'unimplemented))
 
 (define-operator-command setstafflevel (words user plane)
-  "UNIMPLEMENTED 
+  "Set the staff level for a user
+
+UNIMPLEMENTED
 
    WRITEME
 "
   (error 'unimplemented))
 
 (define-operator-command setuvar (words user plane)
-  "UNIMPLEMENTED
+  "Set a user variable.
+
+UNIMPLEMENTED
 
  Set a user variable. Must have staff level 4 (DESIGNER) to use this command.
 
- Syntax for use
+@subsection Usage
+@verbatim
  #setuvar [@@LOGIN] VARIABLE [=] VALUE...
+ #setuvar @LOGIN VARIABLE=VALUE
+ #setuvar @LOGIN VARIABLE = VALUE
+ #setuvar @LOGIN VARIABLE VALUE
+ #setuvar VARIABLE=VALUE
+ #setuvar VARIABLE = VALUE
+ #setuvar VARIABLE VALUE
+@end verbatim
 
- NOTE: Using #setuvar without an @@[LOGIN] parameter will apply the changes
- to the user issuing the command.
+NOTE: Using #setuvar without an @@[LOGIN] parameter will apply the changes
+to the user issuing the command.
 
- Examples:
+@subsection Example
 
- #setuvar @@mouser d = 254~376~254~376~SE~1267735566759
+@verbatim
+ #setuvar @mouser d = 254~376~254~376~SE~1267735566759
+ #setuvar d 254~376~254~376~SE~1267735566759
+@end verbatim
 
- #setuvar d = 254~376~254~376~SE~1267735566759
+See `INFINITY-SET-USER-VAR' for a discussion of supported user
+variables in Romance II.
 "
   (error 'unimplemented))
 
 (define-operator-command setvar (words user plane)
-  "UNIMPLEMENTED
+  "Set a room variable.
+
+UNIMPLEMENTED.
+
+This used to be used to set Room Variables, which were the main way
+that the game design worked in Tootsville IV.  This was largely
+automated through Eric Feiling's ``Zookeeper'' application.
+
+In Tootsville V, however, room variables are a reflection of the
+underlying database structures and are automatically generated as
+needed; there is not currently a way to backwards-supply the
+variables' data.
 
 @subsection Description from Romance 1.2
 
- Set a room variable. Must have staff level 4 (DESIGNER) to use this command.
+Set a room variable. Must have staff level 4 (DESIGNER) to use this
+command.
 
- Syntax for use
- #setvar #replace [@@ROOM] VARIABLE FIND REPLACE
- #setvar [@@ROOM] VARIABLE VALUE...
- 
- @b{WARNING: SETTING ROOM VARIABLES TO INVALID VALUES CAN CAUSE
- UNEXPECTED RESULTS. DOUBLE CHECK ALL VALUES BEING SET FOR
- CORRECTNESS.}
+Usage
+@verbatim
+#setvar #replace [@@ROOM] VARIABLE FIND REPLACE
+#setvar [@@ROOM] VARIABLE VALUE...
+@end verbatim
 
- Use #replace to change a room variable from one value to another.
+@b{WARNING: SETTING ROOM VARIABLES TO INVALID VALUES CAN CAUSE
+UNEXPECTED RESULTS. DOUBLE CHECK ALL VALUES BEING SET FOR
+CORRECTNESS.}
 
- Examples:
+Use @code{#replace} to change a room variable from one value to another.
 
+@subsection Examples
+
+@verbatim
  #setvar @@tootsSquareWest anim~ropes 2
 
  #setvar anim~ropes 2
+@end verbatim
 "
   (error 'unimplemented))
 
 (define-operator-command shanghai (words user plane)
-  "UNIMPLEMENTED
+  "Force a client into a different room and zone
 
- Force a client into a different room and zone
+UNIMPLEMENTED
 
- WRITEME"
+WRITEME"
   (error 'unimplemented))
 
 (define-operator-command shout (words user plane)
   "Speak in another zone.
 
-This  is intended  for using  operator commands  in a  remote zone,  not
-normal  chat  messages.
+This is intended for using operator commands in a remote zone, not
+normal chat messages.
 
-WRITEME
+Since there are no longer zones, this command is not currently
+supported. The command name may be re-used for sending commands to a
+different server in future.
 
 @subsection Usage
 
+@verbatim
 #shout [ZONE] [ROOM] [COMMAND...]
+@end verbatim
 
- Examples:
+@subsection Examples
 
- #shout dottie tootSquareWest #wall Hello Everyone
+@verbatim
+#shout dottie tootSquareWest #wall Hello Everyone
 
- #shout dottie tootSquare #retire
+#shout dottie tootSquare #retire
+@end verbatim
 
 See modern version `TOOTSVILLE-USER::AT' also
 
@@ -1798,36 +1901,40 @@ See modern version `TOOTSVILLE-USER::AT' also
 (define-operator-command spawnzone (words user plane)
   "Create a new zone.
 
-  Syntax for use
+@subsection  Usage
+@verbatim
   #spawnzone [ZONE]
+@end verbatim
 
-  Examples
+@subsection  Examples
+@verbatim
   #spawnzone Cupcake
+@end verbatim
 
 WRITEME
 "
   (error 'unimplemented))
 
 (define-operator-command speak (words user plane)
-  "UNIMPLEMENTED
+  "Allows a user to speak who had previously been muted.
 
-  Allows a user to speak. Must have staff level 2 (MODERATOR) to use this command.
+See `TOOTSVILLE-USER::MUTE', `TOOTSVILLE-USER::STFU' for ways to mute
+a character.
 
-  Syntax for use
+@subsection  Usage
+@verbatim
   #speak [LOGIN]
+@end verbatim
 
-  Examples
+@subsection  Examples
+@verbatim
   #speak flappyperry
-
-  Parameters:
-  words - The command parameters (whitespace-delimited list) provided after the # command name
-  u - The user invoking the operator command
-  room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
+@end verbatim
   "
   (error 'unimplemented))
 
 (define-operator-command stfu (words user plane)
-  "Silences a user.
+  "Silences (mutes) a user.
 
 @subsection Usage
 
@@ -1836,7 +1943,7 @@ WRITEME
 #stfu TOOT MINUTES
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #stfu louis
@@ -1853,7 +1960,7 @@ anyone else.
 In other words,  this basically sets up  a global ignore of  the user to
 whom it is applied.
 
-If no  time limit is  given, it is effective  for 24 Earth  hours (1,440
+If no time limit is given, it is effective for 24 Earth hours (1,440
 Earth minutes).
 
 See also: `TOOTSVILLE-USER:MUTE' for a more direct form that does not
@@ -1862,16 +1969,21 @@ have a fixed duration.
   (error 'unimplemented))
 
 (define-operator-command testcensor (words user plane)
-  "UNIMPLEMENTED
+  "Test a message with the censor, displays the filter result.
 
-  Test a message with the censor, displays the filter result.
+UNIMPLEMENTED.
 
-  Syntax for use:
+@subsection  Usage
 
+@verbatim
   #testcensor [MESSAGE]
+@end verbatim
 
-  Examples:
+@subsection  Examples
+
+@verbatim
   #testcensor This message will be filtered and the result will be displayed.
+@end verbatim
 
   "
   (error 'unimplemented))
@@ -1885,7 +1997,7 @@ have a fixed duration.
 #time
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #time
@@ -1893,32 +2005,44 @@ Example
 
 @subsection Example Reply
 
-@example
-Now  it is  2020-05-18T02:14:08.676610-04:00 (Universal:  3,798,771,248;
-Unix: 1,589,782,448)
+@example 
+
+Now it is 2021-01-26T00:35:11.341489Z (Universal: 3,820,610,111; Unix:
+1,611,621,311). In Chœrogryllum, it is 0:35:11 on Blanksday, the
+eleventh of Procavia, 153
+
 @end example
 
 @subsection Changes from 1.2
 
 The output format has changed. The old version only displayed the Unix
-time in seconds, without commas.
-
-TODO: Display also the date and time in Chœrogryllum notation.
+time in seconds, without commas; the decoded date and time, Universal
+time code, and Chœrogryllum date and time are new.
 
   "
-  (format nil "Now it is ~a (Universal: ~:d; Unix: ~:d)"
-          (now) (get-universal-time) (- (get-universal-time) +unix-time-in-universal+)))
+  (let ((universal (get-universal-time)))
+    (multiple-value-bind (second minute hour) (chœrogryllum:decode*-universal-time universal)
+      (format nil "Now it is ~a (Universal: ~:d; Unix: ~:d). In Chœrogryllum, it is ~
+~d:~2,'0d:~2,'0d on ~a"
+              (now) universal (- universal +unix-time-in-universal+)
+              hour minute second (chœrogryllum:date-string universal)))))
 
 (define-operator-command unbuild (words user plane)
-  "UNIMPLEMENTED
+  "Destroy a room
  
+UNIMPLEMENTED. 
+
  Destroys a room. Must have staff level 8 (DEVELOPER) to use this command.
 
- Syntax for use:
+@subsection Usage
+@verbatim
  #unbuild ROOM
+@end verbatim
 
- Examples:
+@subsection Example
+@verbatim
  #unbuild tootUniversity
+@end verbatim
 
 "
   (error 'unimplemented))
@@ -1934,11 +2058,13 @@ Mnemonic: Ventriloquism
 #v LOGIN MESSAGE...
 @end verbatim
 
-Example:
+@subsection Example
 
 @example
-#v mayor-louis I like to cause trouble in tootsville
+#v mayor-louis I like to cause trouble in Tootsville
 @end example
+
+@subsection See also
 
 See `INFINITY-SPEAK'
 
@@ -1950,14 +2076,22 @@ This no longer allows ventriloquism of operator commands &c.
               :Toot (find-record 'Toot :name (first words))))
 
 (define-operator-command verbosebugs (words u plane)
-  "UNIMPLEMENTED
+  "Set verbose bug backtrace reporting on or off.
 
- Set verbose bug backtrace reporting on or off
+UNIMPLEMENTED.
 
- Parameters:
- words - single word \"true\" or \"false\"
- u - the user affected
- r - the room in which the user is standing
+@subsection Usage
+
+@verbatim
+#verbosebugs true
+#verbosebugs false
+@end verbatim
+
+@subsection Impact
+
+When verbose bug reporting is enabled, the user requesting it will
+receive stack backtraces from unhandled errors as admin messages.
+
 "
   (error 'unimplemented))
 
@@ -1972,7 +2106,7 @@ Sends an admin (parrot) pop-up message to everyone currently online.
 #wall MESSAGE...
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #wall This message will go to everyone currently on-line.
@@ -1995,7 +2129,7 @@ Sends an pop-up message to all Builder Toots currently online
 #wallops MESSAGE
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #wallops This message will go to all other staff members in this zone.
@@ -2014,7 +2148,7 @@ This is now the same as `TOOTSVILLE-USER::WALL', qv.
  Sends an  pop-up message to  all everyone  in every zone.  Must have
  staff level 8 (DEVELOPER) to use this command.
 
- Syntax for use
+ Usage
  #wallzones [MESSAGE...]
 
  Examples
@@ -2037,7 +2171,7 @@ This can be -1 under certain circumstances.
 
 @subsection Usage
 
- Syntax for use: #warn [REASONCODE] [LOGIN]
+ Usage: #warn [REASONCODE] [LOGIN]
 
 @subsection Example
 
@@ -2061,11 +2195,11 @@ See `KICK' for the current list
 #whatis ITEM-TEMPLATE
 @end verbatim
 
-Example:
+@subsection Example
 
-@example
+@verbatim
 #whatis 1337
-@end example
+@end verbatim
 
  "
   (unless (= 1 (length words))
@@ -2087,11 +2221,11 @@ Example:
 #whereami
 @end verbatim
 
-Example:
+@subsection Example
 
-@example
+@verbatim
 #whereami
-@end example
+@end verbatim
 
 The  response admin  message is  simply the  machine name  to which  you
 are connected.
@@ -2103,53 +2237,53 @@ are connected.
  logged in at the moment. Must  have staff level 2 (MODERATOR) to use
  this command.
 
- Syntax for use
+@subsection Usage
+@verbatim
  #whereis [LOGIN]
- Login
+ #whereis #everyone
+ #whereis @[ROOM]
+@end verbatim
 
- User Name of a specific user
- #everyone for a the location of every user in the zone.
- @@[ROOM] for the location of every user in the specified room.
+User Name of a specific user;
+#everyone for a the location of every user in the zone;
+@@[ROOM] for the location of every user in the specified room.
 
- Examples
+@subsection Examples
+@verbatim
  #whereis snowcone
  #whereis #everyone
- #whereis @@tootSquare
+ #whereis @tootSquare
+@end verbatim
 
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
-
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
-
-See Also:
- whereis_atRoom(AbstractUser, Room, String), whereis_everyone(AbstractUser, Room)
 "
   (error 'unimplemented))
 
 (define-operator-command who (words user plane)
   "Displays a  list of everyone  currently in  a room.
 
- Syntax for use
+@subsection Usage
+@verbatim
  #who [ROOM]
  #who
+@end verbatim
 
- NOTE: Leaving off the ROOM  parameter will default to displaying for
- the room the command was initialized in.
+NOTE: Leaving off the ROOM parameter will default to displaying for
+the room the command was initialized in.
 
- Examples
+@subsection Examples
+@verbatim
  #who tootSquare
- #whereis
+ #who
+@end verbatim
 "
   (error 'unimplemented))
 
 (define-operator-command whoami (words user plane)
-  "Cause  the character  to speak  his/her  name in  the current  room.
- Appears as dialogue in the form:  ``Hello, my name is NAME.''
+  "Cause the character to speak his/her name in the current room.
+
+Appears as dialogue in the form: ``Hello, my name is NAME.''
+
+Note that the response is public speech; everyone in the room will see it.
 
 @subsection Usage
 
@@ -2157,13 +2291,14 @@ See Also:
 #whoami
 @end verbatim
 
-Example:
-
-@example
-#whoami
-@end example
-
 Note that the response is public speech; everyone in the room will see it.
+
+@subsection Example
+
+@verbatim
+#whoami
+@end verbatim
+
 "
   (toot-speak (format nil "Hello, my name is ~a." (Toot-name *Toot*)))
   nil)
@@ -2178,11 +2313,11 @@ Note that the response is public speech; everyone in the room will see it.
 #whoareyou
 @end verbatim
 
-Example:
+@subsection Example
 
-@example
+@verbatim
 #whoareyou
-@end example
+@end verbatim
  
 @subsection Example Response
 
@@ -2192,6 +2327,11 @@ running    Linux   5.6.8-300.fc32.x86_64    with   SBCL    2.0.1-1.fc32.
 Quicklisp    dist   version    2020-04-27;   Ultralisp    dist   version
 20200501011006; Tootsville version 0.6.4
 @end example
+
+@subsection Changes from 1.2
+
+The format of the response is different, but the purpose of the
+command is the same.
 "
   (format nil "This server is ~a, a ~a ~a running ~a ~a with ~a ~a.
 Quicklisp dist version ~a; 
@@ -2205,10 +2345,14 @@ Tootsville version ~a"
           (asdf:component-version (asdf:find-system :Tootsville))))
 
 (define-operator-command zoom (words user plane)
-  "
+  "Set the visual Zoom level of a room.
 
- WRITEME: Document this method brpocock@@star-hope.org
+UNIMPLEMENTED
 
- 
+@subsection Changes from 1.2
+
+In Tootsville IV, rooms could have a different ``zoom level'' setting
+the relative size of the display. This is no longer supported; in
+Tootsville V, the world is a continuous 3D environment.
 "
   (error 'unimplemented))
