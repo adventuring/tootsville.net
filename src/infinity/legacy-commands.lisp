@@ -1008,18 +1008,29 @@ no longer supported."
 (definfinity mail-customer-service ((subject body) user recipient/s)
   "Send an eMail to customer service (feedback)
 
-@verbatim
-{ subject: STRING, body: STRING }
-@end verbatim
+UNIMPLEMENTED
 
 This sends an email with the given subject and body to
 @code{support@@Tootsville.org}.
+
+@subsection Usage
+
+@verbatim
+{ subject: STRING, body: STRING }
+@end verbatim
 
  "
   (error 'unimplemented))
 
 (definfinity peek-at-inventory ((who type) user recipient/s)
-  "Handle looking at other user's inventories
+  "Look at other users' inventories
+
+The optional type code is as per `INFINITY-GET-INVENTORY-BY-TYPE'.
+
+When requesting the inventory of another player, only their public
+inventory will be returned.
+
+@subsection Examples
 
 @verbatim
 { who: \"user-name\" }
@@ -1027,11 +1038,6 @@ This sends an email with the given subject and body to
 { who: \"user-name\",
   type: \"type-code\" }
 @end verbatim
-
-The optional type code is as per `INFINITY-GET-INVENTORY-BY-TYPE'.
-
-When requesting the inventory of another player, only their public
-inventory will be returned.
 
 "
   (error 'unimplemented))

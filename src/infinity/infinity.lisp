@@ -287,7 +287,8 @@ For a complete enumeration
                           ,@body)))))
        (defendpoint (POST ,(concatenate 'string "/world/infinity/" (string-downcase name))
                           "application/json")
-         ,docstring
+         ,(format nil "~a~2%@subsection Infinity Mode command~2%See @ref{TOOTSVILLE INFINITY-~a}"
+                  docstring-first name)
          (call-infinity-from-rest  ',infinity-name )))))
 
 (defpackage Tootsville-User
