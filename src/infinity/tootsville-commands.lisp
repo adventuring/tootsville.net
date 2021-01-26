@@ -41,7 +41,7 @@ UNIMPLEMENTED in 2.0.
 { entry: \"journal text\" }
 @end verbatim
 
-Example
+@subsection Example
 
 @verbatim
 { entry: \"nothing to report\" }
@@ -79,7 +79,7 @@ has now been re-created for the AGPL version of Romance.
 { type: \"TYPE\" }
 @end verbatim
 
-Example
+@subsection Example
 
 @verbatim
 { type: \"pivitz\" }
@@ -118,7 +118,7 @@ has now been re-created for the AGPL version of Romance.
   [ limit: COUNT ] }
 @end verbatim
 
-Example
+@subsection Examples
 
 @verbatim
 {}
@@ -207,7 +207,7 @@ has now been re-created for the AGPL version of Romance.
   body: \"BODY\" )
 @end verbatim
 
-Example
+@subsection Examples
 
 @verbatim
 { to: \"shader\", subject: \"\", body: \"Hello there!\" }
@@ -260,7 +260,7 @@ returning.
 { room: \"SPOT-MONIKER\" }
 @end verbatim
 
-Example
+@subsection Example
 
 @verbatim
 { room: \"tootSquare\" }

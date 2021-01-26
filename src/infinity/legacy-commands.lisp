@@ -32,7 +32,9 @@
 
 
 (definfinity add-furniture ((&rest d) user recipient/s)
-  "Alias for `INFINITY-SET-FURNITURE', q.v."
+  "Alias for INFINITY-SET-FURNITURE.
+
+Alias for `INFINITY-SET-FURNITURE', q.v."
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
 (definfinity add-to-list (nil user recipient/s)
@@ -267,7 +269,8 @@ In 1.2 adding a room required only an index.
 (definfinity dofff ((&rest d) user recipient/s)
   "Doff all clothing items.
 
-See also  `INFINITY-DOFF' for single items.
+See also `INFINITY-DOFF' for single items.  To put on (don) an item, see
+`INFINITY-DON'. Mnemonic: Like @code{doff} but more so.
 
 @subsection Usage
 
@@ -279,7 +282,7 @@ This does not  un-equip an item held in the  @code{TRUNK}. This does not
 remove or  alter a Toot's pattern.  For non-Toot avatars, this  does not
 un-equip an item held in the @code{HAND}, @code{LHAND}, or @code{RHAND}.
 
-Sends two  responses: a success  reply from @code{doff}, then  total avatar
+Sends two  responses: a success  reply from @code{dofff}, then  total avatar
 info from @code{wardrobe}. See `INFINITY-WARDROBE'.
 
 @subsection Status 200 OK
@@ -344,9 +347,11 @@ occupy a wear slot also cannot be equipped, e.g. a tree.
 
 Colors of  items can no  longer be changed  when donning them.  This was
 meant  for pattern  changing  in  1.2, which  must  now be  accomplished
-in-game via Doodle. The @code{color} parameter must be null.
+in-game via Doodle. The @code{color} parameter must be null or absent.
 
 Patterns are no longer clothing items.
+
+@subsection Changes from 1.0 to 1.1
 
 Equipment  held  in the  @code{TRUNK}  is  now explicitly  supported  as
 a distinct  wear slot with specific  meaning (ie, the user  can activate
@@ -501,7 +506,9 @@ the usual form:
                     :|error| (format nil "No such gameAction: ~a" action)))))
 
 (definfinity get-avatars ((&rest _+user-names) user recipient/s)
-  "Get avatar data for a list of (other) users. cv. `INFINITY-FINGER'
+  "Get avatar data for a list of (other) users.
+
+cv. `INFINITY-FINGER'
 
 Parameters:
 
@@ -1053,7 +1060,7 @@ This also updates the user's last-active timestamp.
 { [ pingStarted: TIMESTAMP ] } 
 @end verbatim
 
-Examples:
+@subsection Examples
 
 @verbatim
 { pingStarted: 1589849202000 }
@@ -1094,7 +1101,7 @@ as well.
 (definfinity prompt-reply ((id reply) user recipient/s)
   "Accept a reply to a server-initiated prompt
 
-@cindex Server Prompts
+@cindex Server Prompts and Replies
 
 @subsection Usage
 
@@ -1572,7 +1579,7 @@ as a string.
    { buddy: LOGIN }
 @end verbatim
 
-Example
+@subsection Example
 
 @verbatim
  { buddy: \"catvlle\" }
@@ -1660,7 +1667,7 @@ encode a response into a JSON form
 { serverTime: LONG milliseconds since Unix epoch }
 @end verbatim
 
-Example!:
+@subsection Example
 
 @verbatim
 { serverTime: 1589850683000 }
@@ -2386,7 +2393,9 @@ or canceled using `INFINITY-END-EVENT', q.v.
   (quaestor-start-event moniker *Toot*))
 
 (definfinity end-event ((moniker id event-i-d status medal score) user recipient/s)
-  "Attempt to end an event begun by `INFINITY-START-EVENT', q.v.
+  "Attempt to end an event.
+ 
+End an event begun by `INFINITY-START-EVENT', q.v.
 
 @subsection Calling
 

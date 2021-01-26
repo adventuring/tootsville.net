@@ -28,7 +28,22 @@
 (in-package :Tootsville)
 
 (defun world-moniker-p (moniker)
-  "cv. `MAP-PLACES'"
+  "cv. `MAP-PLACES'
+
+The monikers for the worlds are the hard list:
+
+@table @code
+@item CHOR
+Chœrogryllum (the planet on which Tootsville is found).
+@item MOON
+The moon.
+@item OTHM
+The other moon.
+@item PINK
+The pink moon.
+@item ORBIT
+In orbit of Chœrogryllum, but not on any moon.
+@end table"
   (and (symbolp moniker)
        (member moniker '(:CHOR :MOON :OTHM :PINK :ORBIT))))
 

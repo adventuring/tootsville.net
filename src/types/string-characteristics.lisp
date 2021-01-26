@@ -50,9 +50,9 @@
   (check-type string string)
   (check-type char-bag sequence)
   (loop for i from 1 below (length string)
-     when (and (find (char string i) char-bag)
-               (find (char string (1- i)) char-bag))
-     do (return-from two-chars-in-a-row-p i))
+        when (and (find (char string i) char-bag)
+                  (find (char string (1- i)) char-bag))
+          do (return-from two-chars-in-a-row-p i))
   nil)
 
 (defun three-chars-in-a-row-p (string &optional char-bag)
@@ -68,15 +68,15 @@ itself returns true."
       (progn
         (assert (every #'characterp char-bag))
         (loop for i from 2 below (length string)
-           when (and (find (char string i) char-bag)
-                     (find (char string (1- i)) char-bag)
-                     (find (char string (- i 2)) char-bag))
-           do (return-from three-chars-in-a-row-p i)))
+              when (and (find (char string i) char-bag)
+                        (find (char string (1- i)) char-bag)
+                        (find (char string (- i 2)) char-bag))
+                do (return-from three-chars-in-a-row-p i)))
       (loop for i from 2 below (length string)
-         when (char= (char string i)
-                     (char string (- i 1))
-                     (char string (- i 2)))
-         do (return-from three-chars-in-a-row-p i)))
+            when (char= (char string i)
+                        (char string (- i 1))
+                        (char string (- i 2)))
+              do (return-from three-chars-in-a-row-p i)))
   nil)
 
 
@@ -94,7 +94,9 @@ entire (original) string is returned."
   "Returns the first paragraph of STRING.
 
 \(Up to the first blank line)"
+  (unless (find #\Newline string)
+    (return-from first-paragraph string))
   (loop for line in (split-sequence #\Newline string)
-     collecting line into lines
-     when (emptyp line)
-     do (return-from first-paragraph (join #\Newline lines))))
+        collecting line into lines
+        when (emptyp line)
+          do (return-from first-paragraph (join #\Newline lines))))

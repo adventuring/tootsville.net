@@ -32,7 +32,16 @@
 (require 'sb-introspect)
 
 (defpackage Tootsville
-  (:documentation  "Let's make some noise!")
+  (:documentation  "Let's make some noise!
+
+The  Tootsville  package  is  the  main  container  for  all  Tootsville
+V (Romance II) server functions.
+
+In  future, some  of the  concerns  (e.g. specific  facilities like  the
+friendly database  accessors or  the metronome) may  be broken  out into
+their own packages, but for  simplicity of early development, everything
+is in this one big ball of mud.
+")
   (:use :alexandria :cl :local-time :bordeaux-threads
         :oliphaunt)
   (:shadowing-import-from :cl-fad

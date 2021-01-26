@@ -28,10 +28,11 @@
 (in-package :Tootsville)
 
 (defun legal-age (date-of-birth &optional (reference-date (local-time:now)))
-  "The age of  a person born on DATE-OF-BIRTH, as  of REFERENCE-DATE (or
-right  now);  this uses  the  legal  definition  that the  person's  age
-increments at  the midnight of their  date of birth each  year, with the
-date 29 February treated as 1 March on non-leap-years.
+  "The age of  a person born on DATE-OF-BIRTH, as  of REFERENCE-DATE (or right  now)
+
+This uses the  legal definition that the person's age  increments at the
+midnight of  their date of  birth each year,  with the date  29 February
+treated as 1 March on non-leap-years.
 
 The time  zone used for  this computation  is the not  defined, however,
 yielding  rather  irregular  behaviour   depending  on  time  zones  and
@@ -47,7 +48,7 @@ reasons, eg, COPPA."
       (decode-timestamp reference-date)
     (declare (ignore msec sec min hour))
     (multiple-value-bind (msec sec min hour
-                               day-of-birth month-of-birth year-of-birth)
+                          day-of-birth month-of-birth year-of-birth)
         (decode-timestamp date-of-birth)
       (declare (ignore msec sec min hour))
       (let ((had-birthday-p (or (< month-of-birth month)
@@ -79,6 +80,13 @@ TIME defaults to the present (@code{(NOW)})."
   (format-timestring nil time :format +rfc-1123-format+))
 
 (defun get-Unix-time (&optional (universal-time (get-universal-time)))
+  "Get the UNIVERSAL-TIME (default to now) in Unix time.
+
+Returns the number of seconds since  the Unix epoch, 1970-01-01 at 00:00
+Z time.
+
+Note that Java time is Unix time  multiplied by 1,000 (ie. time in msec)
+and is used is some places in the Infinity mode communications."
   (+ universal-time +Unix-zero-in-universal-time+))
 
 (defconstant +Unix-zero-in-universal-time+ 2208988800

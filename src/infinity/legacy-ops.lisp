@@ -210,7 +210,6 @@ In Romance  1, this command took  a room moniker as  its sole parameter;
 since rooms as such no longer exist, we use latitude and longitude now.
 
 "
-  (check-type words list)
   (list 200 (list :|from| "beam"
                   :|latitude| (parse-integer (first words))
                   :|longitude| (parse-integer (second words))
@@ -244,8 +243,14 @@ since rooms as such no longer exist, we use latitude and longitude now.
  #spawnroom tootCastleJoust2 Joust2
 @end verbatim
 
+@subsection 401 Gone
+
+This feature has been removed.
+
+XXX it might be reused to create named spots?
+
 "
-  (error 'unimplemented))
+  (error 'gone))
 
 (define-operator-command census (words user plane)
   "Load a number of users.
@@ -576,8 +581,6 @@ error if the server specified does not exist in the cluster.
 (define-operator-command filter (words user plane)
   "Test censorship rules against words or phrases
 
-UNIMPLEMENTED
-
 @subsection Usage
 
 @verbatim
@@ -586,9 +589,16 @@ UNIMPLEMENTED
 #filter #child EXPRESSION
 @end verbatim
 
- 
-WRITEME"
-  (error 'unimplemented))
+See `CASSANDRA-FILTER' et al."
+  (let ((children-present-p nil))
+    (if (string-equal "#child" (first words))
+        (setf words (rest words)
+              children-present-p t)
+        (when (string-equal "#all" (first words))
+          (setf words (rest words))))
+    (format nil "“~{~a~^ ~}” ~:[is not~;is~] OK to say." 
+            words
+            (cassandra-filter (format nil "~{~a~^ ~}" words) children-present-p))))
 
 (defun json-to-html (json)
   "Converts JSON to a set of key-value pairs in pretty-printed HTML form."
@@ -720,6 +730,12 @@ Returns the value of the selected configuration property as a
 string. If the selected property is a key with multiple values (as a
 property list --- plist) associated with it, returns the entire
 plist (and possibly, nested plists).
+
+@subsection Changes since 1.2
+
+The format of  the configuration file is completely  different. The Java
+properties file has been replaced with a Lisp property list (plist) tree
+structure which is arranged entirely differerently.
  "
   (format nil "<pre>~/HTML/</pre>"
           (apply #'config (mapcar (compose #'make-keyword #'string-upcase) words))))

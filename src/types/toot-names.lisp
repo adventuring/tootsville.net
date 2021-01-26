@@ -46,26 +46,26 @@ validating REST calls, for example."
   (tagbody do-over
      (restart-bind
          ((auto-rename
-           (lambda ()
-             (let ((try (remove-repeats-for-Toot-name
-                         (substitute-if #\- (complement #'alpha-char-p) name))))
-               (when (char= #\- (first-elt try))
-                 (setf try (subseq try 1)))
-               (when (char= #\- (last-elt try))
-                 (setf try (subseq try 0 (- (length try) 2))))
-               (when (< (length try) 3)
-                 (setf try (concatenate 'string try "-a")))
-               (when (< 32 (length try))
-                 (setf try (subseq try 0 32)))
-               try))
+            (lambda ()
+              (let ((try (remove-repeats-for-Toot-name
+                          (substitute-if #\- (complement #'alpha-char-p) name))))
+                (when (char= #\- (first-elt try))
+                  (setf try (subseq try 1)))
+                (when (char= #\- (last-elt try))
+                  (setf try (subseq try 0 (- (length try) 2))))
+                (when (< (length try) 3)
+                  (setf try (concatenate 'string try "-a")))
+                (when (< 32 (length try))
+                  (setf try (subseq try 0 32)))
+                try))
             :report-function
             (lambda (s)
               (format s "Find a name similar to ~a"
                       name)))
           (provide-new-name
-           (lambda (new-name)
-             (setf name new-name)
-             (go do-over))
+            (lambda (new-name)
+              (setf name new-name)
+              (go do-over))
             :report-function
             (lambda (s) (format s "Supply a new name"))))
        (check-type name toot-name))))
@@ -91,7 +91,8 @@ Toot names must be:
 From three to 32 characters in length, inclusive.
 
 @item
-Characters must be  `POTENTIAL-TOOT-NAME-CHARACTER-P', ie, alphanumeric, or hyphen.
+Characters must be  `POTENTIAL-TOOT-NAME-CHARACTER-P', ie, alphanumeric,
+or hyphen.
 
 @item
 The first character must be alphabetic
@@ -125,6 +126,9 @@ leftmost digit must be after the rightmost non-digit character.
        (< (count-if #'digit-char-p Toot-name) 4)))
 
 (deftype Toot-name ()
+  "A name that can be used for a Toot character.
+
+See `POTENTIAL-TOOT-NAME-P'."
   `(and string (satisfies potential-Toot-name-p)))
 
 
@@ -139,4 +143,7 @@ characters in length (inclusive)."
        (string= code (string-downcase code))))
 
 (deftype child-code ()
+  "A potential child code (password).
+
+See `VALID-CHILD-CODE-P'."
   `(and string (satisfies valid-child-code-p)))

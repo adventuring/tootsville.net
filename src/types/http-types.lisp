@@ -66,13 +66,19 @@ harmless  error   message  on  the  second   and  subsequent  attempts."
                      :initarg :status-code
                      :initarg :status
                      :reader http-status-code))
-  (:default-initargs :message (http-)))
+  (:default-initargs :message "Error")
+  (:documentation "An error that can be returned to an HTTP client. 
+
+Note that we use these error codes  internally, as well, so they are not
+necessarily always propagated over HTTP --- but they could be."))
+
 (defmethod print-object ((condition HTTP-client-error) stream)
   (format stream "HTTP error to report to client (code ~a)"
           (if (slot-boundp condition 'HTTP-status-code)
               (format nil "~a: ~a" (HTTP-status-code condition)
                       (gethash (HTTP-status-code condition) *HTTP-status-message*))
               "unbound")))
+
 (defmethod http-status-code ((error error))
   500)
 
@@ -129,11 +135,15 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
    (name :initarg name :accessor which-Toot-is-not-yours))
   (:report (lambda (c s)
              (format s "You do not have a Toot named “~a.”"
-                     (which-Toot-is-not-yours c)))))
+                     (which-Toot-is-not-yours c))))
+  (:documentation "An error thrown when a player tries to alter another player's Toot"))
 
 (define-condition unidentified-player-error (http-client-error)
   ((http-status-code :initform 403))
-  (:report "Unidentified player"))
+  (:report "Unidentified player")
+  (:documentation "An error thrown when the player can't be identified.
+
+They may have sent no credentials, or bad credentials."))
 
 (define-condition unimplemented (http-client-error)
   ((http-status-code :initform 501)
@@ -141,7 +151,7 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
             :initform "The feature you tried to access"))
   (:report (lambda (c s)
              (format s "~a has not been implemented." (unimplemented-feature c))))
-  (:documentation "Signals that a feature has not been inmplemented yet"))
+  (:documentation "Signals that a feature has not been implemented yet."))
 
 (define-condition bad-request (http-client-error)
   ((http-status-code :initform 400)
@@ -150,13 +160,15 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
           :accessor bad-request-thing))
   (:report (lambda (c s)
              (format s "The value of ~a submitted was incorrect type."
-                     (bad-request-thing c)))))
+                     (bad-request-thing c))))
+  (:documentation "A value submitted was the incorrect type, or out of range."))
 
 (define-condition unprocessable (bad-request)
   ((http-status-code :initform 422))
   (:report (lambda (c s)
              (format s "The value of ~a submitted could not be processed."
-                     (bad-request-thing c)))))
+                     (bad-request-thing c))))
+  (:documentation "A value submitted could not be processed."))
 
 (define-condition not-found (http-client-error)
   ((http-status-code :initform 404)
@@ -164,9 +176,14 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
           :initform "The requested object"
           :accessor not-found-thing))
   (:report (lambda (c s)
-             (format s "~a was not found." (not-found-thing c)))))
+             (format s "~a was not found." (not-found-thing c))))
+  (:documentation "Some object could not be found based on the identification provided."))
 
 (define-condition gone (not-found)
   ((http-status-code :initform 402))
   (:report (lambda (c s)
-             (format s "~a is gone." (not-found-thing c)))))
+             (format s "~a is gone." (not-found-thing c))))
+  (:documentation "A resource is no longer available.
+
+In particular, this is returned for functions which were discontinued in
+Romance 2 but existed in earlier versions of the protocol."))

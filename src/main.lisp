@@ -143,6 +143,7 @@ is available."
     (load-config)
     (connect-databases)
     (power-on-self-test)
+    (cassandra-boot)
     (background-gc))
 
   (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")

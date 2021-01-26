@@ -38,7 +38,7 @@ If VECTOR is supplied, it must  be long enough to accept INTEGER without
 growing. Otherwise,  the vector  of the minimum  length to  hold INTEGER
 will be constructed.
 
-The byte vector will be in big-endian (aka \"network\") order."
+The byte vector will be in big-endian (aka ``network'') byte order."
   (assert (<= (ceiling (integer-length integer) 8)
               (length vector))
           (integer vector)
@@ -54,7 +54,7 @@ integer ~x is longer than vector length ~:d byte~p"
 (defun byte-vector-to-integer (vector)
   "Convert VECTOR of (UNSIGNED-BYTE 8) into an integer.
 
-The VECTOR should be in big-endian (aka \"network\") order."
+The VECTOR should be in big-endian (aka ``network'') byte order."
   (let ((i8 (* 8 (1- (length vector)))) (integer 0))
     (dotimes (i (length vector))
       (setf (ldb (byte 8 i8) integer) (aref vector i))
@@ -64,7 +64,7 @@ The VECTOR should be in big-endian (aka \"network\") order."
 
 
 (defun uri-to-uuid (uuid)
-  "Extract a UUID encoded in Base64 in URI form"
+  "Extract a UUID encoded in Base64 in URI form."
   (uuid:byte-array-to-uuid (cl-base64:base64-string-to-usb8-array
                             (substitute #\/ #\- uuid))))
 
@@ -86,7 +86,7 @@ Swaps / characters for - characters to be more polite in an URI."
 (defun ensure-integer (value)
   "Ensure that VALUE is an integer.
 
-Parse strings using PARSE-INTEGER.
+Parse strings using `PARSE-INTEGER'.
 
 Round real numbers."
   (etypecase value
@@ -97,7 +97,7 @@ Round real numbers."
 (defun ensure-number (value)
   "Ensure that VALUE is a number.
 
-Parse strings using PARSE-NUMBER."
+Parse strings using `PARSE-NUMBER'."
   (etypecase value
     (number value)
     (string (parse-number value))))

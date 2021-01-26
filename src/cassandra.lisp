@@ -49,16 +49,16 @@ compiled scanners.")
 (defun cassandra-add-to-blacklist (regex)
   "Add REGEX to the blacklist"
   (setf (gethash regex *cassandra-blacklist*)
-	(create-scanner regex
-			:case-insensitive-mode t
-			:multi-line-mode t)))
+        (create-scanner regex
+		    :case-insensitive-mode t
+		    :multi-line-mode t)))
 
 (defun cassandra-add-to-redlist (regex)
   "Add REGEX to the redlist"
   (setf (gethash regex *cassandra-redlist*)
-	(create-scanner regex
-			:case-insensitive-mode t
-			:multi-line-mode t)))
+        (create-scanner regex
+		    :case-insensitive-mode t
+		    :multi-line-mode t)))
 
 (defun cassandra-remove-from-blacklist (regex)
   "Remove REGEX from the blacklist."
@@ -71,11 +71,13 @@ compiled scanners.")
 (defun cassandra-filter (text &optional children-present-p)
   "Filter TEXT for obscenities on the redlist; and, if CHILDREN-PRESENT-P, the blacklist too.
 
-Returns a generalized true value if TEXT should be allowed."
+Returns a generalized true value if TEXT should be allowed.
+
+Returns NIL if TEXT should be forbidden."
   (when children-present-p
     (dolist (expr (hash-table-values *cassandra-blacklist*))
       (when (all-matches expr text)
-	(return-from cassandra-filter nil))))
+        (return-from cassandra-filter nil))))
   (dolist (expr (hash-table-values *cassandra-redlist*))
     (when (all-matches expr text)
       (return-from cassandra-filter nil)))
@@ -91,6 +93,8 @@ but VOL will be increased one level (if possible). If TEXT contains
 certain common repeated or mistyped punctuation, they will be
 converted.
 
+Note that this is @i{not} a profanity filter. See `CASSANDRA-FILTER' for
+that feature.
 "
   (when (string= text (string-upcase text))		 
     (setf text (string-downcase text)
@@ -126,3 +130,8 @@ converted.
                (cassandra-obnoxious-filter "One exclamation mark suffices!!!!" "talk")))
 (assert (equal "Why can’t people …"
                (cassandra-obnoxious-filter "Why can't people ..." "talk")))
+
+(defun cassandra-boot ()
+  "Startup procedure to load Cassandra's blacklist and redlist from the database.
+
+UNIMPLEMENTED. This is still a no-op.")

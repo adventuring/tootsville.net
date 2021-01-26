@@ -28,7 +28,9 @@
 (in-package :Tootsville)
 
 (defun host-name-char-p (char)
-  "Is CHAR a constituent character that could be in a DNS host name?"
+  "Is CHAR a constituent character that could be in a DNS host name?
+
+These characters are A-Z, 0-9, or `.' or `-' (dot or dash)."
   (check-type char character)
   (or (char<= #\a char #\z)
       (char<= #\A char #\Z)
@@ -145,7 +147,13 @@ The trailing dot for the root should be omitted for this function.
   (www-uri-like-p "https://s3.amazonaws.com:443/echo.api/echo-api-cert.pem"))
 
 (deftype dns-name ()
+  "A name that could be a DNS hostname
+
+See `HOST-NAME-LIKE-P'."
   '(and string (satisfies host-name-like-p)))
 
 (deftype www-uri ()
+  "A string that could be a WWW URI
+
+See `WWW-URI-LIKE-P'."
   '(and string (satisfies www-uri-like-p)))

@@ -30,6 +30,7 @@
 
 
 (defmacro ignore-not-found (&body body)
+  "Ignore NOT-FOUND errors in BODY, and return a NIL instead."
   `(handler-case (progn ,@body)
      (not-found (c)
        (declare (ignore c))
@@ -66,9 +67,18 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
 (defvar *utc-timezone*
   (progn
     (local-time:reread-timezone-repository)
-    (local-time:find-timezone-by-location-name "UTC")))
+    (local-time:find-timezone-by-location-name "UTC"))
+  "The UTC time zone.
+
+The Universal Coördinated Time time zone.
+
+For practical purposes,  this is essentially the same  as GMT (Greenwich
+Mean Time) or Z (Zulu Time).")
 
 (defun uuid-string-to-base64 (uuid-string)
+  "Converts UUID-STRING into a UUID and gives its Base64 string value.
+
+See also `UUID-TO-BASE64'."
   (subseq (the string
                (cl-base64:usb8-array-to-base64-string
                 (uuid:uuid-to-byte-array
@@ -76,6 +86,9 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
           0 22))
 
 (defun uuid-to-base64 (uuid)
+  "Convert UUID into a Base64 string.
+
+Strips the trailing @code{==} that in invariant."
   (subseq (the string
                (cl-base64:usb8-array-to-base64-string
                 (uuid:uuid-to-byte-array uuid)))
@@ -111,6 +124,7 @@ Particularly, changes CAPS-WITH-KEBABS to lower_with_snakes."
     (and value (substitute #\Space #\Z (format-timestring nil value :timezone *utc-timezone*)))))
 
 (defun base64-to-uuid (value)
+  "Convert a BASE64 value into a UUID."
   (uuid:byte-array-to-uuid
    (cl-base64:base64-string-to-usb8-array
     (concatenate 'string value "=="))))
@@ -217,19 +231,19 @@ Used in `DEFRECORD', qv."
 (defun defrecord/load-record (name columns)
   `(defmethod load-record ((class (eql ',name)) record)
      (,(intern (concatenate 'string "MAKE-" (symbol-name name)))
-       ,@(mapcan #'column-load-mapping columns))))
+      ,@(mapcan #'column-load-mapping columns))))
 
 (defun arrange-columns+values-for-find (columns+values column-definitions)
   (when columns+values
     (loop for (column value) on columns+values by #'cddr
-       for column-def = (assoc column column-definitions :test #'string=)
-       do (unless column-def
-            (error "Can't search on unknown column ~:(~a~); ~
+          for column-def = (assoc column column-definitions :test #'string=)
+          do (unless column-def
+               (error "Can't search on unknown column ~:(~a~); ~
 columns are ~{~:(~a~)~^, ~}" column (mapcar #'car column-definitions)))
-       append (list (lisp-to-db-name column)
-                    (column-save-value value
-                                       (make-keyword (symbol-name
-                                                      (second column-def))))))))
+          append (list (lisp-to-db-name column)
+                       (column-save-value value
+                                          (make-keyword (symbol-name
+                                                         (second column-def))))))))
 
 (defun defrecord/find-record (name table columns)
   `(defmethod find-record ((class (eql ',name)) &rest columns+values)
@@ -261,13 +275,13 @@ columns are ~{~:(~a~)~^, ~}" column (mapcar #'car column-definitions)))
   (declare (ignore table columns))
   `(defmethod find-records ((class (eql ',name)) &rest columns+values)
      (loop
-        with solution = (pull-records ',name)
-        for (column . value) on columns+values by #'cddr
-        do (setf solution (remove-if-not (lambda (record)
-                                           (equalp (slot-value record (intern (symbol-name column)))
-                                                   value))
-                                         solution))
-        finally (return solution))))
+       with solution = (pull-records ',name)
+       for (column . value) on columns+values by #'cddr
+       do (setf solution (remove-if-not (lambda (record)
+                                          (equalp (slot-value record (intern (symbol-name column)))
+                                                  value))
+                                        solution))
+       finally (return solution))))
 
 (defun defrecord/before-save-normalize (name columns)
   `(defmethod before-save-normalize ((object ,name))
