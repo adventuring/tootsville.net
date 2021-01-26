@@ -173,10 +173,16 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
 
 
 
-(defstruct color24 red green blue)
+(defstruct color24
+  (red 0 :type (unsigned-byte 8))
+  (green 0 :type (unsigned-byte 8))
+  (blue 0 :type (unsigned-byte 8)))
 
 (defun color24= (a b &rest more)
-  "Comparator of two color24s"
+  "Comparator of two or more `COLOR24' values.
+
+Values are the same only if all three channels
+(red, green, and blue) have identical values."
   (if more
       (and (color24= a b)
            (apply #'color24= a more))
@@ -300,11 +306,36 @@ lowest 8 bits, the blue channel."
   :test 'equalp)
 
 (defun parse-color24 (color)
-  "Parse COLOR as a name for a color, or a hex 24-bit color value.
+  "Return a `COLOR24' object for the color designator COLOR.
 
+Parse COLOR as a name for a color, or a hex 24-bit color value.
 It can also be an HTML-style or CSS-style value.
 
+Syntax can be:
 
+@itemize
+@item
+A `COLOR24' object, which is returned unchanged.
+@item
+An integer of 24 bits, in which the upper 8 bits represent the red
+channel, the middle 8 bits the green, and the lower 8 bits the blue
+channel. 
+@item
+A color name from the list `+COLOR24-NAMES+'. Spaces are interchangeable 
+with hyphens and the value is not case-sensitive.
+@item
+An RGB byte-value triplet as in CSS, of the form 
+@code{rgb(R,G,B)}, where R, G, and B are unsigned 8-bit
+decimal integers, i.e. values from 0-255.
+@item
+An HTML-style hex color code in the form @code{#RGB} or @code{#RRGGBB}.
+When only three hex digits are provided, each is doubled to
+form an unsigned 8-bit value; thus, @code{#abc} is the same as
+@code{#aabbcc}.
+@item
+A set of 6 hex digits of the same form @code{rrggbb} as
+the HTML form @code{#rrggbb}, without any sigil.
+@end itemize
 "
   (integer-to-color24
    (etypecase color

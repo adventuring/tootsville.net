@@ -38,12 +38,16 @@
                                        'robot))
        ())))
 
-(defmacro define-character (name &optional personality)
+(defmacro define-character (name &optional personality docstring)
   (let ((full-name (intern (concatenate 'string "ROBOT-" (string-upcase name))))
         (personality-name (when personality
                             (intern (concatenate 'string (string-upcase personality) "-PERSONALITY")))))
     `(progn
        (setf (gethash ',name *npc-list*) ',name)
+       ;; FIXME: This should not be needed:
+       (defclass ,(intern (concatenate 'string (string-upcase name) "-PERSONALITY")) (,full-name)
+         ()
+         (:documentation ,(or docstring (format nil "This class defines a character named ~:(~a~)" name))))
        (defclass ,full-name (,(or personality-name 'robot)) ()))))
 
 (defun init-characters ()

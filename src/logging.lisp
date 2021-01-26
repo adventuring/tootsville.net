@@ -102,7 +102,7 @@
   (force-output *trace-output*))
 
 (defun banner/query-io ()
-  "Print a greeting banner to `QUERY-IO'"
+  "Print a greeting banner to `*QUERY-IO*'"
   (write-string (tootsville-v-banner) *query-io*)
   (princ "This is the Query I/O channel
 

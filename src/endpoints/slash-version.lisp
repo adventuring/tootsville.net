@@ -39,62 +39,63 @@
 (defendpoint (:get "/version/about/detail/:param" "text/plain")
   "Returns (as plain text) the info specified by PARAM.
 
-The values available can be  seen by GET /version/about.txt, but include
-the following. Values are case-insensitive.
+The values available can be seen by GET /version/about.txt, but
+include the following. Values are case-insensitive.
 
-@itemize
+@table @code
 
-@item
-@samp{Product}
-@item
- @samp{Version}
-@item
- @samp{Copyright}
-@item
- @samp{Environment/Configuration}
-@item
- @samp{Environment/Developmentp}
-@item
- @samp{Environment/Productionp}
-@item
- @samp{Machine/Version}
-@item
- @samp{Machine/Type}
-@item
- @samp{Machine/Instance}
-@item
-@samp{Site/Short-Name}
-@item
-@samp{Site/Long-Name}
-@item
-@samp{Lisp/Type}
-@item
-@samp{Lisp/Version}
-@item
-@samp{Software/Type}
-@item
-@samp{Software/Version}
-@item
-@samp{Copyright-Latest}
-@item
-@samp{Build-Date}
-@item
-@samp{Compiled}
-@item
-@samp{Request/Name}
-@item
-@samp{Request/Port}
-@item
-@samp{Request/Protocol}
-@item
-@samp{Acceptor/Class}
-@item
-@samp{Acceptor/Name}
-@item
-@samp{Acceptor/Port}
-@item
-@samp{Acceptor/Address}
-@end itemize
+@item Product
+The product running (eg, Tootsville)
+@item Version
+The current version of the application
+@item Copyright
+The copyright notice (one-line form) for the application
+@item Environment/Configuration
+The environment configuration being run within
+@item Environment/Developmentp
+True if this is a development server
+@item Environment/Productionp
+True if this is a production server
+@item Machine/Version
+The `MACHINE-VERSION' on which this is running.
+@item Machine/Type
+The `MACHINE-TYPE' on which this is running.
+@item Machine/Instance
+The `MACHINE-INSTANCE' on which this is running.
+@item Site/Short-Name
+The short name of the active site.
+@item Site/Long-Name
+The long name of the active site.
+@item Lisp/Type
+The `LISP-TYPE' of the compiler used.
+@item Lisp/Version
+The `LISP-VERSION' of the compiler used.
+@item Software/Type
+The `SOFTWARE-TYPE' of the operating system.
+@item Software/Version
+The `SOFTWARE-VERSION' of the operating system.
+@item Copyright-Latest
+The latest year in the copyright declaration.
+@item Build-Date
+The date on which the software was first compiled.
+@item Compiled
+The point in time at which the software was compiled.
+@item Request/Name
+The requestor name
+@item Request/Port
+The port on which the request was made
+@item Request/Protocol
+The protocol via which the request was made
+@item Acceptor/Class
+The class of the acceptor handling this request
+@item Acceptor/Name
+The name of the acceptor handling this request
+@item Acceptor/Port
+The port on which the acceptor is handling this request
+@item Acceptor/Address
+The address on which the acceptor is handling this request
+@end table
+
 "
   (if param
       (list 200 nil

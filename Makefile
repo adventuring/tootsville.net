@@ -121,8 +121,6 @@ quicklisp-manifest.tmp:	tootsville.asd \
 	done
 	echo $$(pwd) >> quicklisp-manifest.tmp
 
-doc:	doc/Tootsville.texi
-
 ../tootsville.org/dist/doc.texi:
 	$(MAKE) -C ../tootsville.org dist/doc.texi
 
@@ -192,7 +190,6 @@ servers:	./Tootsville
 doc:	server-doc
 
 server-doc: \
-	doc/Tootsville.txt \
 	doc/Tootsville.pdf \
 	doc/Tootsville.html.tar.gz \
 	doc/Tootsville.info

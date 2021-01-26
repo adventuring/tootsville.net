@@ -33,7 +33,12 @@
 
 @subsection Usage
 
-WRITEME
+A @code{gameAction} packet of the form:
+
+@verbatim
+{ c: \"gameAction\",
+  d: { action: \"startSportsBallGame\" } }
+@end verbatim
 
 @subsection Effects
 
@@ -45,6 +50,17 @@ timer can be started with startSportsBallTimer, see
 `GAME-ACTION-START-SPORTS-BALL-TIMER',
 `GAME-ACTION-PAUSE-SPORTS-BALL-TIMER',
 `GAME-ACTION-RESUME-SPORTS-BALL-TIMER'.
+
+@cindex SportsBall
+
+@subsection About SportsBall
+
+SportsBall is a game system that is able to roughly support a
+football (soccer) match, but does not actively enforce many rules.
+
+In other words, players could choose to play football (soccer) in the
+game, but they could also ``cheat'' or ignore rules such as ``off
+sides'' that are inconvenient to implement.
 
 WRITEME: Explain SportsBall sytem here.
 "
@@ -113,6 +129,17 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME', `GAME-ACTION-START-SPORTS-BALL-TIMER'
 (defun game-action-join-card-game (action)
   "Start playing a card game.
 
+@subsection Usage
+
+@verbatim
+{ c: \"gameAction\",
+  d: { action: \"joinCardGame\",
+       playerP: [ true | false ],
+       cardTable: UUID } }
+@end verbatim
+
+@cindex Card Games
+
 @subsection Overview of Card Games
 
 Playing cards on a card table uses a special camera view to show the
@@ -146,11 +173,9 @@ The structure of ACTION includes these keys:
 @table @code
 
 @item cardTable
-
 The UUID of a card table.
 
 @item playerP
-
 If true, this Toot wants to be a player. If false, this Toot wants to
 be an observer.
 
@@ -329,6 +354,8 @@ WRITEME
 
 WRITEME
 
+@cindex Bowling
+
 @subsection Overview of Bowling
 
 WRITEME
@@ -338,23 +365,18 @@ WRITEME
 @itemize
 
 @item
-
 `GAME-ACTION-BOWLING-RESET-PINS'
 
 @item
-
 `GAME-ACTION-BOWLING-STRIKE-PINS'
 
 @item
-
 `GAME-ACTION-JOIN-BOWLING-GAME'
 
 @item
-
 `GAME-ACTION-PART-BOWLING-GAME'
 
 @item
-
 `GAME-ACTION-GET-BOWLING-SCORECARD'
 
 @end itemize

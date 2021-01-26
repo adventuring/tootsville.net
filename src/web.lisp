@@ -150,7 +150,7 @@ It returns a content-type of ~:*~(~a~).~]~2%~
 ~[~*There are no URI parameters.~
 ~;~{~a~} is a parameter from the URI.~
 ~:;The URI includes parameters: ~{~a~^, ~}.~]~
-~2%It will report a slow response if it takes longer than ~f seconds
+~2%It will report a slow response if it takes longer than ~f seconds ~
 \(~:d milliseconds) to complete."
                          method uri content-type (length λ-list) λ-list
                          how-slow-is-slow (round (* 1000.0 how-slow-is-slow)))))

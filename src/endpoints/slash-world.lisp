@@ -44,15 +44,15 @@ Your character must be able to observe that general area. No peeking!
 
 (defendpoint (GET "/world/clock/date" "text/plain")
   "Get the date on Chœrogryllum (pretty-printed date string)"
-  (choerogryllum:date-string (get-universal-time)))
+  (chœrogryllum:date-string (get-universal-time)))
 
 (defendpoint (GET "/world/clock/date/long" "text/plain")
   "Get the date on Chœrogryllum (pretty-printed date string)"
-  (choerogryllum:date-string (get-universal-time)))
+  (chœrogryllum:date-string (get-universal-time)))
 
 (defendpoint (GET "/world/clock/date/abbrev" "text/plain")
   "Get the date on Chœrogryllum (abbreviated date string)"
-  (choerogryllum:date-string (get-universal-time) :form :abbrev))
+  (chœrogryllum:date-string (get-universal-time) :form :abbrev))
 
 (defendpoint (GET "/world/clock/time" "application/json")
   "Get the date & time on Chœrogryllum as a JSON structure.
@@ -87,7 +87,7 @@ Name of any holiday that occurs on this day
 @end table"
   (multiple-value-bind (sec min hour day month year weekday
                             other-month-day pink-month-day julian)
-      (choerogryllum:decode*-universal-time (get-universal-time))
+      (chœrogryllum:decode*-universal-time (get-universal-time))
     (list :sec sec
           :min min
           :hour hour
@@ -99,7 +99,7 @@ Name of any holiday that occurs on this day
           :pink-month-day pink-month-day
           :julian julian
           :julian-360 (mod julian 360)
-          :holiday (choerogryllum:holiday-on year month day))))
+          :holiday (chœrogryllum:holiday-on year month day))))
 
 (defendpoint (GET "/world/clock/time" "text/plain")
   "Get the current time on Chœrogryllum (time string with seconds)
@@ -107,7 +107,7 @@ Name of any holiday that occurs on this day
 Returns a string of Hours:Minutes:Seconds."
   (multiple-value-bind (sec min hour day month year weekday
                             other-month-day pink-month-day julian)
-      (choerogryllum:decode*-universal-time (get-universal-time))
+      (chœrogryllum:decode*-universal-time (get-universal-time))
     (declare (ignore day month year weekday other-month-day pink-month-day julian))
     (format nil "~2,'0d:~2,'0d:~2,'0d" hour min sec)))
 
@@ -136,7 +136,7 @@ It is the 95th day of the 360-day calendar year.
 If the day is an holiday, it will also be mentioned."
   (multiple-value-bind (sec min hour day month year weekday
                             other-month-day pink-month-day julian)
-      (choerogryllum:decode*-universal-time now)
+      (chœrogryllum:decode*-universal-time now)
     (format nil "~
 Currently the universal time code is ~:d.
 
@@ -161,7 +161,7 @@ It is ~a.~]
             now
             hour min sec
             (floor hour 6)
-            (choerogryllum:date-string now :form :long)
+            (chœrogryllum:date-string now :form :long)
             (1+ weekday) month
             day
             other-month-day
@@ -169,7 +169,7 @@ It is ~a.~]
             (mod julian 360)
             (let ((n (mod (mod julian 360) 10)))
               (if (= 12 (mod julian 360)) 9 n))
-            (choerogryllum:holiday-on year month day))))
+            (chœrogryllum:holiday-on year month day))))
 
 (defendpoint (GET "/world/clock/calendar/year/:year/month/:month/fragment"
                   "text/html")
@@ -178,7 +178,7 @@ It is ~a.~]
 The HTML  fragment contains the  month header, day-of-week  headers, and
 has holidays marked with HTML title attributes.
 
-See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
+See `CHŒROGRYLLUM::CAL-MONTH.HTML'"
   (list 200 () (chœrogryllum::cal-month.html
                 (parse-integer year) (parse-integer month))))
 
@@ -188,7 +188,7 @@ See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
 The HTML  fragment contains the  month header, day-of-week  headers, and
 has holidays marked with HTML title attributes.
 
-See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
+See `CHŒROGRYLLUM::CAL-MONTH.HTML'"
   (list 200 () (multiple-value-bind (sec min hour day month year)
                    (chœrogryllum:decode*-universal-time)
                  (declare (ignore sec min hour day))
@@ -199,7 +199,7 @@ See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
 
 Contains HTML fragments for each of the 12 months.
 
-See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
+See `CHŒROGRYLLUM::CAL-MONTH.HTML'"
   (list 200 ()
         (format nil "~{~a~%~^<br>~%~}"
                 (loop for month from 1 upto 12
@@ -212,7 +212,7 @@ See `CHOEROGRYLLUM::CAL-MONTH.HTML'"
 Produces  a  minimal  HTML  page framework  surrounding  a  single-month
 HTML calendar.
 
-See `CHOEROGRYLLUM::CAL-MONTH.HTML'."
+See `CHŒROGRYLLUM::CAL-MONTH.HTML'."
   (list 200 ()
         (format nil "<!DOCTYPE html><html>
 <head><meta charset=\"utf-8\">

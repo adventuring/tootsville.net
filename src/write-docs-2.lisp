@@ -30,8 +30,8 @@
 (defun value-to-texi (symbol)
   (let ((value (symbol-value symbol)))
     (cond
-      ((typep value 'boolean) (princ-to-string value))
       ((null value) "NIL")
+      ((typep value 'boolean) (princ-to-string value))
       ((typep value 'number)
        (format nil "~:d (#x~x)" value value))
       ((typep value 'string)
@@ -40,7 +40,31 @@
        (format nil "@verb{| ~s |}" value))
       (t (format nil "of type ~s" (type-of value))))))
 
+(define-constant +doc-packages+
+    '(Tootsville Tootsville-User Dreamhost
+      Rollbar Thread-pool-taskmaster Chœrogryllum
+      Twilio
+      Bordeaux-Threads
+      Alexandria)
+  :test 'equalp)
+
+(defun double-@ (string)
+  "Fix up STRING to be safe in TeXInfo.
+
+Escapes @@, @{, and @} characters and adds a space after ``/'' characters."
+  (etypecase string
+    (symbol (double-@ (string string)))
+    (cons (double-@ (format nil "~{~a~^, ~}" string)))
+    (string (regex-replace-all "/"
+                               (regex-replace-all "([@{}])" string "@\\1")
+                               "/ "))))
+
 (defun texi-ref (string)
+  "Given STRING is a TeXInfo text, replace any `single-quoted' links.
+
+A single-quoted reference to a Lisp symbol will be replaced with a
+hyperlink to that section of the manual, or given an annotation if it
+is not in this manual."
   (when (or (find #\{ string) (find #\} string))
     (setf string
           (regex-replace-pairs '(("^([^@]*)}" . "@}")
@@ -52,21 +76,112 @@
             match-start match-end
             reg-starts reg-ends)
      (declare (ignore start end match-start match-end))
-     (let ((quoted (subseq target (elt reg-starts 0)
-                           (elt reg-ends 0))))
-       (if (find #\: quoted)
-           (let ((package-name (subseq quoted 0 
-                                       (position #\: quoted)))
-                 (symbol-name (subseq quoted
-                                      (position #\: quoted :from-end t))))
-             (if (ignore-errors (find-symbol symbol-name (find-package package-name)))
-                 (format nil "@ref{~a ~a}" package-name symbol-name)
-                 quoted))
-           (if-let (sym (find-symbol quoted))
-             (format nil "@ref{~a ~a}" 
-                     (package-name (symbol-package sym))
-                     (symbol-name sym))
-             quoted))))))
+     (let ((quoted (subseq target
+                           (elt reg-starts 0) (elt reg-ends 0))))
+       (if (char= #\` (char quoted 0))
+           quoted
+           (if (find #\: quoted)
+               (let ((package-name (subseq quoted 0 
+                                           (position #\: quoted)))
+                     (symbol-name (subseq quoted
+                                          (1+ (position #\: quoted :from-end t)))))
+                 (if (member (intern package-name) +doc-packages+ :test #'string-equal)
+                     (format nil "@ref{~a ~a}" 
+                             package-name
+                             (double-@ symbol-name))
+                     (format nil "~a::~a (not in this manual)"
+                             package-name
+                             (double-@ symbol-name))))
+               (if-let (sym (ignore-errors (find-symbol quoted)))
+                 (if (member (intern (package-name (symbol-package sym))) +doc-packages+)
+                     (format nil "@ref{~a ~a}" 
+                             (package-name (symbol-package sym))
+                             (double-@ (symbol-name sym)))
+                     (format nil "~a::~a (not in this manual)"
+                             (package-name (symbol-package sym))
+                             (double-@ (symbol-name sym))))
+                 quoted)))))))
+
+(assert (equal (texi-ref "Link to `TEXI-REF'") "Link to @ref{TOOTSVILLE TEXI-REF}"))
+
+(defun clean-symbols (src)
+  (if (consp src)
+      (if (proper-list-p src)
+          (loop for element in src collecting (clean-symbols element))
+          (format nil "~s" src))
+      (format nil "~a" src)))
+
+(defun write-class-docs (symbol metaobject s)
+  "Write documentation for class named SYMBOL with metaobject METAOBJECT to stream S"
+  (format s "~&@tindex ~:(~a~)" symbol)
+  (let ((superclasses (mapcar #'class-name (sb-mop:class-direct-superclasses metaobject))))
+    (princ (texi-ref
+            (format nil "~2&@subsection Class~%~:(~a~) names a class, with ~r superclass~:*~[.~;~
+: ~{~a~}.~;~
+es: ~{~a and ~a~}~;~
+es: ~{~a, ~a, and ~a~}~:;~
+es: ~{~a~^, ~}.~]"
+                    symbol (length superclasses)
+                    (mapcar (lambda (class)
+                              (format nil "`~a::~a'"
+                                      (package-name (symbol-package class))
+                                      (symbol-name class)))
+                            superclasses)))
+           s))
+    (when-let ((doc (documentation metaobject t)))
+      (format s "~2&~a~2%" doc))
+    (if-let ((slots (ignore-errors (sb-mop::class-slots metaobject))))
+      (progn
+        (format s "~2&@subsection Slots")
+        (format s "~2&Class ~:(~a~) has ~:d direct slot definition~:p:~2%@table @code~%"
+                symbol (length slots))
+        (dolist (slot slots)
+          (format s "~&@item ~:(~a~)~%~a~%"
+                  (sb-mop:slot-definition-name slot)
+                  (or (if (or (eql 'sb-pcl::structure-effective-slot-definition
+                                   (class-name (class-of slot)))
+                              (eql 'sb-pcl::condition-effective-slot-definition
+                                   (class-name (class-of slot))))
+                          ""
+                          (documentation slot t))
+                      "(undocumented)")))
+        (format s "~2&@end table"))
+      (format s "~2&@subsection Slots~2%Class ~:(~a~) has no direct slots defined." symbol)))
+
+(defun write-function-docs (symbol s)
+        (let ((kind (if (macro-function symbol) "macro" "function")))
+        (format s "~&@findex ~:(~a~)~%@subsection ~:(~a~)" (double-@ symbol) kind)
+          (if-let (docu (documentation symbol 'function))
+            (format s "~2&~:(~a~) names a ~a, with lambda list~%~a:~2%~a"
+                    (double-@ symbol) kind (clean-symbols (function-lambda-list symbol))
+                    (texi-ref docu))
+            (format s "~2&~:(~a~) names an undocumented ~a, with lambda list~%~a.~2%"
+                    symbol kind (clean-symbols (function-lambda-list symbol)))))
+      (when-let (def (or (ignore-errors (sb-introspect:find-definition-source (coerce symbol 'function)))
+                         (ignore-errors (sb-introspect:find-definition-source (macro-function symbol)))))
+        (when-let (pathname (uiop:enough-pathname
+                             (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
+                                                   (asdf:component-pathname (asdf:find-system :Tootsville)))
+                             (user-homedir-pathname)))
+          (format s "~2&Defined in file ~a.~%@pnindex ~a.~a~2%"
+                  pathname (pathname-name pathname) (pathname-type pathname)))))
+
+(defun write-setf-docs (symbol s)
+  (format s "~&@findex ~:(~a~), SetF~%@findex SetF ~:(~a~)" symbol symbol)
+  (format s "~%@subsection SetF Function")
+  (if-let (docu (documentation symbol 'setf))
+    (format s "~2&(SETF ~:(~a~)) names a function, with lambda list~%~a:~2%~a"
+            symbol (clean-symbols (function-lambda-list (list 'setf symbol)))
+            (texi-ref docu))
+    (format s "~2&(SETF ~:(~a~)) names an undocumented function, with lambda list~%~a.~2%" symbol
+            (clean-symbols (function-lambda-list (list 'setf symbol)))))
+  (when-let (def (ignore-errors (sb-introspect:find-definition-source (coerce (list 'setf symbol) 'function))))
+    (when-let (pathname (uiop:enough-pathname
+                         (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
+                                               (asdf:component-pathname (asdf:find-system :Tootsville)))
+                         (user-homedir-pathname)))
+      (format s "~2&Defined in file ~a.~%@pnindex ~a.~a~2%"
+              pathname (pathname-name pathname) (pathname-type pathname)))))
 
 (defun write-documentation (symbol s)
   (when (char= #\% 
@@ -75,60 +190,45 @@
   (when (or (boundp symbol)
             (fboundp symbol)
             (fboundp (list 'setf symbol))
+            (ignore-errors (find-class symbol))
             (documentation symbol 'structure)
             (documentation symbol 'type))
     (format s "~2&@node ~a ~a~%@section ~:(~a~)::~:(~a~)~%"
             (package-name (symbol-package symbol)) (double-@ (symbol-name symbol))
             (package-name (symbol-package symbol)) (double-@ (symbol-name symbol)))
     (when (fboundp symbol)
-      (let ((kind (if (macro-function symbol) "macro" "function")))
-        (format s "~&@findex ~:(~a~)" symbol)
-        (if-let (docu (documentation symbol 'function))
-          (format s "~2&~:(~a~) names a ~a, with lambda list ~s:~2%~a" symbol kind
-                  (function-lambda-list symbol) (texi-ref docu))
-          (format s "~2&~:(~a~) names an undocumented ~a, with lambda list ~s.~2%" symbol kind (function-lambda-list symbol))))
-      (when-let (def (or (ignore-errors (sb-introspect:find-definition-source (coerce symbol 'function)))
-                         (ignore-errors (sb-introspect:find-definition-source (macro-function symbol)))))
-        (format s "~2&(Defined in file ~a)~2%"
-                (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
-                                      (asdf:component-pathname (asdf:find-system :Tootsville))))))
+      (write-function-docs symbol s))
     (when (fboundp (list 'setf symbol))
-      (format s "~&@findex ~:(~a~), SetF
-@findex SetF ~:(~a~)" symbol symbol)
-      (if-let (docu (documentation symbol 'setf))
-        (format s "~2&(SETF ~:(~a~)) names a function, with lambda list ~s:~2%~a" symbol (function-lambda-list symbol)
-                (texi-ref docu))
-        (format s "~2&(SETF ~:(~a~)) names an undocumented function, with lambda list ~s.~2%" symbol
-                (function-lambda-list symbol)))
-      (when-let (def (ignore-errors (sb-introspect:find-definition-source (coerce (list 'setf symbol) 'function))))
-        (when-let (path (uiop:enough-pathname (sb-introspect:definition-source-pathname def) 
-                                              (asdf:component-pathname (asdf:find-system :Tootsville))))
-          (format s "~2&(Defined in file ~a)~2%"
-                  path))))
+      (write-setf-docs symbol s))
     (when (boundp symbol)
       (format s "~&@vindex ~:(~a~)" symbol)
       (if-let (docu (documentation symbol 'variable))
-        (format s "~2&~:(~a~) names a variable:~2%~a~2%Its value is ~a"
+        (format s "~2&@subsection Variable~%~:(~a~) names a variable:~2%~a~2%Its value is ~a"
                 symbol (texi-ref docu) (value-to-texi symbol))
-        (format s "~2&~:(~a~) names an undocumented variable with the value ~a"
+        (format s "~2&@subsection Variable~%~:(~a~) names an undocumented variable with the value ~a"
                 symbol (value-to-texi symbol))))
     (dolist (kind '(structure type))
       (when-let (docu (documentation symbol kind))
         (format s "~&@tindex ~:(~a~)" symbol)
-        (format s "~2&~:(~a~) names a ~a:~2%~a" symbol kind (texi-ref docu))))))
+        (format s "~2&@subsection ~:(~a~)~%~:(~a~) names a ~a:~2%~a" kind symbol kind (texi-ref docu))))
+        (when-let (metaobject (ignore-errors (find-class symbol)))
+      (write-class-docs symbol metaobject s))))
 
 (defun gather-all-symbols ()
   ;; XXX split into chapters by package
   (let (list)
     (do-all-symbols (symbol list)
       (when (member (symbol-package symbol)
-                    (mapcar #'find-package '(Tootsville Tootsville-User Dreamhost
-                                             Rollbar Thread-pool-taskmaster Chœrogryllum
-                                             Bordeaux-Threads
-                                             Alexandria
-                                             Common-Lisp)))
+                    (mapcar #'find-package +doc-packages+))
         (push symbol list)))
     (reverse (remove-duplicates list))))
+
+(defun all-symbols-alphabetically ()
+  (sort (gather-all-symbols) #'string-lessp
+                        :key (lambda (symbol)
+                               (format nil "~a::~a"
+                                       (package-name (symbol-package symbol))
+                                       (symbol-name symbol)))))
 
 (defun write-docs ()
   "Write out the documentation in TeΧinfo format."
@@ -255,6 +355,8 @@ Copyright @copyright{} 2008-2017 Bruce-Robert Pocock
 Copyright @copyright{} 2018-2021 The Corporation for Inter-World Tourism
 and Adventuring @url{https://ciwta.org/}
 
+This manual is based upon manual-generating code taken from Declt 2.3.
+
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
 preserved on all copies.
@@ -279,6 +381,9 @@ except that this permission notice may be translated as well.
 @end quotation
 @end copying
 
+@c pathname index
+@defindex pn
+
 @titlepage
 @title The Book of Romance II
 @subtitle A reference manual for Tootsville V, version ~:*~a.
@@ -286,9 +391,6 @@ except that this permission notice may be translated as well.
 @author Bruce-Robert Pocock <@email{BRPocock@@ciwta.org}>
 
 @page
-@quotation
-This manual is based upon materials taken from Declt 2.3.
-@end quotation
 @vskip 0pt plus 1filll
 @insertcopying
 @end titlepage
@@ -301,15 +403,16 @@ This manual is based upon materials taken from Declt 2.3.
 
 This is The Book of Romance II, describing the Romance II game core
 and Tootsville V in particular. This manual is generated from the
-docstrings found in the Tootsville package and supporting packages.
-
-@menu
+docstrings found in the Tootsville package and supporting packages."
+              (asdf:component-version (asdf:find-system :Tootsville)))
+      (format docs "~2%@menu
 * Copying:: The GNU Affero General Public License
 * Introduction:: What Tootsville V (Romance II) is all about
-* Definitions:: The symbols documentation
+* Definitions:: Index of defined symbols
+~{* ~a:: Symbols in package ~:*~a~%~}~
 * Javascript:: The front-end documentation
 * Conclusion:: Time to go
-* Indices:: Concepts, functions, variables and data types
+* Indices:: Concepts, functions, variables, data types, and pathnames
 @end menu
 
 @insertcopying
@@ -338,7 +441,11 @@ MA 02139, USA.
 
 @node Introduction
 @chapter Introduction ~2%"
-              (asdf:component-version (asdf:find-system :Tootsville)))
+              
+              (mapcar #'string-capitalize
+                      (mapcar #'package-name
+                              (remove-duplicates (mapcar #'symbol-package
+                                                         (all-symbols-alphabetically))))))
       (princ (alexandria:read-file-into-string
               (merge-pathnames #p"src/doc/Introduction.texi" source-dir))
              docs)
@@ -347,17 +454,21 @@ MA 02139, USA.
 @node Definitions
 @chapter Definitions
 
+The following chapters provide documentation of symbols in each of the
+main packages used by Tootsville. Many other libraries are relied upon
+as well, whose documentation may not have been included here.
+
 @menu
 ")
-      
-      (let ((defs (sort (gather-all-symbols) #'string-lessp
-                        :key (lambda (symbol)
-                               (format nil "~a::~a"
-                                       (package-name (symbol-package symbol))
-                                       (symbol-name symbol))))))
+      (let ((defs (all-symbols-alphabetically))
+            (last-package nil))
         (format docs "~{~%* ~a::~}" defs)
         (format docs "~&@end menu~2% ")
         (dolist (symbol defs)
+          (unless (eql last-package (symbol-package symbol))
+            (setf last-package (symbol-package symbol))
+            (format docs "~2&@chapter Package ~:(~a~)~2%"
+                    (package-name (symbol-package symbol))))
           (write-documentation symbol docs)))
       
       (princ (read-file-into-string (merge-pathnames #p"../tootsville.org/dist/doc.texi"
@@ -440,7 +551,7 @@ The following systems (libraries) are compiled into the Tootsville server
 @section The Steel Bank Common Lisp compiler
 
 Tootsville is developed and compiled using the Steel Bank Common Lisp
-compiler
+compiler.
 
 @verbatim
 ~a
@@ -448,7 +559,8 @@ compiler
  "
               +credits+
               (all-credits)
-              (read-file-into-string "/usr/share/doc/sbcl/CREDITS"))
+              (or (ignore-errors (read-file-into-string #p"/usr/share/doc/sbcl/CREDITS"))
+                  ""))
       
       (format docs "
 
@@ -478,6 +590,7 @@ Google Closure Javascript compressor
 * Function index::
 * Variable index::
 * Data type index::
+* Pathname index::
 @end menu
 
 
@@ -517,6 +630,13 @@ Google Closure Javascript compressor
 @node Data type index
 @appendixsec Data types
 @printindex tp
+
+@page 
+
+@c Pathname index
+@node Pathname index
+@appendixsec Pathnames
+@printindex pn
 
 @bye
 

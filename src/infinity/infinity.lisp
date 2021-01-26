@@ -102,6 +102,8 @@ Used by the WebSockets and direct TCP stream handlers."
 (defmacro definfinity (name (lambda-list user-var plane-var) &body body)
   "Define an Infinity-mode “c” command NAME.
 
+@cindex Infinity Mode Protocol
+
 And now, let's talk about the Infinity Mode protocol.
 
 @subsection History of Infinity Mode

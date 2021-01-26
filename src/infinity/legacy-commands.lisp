@@ -505,10 +505,6 @@ u - The calling user. The calling user's avatar data will not be returned."
 
 This command requires no parameters
 
-@subsection Status 200 OK
-
-WRITEME
-
 @subsection Status 410 Gone
 
 Removed.. This  routine appeared to be  unused by anyone in  Romance 1.1
@@ -544,9 +540,9 @@ Returns a set of items as
 inv: { 0: { id: 123, isActive: boolean }, ... }
 @end verbatim
 
-furniture with  placement data  will also  have x,  y, and  facing vars.
-Other attributes  are \"from\":\"inventory\",  \"type\": matching the  type of
-the question
+furniture with placement data will also have x, y, z, and facing vars.
+Other attributes are \"from\":\"inventory\", \"type\": matching the
+type of the question
 
 WRITEME
 
@@ -1079,6 +1075,8 @@ as well.
 (definfinity prompt-reply ((id reply) user recipient/s)
   "Accept a reply to a server-initiated prompt
 
+@cindex Server Prompts
+
 @subsection Usage
 
 @verbatim
@@ -1111,13 +1109,16 @@ as well.
 
 Where:
 
-$ID = arbitrary string with no \0 representing this question uniquely.
-This is not an user-visible string.
-
-$LABEL  =  concatenated to  the  window  title,  but  can be  used  to
+@table @code
+@item $ID
+arbitrary string with no \0 (null byte) representing this
+question uniquely.  This is not an user-visible string.
+@item $LABEL
+concatenated to  the  window  title,  but  can be  used  to
 special-case / theme dialogs in future for certain purposes
-
-$TITLE = dialog title
+@item $TITLE
+dialog title
+@end table
 
 Only one of either ``attachUser'' or ``attachItem'' will be included.
 $AVATAR_LABEL is the full avatar label of the user/avatar to which the
@@ -1643,6 +1644,11 @@ Example!:
 (definfinity set-avatar-color ((base extra) user recipient/s)
   "Set the avatar base and extra (pad) colours for the given user.
 
+This function is no longer available. Doodle must change the avatar's
+color now.
+
+@subsection Romance 1.1 instructions
+
  Colour numbers  are given in  X'RRGGBB' form  as an integer  — to
  compute one from byte (0..255) RGB values, do ( red << 16 & green
  << 8 & blue )
@@ -1667,6 +1673,51 @@ SQLException - if the palettes can't be loaded"
 (definfinity set-furniture ((item slot x y z facing remove) user recipient/s)
   "Set or change a furniture item.
 
+There are 3 distinct forms in which this command can be used.
+
+@table @code
+@item item
+To add a piece of furniture to the area, send a packet with the
+following data:
+@table @code
+@item item
+The item's class number --- WRITEME @dots{}
+You must have an item of this type in your inventory.
+@item x, y, z
+The position at which to place the item
+@item facing
+The angle (in radians) of the facing of this item. Alternatively, for 
+backward compatibility with 1.2, the facing direction can be
+specified as @code{N}, @code{NE}, @code{E}, @code{SE}, @code{S},
+@code{SW}, @code{W}, or @code{NW} (case-insensitive).
+@end table
+@item slot
+To position or reposition a particular item by its UUID, send a
+packet like:
+@table @code
+@item slot
+The item's UUID. This item must be in your inventory.
+@item x, y, z
+The position at which to (re)position the item
+@item facing
+The angle (in radians) of the facing of this item. Alternatively, for 
+backward compatibility with 1.2, the facing direction can be
+specified as @code{N}, @code{NE}, @code{E}, @code{SE}, @code{S},
+@code{SW}, @code{W}, or @code{NW} (case-insensitive).
+@end table
+@item remove
+Remove a furniture item from the scene, putting it back into your
+inventory. The packet keys will look like:
+@table @code
+@item remove
+This value must be @code{true}.
+@item slot
+The UUID of the item to remove from the scene.
+@end table
+@end table
+
+@subsection Romance 1.2 instructions
+
 To add  a structural item  to the room,  put item: 123  without anything
 else.  To place  furniture  on  the floor,  also  add  attributes x,  y,
 and facing.
@@ -1685,22 +1736,23 @@ jso - @{ slot:  #, x: #, y: #, facing:  $ @} or @{ item: #,  x: #, y: #,
 
 room - The room in which this user is standing
 
-Throws:
+@subsection Changes in 2.0
 
-org.json.JSONException - Thrown  if the data cannot  be interpreted from
-the JSON objects passed in, or conversely, if we can't encode a response
-into a JSON form
-
-NotFoundException - if the furniture doesn't exist
-
-Changes since 2.0:
-
+@itemize
+@item
 z position is required
-
+@item
 structural items no longer exist
-
+@item
 slot is the item's UUID
+@end itemize
 
+@subsection 200 OK
+
+@subsection 400 Error in parameters
+
+This error is thrown if the parameters are not in one of
+the accepted formats
 "
   (cond
     (remove
@@ -1717,6 +1769,10 @@ slot is the item's UUID
 
 (definfinity set-room-var ((&rest key+value-pairs) user recipient/s)
   "Set a room variable or set of room variables.
+
+There are no longer room variables (as such) in Romance 2.0.
+
+@subsection Romance 1.2 instructions
 
  Parameters:
  jso - key-value pair(s) for room variable(s) to be set
@@ -1740,6 +1796,8 @@ slot is the item's UUID
 { wtl: course: { COURSE }, facing: FACING }
 
 { d3: course: { COURSE } }
+
+{ xpr: \"expression\" }
 @end verbatim
 
 This is a legacy-type method.
@@ -1759,23 +1817,21 @@ actually supported:
 @table @code
 
 @item d
-
-This is the legacy ``d'' string  for purposes of positioning and guiding
-a  character. Since  it  was  designed for  a  2-dimensional space,  the
-coördinate space is treated as (x,z) rather than (x,y). Since Romance II
-clients are expected  to use @code{wtl} or @code{d3}  packets only, this
-will be translated into a @code{wtl} course and then transmitted.
+This is the legacy ``d'' string for purposes of positioning and
+guiding a character. Since it was designed for a 2-dimensional space,
+the coördinate space is treated as (x,z) rather than (x,y) if there is
+no ``z'' coördinate given. Since Romance II clients are expected to
+use @code{wtl} or @code{d3} packets only, this will be translated into
+a @code{wtl} course and then transmitted.
 
 @item wtl
-
 See `INFINITY-WTL' for the structure of this linear course.
 
 @item d3
-
-This is an experimental format not used in Romance 2.0.
+This is an experimental format not yet used in Romance 2.0. It will
+support more complex path descriptions.
 
 @item xpr
-
 This sets the player's expression (on  their face); not yet supported in
 Tootsville V.
 
@@ -1853,6 +1909,8 @@ This is used to establish a new server pairing ...
 (definfinity speak ((key speech vol) user recipient/s)
   "The user speaks SPEECH at volume VOL in public.
 
+@cindex Speaking, Speech
+
 Handle speech by the user.
 
 Speech is public to all users in an area.
@@ -1890,7 +1948,8 @@ things that are --- well, just plain obnoxious.
 @item
 SPEECH IN ALL CAPS  is converted into lower-case; if it  was meant to be
 whispered, it will  instead be spoken (@code{talk}); if it  was meant to
-be spoken, it will instead by shouted.
+be spoken, it will instead be shouted. Shouted text in all caps remains 
+shouted (but is still in lower-case).
 
 @item
 Sentences with lots of punctuation!!  are fixed; aside from ellipses, no
@@ -1920,14 +1979,102 @@ sign).    A   server   command   is  any   unary   function   in   the
 
 @item @@
 @code{@@}-messages are whispered directly to the named character, if
-they are located somewhere in the nearby area.
+they are located somewhere in the nearby area. For example, 
+@code{@@Catvlle Hello!} will whisper the phrase @code{Hello!} to only
+the player @code{Catvlle}.
 
 @item /
-Emotes begin with @code{/}.
+Emotes begin with @code{/}. Emotes set the expression of the character
+to one of a predefined list of expresssions, or display an emoji speech
+balloon. 
 
-@item \ ! % _ ^ |
+Why these specific emojis? Backward compatiblity. This list of emotes
+was inherited from Tootsville IV.
 
-These characters are reserved for future use.
+The emoji items might be replaced with more detailed animations in the
+future.
+
+A few of the emotes actually have even more complex behavior, as noted 
+in the index below.
+
+@cindex Emotes
+
+@table @code
+@item smile
+The expression on the character's face should change to a smile.
+@item frown
+The expression on the character's face should change to a frown.
+@item wink
+The character should make an excaggerated wink.
+@item sick
+The expression on the character's face should change to disgust.
+@item whoa
+The expression on the character's face should change to surprise.
+@item cool
+An emoji of a smiling face wearing sunglasses.
+@item cheese
+The expression on the character's face should change to a smile
+with tongue stuck out.
+@item angry
+The expression on the character's face should change to anger.
+@item silly
+The expression on the character's face should change to a silly face.
+@item sleep
+The character's face should look as though they are sleeping. Also,
+a special ``Zzz'' graphic should appear over their head.
+@item meh
+The expression on the character's face should change to disinterest.
+@item cry
+The character should begin to cry.
+@item pizza
+An emoji of a pizza.
+@item burger
+An emoji of a burger.
+@item hotdog
+An emoji of an hot dog.
+@item fries
+An emoji of a pack of French fries.
+@item drink
+An emoji of a glass of an unidentified beverage.
+@item icecream
+An emoji of ice cream.
+@item cake
+An emoji of a slice of cake.
+@item game
+WRITEME
+@item dice
+An emoji will be spoken showing a single 6-sided die; however, the number of pips
+shown (1-6) will be random.
+@item coin
+An emoji will be spoken showing a coin; however, whether that coin shows as
+head or tails will be random.
+@item heart
+A heart emoji
+@item broken
+A broken heart emoji
+@item rps
+An emoji will appear with a random selection from: rock, paper, scissors.
+@item music
+A musical note emoji.
+@item rainbow
+A rainbow emoji.
+@item lol
+The character's expression should change to laughter.
+@item rain
+A raincloud emoji.
+@item huh
+The character's expression should change to confusion.
+@end table
+
+@item \ % _ ^ |
+
+These characters are reserved for future use. You cannot speak a line
+beginning with them.
+
+@item ? !
+
+For convenience of Spanish speakers, sentences beginning with @code{?}
+or @code{!} are converted into @code{¿} and @code{¡}.
 
 @end table
 
@@ -1990,7 +2137,7 @@ operator command @code{#dumpthreads}.
 Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
 Levi Mc Call, and Zephyr Salz.
 
-In memory of the contributions of Maureen Kenny.
+In memory of the contributions of Maureen Kenny (RIP).
 
 Tootsville IV by Brandon Booker, Gene Cronk, Robert Dawson, Eric
 Feiling, Tim Hays, Sean King, Mark Mc Corkle, Cassandra Nichol,
@@ -2005,6 +2152,8 @@ Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC."
   "Attempt to begin a Quaestor Event. Might return an error.
 
 The bulk of the actual work is in `QUAESTOR-START-EVENT', q.v.
+
+@cindex Quaestor Events
 
 @subsection What is a ``Quaestor Event''?
 
@@ -2051,6 +2200,8 @@ an UUID.
 
 There are several possible responses.
 
+@subsubsection Event already completed
+
 @verbatim
 { from: \"startEvent\",
   status: false,
@@ -2067,6 +2218,8 @@ rejection; there is not inherently any  explanation to the client of the
 circumstances --- in particular, the client  is not informed when (or by
 whom) the event can be fired again.
 
+@subsubsection Event started successfully
+
 @verbatim
 { from: \"startEvent\",
   status: true,
@@ -2077,6 +2230,8 @@ This is the short form. It means  that the event can be started, and the
 caller had better know what to do about it; typically, that will only be
 to  turn  around  and  immediately call  `INFINITY-END-EVENT'  with  the
 provided event ID.
+
+@subsubsection Event requires a download to begin
 
 @verbatim
 { from: \"startEvent\",
@@ -2107,10 +2262,10 @@ This is the modern long form. The client is expected to:
 Download @code{blah.js}
 
 @item 
-
-Call   the  function   @code{Tootsville.Event[\"foo\"]}  ---   that  is,
-literally,  look  in  the   global  object  @code{Tootsville.Event}  for
-a function named @code{foo} --- with the event ID as its parameter.
+Call the function @code{Tootsville.Event[\"foo\"](eventID)} ---
+that is, literally, look in the global object @code{Tootsville.Event}
+for a function named @code{foo} --- with the event ID as its
+parameter.
 
 @end itemize
 
@@ -2163,6 +2318,14 @@ The @code{moniker} passed was invalid.
 
 This event is now open, and will remain open until it has been completed
 or canceled using `INFINITY-END-EVENT', q.v.
+
+@subsection Quaestor Events in Detail
+
+@subsubsection Magic Fountains
+@subsubsection Shops
+@subsubsection Secrets and Treasures
+@subsubsection Minigames
+
 "
   (quaestor-start-event moniker *Toot*))
 

@@ -34,7 +34,7 @@
 
 
 (defsystem Tootsville
-  :version "0.6.7"
+  :version "0.6.8"
   :author "Bruce-Robert Pocock <BRPocock@ciwta.org>"
   :license "AGPL v3+"
   :bug-tracker "https://github.com/adventuring/tootsville.net/issues"
@@ -73,7 +73,7 @@ REST services for the front-end."
                :trivial-signal
                :uiop
                :uuid
-               :zeromq
+               ;:zeromq
 
                ;; Systems that travel bundled with Tootsville
 
@@ -136,7 +136,7 @@ REST services for the front-end."
                              (:module "db"
                               :depends-on ("package-post")
                               :components ((:file "memcached")
-                                           (:file "zeromq")
+                                           ; (:file "zeromq")
                                            (:file "maria" :depends-on ("memcached"))
                                            (:file "generic-db" :depends-on ("memcached"))
                                            (:file "db-central" :depends-on ("maria" "generic-db"))

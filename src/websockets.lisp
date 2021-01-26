@@ -548,7 +548,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defun ws-sign-in-user (client &optional (user *user*))
   "Sign in USER on CLIENT connection.
 
-The full procedure comes about from `WS-PERFORM-SIGN-IN.' This function
+The full procedure comes about from `WS-PERFORM-SIGN-IN'. This function
 only handles the low-level bookkeeping."
   (when (not (eql t user))
     (setf (user-account client) user

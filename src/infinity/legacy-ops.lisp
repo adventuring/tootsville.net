@@ -904,21 +904,27 @@ Examples
 
 @subsection Headcount All
 
-WRITEME
+Gives the total number of users online now.
 
 @subsection Headcount Members
 
-WRITEME
+Gives the total number of patron users or builder Toot users online now.
 
 @subsection Headcount Room
 
-WRITEME
+Gives the total number of users who are within ``earshot'' of the
+person invoking this command.
 
 @subsection Headcount Highwater
 
-WRITEME
+Gives the high-water mark of the maximum number of simultaneous users
+who have been online since the last boot.
 "
-  (error 'unimplemented))
+  (string-case (first words)
+    ("#all" (error 'unimplemented))
+    ("#members" (error 'unimplemented))
+    ("#room" (error 'unimplemented))
+    ("#highwater" (error 'unimplemented))))
 
 (define-operator-command inv (words user plane)
   "UNIMPLEMENTED
@@ -1097,7 +1103,7 @@ unsaved or recent changes.
 (define-operator-command mem (words user plane)
   "Display some memory usage and other debugging type information as an pop-up message. 
 
-This is an abbreviated version of the output of `ROOM'
+This is an abbreviated version of the output of `ROOM' on the server.
  
 @subsection Usage
 
@@ -1125,6 +1131,15 @@ Control and binding stack usage is for the current thread only.
 Garbage collection is currently enabled.
 @end example
 
+Note that the output of `ROOM' can vary wildly depending on the
+compiler used; the above is from a build of Tootsville compiled under
+SBCL, which is the expected environment, but there is no guarantee
+that this will not change in future.
+
+@subsection Changes from 1.2
+
+In Romance 1, we were running in a Java Virtual Machine (JVM), so the
+output of @code{mem} was quite differently formatted.
 "
   (format nil "This server is ~a. <pre>~a</pre>"
           (machine-instance)
@@ -1185,16 +1200,17 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
  "
   (string-case (or (first words) "#help")
     ("#help"
-     "Usage: #metronome [OPTION] where [OPTION] is one of: #help #rate #last #start #stop #restart #tick #list, or #cancel NAME")
+     "Usage: #metronome [OPTION] where [OPTION] is one of: \
+#help #rate #last #start #stop #restart #tick #list, or #cancel NAME")
     ("#rate" "The metronome runs every second (1000ms)")
     ("#last"
      (let ((last (1- *metronome-next-tick*)))
        (format nil
                "The last metronome tick was at ~d — ~:d second~:p ago"
                last (- (get-universal-time) last))))
-    ("#start" (format nil "Starting: ~s"
+    ("#start" (format nil "Starting: ~/HTML/"
                       (start-game-metronome)))
-    ("#stop" (format nil "Stopping: ~s"
+    ("#stop" (format nil "Stopping: ~/HTML/"
                      (stop-game-metronome)))
     ("#restart" (format nil "Stopping: ~/HTML/; Starting: ~/HTML/"
                         (stop-game-metronome)
@@ -1210,11 +1226,12 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
                      ((null potentials)
                       (format nil "There are no tasks matching ~a" task-name))
                      ((= 1 (length potentials))
-                      (format nil "Removing ~a from metronome: ~/HTML/"
+                      (format nil "Removing ~/HTML/ from metronome: ~/HTML/"
                               (metronome-task-name (first potentials))
                               (metronome-remove (first potentials))))
                      (t 
-                      (format nil "There are ~:d task~:p matching ~a"
+                      (format nil "There are ~:d task~:p matching ~a. \
+Use #metronome #list to enumerate tasks."
                               (length potentials) task-name))))))))
 
 (define-operator-command motd (words user plane)
@@ -1233,18 +1250,47 @@ Example:
  #motd Don't forget that Hallowe'en in Tootsville is on the 30th --- get your costumes ready!
 @end example
 
- The message of the day is echoed  to every user as they sign in, before
- they choose a Toot. It is @emph{not} echoed to children."
+The message of the day is echoed  to every user as they sign in, before
+they choose a Toot. It is @emph{not} echoed to children.
+
+@subsection Changes from 1.2
+
+In Romance II, we do not display the MotD to children, but their
+parents will see it when approving their sign-on."
   (when (not (emptyp words))
     (setf *motd* (format nil "~{~a~^ ~}" words))))
 
 (define-operator-command mute (words user plane)
-  "Mute a user or area
+  "Mute a user or area. 
+
+This is a simpler form of `TOOTSVILLE-USER:STFU' that does not accept a duration.
+
+@example
+#mute user-name
+@end example
+
+The player muted will receive an admin message:
+
+@example
+You are no longer allowed to speak in Tootsville.
+@end example
+
+The invoking user will receive a confirmation.
+
+@example
+USER-NAME is no longer allower to speak in Tootsvillle.
+@end example
+
+If the user cannot be found,
+
+@example
+Can't find user “USER-NAME”
+@end example
+WRITEME
 
 UNIMPLEMENTED
 
- See Also:
- `TOOTSVILLE-USER::STFU'
+ See Also: `TOOTSVILLE-USER::STFU'
 "
   (error 'unimplemented))
 
@@ -1696,13 +1742,17 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
 (define-operator-command setvar (words user plane)
   "UNIMPLEMENTED
 
+@subsection Description from Romance 1.2
+
  Set a room variable. Must have staff level 4 (DESIGNER) to use this command.
 
  Syntax for use
- #setvar #replace VARIABLE FIND REPLACE
+ #setvar #replace [@@ROOM] VARIABLE FIND REPLACE
  #setvar [@@ROOM] VARIABLE VALUE...
  
- WARNING: SETTING ROOM VARIABLES TO INVALID VALUES CAN CAUSE UNEXPECTED RESULTS. DOUBLE CHECK ALL VALUES BEING SET FOR CORRECTNESS.
+ @b{WARNING: SETTING ROOM VARIABLES TO INVALID VALUES CAN CAUSE
+ UNEXPECTED RESULTS. DOUBLE CHECK ALL VALUES BEING SET FOR
+ CORRECTNESS.}
 
  Use #replace to change a room variable from one value to another.
 
@@ -1805,6 +1855,9 @@ whom it is applied.
 
 If no  time limit is  given, it is effective  for 24 Earth  hours (1,440
 Earth minutes).
+
+See also: `TOOTSVILLE-USER:MUTE' for a more direct form that does not
+have a fixed duration.
   "
   (error 'unimplemented))
 
@@ -1844,6 +1897,14 @@ Example
 Now  it is  2020-05-18T02:14:08.676610-04:00 (Universal:  3,798,771,248;
 Unix: 1,589,782,448)
 @end example
+
+@subsection Changes from 1.2
+
+The output format has changed. The old version only displayed the Unix
+time in seconds, without commas.
+
+TODO: Display also the date and time in Chœrogryllum notation.
+
   "
   (format nil "Now it is ~a (Universal: ~:d; Unix: ~:d)"
           (now) (get-universal-time) (- (get-universal-time) +unix-time-in-universal+)))
@@ -1944,7 +2005,11 @@ Example
   (error 'unimplemented))
 
 (define-operator-command wallzones (words user plane)
-  "
+  "Write to all zones.
+
+This is now the same as `TOOTSVILLE-USER::WALL', qv.
+
+@subsection Instructions from Romance 1.2
 
  Sends an  pop-up message to  all everyone  in every zone.  Must have
  staff level 8 (DEVELOPER) to use this command.
@@ -1965,39 +2030,24 @@ u - The user invoking the operator command
 room  - The  room in  which the  user is  standing (as  a room  number).
 This can be -1 under certain circumstances.
 "
-  (error 'unimplemented))
+  (tootsville-user::wall words user plane))
 
 (define-operator-command warn (words user plane)
   "Warn a user about breaking a rule.
 
+@subsection Usage
+
  Syntax for use: #warn [REASONCODE] [LOGIN]
 
- Examples
- #warn obs.rude pil
+@subsection Example
 
- Reason Codes:
+@example
+ #warn BULLY Pil
+@end example
 
-WRITEME ... these are no longer used ...  see `KICK' for the current list
+@subsection Reason Codes
 
- PER.MAIL = Don't share personal information like eMail addresses!
- PER.NAME = Don't share personal information like your real name!
- PER.PASS = Don't share personal information like passwords!
- PER.CHAT = Don't share personal information like chat and instant messaging \ information!
- PER.LOCA = Don't share personal information like your location!
- PER.AGES = Don't share personal information like your age!
- PER.BDAY = Don't share personal information like your birth date!
- BUL.MEAN = Don't be mean!
- OBS.RUDE = Don't be rude!
- OBS.FOUL = Don't use foul words!
- NET.CHTR = No cheating!
- APP.PARN = You need your parent's permission in order to chat in Tootsville.
- APP.MAIL = You need to confirm your eMail address in order to chat in Tootsville.
- APP.AGES = Lying about your birth date is against the law!
-
- Parameters:
-
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
+See `KICK' for the current list
 
 "
   (error 'unimplemented))

@@ -402,11 +402,6 @@ Hopefully you've already tested the changes?"
 
 
 
-(defun double-@ (string)
-  (etypecase string
-    (cons (double-@ (format nil "~{~a~^, ~}" string)))
-    (string (regex-replace-all "([@{}])" string "@\\1"))))
-
 (defun describe-system (system s)
   (format s "~2%@subsection System ~:(~a~)" (double-@ (asdf:component-name system)))
   (when-let (description (asdf:system-description system))
@@ -417,10 +412,16 @@ Hopefully you've already tested the changes?"
     (format s "~2%Maintainer: ~a" (double-@ maintainer)))
   (when-let (license (asdf:system-license system))
     (format s "~2%License: ~a" (double-@ license)))
-  (when-let (readme (or (probe-file (asdf:system-relative-pathname system "CREDITS"))
-                        (probe-file (asdf:system-relative-pathname system "CREDITS.txt"))))
-    (format s "~2%@verbatim~%~a~%@end verbatim~2%"
-            (read-file-into-string readme))))
+  (ignore-errors
+   (when-let (credits (or (probe-file (asdf:system-relative-pathname system "COPYING"))
+                          (probe-file (asdf:system-relative-pathname system "COPYING.txt"))))
+     (format s "~2%@verbatim~%~a~%@end verbatim~2%"
+             (read-file-into-string credits))))
+  (ignore-errors
+   (when-let (credits (or (probe-file (asdf:system-relative-pathname system "CREDITS"))
+                          (probe-file (asdf:system-relative-pathname system "CREDITS.txt"))))
+     (format s "~2%@verbatim~%~a~%@end verbatim~2%"
+             (read-file-into-string credits)))))
 
 (defun all-credits ()
   (let ((systems-seen (list))

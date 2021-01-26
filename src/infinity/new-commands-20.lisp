@@ -573,6 +573,8 @@ The Toot named CHARACTER must exist.
                       Toot r)
   "Quiesce Toot values to database for logout, or periodically as a backup.
 
+@cindex Quiescing and Burgeoning 
+
 @subsection Usage
 
 @verbatim
@@ -583,8 +585,20 @@ The Toot named CHARACTER must exist.
   latitude: LAT,
   longitude: LONG,
   altitude: ALT }
+@end verbatim
 
-WRITEME
+A quiescent copy of the character information will be saved in a
+central database. Should the player lose connection and not
+successfully reconnect, eg. should the player quit by closing their
+browser altogether, or lose Internet connectivity, &c., the last
+quiesced form of their character will be restored when they reconnect.
+
+Note that, as with the rest of the system, we are currently using
+@code{wtl} but are building up the infrastructure for @code{d3}
+walking in future. When both a @code{wtl} and a @code{d3} value exist,
+the @code{d3} value supersedes the @code{wtl}. @code{d} walking values
+must be encoded in @code{wtl} form, but @code{d} walking values are
+not expected in Tootsville V.
 
 @subsection Status 200 OK
 

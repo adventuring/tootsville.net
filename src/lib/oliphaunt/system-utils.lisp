@@ -5,6 +5,7 @@
 ;;; ASDF Systems and dependencies
 
 (defun asdf-system-dependencies (child)
+  "Enumerate ASDF system dependencies of CHILD"
   (list*
    (ignore-errors (slot-value (asdf:find-system child)
                               'asdf::load-dependencies))
@@ -25,6 +26,7 @@
     (t (warn "Unrecognized kind of dependency: ~s for ~a" system parent))))
 
 (defun prerequisite-systems (&optional (child :romance-ii))
+  "The prerequisite systems needed to load CHILD"
   (check-type child string-designator)
   (assert child)
   (if-let ((prereqs (remove-duplicates
@@ -92,14 +94,16 @@
   (loop
      for path in (directory asdf-dir)
      when (member (make-keyword (string-upcase
-                                 (pathname-name path))) +license-words+)
+                                 (pathname-name path)))
+                  +license-words+)
      return (pathname path)))
 
 (defun find-license-file-in-asdf-doc-dir (asdf-dir)
   (loop
      for path in (directory (merge-pathnames "doc/" asdf-dir))
      when (member (make-keyword (string-upcase
-                                 (pathname-name path))) +license-words+)
+                                 (pathname-name path)))
+                  +license-words+)
      return (pathname path)))
 
 (defun find-readme-file-in-asdf-dir (system asdf-dir)
@@ -151,7 +155,7 @@
 
   (strcat
    "Romance Game System
-Copyright © 1987-2015, Bruce-Robert Pocock;
+Copyright © 1987-2021, Bruce-Robert Pocock;
 
 This program is free software: you may use, modify, and/or distribute it
  *ONLY* in accordance with the terms of the GNU Affero General Public License
@@ -233,23 +237,25 @@ git
 ;;; Information about the hardware
 
 (fare-memoization:define-memo-function processor-count ()
-  "Number of processor (cores) available."
-  #+linux
-  (progn
-    (with-open-file (online "/sys/devices/system/cpu/online"
-                            :direction :input
-                            :if-does-not-exist :error)
-      (let ((count 0))
-        (loop for set = (read-line online nil nil)
-           while set
-           do (incf count (range-size set)))
-        (the (integer 1 2000) count))))
-  #-linux
-  (error "I don't have code to check this on non-Linux hosts"))
+  "Number of processor cores available."
+  (or #+linux
+      (ignore-errors (with-open-file (online "/sys/devices/system/cpu/online"
+                                             :direction :input
+                                             :if-does-not-exist :error)
+                       (let ((count 0))
+                         (loop for set = (read-line online nil nil)
+                               while set
+                               do (incf count (range-size set)))
+                         (the (integer 1 2000) count))))
+      #-linux
+      (warn "I don't have code to check this on non-Linux hosts")
+      4))
 
 (defun unembarassing (string)
   "Intel and AMD use these  embarassing ASCII7 character markup in things like
-CPU names."
+CPU names.
+
+Replaces (R), (tm), and (TM) with the actual ® and ™ symbols."
   (loop for ((from to)) on '(("\\(R\\)" "®") ("\\(tm\\)" "™") ("\\(TM\\)" "™"))
      do (setf string
               (cl-ppcre:regex-replace-all from string to)))
@@ -270,12 +276,14 @@ of processes.
 
 eg:
 
+@verbatim
 \(multiple-value-bind (load-average-1-minute
- load-average-5-minutes
- load-average-10-minutes
- number-of-processes-running
- total-number-of-processes)
- \(load-average))
+                       load-average-5-minutes
+                       load-average-10-minutes
+                       number-of-processes-running
+                       total-number-of-processes)
+    \(load-average))
+@end verbatim
 
 … although commonly, only the primary value (load average over 1 minute)
 will be of interest.
@@ -300,6 +308,7 @@ will be of interest.
 ;;; Sysop functions
 
 (defun stonith (&key host port pid)
+  "Shoot the other node in the head. Kill node on HOST at PORT and PID."
   (cond
     ((and host port)
      (if (find host (mapcar #'network-interface-address (network-interfaces)))
@@ -318,6 +327,9 @@ will be of interest.
 ;;; Remote access and control
 
 (defun run-ssh (&key host user identity-file command script (port 22))
+  "Run a command over ssh on HOST, using USER and IDENTITY-FILE to connect to port PORT and run COMMAND SCRIPT.
+
+Does not actually work. Currenty runs only @code{echo t}."
   (check-type command (or string null))
   (check-type script (or string null))
   (assert (or command script))
@@ -331,11 +343,13 @@ will be of interest.
 
 
 (defun network-interfaces ()
+  "Enumerate network interfaces on the local host."
   #+Linux (mapcar #'lastcar (mapcar #'pathname-directory
                                     (directory #p"/sys/class/net/*")))
   #-Linux (error 'unimplemented))
 
 (defmethod network-interface-address ((interface-designator string))
+  "Get the address associated with the network interface INTERFACE-DESIGNATOR."
   #+Linux
   (with-input-from-file (addr$ (make-pathname
                                 :directory (list :absolute "sys" "class" "net"
