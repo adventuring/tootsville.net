@@ -46,8 +46,8 @@
 #$ do-something-funny
 @end verbatim
 
-The script name must be a function previously defined by @code{#SCRIPT};
-see `SCRIPT' operator command for details.
+The script name must be a function previously defined by @code{#SCRIPT}; see
+`TOOTSVILLE-USER::SCRIPT' operator command for details.
 
 "
   (error 'unimplemented))
@@ -908,8 +908,8 @@ See also `TOOTSVILLE-USER::SETVAR', `TOOTSVILLE-USER::CLEARVAR',
 
 UNIMPLEMENTED
 
-The item to be gifted must be in your inventory. To give a new item see `GRANT'
-"
+The item to be gifted must be in your inventory.  To give a new item see
+`TOOTSVILLE-USER::GRANT' "
   (error 'unimplemented))
 
 (define-operator-command givehead (words user plane)
@@ -917,7 +917,7 @@ The item to be gifted must be in your inventory. To give a new item see `GRANT'
 
 NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 @code{#givehead} equips  the item  and @code{#grant}  does not.  See also
-`GRANT'.
+`TOOTSVILLE-USER::GRANT'.
 
 @subsection Usage
 
@@ -933,7 +933,7 @@ NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
  
 This creates  a new item  from the  item template number  indicated, and
 equips it on the recipient. To give  a gift from your own inventory, see
-`GIVE'. To grant a new item without equipping it, see `GRANT'."
+`TOOTSVILLE-USER::GIVE'. To grant a new item without equipping it, see `TOOTSVILLE-USER::GRANT'."
   (error 'unimplemented))
 
 (define-operator-command goto (words user plane)
@@ -947,7 +947,7 @@ UNIMPLEMENTED"
 
 NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 @code{#givehead} equips  the item  and @code{#grant}  does not.  See also
-`GIVEHEAD'.
+`TOOTSVILLE-USER::GIVEHEAD'.
 
 @subsection Usage
 
@@ -962,8 +962,9 @@ NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 @end example
  
 This creates  a new item  from the  item template number  indicated, and
-gives it to the recipient. To give  a gift from your own inventory, see
-`GIVE'. To grant a new item and equipping it, see `GIVEHEAD'."
+gives it to the recipient.  To give a gift from your own inventory, see
+`TOOTSVILLE-USER::GIVE'.  To grant a new item and equipping it, see
+`TOOTSVILLE-USER::GIVEHEAD'."
   (error 'unimplemented))
 
 (define-operator-command headcount (words user plane)
@@ -1588,7 +1589,7 @@ Read at ~a. File write date ~a, author ~a."
 Forces  a  server to  retire.  This  will disconnect  anyone  currently
 connected via WebSockets to that  server; they should reconnect through
 the load balancer. Use @code{#evacuate}  to first move users to another
-server (see `EVACUATE').
+server (see `TOOTSVILLE-USER::EVACUATE').
 
 @subsection Usage
 
@@ -1737,8 +1738,8 @@ Named colors are supported as per `PARSE-COLOR24'
 #setavatarcolors mouser rgb(0,0,0) rgb(255,255,255)
 @end example
 
-See also `DOODLE' for a similar-but-different way to set avatar colors.
-"
+See also `TOOTSVILLE-USER::DOODLE' for a similar-but-different way to set
+avatar colors.  "
   (error 'unimplemented))
 
 (define-operator-command setbadge (words user plane)
@@ -2197,7 +2198,7 @@ This can be -1 under certain circumstances.
 
 @subsection Reason Codes
 
-See `KICK' for the current list
+See `TOOTSVILLE-USER::KICK' for the current list
 
 "
   (error 'unimplemented))
