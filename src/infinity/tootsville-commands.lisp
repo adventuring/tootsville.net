@@ -55,8 +55,6 @@ review in a customer service application such as Joshua. Creating
 a ModeratorJournal object will parse for certain values such as
 [@@username].
 
-     * param jso @{ \"entry\": TEXT @}
-
 @subsection Formerly Proprietary Extension
 
 This command was formerly a proprietary extension for Tootsville.com and
@@ -65,7 +63,27 @@ has now been re-created for the AGPL version of Romance.
   (error 'unimplemented))
 
 (definfinity delete-mail-message ((id) u r)
-  "Delete a message from the user's (SMS) mailbox"
+  "Delete a message from the user's (SMS) mailbox
+
+@subsection Usage
+
+WRITEME
+
+@subsection Example
+
+WRITEME
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+@code{id} was previously an integer, but is now an UUID string.
+
+@subsection Formerly Proprietary Extension
+
+This command was formerly a proprietary extension for Tootsville.com and
+has now been re-created for the AGPL version of Romance.
+
+"
   (error 'unimplemented))
 
 (definfinity doff ((slot type) user recipient/s)
@@ -166,6 +184,7 @@ The contents of the message.
 The @code{from} value exceeded the maximum message in the Toot's inbox.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Message ID's are now UUID's. Messages no longer have subjects.
 
@@ -181,11 +200,22 @@ has now been re-created for the AGPL version of Romance.
 
 Passport stamps are not currently implemented but will be returning.
 
+See `TOOT-PASSPORT-STAMPS'.
+
 @subsection Usage
 
 This command requires no parameters.
 
+@subsection 200 OK
+
+@verbatim
+WRITEME
+@end verbatim
+
+The reply format is a WRITEME but should be unchanged from 1.2.
+
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Passports stamps are temporarily unavailable.
 
@@ -197,15 +227,24 @@ has now been re-created for the AGPL version of Romance.
   (error 'unimplemented))
 
 (definfinity send-mail-message ((to to-list subject body) u r)
-  "Send an in-game SMS message
+  "Send an in-game SMS message.
 
 @subsection Usage
 
 @verbatim
 { ( to: \"RECIPIENT\" | toList: [ \"RECIPIENT\", ... ] ),
   [ subject: \"\" ],
-  body: \"BODY\" )
+  body: \"BODY\",
+  [ uuid: UUID-STRING ] )
 @end verbatim
+
+@code{subject} is optional, and should be omitted in 2.0. Non-empty
+subjects will return an error.
+
+@code{uuid} is optional but recommended. It allows the client to track
+when a message has been sent.
+
+See `SEND-SMS-MESSAGE' for the underlying implementation.
 
 @subsection Examples
 
@@ -215,15 +254,21 @@ has now been re-created for the AGPL version of Romance.
 { toList: [ \"catvlle\", \"pil\" ], body: \"Howdy\" }
 @end verbatim
 
-Input: @code{subject} (must be blank);  @code{to}, the Toot name to whom
-to send the text; and @code{body} of the message.
+Input: @code{subject} (must be blank); @code{to}, the Toot name to
+whom to send the text; and @code{body} of the message.
 
-Rather that @code{to},  the user can send @code{toList}  with an object,
+Rather that @code{to}, the user can send @code{toList} with an object,
 the keys of which are ignored, the values of which are Toot names.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
-Subjects are no longer supported. @code{subject} must be absent, null, or \"\".
+Subjects are no longer supported. @code{subject} must be absent, null,
+or \"\".
+
+@code{uuid} is a new option.
+
+Message length is now measured in Unicode characters, not bytes.
 
 @subsection Formerly Proprietary Extension
 
@@ -234,17 +279,54 @@ has now been re-created for the AGPL version of Romance.
 
 The “SMS” message was sent.
 
+@verbatim
+{ from: \"sendMailMessage\", status: true }
+{ from: \"sendMailMessage\", status: true,
+  uuid: \"5047F44E-8B1D-4B8A-9EC6-4E1D6E1653AD\" }
+@end verbatim
+
+If the client supplied an UUID, it will be returned, allowing the
+client to identify which of potentially many SMS messages was sent.
+
+Sending does not imply that the message was received or read by the
+destination user.
+
 @subsection 400 Bad Request
+
+If an UUID was supplied with the request, the response will echo it.
 
 @code{subject} must be absent, null, or \"\"
 
+@verbatim
+{ from: \"sendMailMessage\", status: false,
+  error: \"Subject is not allowed. Please leave subject blank.\" }
+@end verbatim
+
 Exactly one of @code{to} or @code{toList} must be specified
+
+@verbatim
+{ from: \"sendMailMessage\", status: false,
+  error: \"Message has no destination.\",
+  uuid: \"E6726651-703D-41FC-8484-E59EADEE7EA0\" }
+@end verbatim
 
 @code{body} may not be empty
 
 @subsection 413 Payload Too Large
 
-@code{body} can be at most 1,024 characters.
+@code{body} can be at most 1,024 (Unicode) characters (not bytes).
+
+@verbatim
+{ from: \"sendMailMessage\", status: false,
+  error: \"Message too long. Try a message with less than 1,000 characters.\" }
+@end verbatim
+
+@subsection Formerly Proprietary Extension
+
+This command was formerly a proprietary extension for Tootsville.com and
+has now been re-created for the AGPL version of Romance.
+
+
 "
   (error 'unimplemented))
 
@@ -253,6 +335,8 @@ Exactly one of @code{to} or @code{toList} must be specified
 
 Passports are not currently implemented in Tootsville V, but will be
 returning.
+
+See `STAMP-TOOT-PASSPORT'.
 
 @subsection Usage
 
@@ -267,12 +351,13 @@ returning.
 @end verbatim
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Passports stamps are temporarily unavailable.
 
-``room'' was previously a room moniker, but will now be a ``spot''
+@code{room} was previously a room moniker, but will now be a ``spot''
 moniker of a Spot in the game world. Despite the change, the key name
-remains ``room.''
+remains @code{room}.
 
 @subsection Formerly Proprietary Extension
 

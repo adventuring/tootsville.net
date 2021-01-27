@@ -83,10 +83,11 @@ Sends an admin message with ``stand by,'' then does a @code{git pull} in
 the  source directory  and returns  the  results (e.g.  ``Already up  to
 date.'' or otherwise)."
   (private-admin-message "#git-pull" "(stand by…)")
-  (run-program (format nil "cd ~a; git pull"
-                       (asdf:system-source-directory :Tootsville))
-               :output :string
-               :error :output))
+  (format nil "<pre>~a</pre>"
+          (run-program (format nil "cd ~a; git pull"
+                               (asdf:system-source-directory :Tootsville))
+                       :output :string
+                       :error :output)))
 
 (define-operator-command push-script (words u r)
   "Instruct clients to load a new  script file.
@@ -102,7 +103,7 @@ players to reload.
 #push-script PATHNAME
 @end verbatim
 
-Example:
+@subsection Example
 
 @example
 #push-script /play/UI/UI.js
@@ -123,7 +124,7 @@ See `WS-STATS'.
 #ws-stats
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #ws-stats
@@ -142,7 +143,7 @@ See `WS-BANDWIDTH-BY-SOURCE'.
 #ws-bandwidth-by-source
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #ws-bandwidth-by-source
@@ -161,7 +162,7 @@ See `INFINITY-STATS'.
 #infinity-stats
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #infinity-stats
@@ -179,7 +180,7 @@ Example
 #doodle WHO ( base | pad | pattern ) NEW-COLOR
 @end verbatim
 
-Example
+@subsection Examples
 
 @example
 #doodle catvlle base pink
@@ -219,7 +220,7 @@ NEW-COLOR can be in any format understood by `PARSE-COLOR24', qv."
 #doodle-pattern WHO NEW-PATTERN
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #doodle-pattern catvlle hearts
@@ -252,7 +253,7 @@ See `SERVER-LIST'
 #server-list
 @end verbatim
 
-Example
+@subsection Example
 
 @example
 #server-list
@@ -262,6 +263,9 @@ Example
 (define-operator-command at (words u r)
   "Issue an operator command on a particular server instance.
 
+UNIMPLEMENTED. Remote code execution is not possible. Only works if
+SERVER is `MACHINE-INSTANCE', i.e. the local machine.
+
 @subsection Usage
 
 @verbatim
@@ -269,7 +273,7 @@ Example
 #at #each #OTHER-COMMAND OTHER-PARAMS
 @end verbatim
 
-Examples
+@subsection Examples
 
 @example
 #at game1.test.tootsville.net #ws-stats
@@ -278,7 +282,8 @@ Examples
 
 For a list of servers, see `SERVER-LIST'.
 
-To issue a command on every server, send @code{#at #each #OTHER-COMMAND}"
+To issue a command on every server, send @code{#at #each #OTHER-COMMAND}.
+"
   (if (string-equal (machine-instance) (first words))
       (parse-operator-command (format nil "~{~a~^ ~}" (rest words)))
       (if (string-equal "#each" (first words))
@@ -302,7 +307,7 @@ Examples:
 #gc #full
 @end example
 
-Returns the same report as `MEM'
+Returns the same report as `TOOTSVILLE-USER::MEM'
 "
   (if (and (<= 1 (length words))
            (string-equal "#full" (first words)))
@@ -324,7 +329,7 @@ supplied, defaults to FUNCTION.
 
 PACKAGE is optional and defaults to TOOTSVILLE-USER.
 
-Examples of use:
+@subsection Examples
 
 @example
 #doc cdr

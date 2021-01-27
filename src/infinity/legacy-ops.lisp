@@ -205,7 +205,8 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
 Altitude is optional.
 
-@subsection Changes in 2.0
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Romance  1, this command took  a room moniker as  its sole parameter;
 since rooms as such no longer exist, we use latitude and longitude now.
@@ -235,7 +236,8 @@ world.
 #spawnroom [MONIKER]
 @end verbatim
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 This command has been completely repurposed, since there are no longer
 rooms.
@@ -405,7 +407,8 @@ UNIMPLEMENTED
  #clearevent Tootlympics 1294
 @end verbatim
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 The names of game events have changed format.
 
@@ -680,7 +683,8 @@ Return interesting details in an administrative message.
 #finger shade
 @end example
 
-@subsection Changes since 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 The format of the response has changed slightly, but is similar.
 
@@ -738,7 +742,8 @@ This command is not currently implemented. It is a no-op.
 #flush
 @end verbatim
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 This command is not effective in Romance II. In Romance 1, it was used
 to flush the database write caché, which at times could be several
@@ -787,7 +792,8 @@ string. If the selected property is a key with multiple values (as a
 property list --- plist) associated with it, returns the entire
 plist (and possibly, nested plists).
 
-@subsection Changes since 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 The format of  the configuration file is completely  different. The Java
 properties file has been replaced with a Lisp property list (plist) tree
@@ -1258,7 +1264,8 @@ compiler used; the above is from a build of Tootsville compiled under
 SBCL, which is the expected environment, but there is no guarantee
 that this will not change in future.
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Romance 1, we were running in a Java Virtual Machine (JVM), so the
 output of @code{mem} was quite differently formatted.
@@ -1314,8 +1321,8 @@ List all tasks scheduled with the metronome
 Cancel a specific task by name
 @end table
 
-
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #cancel NAME} 
 
@@ -1375,7 +1382,8 @@ Use #metronome #list to enumerate tasks."
 The message of the day is echoed  to every user as they sign in, before
 they choose a Toot. It is @emph{not} echoed to children.
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Romance II, we do not display the MotD to children, but their
 parents will see it when approving their sign-on."
@@ -1596,7 +1604,8 @@ ID number.  An instance of the item will be placed at that point.  An
 optional facing direction can be specified, either in radians, or from the
 set @code{N NE E SE S SW W NW}.
 
-@subsubsection Changes since 1.2
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Romance 1.2, this was used to place an item-gifting spot, which was
 invisible.
@@ -1618,7 +1627,8 @@ this spot will receive an instance of the template in their inventory, and
 a friendly pop-up message with a description of the item. Only one item
 per player will be given.
 
-@subsubsection Changes since 1.2
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Romance 1.2, @code{vitem} gifts were only for ``V.I.T.'' (paid) players,
 and @code{item} was for everyone.  @code{item} has been repurposed for
@@ -1629,7 +1639,8 @@ by the player walking into them.
 
 This is no longer supported in Romance 2.0.
 
-@subsubsection Changes since 1.2
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Romance 1.2, @code{item2} provided different items to paid (``V.I.T.'')
 or unpaid (regular) players.  Since Tootsvillle V is free to play, this is
@@ -1659,7 +1670,8 @@ spot indicated.
 
 WRITEME
 
-@subsubsection Changes since 1.2
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Tootsville IV,  minigames were Adobe Flash applets  which were loaded
 into the main game environment. This is no longer the case.
@@ -1696,20 +1708,9 @@ A Place designator WRITEME
 (define-operator-command purgephysics (words user plane)
   "Purge pending physics interactions. 
 
-UNIMPLEMENTED."
-  (error 'unimplemented))
+UNIMPLEMENTED.
 
-(define-operator-command push (words user plane)
-  "WRITEME
-
- UNIMPLEMENTED"
-  (error 'unimplemented))
-
-(define-operator-command put (words user plane)
-  "WRITEME
-
-UNIMPLEMENTED
-"
+WRITEME"
   (error 'unimplemented))
 
 (define-operator-command rc (words user plane)
@@ -1735,6 +1736,12 @@ method will be executed; the
 
 WRITEME
 
+UNIMPLEMENTED
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+WRITEME
 "
   (error 'unimplemented))
 
@@ -1834,7 +1841,8 @@ server (see `TOOTSVILLE-USER::EVACUATE').
 #run sb-ext quit
 @end verbatim
 
-@subsection Changes in 2.0
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In 1.x: 
  Run an arbitrary Java routine through an uploaded Runnable or RunCommands class
@@ -1887,6 +1895,7 @@ World is optional and defaults to CHOR.
 @end verbatim
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In 1.2, this moved an user into another room.
 
@@ -2240,7 +2249,8 @@ eleventh of Procavia, 153
 
 @end example
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 The output format has changed. The old version only displayed the Unix
 time in seconds, without commas; the decoded date and time, Universal
@@ -2295,7 +2305,8 @@ Mnemonic: Ventriloquism
 
 See `INFINITY-SPEAK'
 
-@subsection Changes in 2.0
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 This no longer allows ventriloquism of operator commands &c.
 "
@@ -2555,7 +2566,8 @@ Quicklisp    dist   version    2020-04-27;   Ultralisp    dist   version
 20200501011006; Tootsville version 0.6.4
 @end example
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 The format of the response is different, but the purpose of the
 command is the same.
@@ -2574,9 +2586,12 @@ Tootsville version ~a"
 (define-operator-command zoom (words user plane)
   "Set the visual Zoom level of a room.
 
-UNIMPLEMENTED
+@subsection Usage
 
-@subsection Changes from 1.2
+WRITEME
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In Tootsville IV, rooms could have a different ``zoom level'' setting
 the relative size of the display. This is no longer supported; in

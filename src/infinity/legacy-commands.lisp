@@ -53,6 +53,7 @@ This command can no longer be used.
 This was a legacy feature removed in Romance 1.2.
 
 @subsection Changes from 1.1 to 1.2
+@cindex Changes from 1.1 to 1.2
 
 This function was replaced  with `INFINITY-REQUEST-BUDDY' — requestBuddy
 — q.v."
@@ -159,6 +160,7 @@ if (Keyboard.capsLock) mods += \"C\";
 @end verbatim
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 @itemize
 
@@ -233,6 +235,7 @@ be placed.
 The house ID or room connection point given was not found.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In 1.2 adding a room required only an index.
 "
@@ -344,6 +347,7 @@ a @code{HAND}  slot, since  Toots have  no fingers.  Items which  do not
 occupy a wear slot also cannot be equipped, e.g. a tree.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Colors of  items can no  longer be changed  when donning them.  This was
 meant  for pattern  changing  in  1.2, which  must  now be  accomplished
@@ -352,6 +356,7 @@ in-game via Doodle. The @code{color} parameter must be null or absent.
 Patterns are no longer clothing items.
 
 @subsection Changes from 1.0 to 1.1
+@cindex Changes from 1.0 to 1.1
 
 Equipment  held  in the  @code{TRUNK}  is  now explicitly  supported  as
 a distinct  wear slot with specific  meaning (ie, the user  can activate
@@ -371,6 +376,11 @@ The datum (@code{d}) is returned identically, in a return element
 named literally @code{You said}.
 
 This method exists solely for testing purposes.
+
+@verbatim
+{ c: \"echo\"
+  d: DATA-TO-ECHO }
+@end verbatim
 
 @subsubsection Parameters
 
@@ -399,13 +409,26 @@ The response is echoed back to the user.
 
 The echo packet must be less  than 1,024 Unicode characters in length or
 it will be  truncated to 1,024 characters. No warning  will be issued to
-the user in the case of truncation."
+the user in the case of truncation.
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+The 1kc limit was introduced in 2.0.
+
+@subsection Known bugs
+@cindex Known bugs
+
+This feature is not working correctly as of version 0.6.
+"
   (list 200 (list :|from| "echo"
                   :|status| t
                   :|You said| (limit-string-length d 1024))))
 
 (definfinity finger ((&rest Toots-with-keys) user recipient/s)
   "Get public info for a list of Toots.
+
+For details, see the synonym `INFINITY-GET-AVATAR-INFO'.
 
 @subsection Usage
 
@@ -423,12 +446,28 @@ User public information is in the format of `TOOT-INFO', which should be
 a supserset  of what @code{AbstructUser.getPublicInfo()} used  to return
 in 1.2.
 
-jso - JSON object, with (ignored) keys  tied to values which must be the
-names of Toots."
+"
   (list 200
         (from-Avatars Toots-with-keys)))
 
 (defun from-avatars (Toots-with-keys)
+  "Returns a from: \"avatars\" packet which is the result of a number of commands.
+
+The packet format is as follows:
+
+@verbatim
+{ from: \"avatars\",
+  avatars: { KEY: TOOT-INFO, [ ... ] },
+  inRoom: \"@Tootsville\",
+  status: true }
+@end verbatim
+
+The avatar information is in the form given by `TOOT-INFO', q.v.
+
+The parameter TOOTS-WITH-KEYS is a property list whose keys are
+arbitrary strings (or symbols, whose names will be taken) and whose
+values are Toot designators suitable to be passed to `ENSURE-TOOT',
+eg. Toot names or Toot objects."
   (let ((hash (make-hash-table :test 'equal)))
     (loop for (key Toot) on Toots-with-keys by #'cddr
              do (setf (gethash (princ-to-string key) hash)
@@ -444,6 +483,24 @@ names of Toots."
 @gaindex Overview of Game Actions
 
 These are actions that affect in-world minigames.
+
+@subsection Usage
+
+@verbatim
+{ c: \"gameAction\",
+  d: { game: \"AEB967CB-5598-40D5-9B4A-894C9BC38501\",
+       action: ACTION-NAME, 
+       [ ... PARAMS ... ] } }
+@end verbatim
+
+@subsection Example
+
+@verbatim
+{ c: \"gameAction\",
+  d: { game: \"AEB967CB-5598-40D5-9B4A-894C9BC38501\",
+       action: \"tagYouReIt\", 
+       tagged: \"5047F44E-8B1D-4B8A-9EC6-4E1D6E1653AD\" } }
+@end verbatim
 
 @subsection Overview of In-World Minigames
 
@@ -481,9 +538,23 @@ its appropriate handler. The @code{action} value is the smallCamelCase
 version of the ``GAME-ACTION-function-name'' that will actually handle
 it.
 
+The specific game which is being addressed must be identified by its
+UUID. This is usually discovered by finding a game tag on an item or
+place in the game world.
+
+WRITEME: Explain how to find a game tag.
+
 Refer to the individual game action functions for further details.
 
 See Appendix 8 for an index of game actions.
+
+@subsection Response format
+
+The individual game action handlers will provide their own response
+formats. In general, they will come from @code{gameAction}, with a
+@code{status} of true or false; when false, they should include an
+@code{error} text which may be user-visible, and may include an
+@code{err} tag which is a general machine-readable code.
 
 @subsection Status 400 Error
 
@@ -494,7 +565,8 @@ the usual form:
 @verbatim
 { from: \"gameAction\",
   status: false,
-  error: \"error message text\" }
+  error: \"error message text\",
+  err: \"game-action-not-found\" }
 @end verbatim
 "
   (if-let (fn (find-symbol (concatenate 'string "GAME-ACTION-"
@@ -503,20 +575,37 @@ the usual form:
     (apply fn more-params)
     (list 400 (list :|from| "gameAction"
                     :|status| :false
-                    :|error| (format nil "No such gameAction: ~a" action)))))
+                    :|error| (format nil "No such gameAction: ~a" action)
+                    :|err| "game-action-not-found"))))
 
 (definfinity get-avatars ((&rest _+user-names) user recipient/s)
   "Get avatar data for a list of (other) users.
 
-cv. `INFINITY-FINGER'
+Synonym for `INFINITY-FINGER'
 
-Parameters:
+@subsection Usage
 
-jso - JSON object, with (ignored) keys  tied to values which must be the
-names of users. e.g. @{ 0: \"someUser\", 1: \"otherUser\" @}
+The @code{d} datum is a JSON object, with (ignored) keys tied to
+values which must be the names of users.
 
-u - The calling user. The calling user's avatar data will not be returned."
-  (error 'unimplemented))
+@subsection Example
+
+@verbatim
+{ c: \"getAvatars\",
+  d: { \"foo\": \"mouser\",
+       \"bar\": \"catvlle\" } }
+@end verbatim
+
+@subsection Status 200 OK
+
+The avatar information for each user requested will be returned in an
+associative array object with the same keys as the source query. The
+values of each key are the avatar data as returned by
+`INFINITY-FINGER', i.e. the information returned by `TOOT-INFO'.
+
+"
+  (list 200
+        (from-Avatars Toots-with-keys)))
 
 (definfinity get-color-palettes (nil user recipient/s)
   "getColorPalettes
@@ -683,70 +772,87 @@ u - The user whose inventory to be searched, who is the caller of this routine
     ))
 
 (definfinity get-online-users ((in-room) user recipient/s)
-  "Get a list of users in a Zone, or in a Room.
+  "Get a list of users online.
 
 This is an administrative function, only available to staff members.
 
-Parameters:
+@subsection Usage
 
-jso  -  The JSON  data  provided  by the  caller.  If  this contains  an
-attribute of \"inRoom\"  with a room moniker, we'll only  return the users
-in that room. Otherwise, all users in the Zone will be returned.
+@verbatim
+{ c: \"getOnlineUsers\",
+  d: { [ inRoom: ROOM ] }
+@end verbatim
 
-u - The caller's ID. Must have staff privileges.
 
-room - The room from which the caller is making the extension call: ignored.
-Throws:
+If this contains an attribute of \"inRoom\" with a room moniker, we'll
+only return the users in that room. Otherwise, all users in the Zone
+will be returned.
 
-org.json.JSONException - if the JSON data can't be processed, in or out.
+This optional parameter should not be specified and will be ignored if
+present.
 
-PrivilegeRequiredException    -    if     the    user    doesn't    have
-STAFF_LEVEL_STAFF_MEMBER
+@subsection Example
 
-NotFoundException - if the room requested doesn't exist
+@verbatim
+{ c: \"getOnlineUsers\" }
+@end verbatim
+
+@subsection Status 200 OK
+
+WRITEME
+
+@subsection Status 403 Permission Denied
+
+This is returned if the user is not a Builder Toot.
+
+@verbatim
+{ from: \"getOnlineUsers\",
+  status: false,
+  error: \"That is a Builder Toot command.\" }
+@end verbatim
+
 
 "
   (if (builder-Toot-p)
-      (list 200 (list :|from| "get-online-users"
+      (list 200 (list :|from| "getOnlineUsers"
                       :|status| t
                       :|inRoom| "@Tootsville"
                       :|toots| (connected-toots)))
-      (list 403 (list :|from| "get-online-users"
+      (list 403 (list :|from| "getOnlineUsers"
                       :|status| :false
                       :|error| "That is a Builder Toot command"))))
 
 (definfinity get-Room-List (nil user recipient/s)
   "Get a list of all ``well known'' Rooms currently active/visible.
 
-``Rooms'' no longer exist. The ``rooms'' are now known as ``planes.''
+``Rooms'' no longer exist. The ``rooms'' are now known as ``spots.''
 
-The following planes exist in Tootsville:
+UNIMPLEMENTED
 
-@table @code
+@subsection Usage
 
-@item CHOR
+@verbatim
+{ c: \"getRoomList\" }
+@end verbatim
 
-Tootanga (Choerogyllum)
+@subsection Status 200 OK
 
-@item ORBIT
+WRITEME
 
-Space (Orbit)
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
-@item MOON
+The system used to be broken into ``rooms,'' each about one ``screen''
+size, and communications and game events were mostly restricted to the
+room in which they occurred.
 
-The Moon
+This is no longer the case.
 
-@item OTHM
+However, ``named spots'' have been introduced, so this function was
+repurposed to that end.
 
-The Other Moon
-
-@item PINK
-
-The Pink Moon
-
-@end table
 "
-  #("CHOR" "ORBIT" "MOON" "OTHM" "PINK"))
+  (error 'unimplemented))
 
 (definfinity get-server-time (nil user recipient/s)
   "Send the server time to the client requesting it
@@ -790,6 +896,7 @@ object @code{items}  with a matching set  of keys, but whose  values are
 objects in the form of `STORE-ITEM-INFO', qv.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Additional information is returned in `STORE-ITEM-INFO' objects.
 
@@ -832,7 +939,9 @@ jso - no parameters needed
 
 u - The user whose buddy and ignore lists will be fetched
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
 
 Buddies on the buddy list can be starred, with attribute @code{starred: true}.
 
@@ -848,11 +957,13 @@ Buddies on the buddy list can be starred, with attribute @code{starred: true}.
 Returns information in the form `WALLET-INFO', qv.
 
 @subsection Changes from 1.1 to 1.2
+@cindex Changes from 1.1 to 1.2
 
 Currencies were made explicit, allowing currencies other than peanuts to
 be potentially supported in future.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Fairy Dust was added after 1.2.
 
@@ -867,6 +978,7 @@ Returns the wallet info."
 This returns \"Universe\" as the only Zone.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Zones no longer exist."
   (list 200 (list 0 "Universe")))
@@ -898,6 +1010,7 @@ Certain items  cannot be  traded. This  includes gifting,  dropping, &c.
 See `ITEM-TEMPLATE-CAN-TRADE-P' for a discussion.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Players used  to be unable  to gift items  to non-VIT members;  with the
 abolition  of   VIT  status,   everyone  is   very  important   and  can
@@ -922,6 +1035,7 @@ receive items.
 u - the user doing something
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 @code{z} can no longer be omitted if @code{x} or @code{y} are specified.
 "
@@ -1004,6 +1118,7 @@ Removed in 2.0."
   "Log out of this game session
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 There was a bug in the Persephone client that caused it to explode if we
 logged it out before it received  & processed the logout message. So, we
@@ -1586,6 +1701,7 @@ as a string.
 @end verbatim
 
 @subsection Changes from 1.0 to 1.1
+@cindex Changes from 1.0 to 1.1
 
 The old system  allowed users to simply add anyone  to their buddy list;
 cv.   `INFINITY-ADD-TO-LIST'.   The   new   system   requires   mutually
@@ -1755,16 +1871,18 @@ The UUID of the item to remove from the scene.
 
 @subsection Romance 1.2 instructions
 
-To add  a structural item  to the room,  put item: 123  without anything
-else.  To place  furniture  on  the floor,  also  add  attributes x,  y,
-and facing.
+@quotation 
 
-To  change furniture,  replace item:  with slot:  (to avoid  ambiguities
+To add a structural item to the room, put item: 123 without anything
+else.  To place furniture on the floor, also add attributes x, y, and
+facing.
+
+To change furniture, replace item: with slot: (to avoid ambiguities
 about ``which chair'')
 
- To remove an item from the room, send @{ slot: 123, remove: true @}
+To remove an item from the room, send @{ slot: 123, remove: true @}
 
- Parameters:
+Parameters:
 
 jso - @{ slot:  #, x: #, y: #, facing:  $ @} or @{ item: #,  x: #, y: #,
  facing: $ @} or @{ slot: #, remove: true @}
@@ -1773,7 +1891,10 @@ jso - @{ slot:  #, x: #, y: #, facing:  $ @} or @{ item: #,  x: #, y: #,
 
 room - The room in which this user is standing
 
-@subsection Changes in 2.0
+@end quotation
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 @itemize
 @item
@@ -1786,10 +1907,14 @@ slot is the item's UUID
 
 @subsection 200 OK
 
+WRIETME
+
 @subsection 400 Error in parameters
 
-This error is thrown if the parameters are not in one of
+This error is thrown if the parameters are not in one of ;
 the accepted formats
+
+WRITEME
 "
   (cond
     (remove
@@ -1807,17 +1932,29 @@ the accepted formats
 (definfinity set-room-var ((&rest key+value-pairs) user recipient/s)
   "Set a room variable or set of room variables.
 
-There are no longer room variables (as such) in Romance 2.0.
+There are no longer room variables (as such) in Romance 2.0. However,
+some of them can be fake-set to actually alter some underlying facts
+of the system, by a Builder Toot. ;
 
-@subsection Romance 1.2 instructions
+UNIMPLEMENTED
 
- Parameters:
+WRITEME
+
+@subsection Usage
+
  jso - key-value pair(s) for room variable(s) to be set
- u - the user requesting the change
- room - the room to which the variable(s) are associated
- Throws:
- org.json.JSONException - if the packet is malformed
- PrivilegeRequiredException - if a non-privileged user attempts to set a room variable."
+
+WRITEME
+
+@subsection Example
+
+WRITEME
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+WRITEME
+
+"
   (error 'unimplemented))
 
 (definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
@@ -1852,7 +1989,8 @@ client implementors.
   xpr: \"smile\" }
 @end verbatim
 
-@subsection History (pre-2.0)
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Historically, arbitrary  attributes could be  attached to a user  in the
 game,  as transient  values  that  remained as  long  as  that user  was
@@ -1934,16 +2072,22 @@ When no key is from the set of supported keys, an error is returned:
   (error 'unimplemented))
 
 (definfinity spawn-zone ((&rest d) user recipient/s)
-  "spawnZone
+  "Spawn an additional server peer pairing.
 
- Spawn an additional zone.
+UNIMPLEMENTED
 
- 
 @subsection Implementation in 2.0
 
 We no longer have zones, but we can have server paritings.
 
 This is used to establish a new server pairing ...
+
+WRITEME
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+WRITEME
 
  "
   (error 'unimplemented))
@@ -2139,6 +2283,8 @@ beginning with them.
 For convenience of Spanish speakers, sentences beginning with @code{?}
 or @code{!} are converted into @code{¿} and @code{¡}.
 
+UNIMPLEMENTED
+
 @end table
 
 @subsection Special commands
@@ -2160,6 +2306,11 @@ not an  operator command in this  context, but it is  identical to the
 operator command @code{#dumpthreads}.
 
 @end table
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+WRITEME
 
 "
   (when (emptyp speech)
@@ -2205,7 +2356,8 @@ In memory of the contributions of Maureen Kenny (RIP).
 Tootsville IV by Brandon Booker, Gene Cronk, Robert Dawson, Eric
 Feiling, Tim Hays, Sean King, Mark Mc Corkle, Cassandra Nichol,
 Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC."
-  :test 'equal)
+    :test 'equal
+    :documentation "The Tootsville credits")
 
 (defun dump-credits ()
   "Send +CREDITS+ as a private admin message. Response to the ,credits user utterance."
@@ -2385,9 +2537,25 @@ or canceled using `INFINITY-END-EVENT', q.v.
 @subsection Quaestor Events in Detail
 
 @subsubsection Magic Fountains
+
+WRITEME
+
 @subsubsection Shops
+
+WRITEME
+
 @subsubsection Secrets and Treasures
+
+WRITEME
+
 @subsubsection Minigames
+
+WRITEME
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+WRITEME
 
 "
   (quaestor-start-event moniker *Toot*))
@@ -2536,6 +2704,11 @@ scores for this event.
 
 @end table
 
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+WRITEME
+
 "
   (let* ((event-id (or event-i-d id))
          (event (ignore-not-found (find-record 'quaestor-event :id event-id))))
@@ -2588,5 +2761,13 @@ In  the  second  form,  the  user   wants  to  use  their  equipment  on
 a particular item or character. The optional @code{of} helps narrow down
 whether it should be an item or character.
 
+WRITEME
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+WRITEME
+
 "
   (error 'unimplemented))
+

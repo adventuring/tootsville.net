@@ -39,7 +39,16 @@ A @code{gameAction} packet of the form:
 
 @verbatim
 { c: \"gameAction\",
-  d: { action: \"startSportsBallGame\" } }
+  d: { action: \"startSportsBallGame\",
+       game: UUID } }
+@end verbatim
+
+@subsection Example
+
+@verbatim
+{ c: \"gameAction\",
+  d: { action: \"startSportsBallGame\", 
+       game: \"AEB967CB-5598-40D5-9B4A-894C9BC38501\" } }
 @end verbatim
 
 @subsection Effects
@@ -64,7 +73,14 @@ In other words, players could choose to play football (soccer) in the
 game, but they could also ``cheat'' or ignore rules such as ``off
 sides'' that are inconvenient to implement.
 
-WRITEME: Explain SportsBall sytem here.
+The basic principle is that the ball is moving across the field, and
+should be returned to the sidelines when it goes out of bounds. The
+players attempt to move the ball into one of two goals. When the game
+field is dedicated to the game, these goal objects must be designated.
+
+Players can click on the ball to run towards it and kick
+it. Collisions between the ball and players will bounce the ball
+through the field.
 "
   (error 'unimplemented))
 
@@ -74,6 +90,10 @@ WRITEME: Explain SportsBall sytem here.
 @gaindex sportsBallGoal
 
 @subsection Usage
+
+WRITEME
+
+@subsection Example
 
 WRITEME
 
@@ -90,6 +110,10 @@ See: `GAME-ACTION-START-SPORTS-BALL-GAME'"
 @gaindex startSportsBallTimer
 
 @subsection Usage
+
+WRITEME
+
+@subsection Example
 
 WRITEME
 
