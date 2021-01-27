@@ -367,6 +367,11 @@ A bottomless pit
 
 WRITEME --- there is more to explain about room variables.
 
+@subsection See Also
+
+See  `TOOTSVILLE-USER::PLACE' for  an  explanation  of creating  certain
+places in the game and how they work.
+
 "
   (list 200 (local-room-vars)))
 

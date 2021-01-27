@@ -151,15 +151,6 @@ Unlike a @code{#kick}, a @code{#ban} remains in effect persistently
 (define-operator-command banhammer (words user plane)
   "Ban an IP address from connecting.
 
-@subsection Usage
-
-@verbatim
-#banhammer #list
-#banhammer #user NICKNAME
-#banhammer #+ip ADDRESS
-#banhammer #-ip ADDRESS
-@end verbatim
-
 Bans can be listed using @samp{#banhammer #list}
 
 Bans  can  be lifted  using  @samp{#banhammer  #-ip IP-ADDRESS}  (or
@@ -170,11 +161,21 @@ A  ban  can   be  placed  with  @samp{#banhammer   #+ip  IP-ADDRESS}  or
 In the  latter case, the  user's connected IP  address is used.  This is
 expected to be the most common usage.
 
-Parameters:  the  first  word  is  a  subcommand;  one  of  @samp{#+ip},
+@subsection Usage
+
+@verbatim
+#banhammer #list
+#banhammer #user NICKNAME
+#banhammer #+ip ADDRESS
+#banhammer #-ip ADDRESS
+@end verbatim
+
+@subsection Parameters
+
+The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 @samp{#-ip},   @samp{#user},    or   @samp{#list}.    For   @samp{#+ip},
 @samp{#-ip}, or @samp{#user}, an additional parameter is needed.
 
-WRITEME
 "
   (string-case (first words)
     ("#list" (list-banhammers))
@@ -221,36 +222,47 @@ since rooms as such no longer exist, we use latitude and longitude now.
                                "CHOR"))))
 
 (define-operator-command spawnroom (words user plane)
-  " WRITEME --- Legacy --- useless in 2.0
+  "Mark a ``spot'' in the game.
+  
+UNIMPLEMENTED.
 
- Create a new room in the current zone.  Must have staff level
- 8 (DEVELOPER) to use this command.
+Mark the current position of your Toot as a named ``spot'' in the game
+world.
 
 @subsection Usage
+
+@verbatim
+#spawnroom [MONIKER]
+@end verbatim
+
+@subsection Changes from 1.2
+
+This command has been completely repurposed, since there are no longer
+rooms.
+
+@subsection Legacy 1.2 Documentation
+
+Create a new room in the current zone.
+
+@subsection Usage in 1.2
 
 @verbatim
  #spawnroom [MONIKER] [TITLE] [SWF]
  #spawnroom [MONIKER] [TITLE]
 @end verbatim
 
- NOTE: Uses tootCastleJoust.swf as default. This can be set after the
- room has been created by setting the 'f' room variable.
+NOTE: Uses tootCastleJoust.swf as default. This can be set after the
+room has been created by setting the 'f' room variable.
 
-@subsection Examples
+@subsection Examples of 1.2 syntax
 
 @verbatim
  #spawnroom tootCastleJoust2 Joust2 tootCastleJoust.swf
  #spawnroom tootCastleJoust2 Joust2
 @end verbatim
 
-@subsection 401 Gone
-
-This feature has been removed.
-
-XXX it might be reused to create named spots?
-
 "
-  (error 'gone))
+  (error 'unimplemented))
 
 (define-operator-command census (words user plane)
   "Load a number of users.
@@ -269,7 +281,29 @@ God (Pil).
 
 @verbatim
 #census
+#census [START]
+#census [START] [COUNT]
 @end verbatim
+
+@subsection Examples
+
+@verbatim
+#census
+@end verbatim
+
+Stress-load the first 250,000 Toots
+
+@verbatim
+#census 20000
+@end verbatim
+
+Stress-load 250,000 Toots starting with offset 20,000.
+
+@verbatim
+#census 1000 100
+@end verbatim
+
+Stress-load 100 Toots starting with offset 1,000.
 "
   (if (equal (Toot-name *Toot*) "Pil")
       (let* ((low (if (<= 1 (length words))
@@ -298,7 +332,7 @@ God (Pil).
 (define-operator-command clearbadge (words user plane)
   "Clear a badge off the map.
 
-This is not yet implemented for Tootsville V.
+UNIMPLEMENTED: This is not yet implemented for Tootsville V.
 
 @subsection Usage
 
@@ -326,14 +360,18 @@ This is not yet implemented for Tootsville V.
 @subsection Badges
 
 See `TOOTSVILLE-USER::SETBADGE' for a discussion of the map badges system.
-"
+
+@subsection Spots
+
+See `TOOTSVILLE-USER::SPAWNROOM' to mark a spot with a moniker, so that it
+can be passed to @code{#clearbadge} and other ``spot-based'' commands."
   (error 'unimplemented))
 
 (define-operator-command clearcache (words user plane)
   "Forcibly clear all cachés (MemCacheD)
 
-Flush all contents of the MemCacheD server. This may negatively impact
-the system's performance.
+Flush all contents of the MemCacheD server.  This may negatively impact the
+system's performance.
 
 @subsection Usage
 
@@ -350,30 +388,36 @@ the system's performance.
   (cl-memcached:mc-flush-all))
 
 (define-operator-command clearevent (words user plane)
-  "Clear a GameEvent from a Zone. 
+  "Clear a GameEvent
 
 UNIMPLEMENTED
 
- Usage
- #clearevent [EVENTNAME]
+@subsection Usage
+@verbatim
+ #clearevent [EVENTNAME] [UNIQUE ID]
+@end verbatim
 
- Examples
- #clearevent LaserTagGame
- #clearevent PropsWeather
- #clearevent ShaddowFalls
- #clearevent Tootlympics
+@subsection Examples
+@verbatim
+ #clearevent LaserTagGame 142
+ #clearevent PropsWeather 120
+ #clearevent ShaddowFalls 928
+ #clearevent Tootlympics 1294
+@end verbatim
 
- Parameters:
- words - The command parameters (whitespace-delimited list) provided after the # command name
- u - The user invoking the operator command
- room - The room in which the user is standing (as a room number). This can be -1 under certain circumstances.
- See Also:
- op_addevent(String[], AbstractUser, Room), op_getevents(String[], AbstractUser, Room)
+@subsection Changes from 1.2
+
+The names of game events have changed format.
+
+The unique ID parameter is now required.
+
 "
   (error 'unimplemented))
 
 (define-operator-command clearvar (words user plane)
-  "Clear a room variable.
+  "Clear a room variable. (no longer supported)
+
+Room variables can no longer be cleared.  This command is no longer useful.
 
 @subsection Usage
 
@@ -389,8 +433,12 @@ UNIMPLEMENTED
 #clearvar anim~ropes 2
 @end verbatim
 
-WRITEME"
-  (error 'unimplemented))
+@subsection 410 Gone
+
+This command was rendered inoperable in 2.0.
+
+"
+  (error 'gone))
 
 (define-operator-command cloneroom (words u plane)
   "Clone a room. (no longer supported)
@@ -412,19 +460,27 @@ This command existed in Romance 1.2, but is no longer effective.
   (error 'unimplemented))
 
 (define-operator-command createroom (words user plane)
-  "Create a new room. (no longer supported)
+  "Create a new room.
+  
+This is a synonym for `TOOTSVILLE-USER::SPAWNROOM' now.
 
-This is no longer supported in Tootsville V.
- 
 @subsection Usage
 
 @verbatim
 #createroom NEW-MONIKER
 @end verbatim
 
+@subsection Example
+
+@verbatim
+#createroom JACKS-HOUSE
+#spawnroom JACKS-HOUSE
+@end verbatim
+
 @subsection Legacy Operator Command
 
-This command existed in Romance 1.2, but is no longer effective.
+This command existed in Romance 1.2 and was different than
+`TOOTSVILLE-USER::SPAWNROOM', but now they are synonymous.
 
 "
   (error 'unimplemented))
@@ -936,12 +992,6 @@ equips it on the recipient. To give  a gift from your own inventory, see
 `TOOTSVILLE-USER::GIVE'. To grant a new item without equipping it, see `TOOTSVILLE-USER::GRANT'."
   (error 'unimplemented))
 
-(define-operator-command goto (words user plane)
-  "WRITEME
-
-UNIMPLEMENTED"
-  (error 'unimplemented))
-
 (define-operator-command grant (words user plane)
   "Grants a new inventory item to a user.
 
@@ -1335,7 +1385,10 @@ parents will see it when approving their sign-on."
 (define-operator-command mute (words user plane)
   "Mute a user or area. 
 
-This is a simpler form of `TOOTSVILLE-USER:STFU' that does not accept a duration.
+This is a simpler form of `TOOTSVILLE-USER:STFU' that does not accept a
+duration.
+
+UNIMPLEMENTED
 
 @example
 #mute user-name
@@ -1343,33 +1396,79 @@ This is a simpler form of `TOOTSVILLE-USER:STFU' that does not accept a duration
 
 The player muted will receive an admin message:
 
-@example
+@quotation
 You are no longer allowed to speak in Tootsville.
-@end example
+@end quotation
 
 The invoking user will receive a confirmation.
 
-@example
+@quotation
 USER-NAME is no longer allower to speak in Tootsvillle.
-@end example
+@end quotation
 
 If the user cannot be found,
 
-@example
+@quotation
 Can't find user “USER-NAME”
-@end example
-WRITEME
+@end quotation
 
-UNIMPLEMENTED
+@subsection See also
 
- See Also: `TOOTSVILLE-USER::STFU'
+See Also: `TOOTSVILLE-USER::STFU'
 "
   (error 'unimplemented))
 
 (define-operator-command nuke (words user plane)
-  "Forcibly disconnect everyone in a room.
+  "Forcibly disconnect everyone in an area.
 
-WRITEME
+This is a horrible command and it lies to the user.
+
+Every user who is ``near'' (see `NEARP') the spot named in this command will
+be kicked offline with an admin message that lies to them about what has
+happened.
+
+@subsection Usage
+
+@verbatim
+#nuke SPOT-NAME
+@end verbatim
+
+@subsection Example
+
+@verbatim
+#nuke Toot-square
+@end verbatim
+
+@subsection Results
+
+Every user will be given an admin message which is essentially a lie:
+
+@quotation 
+A problem with the game caused you to be disconnected.  We're sorry for the
+inconvenience, and a system operator is already aware of the situation.  You
+can sign back in immediately.
+@end quotation
+
+The auto-reconnect code will likely fire off, causing a login storm from all
+affected users.
+
+@subsection Rationale
+
+There should be no reason to use this command in Romance 2.0
+
+@subsection Rationale for version 1.2
+
+In Tootsville IV, there could exist a situation that caused message traffic
+in a particular room to hang, due to obscure timing bugs that could manifest
+under stress.
+
+The fastest solution was to simply disconnect everyone in the room, allowing
+the system to recover.
+
+In real life, this command was used less than once a month, but that was
+still far too often, and a precise cause for the problem was never narrowed
+down; the new engine should not have this kind of timing issue.
+
 "
   (error 'unimplemented))
 
@@ -1416,26 +1515,65 @@ child request from TOOT.
 (define-operator-command place (words user plane)
   "Put a thing or a Place into the game
 
- Add a  Place to  a room.  This command supports  the basic  types of
- event Places,  and adds them to  the room in the  given WHERE place.
- WHERE can be  a diamond-shaped area around the  operator issuing the
- command  (using  #here, #here-tiny,  or  #here-big),  or can  be  an
- explicitly-issued  polygon  string.  The  event region  ID  will  be
- automatically assigned.
+``Place a thing'' or ``create a place'' in the game.
+ 
+This command supports  the basic  types of event Places, and adds them to
+the room in the given WHERE place.  WHERE can be a diamond-shaped area
+around the operator issuing the command (using #here, #here-tiny, or
+#here-big), or can be an explicitly-issued polygon string or circle
+designator.  The event region ID will be automatically assigned.
 
- @subsection Usage
+
+
+@subsection Usage
 
 @verbatim
-#place WHERE #item ITEM-NUMBER 
+#place WHERE #item ITEM-TEMPLATE-NUMBER [FACING]
 #place WHERE #room MONIKER 
-#place WHERE #vitem PAID-ITEM-NUMBER 
-#place WHERE #item2 ITEM-NUMBER PAID-ITEM-NUMBER 
+#place WHERE #vitem ITEM-TEMPLATE-NUMBER [FACING]
+#place WHERE #item2 ITEM-TEMPLATE-NUMBER OTHER-ITEM-TEMPLATE-NUMBER
+#place WHERE #shop ITEM-TEMPLATE-NUMBER PRICE [FACING]
 #place WHERE #exit MONIKER 
 #place WHERE #mini MINIGAME-MONIKER 
 #place WHERE #walk
-
-WHERE := #here | #here-tiny | #here-big | x,z~x,z~x,z~x,z polygon list
+#place WHERE #unwalk
+#place WHERE #snowball ITEM-TEMPLATE-NUMBER
+#place WHERE #download ITEM-TEMPLATE-NUMBER URL
+#place WHERE #fountain ITEM-TEMPLATE-NUMBER
+#place WHERE #place PLACE-KIND
 @end verbatim
+
+WHERE can be one of:
+
+@table @b
+@item @code{#here}
+The location of the operator issuing the command, surrounded by an ``average
+size'' polygon approximating a circle.
+
+@item @code{#here-tiny}
+The location of the operator issuing the command, surrounded by a ``tiny''
+polygon approximating a circle.
+
+@item @code{#here-big}
+The location of the operator issuing the command, suroounded by a ``big''
+polygon approximating a circle.
+
+@item A point
+An x,z coördinate pair; e.g. @code{100,100}.
+
+@item A polygon designator
+The specific location can be outlined as a series of x,z coördinates
+delimited by tildes; e.g.  @code{100,100~100,200~200,200~200,100}.
+
+@item A circle designator
+A polygon approximating a circle originating at the location of the operator
+issuing the command, whose radius R and number of segments S are specified,
+delimited by a @code{x} character; e.g.  @code{100x10}.
+
+@end table
+
+The second parameter indicates the sort of thing that will be added, as
+enumerated in the following sections.
 
 @subsection Examples
 
@@ -1443,43 +1581,115 @@ WHERE := #here | #here-tiny | #here-big | x,z~x,z~x,z~x,z polygon list
 #place #here #item 1337
 #place #here #room TootSweets
 #place #here #vitem 42
-#place #here #item2 1337 42
 #place #here-tiny #exit TootSquare
 #place #here #mini Minigame.js minigame
 #place #here-big #walk
+#place 100,100~100,200~200,200~200,100 #unwalk
+#place 100x10 #item 1234
 @end example
 
-WRITEME
+@subsection @code{item} Placing an item
 
-@subsection Placing an item
+A furniture item will be placed at the position indicated.  Position must be
+@code{#here} or a point coördinate pair.  The identifier is an item template
+ID number.  An instance of the item will be placed at that point.  An
+optional facing direction can be specified, either in radians, or from the
+set @code{N NE E SE S SW W NW}.
 
-WRITEME
+@subsubsection Changes since 1.2
 
-@subsection Placing a ``room'' marker
+In Romance 1.2, this was used to place an item-gifting spot, which was
+invisible.
 
-WRITEME
+@subsection @code{room} Placing a ``room'' marker
 
-@subsection Placing a shop item
+A ``spot'' designator will be created at the point indicated, which must 
+be @code{#here} or a point coördinate pair. The moniker given will be
+associated with the spot and can be used for certain other commands.
 
-WRITEME
+@subsection @code{vitem} Placing an item-gifting item
 
-@subsection Archaïc: @code{#item2}
+An item-gifting spot will be placed at the position indicated.  Position
+must be @code{#here} or a point coördinate pair.  The identifier is an item
+template ID number.  An instance of the item will be placed at that point. 
+An optional facing direction can be specified, either in radians, or from
+the set @code{N NE E SE S SW W NW}.  Any player who clicks on the item at
+this spot will receive an instance of the template in their inventory, and
+a friendly pop-up message with a description of the item. Only one item
+per player will be given.
+
+@subsubsection Changes since 1.2
+
+In Romance 1.2, @code{vitem} gifts were only for ``V.I.T.'' (paid) players,
+and @code{item} was for everyone.  @code{item} has been repurposed for
+furniture placement.  Also, item gifting spots were invisible and triggered
+by the player walking into them.
+
+@subsection @code{#item2}
 
 This is no longer supported in Romance 2.0.
 
+@subsubsection Changes since 1.2
+
+In Romance 1.2, @code{item2} provided different items to paid (``V.I.T.'')
+or unpaid (regular) players.  Since Tootsvillle V is free to play, this is
+no longer needed.
+
+@subsection @code{#shop} Placing a shop item
+
+A  shop item  is  placed at  the position  indicated.  Position must  be
+@code{#here}  or a  point coördinate  pair.  The identifier  is an  item
+template  ID number.  An instance  of the  item will  be placed  at that
+point. An optional facing direction can be specified, either in radians,
+or from the set @code{N NE E SE S SW W NW}. Any player who clicks on the
+item at this sspot will receive a  prompt offering to sell them the item
+at the price indicated.
+
+The  price  given is  in  peanuts,  unless  it  begins with  the  letter
+@code{F}, in which case it is given in fairy dust.
+
+@subsection @code{#exit} Placing a transwarp conduit
+
+An ``exit'' is a hyperspace link between two spots in the game universe.
+A place will be created at the indicated location. Any player who enters
+into  the ``exit''  place will  be  immediately relocated  to the  named
+spot indicated.
+
+@subsection @code{#mini} Placing a minigame
+
 WRITEME
 
-@subsection Placing an exit (teleporter)
+@subsubsection Changes since 1.2
+
+In Tootsville IV,  minigames were Adobe Flash applets  which were loaded
+into the main game environment. This is no longer the case.
+
+@subsection @code{#walk} Placing a walkable space
+
+This  designates that  the  place  specified is  walkable  space; if  it
+intersects  any   place  previously   marked  as  unwalkable,   it  will
+be reverted.
+
+@subsection @code{#unwalk} Placing an unwalkable space
 
 WRITEME
 
-@subsection Placing a minigame
+@subsection @code{#snowball} Placing a snowball source pile
 
 WRITEME
 
-@subsection Placing a walkable space
+@subsection @code{#download} Placing a download trigger item
 
 WRITEME
+
+@subsection @code{#fountain} Placing a magic fountain
+
+WRITEME
+
+@subsection @code{#place} Placing a Place designator
+
+A Place designator WRITEME
+
 "
   (error 'unimplemented))
 
