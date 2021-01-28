@@ -1,0 +1,52 @@
+#!/usr/bin/perl -W
+# -*- cperl -*-
+
+use strict;
+
+open TEXI, '<', 'doc/Tootsville.texi' or die;
+`mkdir -p doc/Tootsville.html.d`;
+
+my %files = ();
+my $current_chapter = 'forematter';
+my $chapter_number = 0;
+
+open NODE, '>', 'doc/Tootsville.html.d/forematter.html' or die;
+
+while (<TEXI>) {
+  chomp;
+  next if (/^\s*\@c\s/)
+  if (/\@node (.*)/) {
+    my $node = $1;
+    close NODE;
+    open NODE, '>', "doc/Tootsville.html.d/$node.html" or die;
+    ++$files{$node};
+    next;
+  }
+  if (/\@chapter (.*)/) {
+    $current_chapter = $1;
+    ++$chapter_number;
+    print NODE "<h1> Chapter $chapter_number. $current_chapter </h1>\n";
+  }
+
+  s/\@\@/\@/g;
+
+  print NODE "$_\n";
+}
+
+open INDEX, '>', 'doc/Tootsville.html.d/index.html' or die;
+
+print INDEX << index_end;
+<!DOCTYPE html>
+<html>
+ <head>
+  <title> Tootsville: On-line documentation </title>
+ </head>
+ <body>
+  <h1> Tootsville: On-line documentation </h1>
+  <h2> Chapters </h2>
+  <ul>
+
+  </ul>
+ </body>
+</html>
+index_end
