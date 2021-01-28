@@ -1581,6 +1581,9 @@ Pong!
   (assert (emptyp params))
   (error 'unimplemented))
 
+(defun %parse-operator-place-where (where)
+  (error 'unimplemented))
+
 (define-operator-command place (words user plane)
   "Put a thing or a Place into the game
 
@@ -1802,8 +1805,8 @@ Each subcommand is implemented by a ``private'' function named
 "
   (when (and (= 1 (length words))
              (string-equal "#list" (first words)))
-    (return-from infinity-place
-                 "#place
+    (return-from tootsville-user::place
+      "#place
 #place WHERE #download ITEM-TEMPLATE-NUMBER URL [FACING]
 #place WHERE #exit MONIKER 
 #place WHERE #fountain ITEM-TEMPLATE-NUMBER
@@ -1819,20 +1822,20 @@ Each subcommand is implemented by a ``private'' function named
 #place WHERE #walk
 "))
   (unless (<= 2 (length words))
-    (return-from 'Tootsville-user::place "#place syntax error"))
-  (let ((where (parse-infinity-place-where (first words))))
+    (return-from Tootsville-user::place "#place syntax error"))
+  (let ((where (%parse-operator-place-where (first words))))
     (unless where
-      (return-from 'Tootsville-user::place "#place where error"))
+      (return-from Tootsville-user::place "#place where error"))
     (unless (char= #\# (char (second words) 0))
-      (return-from 'Tootsville-user::place "#place subcommands start with #"))
+      (return-from Tootsville-user::place "#place subcommands start with #"))
     (let ((subcommand
-           (find-symbol (concatenate 'string
-                                     "%OPERATOR-PLACE-"
-                                     (string-upcase (subseq (second words) 1)))
-                        :Tootsville)))
+            (find-symbol (concatenate 'string
+                                      "%OPERATOR-PLACE-"
+                                      (string-upcase (subseq (second words) 1)))
+                         :Tootsville)))
       (unless subcommand
-        (return-from 'Tootsville-user::place
-                     (format nil "#place subcommand ~a not found" (second words))))
+        (return-from Tootsville-user::place
+          (format nil "#place subcommand ~a not found" (second words))))
       (funcall subcommand where (subseq words 2)))))
 
 (define-operator-command purgephysics (words user plane)
@@ -1846,7 +1849,6 @@ This is a no-op.
 In Romance II, physics are handled by the clients. This command is no
 longer needed."
   "#purgephysics is no longer used")
->>>>>>> 3076abd... docs
 
 (define-operator-command rc (words user plane)
   "Run an RC (Run Commands) script.
