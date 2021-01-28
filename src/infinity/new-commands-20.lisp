@@ -172,7 +172,6 @@ See `INFINITY-GET-ROOM-VARS' for a discussion."
             (place-string place)))
     (setf (gethash "from" hash) "rv"
           (gethash "status" hash) t
-          (gethash "rad" hash) t
           (gethash "var" hash) vars)
     hash))
 

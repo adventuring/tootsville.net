@@ -1529,6 +1529,58 @@ Pong!
 @end quotation"
   "Pong!")
 
+(defun %operator-place-download (where params)
+  (destructuring-bind (item-template-number url &optional facing) params
+    (error 'unimplemented)))
+
+(defun %operator-place-exit (where params)
+  (destructuring-bind (moniker) params
+    (error 'unimplemented)))
+
+(defun %operator-place-fountain (where params)
+  (destructuring-bind (item-template-number) params
+    (error 'unimplemented)))
+
+(defun %operator-place-game (where params)
+  (destructuring-bind (game-moniker &rest game-attributes) params
+    (error 'unimplemented)))
+
+(defun %operator-place-item (where params)
+  (destructuring-bind (item-template-number &optional facing) params
+    (error 'unimplemented)))
+
+(defun %operator-place-mini (where params)
+  (destructuring-bind (moniker) params
+    (error 'unimplemented)))
+
+(defun %operator-place-place (where params)
+  (destructuring-bind (kind) params
+                      (error 'unimplemented)))
+
+(defun %operator-place-room (where params)
+  (destructuring-bind (spot-moniker) params
+                      (error 'unimplemented)))
+
+(defun %operator-place-shop (where params)
+  (destructuring-bind (item-template-number price &optional facing) params
+                      (error 'unimplemented)))
+
+(defun %operator-place-snowball (where params)
+  (destructuring-bind (item-template-number &optional facing) params
+                      (error 'unimplemented)))
+
+(defun %operator-place-unwalk (where params)
+  (assert (emptyp params))
+  (error 'unimplemented))
+
+(defun %operator-place-vitem (where params)
+  (destructuring-bind (item-template-number &optional facing) params
+                      (error 'unimplemented)))
+
+(defun %operator-place-walk (where params)
+  (assert (emptyp params))
+  (error 'unimplemented))
+
 (define-operator-command place (words user plane)
   "Put a thing or a Place into the game
 
@@ -1543,23 +1595,31 @@ designator.  The event region ID will be automatically assigned.
 These are usually communicated to  the client as ``room variables;'' see
 `INFINITY-GET-ROOM-VARS' for a description of that protocol.
 
+UNIMPLEMENTED. Target version: 0.7
+
 @subsection Usage
 
 @verbatim
-#place WHERE #item ITEM-TEMPLATE-NUMBER [FACING]
-#place WHERE #room MONIKER 
-#place WHERE #vitem ITEM-TEMPLATE-NUMBER [FACING]
-#place WHERE #item2 ITEM-TEMPLATE-NUMBER OTHER-ITEM-TEMPLATE-NUMBER
-#place WHERE #shop ITEM-TEMPLATE-NUMBER PRICE [FACING]
+#place #list
+#place WHERE #download ITEM-TEMPLATE-NUMBER URL [FACING]
 #place WHERE #exit MONIKER 
-#place WHERE #mini MINIGAME-MONIKER 
-#place WHERE #walk
-#place WHERE #unwalk
-#place WHERE #snowball ITEM-TEMPLATE-NUMBER
-#place WHERE #download ITEM-TEMPLATE-NUMBER URL
 #place WHERE #fountain ITEM-TEMPLATE-NUMBER
+#place WHERE #game GAME-MONIKER GAME-ATTRIBUTES
+#place WHERE #item ITEM-TEMPLATE-NUMBER [FACING]
+#place WHERE #item2 ITEM-TEMPLATE-NUMBER OTHER-ITEM-TEMPLATE-NUMBER
+#place WHERE #mini MINIGAME-MONIKER 
 #place WHERE #place PLACE-KIND
+#place WHERE #room MONIKER 
+#place WHERE #shop ITEM-TEMPLATE-NUMBER PRICE [FACING]
+#place WHERE #snowball ITEM-TEMPLATE-NUMBER [FACING]
+#place WHERE #unwalk
+#place WHERE #vitem ITEM-TEMPLATE-NUMBER [FACING]
+#place WHERE #walk
 @end verbatim
+
+@code{#place #list} will give a brief reminder of the @code{#place}
+subcommand syntax, although this manual should be considered the
+canonical reference source.
 
 WHERE can be one of:
 
@@ -1583,10 +1643,12 @@ An x,z coördinate pair; e.g. @code{100,100}.
 The specific location can be outlined as a series of x,z coördinates
 delimited by tildes; e.g.  @code{100,100~100,200~200,200~200,100}.
 
-@item A circle designator
-A polygon approximating a circle originating at the location of the operator
-issuing the command, whose radius R and number of segments S are specified,
-delimited by a @code{x} character; e.g.  @code{100x10}.
+@item A circle designator A polygon approximating a circle originating
+at the location of the operator issuing the command, whose radius R
+and number of segments S are specified, delimited by a @code{x}
+character; e.g.  @code{100x10}. A circle can be designated to start at
+another position with the notation @code{50,60+100x10}, where the
+center will be at x position 50, z position 60.
 
 @end table
 
@@ -1606,6 +1668,32 @@ enumerated in the following sections.
 #place 100x10 #item 1234
 @end example
 
+@subsection @code{#download} Placing a download trigger item
+
+An item will be placed at the point specified, which must be a single
+point (or a named spot).
+
+@SUBSECTION @code{#exit} Placing a transwarp conduit
+
+An ``exit'' is a hyperspace link between two spots in the game universe.
+A place will be created at the indicated location. Any player who enters
+into  the ``exit''  place will  be  immediately relocated  to the  named
+spot indicated.
+
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+In Romance 1.2, exits were linked between rooms. A specially-formatted
+exit designator could indicate to which exit (entrance) in the other
+room to link the player.
+
+In Romance 2.0, the exit's destination is an arbitrary point with a
+``spot'' name assigned to it.
+
+@subsection @code{#fountain} Placing a magic fountain
+
+WRITEME
+
 @subsection @code{item} Placing an item
 
 A furniture item will be placed at the position indicated.  Position must be
@@ -1614,36 +1702,11 @@ ID number.  An instance of the item will be placed at that point.  An
 optional facing direction can be specified, either in radians, or from the
 set @code{N NE E SE S SW W NW}.
 
-@subsubsection Changes from 1.2 to 2.0
+@subsubsection Changes from  1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
 In Romance 1.2, this was used to place an item-gifting spot, which was
 invisible.
-
-@subsection @code{room} Placing a ``room'' marker
-
-A ``spot'' designator will be created at the point indicated, which must 
-be @code{#here} or a point coördinate pair. The moniker given will be
-associated with the spot and can be used for certain other commands.
-
-@subsection @code{vitem} Placing an item-gifting item
-
-An item-gifting spot will be placed at the position indicated.  Position
-must be @code{#here} or a point coördinate pair.  The identifier is an item
-template ID number.  An instance of the item will be placed at that point. 
-An optional facing direction can be specified, either in radians, or from
-the set @code{N NE E SE S SW W NW}.  Any player who clicks on the item at
-this spot will receive an instance of the template in their inventory, and
-a friendly pop-up message with a description of the item. Only one item
-per player will be given.
-
-@subsubsection Changes from  1.2 to 2.0
-@cindex Changes from 1.2 to 2.0
-
-In Romance 1.2, @code{vitem} gifts were only for ``V.I.T.'' (paid) players,
-and @code{item} was for everyone.  @code{item} has been repurposed for
-furniture placement.  Also, item gifting spots were invisible and triggered
-by the player walking into them.
 
 @subsection @code{#item2}
 
@@ -1655,6 +1718,16 @@ This is no longer supported in Romance 2.0.
 In Romance 1.2, @code{item2} provided different items to paid (``V.I.T.'')
 or unpaid (regular) players.  Since Tootsvillle V is free to play, this is
 no longer needed.
+
+@subsection @code{#place} Placing a Place designator
+
+A Place designator WRITEME
+
+@subsection @code{room} Placing a ``room'' (spot) marker
+
+A ``spot'' designator will be created at the point indicated, which must 
+be @code{#here} or a point coördinate pair. The moniker given will be
+associated with the spot and can be used for certain other commands.
 
 @subsection @code{#shop} Placing a shop item
 
@@ -1669,16 +1742,11 @@ at the price indicated.
 The  price  given is  in  peanuts,  unless  it  begins with  the  letter
 @code{F}, in which case it is given in fairy dust.
 
-@subsection @code{#exit} Placing a transwarp conduit
-
-An ``exit'' is a hyperspace link between two spots in the game universe.
-A place will be created at the indicated location. Any player who enters
-into  the ``exit''  place will  be  immediately relocated  to the  named
-spot indicated.
-
 @subsection @code{#mini} Placing a minigame
 
-WRITEME
+Minigames are not supported in Romance 2.0, although they could return
+in some form. In-world games based upon `INFINITY-GAME-ACTION' are
+supported still, q.v. See Also @code{#place #game} in this section.
 
 @subsubsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
@@ -1686,53 +1754,99 @@ WRITEME
 In Tootsville IV,  minigames were Adobe Flash applets  which were loaded
 into the main game environment. This is no longer the case.
 
+@subsection @code{#snowball} Placing a snowball source pile
+
+WRITEME
+
+@subsection @code{#unwalk} Placing an unwalkable space
+
+An unwalkable space is a specific type of Place designator given
+special consideration. It presents as a very tall invisible object
+that blocks navigation.
+
+Unwalkable spaces are @i{not} currently supported by the Tootsville V
+client software.
+
+To remove an unwalkable space, place a @code{#walk} space that covers
+it.
+
+@subsection @code{vitem} Placing an item-gifting item
+
+An item-gifting spot will be placed at the position indicated.  Position
+must be @code{#here} or a point coördinate pair.  The identifier is an item
+template ID number.  An instance of the item will be placed at that point. 
+An optional facing direction can be specified, either in radians, or from
+the set @code{N NE E SE S SW W NW}.  Any player who clicks on the item at
+this spot will receive an instance of the template in their inventory, and
+a friendly pop-up message with a description of the item. Only one item
+per player will be given.
+
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+In Romance 1.2, @code{vitem} gifts were only for ``V.I.T.'' (paid) players,
+and @code{item} was for everyone.  @code{item} has been repurposed for
+furniture placement.  Also, item gifting spots were invisible and triggered
+by the player walking into them.
+
 @subsection @code{#walk} Placing a walkable space
 
 This  designates that  the  place  specified is  walkable  space; if  it
 intersects  any   place  previously   marked  as  unwalkable,   it  will
 be reverted.
 
-@subsection @code{#unwalk} Placing an unwalkable space
+@subsection Implementation note
 
-WRITEME
-
-@subsection @code{#snowball} Placing a snowball source pile
-
-WRITEME
-
-@subsection @code{#download} Placing a download trigger item
-
-WRITEME
-
-@subsection @code{#fountain} Placing a magic fountain
-
-WRITEME
-
-@subsection @code{#place} Placing a Place designator
-
-A Place designator WRITEME
-
+Each subcommand is implemented by a ``private'' function named
+@code{%OPERATOR-PLACE-}@i{subcommand} in the Tootsville package.
 "
-  (error 'unimplemented))
+  (when (and (= 1 (length words))
+             (string-equal "#list" (first words)))
+    (return-from infinity-place
+                 "#place
+#place WHERE #download ITEM-TEMPLATE-NUMBER URL [FACING]
+#place WHERE #exit MONIKER 
+#place WHERE #fountain ITEM-TEMPLATE-NUMBER
+#place WHERE #game GAME-MONIKER GAME-ATTRIBUTES
+#place WHERE #item ITEM-TEMPLATE-NUMBER [FACING]
+#place WHERE #mini MINIGAME-MONIKER 
+#place WHERE #place PLACE-KIND
+#place WHERE #room MONIKER
+#place WHERE #shop ITEM-TEMPLATE-NUMBER PRICE [FACING]
+#place WHERE #snowball ITEM-TEMPLATE-NUMBER [FACING]
+#place WHERE #unwalk
+#place WHERE #vitem ITEM-TEMPLATE-NUMBER [FACING]
+#place WHERE #walk
+"))
+  (unless (<= 2 (length words))
+    (return-from 'Tootsville-user::place "#place syntax error"))
+  (let ((where (parse-infinity-place-where (first words))))
+    (unless where
+      (return-from 'Tootsville-user::place "#place where error"))
+    (unless (char= #\# (char (second words) 0))
+      (return-from 'Tootsville-user::place "#place subcommands start with #"))
+    (let ((subcommand
+           (find-symbol (concatenate 'string
+                                     "%OPERATOR-PLACE-"
+                                     (string-upcase (subseq (second words) 1)))
+                        :Tootsville)))
+      (unless subcommand
+        (return-from 'Tootsville-user::place
+                     (format nil "#place subcommand ~a not found" (second words))))
+      (funcall subcommand where (subseq words 2)))))
 
 (define-operator-command purgephysics (words user plane)
   "Purge pending physics interactions. 
 
-UNIMPLEMENTED."
-  (error 'unimplemented))
+This is a no-op.
 
-(define-operator-command push (words user plane)
-  "WRITEME
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
- UNIMPLEMENTED"
-  (error 'unimplemented))
-
-(define-operator-command put (words user plane)
-  "WRITEME
-
-UNIMPLEMENTED
-"
-  (error 'unimplemented))
+In Romance II, physics are handled by the clients. This command is no
+longer needed."
+  "#purgephysics is no longer used")
+>>>>>>> 3076abd... docs
 
 (define-operator-command rc (words user plane)
   "Run an RC (Run Commands) script.
@@ -1765,6 +1879,8 @@ WRITEME
 
 No, really;  this actually kills the  game server with an  error exit so
 that it will (hopefully) be restarted by SystemD.
+
+This is a violent way to go, and is for emergencies @i{only}.
 
 @subsection Usage
 
@@ -1832,7 +1948,7 @@ server (see `TOOTSVILLE-USER::EVACUATE').
  
 @subsection Examples
 @verbatim
-#retire game3.test.tootsville.org
+#retire game3.test.Tootsville.org
 #retire
 @end verbatim
 "
@@ -2422,7 +2538,7 @@ In Romance 1.2,  Zones (shards) were implemented,  although not actually
 used by Tootsville IV. This command wrote to all users in all zones.
 
 "
-  (tootsville-user::wall words user plane))
+  (Tootsville-user::wall words user plane))
 
 (define-operator-command warn (words user plane)
   "Warn a user about breaking a rule.

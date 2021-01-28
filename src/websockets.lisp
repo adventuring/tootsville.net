@@ -1033,6 +1033,12 @@ Response: logOK or @{ from: \"login\", status: false, err:
 
 @subsection Usage
 
+@verbatim
+{ userName: LOGIN,
+  password: SHA1-HEX,
+  zone: \"$Eden\" }
+@end verbatim
+
 The input packet must have 3 data elements:
 
 @table @code
@@ -1055,6 +1061,15 @@ Must always be @code{$Eden} exactly.
 In the event  of failure, see `LOGIN-FAIL' for  possible failure (error)
 codes that can be returned.
 
+@subsection Example
+
+@verbatim
+{ c: \"login\",
+  d: { userName: \"Pil\",
+       password: \"6b4cd72086d278a9a0df40de7b4011fceae538dd\",
+       zone: \"$Eden\" } }
+@end verbatim
+
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
@@ -1064,8 +1079,21 @@ no sharded zones.
 
 Login does not completely succeed without parental approval.
 
-The  @code{err2} value  was added  to  error packets  for better  client
+The @code{err2} value was added to error packets for better client
 software support.
+
+@subsection Changes from 1.1 to 1.2
+@cindex Changes from 1.1 to 1.2
+
+Password hashing used the MD5 digest, which is no longer considered
+strong enough for Tootsville security.
+
+@subsection Changes from 1.0 to 1.1
+@cindex Changes from 1.0 to 1.1
+
+The `INFINITY-GET-APPLE' system was implemented. Previously, users
+submitted unsalted hashes of their password, which was (potentially)
+subject to replay attacks.
 "
   (let ((user-name (getf packet :|userName|))
         (password (getf packet :|password|))
@@ -1115,7 +1143,10 @@ software support.
 (defun maybe-parent-approval (Toot client)
   "Check for existing parent approval.
 
-If a parent has already authorized this Toot, they'll sign right in."
+If a parent has already authorized this Toot, they'll sign right in.
+
+Calls `WS-APPROVE-TOOT' or `WS-DENY-TOOT' if an existing approval
+exists. Otherwise, returns silently."
   (let ((*client* client))
     (when-let (requests (answered-child-requests-by-Toot Toot))
       (if-let (approved (find-if #'child-request-allowed-at requests))
@@ -1179,7 +1210,11 @@ Calling this with an adult's Toot is funny, but not helpful."
             (consider-child-kick Toot))))))
 
 (defun ws-approve-Toot (Toot request)
-  "Notify TOOT that REQUEST was approved"
+  "Notify TOOT that REQUEST was approved.
+
+REQUEST is a `CHILD-REQUEST'"
+  (check-type Toot Toot)
+  (check-type request child-request)
   (let ((until-time (timestamp+ (child-request-allowed-at request)
                                 (child-request-allowed-for request)
                                 :hour)))
@@ -1200,8 +1235,11 @@ Calling this with an adult's Toot is funny, but not helpful."
       (v:warn '(:child :stream) "~a is not online to get approval" Toot))))
 
 (defun ws-deny-Toot (Toot request)
-  "Notify TOOT that REQUEST was denied"
+  "Notify TOOT that REQUEST was denied
+
+REQUEST is a `CHILD-REQUEST'"
   (declare (ignore request))
+  (check-type Toot Toot)
   (consider-child-kick Toot)
   (if-let (client (user-stream Toot))
     (progn (setf (user-account client) nil
@@ -1218,7 +1256,10 @@ Calling this with an adult's Toot is funny, but not helpful."
 
 
 (defun ws-evacuate-all (&optional (resource *infinity-websocket-resource*))
-  "Evacuate all connected players to other servers."
+  "Evacuate all connected players to other servers.
+
+Broadcasts a @code{from: \"migrate\"} packet to all users connected to
+RESOURCE."
   (ws-broadcast resource
                 '(:|from| "migrate"
                   :|status| t
