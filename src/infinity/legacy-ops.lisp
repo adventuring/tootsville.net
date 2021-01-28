@@ -1321,6 +1321,7 @@ List all tasks scheduled with the metronome
 Cancel a specific task by name
 @end table
 
+
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
@@ -1517,7 +1518,15 @@ child request from TOOT.
 
 @example
 #ping
-@end example"
+@end example
+
+@subsection Reply
+
+The reply is an administrative message saying simply:
+
+@quotation
+Pong!
+@end quotation"
   "Pong!")
 
 (define-operator-command place (words user plane)
@@ -1531,7 +1540,8 @@ around the operator issuing the command (using #here, #here-tiny, or
 #here-big), or can be an explicitly-issued polygon string or circle
 designator.  The event region ID will be automatically assigned.
 
-
+These are usually communicated to  the client as ``room variables;'' see
+`INFINITY-GET-ROOM-VARS' for a description of that protocol.
 
 @subsection Usage
 
@@ -1627,7 +1637,7 @@ this spot will receive an instance of the template in their inventory, and
 a friendly pop-up message with a description of the item. Only one item
 per player will be given.
 
-@subsubsection Changes from 1.2 to 2.0
+@subsubsection Changes from  1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
 In Romance 1.2, @code{vitem} gifts were only for ``V.I.T.'' (paid) players,
@@ -1708,9 +1718,20 @@ A Place designator WRITEME
 (define-operator-command purgephysics (words user plane)
   "Purge pending physics interactions. 
 
-UNIMPLEMENTED.
+UNIMPLEMENTED."
+  (error 'unimplemented))
 
-WRITEME"
+(define-operator-command push (words user plane)
+  "WRITEME
+
+ UNIMPLEMENTED"
+  (error 'unimplemented))
+
+(define-operator-command put (words user plane)
+  "WRITEME
+
+UNIMPLEMENTED
+"
   (error 'unimplemented))
 
 (define-operator-command rc (words user plane)
@@ -1736,12 +1757,6 @@ method will be executed; the
 
 WRITEME
 
-UNIMPLEMENTED
-
-@subsection Changes from 1.2 to 2.0
-@cindex Changes from 1.2 to 2.0
-
-WRITEME
 "
   (error 'unimplemented))
 
@@ -1908,11 +1923,11 @@ In 1.2, this moved an user into another room.
   (let ((latitude (parse-integer (second words)))
         (longitude (parse-integer (third words)))
         (altitude (if (< 2 (length words))
-                                  (parse-integer (third words))
-                                  0))
+                      (parse-integer (third words))
+                      0))
         (world (if (< 3 (length words))
-                               (string-upcase (fourth words))
-                               "CHOR")))
+                   (string-upcase (fourth words))
+                   "CHOR")))
     (unicast (list :|from| "beam"
                    :|latitude| latitude
                    :|longitude| longitude
@@ -2226,7 +2241,10 @@ UNIMPLEMENTED.
 
 (define-operator-command time (words user plane)
   "Displays a message  with the current server time.
-  
+
+This is a convenience function to ask ``what time is it,'' as opposed to
+the verb ``time this to see how long it takes'' like `TIME'.
+
 @subsection Usage
 
 @verbatim
@@ -2265,11 +2283,11 @@ time code, and Chœrogryllum date and time are new.
               hour minute second (chœrogryllum:date-string universal)))))
 
 (define-operator-command unbuild (words user plane)
-  "Destroy a room
+  "Destroy a named spot.
  
 UNIMPLEMENTED. 
 
- Destroys a room. Must have staff level 8 (DEVELOPER) to use this command.
+ Destroys a named spot.
 
 @subsection Usage
 @verbatim
@@ -2280,6 +2298,12 @@ UNIMPLEMENTED.
 @verbatim
  #unbuild tootUniversity
 @end verbatim
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+In Romance 1.2,  this command was used  to destroy a room.  We no longer
+have rooms, so it is instead used to destroy named spots.
 
 "
   (error 'unimplemented))
@@ -2367,7 +2391,7 @@ Sends an pop-up message to all Builder Toots currently online
 #wallops MESSAGE
 @end verbatim
 
-@subsection Example
+@subsection Exampleyy
 
 @example
 #wallops This message will go to all other staff members in this zone.
@@ -2381,56 +2405,72 @@ Sends an pop-up message to all Builder Toots currently online
 
 This is now the same as `TOOTSVILLE-USER::WALL', qv.
 
-@subsection Instructions from Romance 1.2
-
- Sends an  pop-up message to  all everyone  in every zone.  Must have
- staff level 8 (DEVELOPER) to use this command.
-
- Usage
+@subsection Usage
+@verbatim
  #wallzones [MESSAGE...]
+@end verbatim
 
- Examples
+@subsection Example
+@verbatim
  #wallzones This message will go to everyone in every zone.
+@end verbatim
 
- Parameters:
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
-words  - The  command  parameters  (whitespace-delimited list)  provided
-after the # command name
+In Romance 1.2,  Zones (shards) were implemented,  although not actually
+used by Tootsville IV. This command wrote to all users in all zones.
 
-u - The user invoking the operator command
-
-room  - The  room in  which the  user is  standing (as  a room  number).
-This can be -1 under certain circumstances.
 "
   (tootsville-user::wall words user plane))
 
 (define-operator-command warn (words user plane)
   "Warn a user about breaking a rule.
 
+Warns  a user  (anonymously)  about the  Tootsville  rules. The  warning
+messages  are   pre-determined  canned   messages  accessed   via  short
+mnemonic names.
+
+To obtain the list of mnemonics, type @code{#warn #list}.
+
 @subsection Usage
 
- Usage: #warn [REASONCODE] [LOGIN]
+@verbatim
+#warn #list 
+#warn REASONCODE LOGIN
+@end verbatim
 
-@subsection Example
+@subsection Examples
 
 @example
- #warn BULLY Pil
+#warn #list 
+#warn BULLY Pil
 @end example
 
 @subsection Reason Codes
 
 See `TOOTSVILLE-USER::KICK' for the current list
 
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+This command's  reason codes  have changed from  1.2 to  2.0 completely.
+The new list is kept under `TOOTSVILLE-USER::KICK'.
+
+@code{#warn #list} is a new command.
 "
   (error 'unimplemented))
 
 (define-operator-command whatis (words user plane)
   "Displays information about an item template. 
 
+The  item template  info is  essentially  that which  is available  from
+`ITEM-TEMPLATE-INFO'.
+
 @subsection Usage
 
 @verbatim
-#whatis ITEM-TEMPLATE
+#whatis ITEM-TEMPLATE-ID
 @end verbatim
 
 @subsection Example
@@ -2471,9 +2511,13 @@ are connected.
   (machine-instance))
 
 (define-operator-command whereis (words user plane)
-  "Find  out in  what what  room a  character is  standing, if  s/he is
+  "Locate a user in the game world.
+
+Find  out in  what what  room a  character is  standing, if  s/he is
  logged in at the moment. Must  have staff level 2 (MODERATOR) to use
  this command.
+
+WRITEME these instructions have not been adapted to Romance II yet.
 
 @subsection Usage
 @verbatim
@@ -2498,6 +2542,8 @@ User Name of a specific user;
 
 (define-operator-command who (words user plane)
   "Displays a  list of everyone  currently in  a room.
+
+WRITEME this has not been updated for Romance II yet.
 
 @subsection Usage
 @verbatim
@@ -2537,13 +2583,19 @@ Note that the response is public speech; everyone in the room will see it.
 #whoami
 @end verbatim
 
+@quotation
+Hello, my name is Pil.
+@end quotation
+
 "
   (toot-speak (format nil "Hello, my name is ~a." (Toot-name *Toot*)))
   nil)
 
 (define-operator-command whoareyou (words user plane)
-  "Ask  the  server who  it  is.  This  command should  return  version
- information on some of the critical classes used in the game server.
+  "Ask  the  server who  it  is.  
+
+This command should  return version information on some  of the critical
+components used in the game server.
  
 @subsection Usage
 
@@ -2559,12 +2611,14 @@ Note that the response is public speech; everyone in the room will see it.
  
 @subsection Example Response
 
-@example
+@quotation 
+
 This server is Inktomi, a X86-64  Intel(R) Core(TM) i7 CPU 860 @ 2.80GHz
 running    Linux   5.6.8-300.fc32.x86_64    with   SBCL    2.0.1-1.fc32.
 Quicklisp    dist   version    2020-04-27;   Ultralisp    dist   version
 20200501011006; Tootsville version 0.6.4
-@end example
+
+@end quotation
 
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
@@ -2586,9 +2640,7 @@ Tootsville version ~a"
 (define-operator-command zoom (words user plane)
   "Set the visual Zoom level of a room.
 
-@subsection Usage
-
-WRITEME
+UNIMPLEMENTED
 
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0

@@ -197,6 +197,7 @@ Scaling of the avatar in each of x, y, and z dimensions. See
 @end table
 
 @subsection Changes from 1.0 to 1.1
+@cindex Changes from 1.0 to 1.1
 
 The @code{avatarClass} object used to have fields @code{s}, which is the
 same   as   @code{title};   @code{forVIT},   which  is   the   same   as
@@ -206,10 +207,12 @@ same   as   @code{title};   @code{forVIT},   which  is   the   same   as
 @code{org.starhope.appius.events.format1.0}.
 
 @subsection Changes from 1.1 to 1.2
+@cindex Changes from 1.1 to 1.2
 
 Added @code{scaling} for ``Magic Toots.''
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 @itemize
 @item
@@ -360,6 +363,7 @@ possesses.
 @end table
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In 1.2, the only currency reported was X-TVPN, Tootsville Magic Peanuts.
 Now, we also report (at least) X-FADU, fairy dust.

@@ -605,6 +605,7 @@ Commands ignored with error returns for compatibility with version 1.2:
 @end table
 
 @subsection Changes from 1.0 to 1.2
+@cindex Changes from 1.0 to 1.2
 
 I don't actually have a record as to when these commands were added, but
 @code{batch} and @code{finger} were added in either 1.1 or 1.2.
@@ -615,6 +616,7 @@ public information without  logging in. Any new Toot Viewer  can use the
 REST interface for that purpose.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 Several  commands are  no longer  supported.  Note also  changes to  the
 @code{getApple} protocol  at `INFINITY-GET-APPLE' and the  new Alef-null
@@ -911,11 +913,13 @@ these packets.
 This mechanism for logins was introduced in 1.1
 
 @subsection Changes from 1.1 to 1.2
+@cindex Changes from 1.1 to 1.2
 
 1.2 switched all communications to  JSON, removing XML equivalent legacy
 commands used by SmartFox Server's protocol.
 
 @subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 @itemize
 
@@ -1040,7 +1044,8 @@ Must always be @code{$Eden} exactly.
 In the event  of failure, see `LOGIN-FAIL' for  possible failure (error)
 codes that can be returned.
 
-@subsection Changes from 1.2
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
 In 1.2, users  would log in to  zone @code{$Eden}, then log  in again to
 a specific zone.  Now, @code{$Eden} is just a placeholder  and there are

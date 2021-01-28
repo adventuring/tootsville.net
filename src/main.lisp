@@ -32,7 +32,11 @@
 (defvar *motd*
   "Welcome to Tootsville! Let's make some noise!
 
-This is experimental server software for Tootsville V.")
+This is experimental server software for Tootsville V."
+  "The message of the day. 
+
+This is served up to every person who signs in. It can be altered easily
+using the `TOOTSVILLE-USER::MOTD' command.")
 
 (defvar *acceptors* nil
   "The set of listening acceptors awaiting incoming connections.")
