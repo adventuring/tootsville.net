@@ -262,17 +262,17 @@ Placed items, new form: JSON object
 @verbatim
 { uuid:
  position: {  x: y: z: },
- facing: radians,
- baseColor: color,
- altColor: color,
- energy: number,
+ facing: FACING,
+ baseColor: COLOR,
+ altColor: COLOR,
+ energy: NUMBER,
  scale:  { x: y: z: },
  world:  { world: lat: long: alt: },
  template:
  { id:
    name:
    description:
-   trade: [  Y N X  ],
+   trade: [  \"Y\", \"N\", or \"X\"  ],
    avatar:
    energyKind:
    energyMax:
@@ -293,7 +293,27 @@ Text to be displayed atop another item. The value might be x~z~string
 or itm2-id~attachment~string. In the latter form, the text is attached
 to the model of the ``itm2'' given at the attachment point.
 
+The attachment point is expected to be of the form
+@code{tex:TEXTURE-NAME}, i.e. a literal prefix @code{tex:} followed by
+the name of the surface texture onto which the text should be drawn.
+
 @end table
+
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+The facing directions can now be cardinal directions, or radians.
+
+User-placed ``furniture'' is no longer distinguished from other items
+in the world.
+
+@code{text} items can now be associated with items, rather than having
+fixed positions of their own.
+
+@subsubsection Changes from 1.1 to 1.2
+@cindex Changes from 1.1 to 1.2
+
+The @code{itm2} format was added.
 
 @subsection Places
 
@@ -364,12 +384,36 @@ A bottomless pit
 
 @end table
 
+@subsubsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+Places (referred to, confusingly, as zones) existed in Romance 1.0,
+but they came in two forms. Some zones were ``burned in'' to the Flash
+``floor'' files as invisible polygon layers with a specific naming
+convention. Others were promulgated by room variables.
+
+The variety of places has been substantially increased.
+
+The default was for the ``floor'' to be @i{unwalkable}, with walkable
+spaces marked out by zones. The reverse is now true, however, items
+are now physical boundaries that block player movement.
+
+@subsubsection Changes from 1.0 to 1.1
+@cindex Changes from 1.0 to 1.1
+
+Prior to 1.1, all floor zones were embedded permanently in the Flash
+``floor'' files.
+
+@subsection More good stuff
+
 WRITEME --- there is more to explain about room variables.
 
 @subsection See Also
 
 See  `TOOTSVILLE-USER::PLACE' for  an  explanation  of creating  certain
 places in the game and how they work.
+
+
 
 "
   (list 200 (local-room-vars)))
@@ -463,8 +507,62 @@ WRITEME"
                    :|n| u)
              :except *client*))
 
+(defvar +facing-angles+
+  (make-hash-table :test 'equalp)
+  "The eight cardinal directions, mapped to angles in radians.
+
+See `INTERPRET-FACING'.
+
+Would be a constant, except for issues with making hash-table
+constants.")
+
+(setf (gethash "N" +facing-angles+) 0
+      (gethash "NE" +facing-angles+) (* pi 1/4)
+      (gethash "E" +facing-angles+) (* pi 1/2)
+      (gethash "SE" +facing-angles+) (* pi 3/4)
+      (gethash "S" +facing-angles+) pi
+      (gethash "SW" +facing-angles+) (* pi 5/4)
+      (gethash "W" +facing-angles+) (* pi 3/2)
+      (gethash "NW" +facing-angles+) (* pi 7/4))
+
+(defun interpret-facing (facing)
+  "Given a FACING string, return an angle in radians.
+
+This supports a string that is a floating-point number of radians that
+can be parsed by `PARSE-FLOAT' or one of the cardinal eight directions
+as a string: @code{N NE E SE S SW W NW}.
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+Facing directions used to be @i{only} the cardinal directions; now, an
+arbitrary rotation in radians is possible.
+
+TODO: Throw a 400-type exception when junk is passed in."
+  (if-let (angle (gethash facing +facing-angles+))
+          angle
+          (parse-float facing :junk-allowed-p nil)))
+
 (definfinity shoot ((i course facing) u r)
   "Fire a shot from a projectile device.
+
+UNIMPLEMENTED
+
+The projectile device ITEM must be capable of firing a projectile;
+this includes having sufficient energy (ammunition) to do so.
+
+Projectiles are currently UNIMPLEMENTED.
+
+@subsection Usage
+
+@verbatim
+{ c: \"shoot\",
+  d: { i: ITEM,
+       course: COURSE,
+       facing: FACING } }
+@end verbatim
+
+@subsection Example
 
 WRITEME
 
@@ -480,7 +578,22 @@ promulgate shots."
 Used primarily  in the  login process.  Might also  be used  for gifting
 inventory back-and-forth later.
 
-WRITEME"
+@subsection Format
+
+@verbose
+{ from: \"tootList\",
+  status: true,
+  toots: [ TOOT-INFO, ... ] }
+@end verbose
+
+The value of @code{toots} is an array (list) of `TOOT-INFO' ordered by
+the time that the Toot was last active in the game, most recent to
+least recent. Clients are encouraged to display the list of Toots in
+this order.
+
+If the player has no Toots yet, returns a 404 with @code{status:
+false}.
+"
   (if-let (player-Toots (player-Toots))
     (list 200
           (list :|status| t
@@ -513,6 +626,8 @@ Each Toot object is as per `TOOT-INFO', q.v.
   status: true,
   toots: [ { INFO }, ... ] }
 @end verbatim
+
+See `TOOT-LIST-MESSAGE'.
 "
   (toot-list-message))
 
@@ -525,7 +640,12 @@ Each Toot object is as per `TOOT-INFO', q.v.
 (defun random-start-wtl-for-Toot ()
   "Designate a starting position in Toot Square for a Toot.
 
-Returns a WTL-type structure in a JSON string
+Returns a WTL-type structure in a JSON string, with @code{course} and
+@code{facing} values.
+
+Starting positions are randomly dispersed around the Toot Square
+fountain, which intentionally is the center of the coördinate system
+of the world.
 "
   (let* ((θ (random (* 2 pi)))
          (θ₂ (random (* 2 pi)))
@@ -590,7 +710,16 @@ WRITEME"
 (defun play-with-Toot (Toot)
   "Set up the *USER* to play with Toot object TOOT.
 
-Performs announcement of the player to the world and other bookkeeping."
+Performs announcement of the player to the world and other bookkeeping.
+
+See `INFINITY-PLAY-WITH'.
+
+The client will receive a minor broadcast storm of information about
+their Toot and the game world. This will, at a minimum, include a
+success message from @code{playWith}, their own avatar information,
+nearby players' avatar information, and `LOCAL-ROOM-VARS' for their
+immediate vicinity.
+"
   (when *client*
     (setf (Toot *client*) Toot))
   (update-Toot-last-active Toot)
@@ -630,8 +759,7 @@ CHARACTER must be the name of a Toot character owned by *USER*.
   status: true }
 @end verbatim
 
-WRITEME ---  lots of other stuff  happens here that a  conforming client
-must be aware of.
+This calls `PLAY-WITH-TOOT' upon success, q.v.
 
 @subsection Status 403 Not Your Toot
 
