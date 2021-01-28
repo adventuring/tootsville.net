@@ -32,6 +32,11 @@
 (defvar *robots* (make-hash-table :test 'equalp)
   "All robots currently active in the game world from this node.")
 
+(defgeneric find-robot (identifier)
+  (:documentation "Find a robot based on IDENTIFIER.
+
+IDENTIFIER may be a name string or Toot object."))
+
 (defmethod find-robot ((name string))
   (gethash name *robots*))
 
@@ -77,6 +82,18 @@ USER may be a robot or a Toot that is controlled by a robot."
   x
   y
   z)
+
+(defgeneric world (thing)
+  (:documentation "The keyword name of the world on which THING is."))
+
+(defgeneric latitude (thing)
+  (:documentation "The latitude of THING"))
+
+(defgeneric longitude (thing)
+  (:documentation "The longitude of THING"))
+
+(defgeneric altitude (thing)
+  (:documentation "The altitude of THING"))
 
 (defmethod world ((cons cons))
   (first cons))
@@ -126,19 +143,28 @@ USER may be a robot or a Toot that is controlled by a robot."
 (defmethod world (thing)
   (wtl-course-world (wtl-course thing)))
 
-(defmethod Toot-robot ((Toot Toot))
-  (find-robot Toot))
-
 (defun Toot-quiesced-data (Toot)
   (find-record 'Toot-quiesced :Toot (Toot-UUID Toot)))
+
+(defgeneric wtl-course (thing)
+  (:documentation "The course of THING's current movement in WTL form.
+
+See `INFINITY-WTL' for a discussion of this format."))
 
 (defmethod wtl-course ((Toot Toot))
   "Get the walk-the-line course of Toot"
   (if (robotp Toot)
-      (robot-course (Toot-robot Toot))
+      (robot-course (find-robot Toot))
       (parse-wtl-for-robot (jonathan.decode:parse
                             (Toot-quiesced-wtl
                              (Toot-quiesced-data Toot))))))
+
+(defgeneric nearp (thing place)
+  (:documentation "Is THING near to PLACE?
+
+``Near,''  in this  case, means  ``close  enough to  observe actions  at
+PLACE.''  Network events  are not  propagated to  observers who  are not
+NEARP to the event being observed."))
 
 (defmethod nearp ((robot robot) place)
   "Is ROBOT near PLACE?" ; FIXME, do better

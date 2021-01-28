@@ -408,6 +408,25 @@ Hopefully you've already tested the changes?"
 
 
 (defun describe-system (system s)
+  "Describes an ASDF system SYSTEM to stream S.
+
+This is used  to obtain the title, description,  author, maintainer, and
+license information, as  well as the contents of any  COPYING or LICENSE
+file, in TeXinfo format for inclusion in the manual.
+
+@subsection Example Output
+
+@verbatim
+@subsection System Tootsville
+
+ The server software monolith for REST services of Tootsville.org
+
+Author: Bruce-Robert Pocock <BRPocock@@ciwta.org>
+
+License: AGPL v3+
+
+@end verbatim
+"
   (format s "~2%@subsection System ~:(~a~)" (double-@ (asdf:component-name system)))
   (when-let (description (asdf:system-description system))
     (format s "~2% ~a" (double-@ description)))
@@ -429,6 +448,10 @@ Hopefully you've already tested the changes?"
              (read-file-into-string credits)))))
 
 (defun all-credits ()
+  "Obtain the credits for every system upon which Tootsville is dependant.
+
+Obtains the information from `DESCRIBE-SYSTEM' while descending the tree
+of dependancies from Tootsville through ASDF."
   (let ((systems-seen (list))
         (systems (list (asdf:find-system :Tootsville))))
     (with-output-to-string (s)

@@ -277,15 +277,14 @@ speech.
 
 Private messaging is accomplished by  whispering to another player using
 @code{@@}  messages —  i.e. the  message begins  with @code{@@}  and the
-other player's name, and is processed
+other  player's name,  and  is  processed by  the  server  as a  special
+whisper command.
 
-Operator (Builder  Toot) commands begin  with a  # and are  processed by
-the server.
+Operator (Builder Toot) commands begin with a @code{#} and are processed
+by the server. See Appendix 7 for an index of operator commands.
 
-Client-side commands  begin with a  ~ and  are processed by  the client,
-without ever sending them to the server.
-
-WRITEME
+Client-side  commands begin  with a  @code{~} and  are processed  by the
+client, without ever sending them to the server.
 
 @subsubsection Game Events System (including Store Items)
 
@@ -366,16 +365,20 @@ In general, the following coding standards apply to the front-end:
 @item
 Everything should be in the global @code{Tootsville}
 object-as-namespace.
+
 @item
 Within that object, each subsystem has its own object-as-namespace.
+
 @item
-Namespaces and classes use CamelCase, functions, variables, and object
+Namespaces and classes use CamelCase; functions, variables, and object
 property names user lowerCamelCase names.
+
 @item
 When defining any object in the global namespace, it must be defined
 in such a way that reloading the file is idempotent, and it must not
 erase any other members that may have been added into the same
 object-as-namespace.
+
 @end itemize
 
 The effects of this is that a typical Javascript source file will
@@ -407,12 +410,18 @@ This would potentially remove other objects in the
 @code{Tootsville.Namespace} namespace that may have been defined by
 other users.
 
-
 @subsubsection Babylon.js
 
-WRITEME
+The front-end's 3D support is  courtesy of the Babylon.js library, which
+has its own on-line documentation.
 
 @subsubsection Gatekeeper
+
+The   Gatekeeper   object   contains    the   bulk   of   the   client's
+command processing. Functions  in Gatekeeper are named --  i.e. the keys
+in the Gatekeeper  hash table -- for the datagram  @code{from} keys sent
+by the server. For example, @code{Tootsville.Game.Gatekeeper.wtl} is the
+handler for datagrams with @code{from: "wtl"} in their packet.
 
 WRITEME
 

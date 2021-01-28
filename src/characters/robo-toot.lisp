@@ -29,14 +29,40 @@
 
 
 
+(defgeneric robot-handle (robot from status message)
+  (:documentation "Called for ROBOT to handle a MESSAGE with from-tag FROM and status-tag STATUS.
+
+Infinity protocol message MESSAGE was received by the ROBOT. It has been
+parsed  from   JSON  form  into   a  plist,  and  the   @code{from}  and
+@code{status} tags  have been broken  out, with the  @code{from} element
+converted into a keyword argument.
+
+Methods  on this  generic function  will likely  specialize on  ROBOT by
+class, and FROM & STATUS using EQL."))
+
 (defmethod robot-handle (robot from status message)
   (v:warn :robot "Unhandled message from ~a (~:[false~;true~]), ~
 robots don't know about that message source (status ~s)"
           from status status))
 
+(defgeneric robot-heard (robot speaker mode heard)
+  (:documentation "Robot ROBOT heard SPEAKER in mode MODE say HEARD.
+
+SPEAKER is a Toot character. MODE is  the mode in which ROBOT has placed
+its conversation with SPEAKER, and  is typically a keyword, but defaults
+to NIL. HEARD is an array of the most recent utterances from SPEAKER, in
+the order  in which they  were received;  thus, the latest  utterance is
+@code{(LASTCAR HEARD)}."))
+
 (defmethod robot-heard ((robot robot) speaker mode heard)
   (v:warn :Robot "Unhandled speech or mode, ~s did not hear “~a” in mode ~s"
           robot (lastcar heard) mode))
+
+(defgeneric robot-listen (robot listener-name speaker text volume)
+  (:documentation "ROBOT, named LISTENER-NAME, heard SPEAKER say TEXT with volume VOLUME.
+
+You probably  mean to specialize  `ROBOT-HEARD', q.v. This  method calls
+ROBOT-HEARD in turn."))
 
 (defmethod robot-listen (robot listener-name speaker text extra-class)
   (when (eql (Toot robot) speaker)
@@ -54,6 +80,12 @@ robots don't know about that message source (status ~s)"
     (setf (gethash speaker heard) heard-from-speaker)
     (v:info :Robot "~:(~a~) ~:(~a~): “~a”" robot (Toot-name speaker) text)
     (robot-heard robot speaker mode-for-speaker heard-from-speaker)))
+
+(defgeneric robot-unicast (message robot)
+  (:documentation "Send MESSAGE to ROBOT only.
+
+MESSAGE is a JSON-encoded string, or a plist approximating one. ROBOT is
+a robot or Toot object."))
 
 (defmethod robot-unicast ((message cons) (robot robot))
   "Send MESSAGE to ROBOT individually."

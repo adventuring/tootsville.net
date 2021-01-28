@@ -636,17 +636,22 @@ to be separately maintained in the client and server both."
   (error 'legacy-gone))
 
 (definfinity get-inventory (nil user recipient/s)
-  "get all inventory for an user (themself) — both active and inactive
+  "Get all inventory for an user (themself) — both active and inactive
 
 @subsection Usage
 
 This command requires no parameters.
 
+@verbatim
+{ c: \"getInventory\" }
+@end verbatim
+
 @subsection Status 200 OK
 
 Returns a set of items as
 @verbatim
-inv: { 0: { id: 123, isActive: boolean }, ... }
+{ from: \"getInventory\", 
+  inv: { 0: { id: 123, isActive: boolean }, ... } }
 @end verbatim
 
 furniture with placement data will also have x, y, z, and facing vars.
@@ -660,6 +665,16 @@ WRITEME
 
 (definfinity get-Inventory-By-Type ((type) user recipient/s)
   "Get a subset of items from your own inventory
+
+@subsection Usage
+
+@verbatim
+{ c: \"getInventoryByType\",
+  d: { type: TYPE,
+        [withActive: BOOLEAN ],
+        [who: LOGIN-NAME ] } }
+@end verbatim
+
 
 The @code{type} can be one of two options.
 
@@ -716,47 +731,37 @@ point,  in  which  case  all  items   which  can  be  equipped  to  that
 point (regardless  of valence)  are returned;  or, the  word @code{slot}
 followed by a space and the ID number of a specific wear-slot.
 
-FIXME — the following documentation has lies in it.
+Finally, multiple codes can be enumerated by passing as string beginning
+with @code{$} plus  a series of identifiers from the  above delimited by
+@code{:}, e.g. @code{$clothes:pivitz}.
 
-Parameters:
+You can also supply @code{withActive: false} to screen out active items.
 
-jso    -       type:    TYPE-STRING     —
-JSON object has the type of item from the strings in the config file.
+The  optional parameter  @code{who} specifies  whose inventory  to list.
+If  not specified,  the inventory  of the  Toot posing  the question  is
+returned.  Note that  inactive  items  of Toots  not  owned  by you  are
+generally not returned.
 
-OR, you can specify  an item type by passing # plus its  ID, or a string
-of them; e.g. for items of type 1, pass \"#1,\" for items of types 2 or 3,
-pass \"#2:3\"
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
 
-OR, you  can specify  a list  of item  type strings  using '$'  plus the
-string identifiers divided by ':', e.g. \"$Pants:Shirts\"
+In Romance  1.2, the  @code{type} code  could not  be a  @code{point} or
+@code{slot}, but it could be a  string beginning @code{#} with a list of
+type code numbers; e.g. @code{#2:3}.
+
+In Romance  1.2, placed furniture was  also returned; this is  no longer
+the case.
+
+@subsection Status 200 OK
 
 Returns a  set of items  as
 @verbatim
-inv:  { 0: {  id: 123, isActive:  boolean },
+{from: \"inventory\", for: USER-LOGIN, type: TYPE-QUERY
+  inv:  { 0: {  id: 123, isActive:  boolean },
  ... }
 @end verbatim
-— furniture with placement data  will also have x, y, and facing
-vars. Other attributes are \"from\":\"inventory\", \"type\": matching the type
-of the question
 
-You can also supply withActive: false to screen out active items.
-Return data
-
-@verbatim
- { from: inventory, for: USER-LOGIN, type: TYPE-STRING,
- inv: {
- #: { ITEM-INFO },
- #: { ITEM-INFO } …
- }
- }
-@end verbatim
-
-TODO see Java getInventoryByType(JSONObject, AbstractUser, AbstractUser,
-Room)  for   discussion  of   TYPE-STRING;  or  @{   type:  TYPE-STRING,
-withActive:  BOOLEAN @}  to  mask  out active  items;  optional @{  who:
-LOGIN-NAME @} to look at someone else's inventory
-
-u - The user whose inventory to be searched, who is the caller of this routine
+See GET-INVENTORY-BY-TYPE (UNIMPLEMENTED)
 
 "
   (string-case type
@@ -1082,33 +1087,62 @@ User rooms are no longer needed nor supported."
 (definfinity join ((room from) user recipient/s)
   "Join a room.
 
-On success, sends back the set  of room join events;
- but on failure, replies with  @{ from: roomJoin, status: false, err:
- ...@}
+No longer needed. We no longer have rooms.
+
+@subsection Usage
+
+@verbatim
+{ c: \"join\", d: { room: NEW-ROOM, [ from: OLD-ROOM ] } }
+@end verbatim
+
+@subsection Status 200 OK
+
+@verbatim
+{ from: \"roomJoin\",
+  status: true,
+  room: MONIKER }
+@end verbatim
+
+You will never get this reply in Romance 2.0.
 
  NOTE the inconsistency: the command is  join, but the reply comes from
  roomJoin
 
-zone.notFound
+@subsection Error Return values
+
+@table @code
+@item zone.notFound
  The user is not in a Zone
-
-room.noMoniker
+@item room.noMoniker
  No room moniker was given to be joined
-
-room.notFound
+@item room.notFound
  The room moniker does not refer to an actual room in this Zone
-
-room.full
+@item room.full
  The room is too full (too many users)
+@end table
 
- Parameters:
- jso -  @{ room: MONIKER @} or @{ room: MONIKER, from: MONIKER @}
+ @subsection 410 Gone
 
-u - the user joining the room
+Removed in 2.0.
 
-@subsection 410 Gone
+Attempting to call @code{join} will always result in
 
-Removed in 2.0."
+@verbatim
+{ from: \"roomJoin\",
+  status: false,
+  err: \"room.notFound\",
+  error: \"There are no rooms in Tootsville V.\" }
+@end verbatim
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+In Romance 1.2,  the room was divided into ``rooms.''  This is no longer
+the case, so there is never any need to join a room.
+
+The success and error return codes are documented here for completeness,
+but only @code{room.notFound} will be returned.
+"
   (list 410 (list :|from| "join"
                   :|status| :false
                   :|err| "room.notFound"
@@ -1147,10 +1181,15 @@ This sends an email with the given subject and body to
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Look at other users' inventories
 
-The optional type code is as per `INFINITY-GET-INVENTORY-BY-TYPE'.
-
 When requesting the inventory of another player, only their public
 inventory will be returned.
+
+The optional type code is as per `INFINITY-GET-INVENTORY-BY-TYPE'.
+
+@subsection Usage
+@verbatim
+{ who: LOGIN-NAME, [ type: TYPE-CODE ] }
+@end verbatim
 
 @subsection Examples
 
@@ -1159,6 +1198,39 @@ inventory will be returned.
 
 { who: \"user-name\",
   type: \"type-code\" }
+@end verbatim
+
+@subsection Status 200 OK
+
+@verbatim
+{ from: \"peekAtInventory\",
+  status: true,
+  for: USER-NAME,
+  inv: { 0: ITEM-INFO, [ ... ] } }
+@end verbatim
+
+@subsection Status 404 Not Found
+
+ The user name given was not found.
+
+@verbatim
+{ from: \"peekAtInventory\",
+  status: false,
+  err: \"login.notFound\",
+  error: \"There is no user named LOGIN\" }
+@end verbatim
+
+WRITEME
+
+@subsection Status 400 Argument Error
+
+ The type code given was not understood
+
+@verbatim
+{ from: \"peekAtInventory\",
+  status: false,
+  err: \"typeCode.notFound\",
+  error: \"Parameter error: The type code given is not recognized.\" }
 @end verbatim
 
 "
@@ -1204,9 +1276,7 @@ If  the  user sends  a  @code{pingStarted}  value,  it is  replied  back
 unchanged; otherwise, @code{pingStarted} is replied with the server-time
 as well.
 "
-  (let ((java-now (* (- (get-universal-time)
-                        +Unix-zero-in-universal-time+)
-                     1000)))
+  (let ((java-now (* 1000 (get-Unix-time))))
     (list 200 (list :|from| "ping"
                     :|ping| "pong"
                     :|status| t
@@ -1337,7 +1407,6 @@ in presentation to the end-user.
             \"reply\": \"yes\" } }
 @end verbatim
 
-
 As a special-case, for the reply only, the special $TOKEN of \"close\"
 should be sent if the user dismissed the dialog box with the close
 button.
@@ -1361,7 +1430,7 @@ The server will respond with
 For debugging purposes, the server may reply with
 
 @verbatim
- { \"from\": \"promptReply\", \"status\": \"false\", \"err\": $ERR }
+ { from: \"promptReply\", \"status\": false, err: $ERR }
 @end verbatim
 
 
@@ -1384,13 +1453,15 @@ A prompt ID is not valid across sessions; pending prompts should be
 auto-closed on logout.  Prompts can, however, remain active
 indefinitely, even across room joins.
 
+@subsection Canceling a prompt
+
 Optional implementation: the server may cancel an outstanding prompt
 request by sending a packet with the following properties:
 
 @verbatim
- from: prompt
- status: true
- cancel: $ID
+{ from: prompt
+  status: true
+  cancel: $ID }
 @end verbatim
 
 Client applications may choose to dismiss the prompt automatically
@@ -1440,6 +1511,43 @@ To attend to someone who had previously been ignored:
 
 @verbatim
 { ignore: \"name\" }
+@end verbatim
+
+@subsection Status 200 OK
+
+The user was removed from the buddy list or ignore list.
+
+@verbatim
+{ from: \"removeFromList\",
+  status: true,
+  buddy: \"buddy-name\" }
+@end verbatim
+
+@verbatim
+{ from: \"removeFromList\",
+  status: true,
+  ignore: \"ignored-name\" }
+@end verbatim
+
+@subsection Status 404 Not Found
+
+The user name given was not found.
+
+@verbatim
+{ from: \"removeFromList\",
+  status: false,
+  err: \"login.notFound\" }
+@end verbatim
+
+@subsection Status 412 Precondition Failed
+
+An attempt was made to remove someone  from the buddy or ignore list who
+was not on that list.
+
+@verbatim
+{ from: \"removeFromList\",
+  status: false,
+  err: \"notOnList\" }
 @end verbatim
  "
   (error 'unimplemented))

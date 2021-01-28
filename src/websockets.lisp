@@ -209,22 +209,22 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (last-active :accessor last-active :initform (get-universal-time))
    (location :accessor Toot-position :initform (list :chor 0 0 0))))
 
+(defgeneric Toot (identifier)
+  (:documentation "Find the Toot associated with IDENTIFIER."))
+
 (defmethod Toot ((null null))
   nil)
 
-(defmethod Toot-world (client)
-  (Toot-world (Toot client)))
+(defgeneric Toot-position (Toot)
+  (:documentation "Return the current point position of TOOT.
 
-(defmethod Toot-world ((Toot Toot))
-  :chor) ; FIXME
-
-(defmethod Toot-world ((null null))
-  :chor)
+TOOT may be a  Toot, robot, &c. The position returned will  be a list of
+world keyword, latitude, longitude, and altitude."))
 
 (defmethod Toot-position ((Toot Toot))
   (if-let (stream (user-stream Toot))
     (Toot-position stream)
-    (Toot-position (Toot-robot Toot))))
+    (Toot-position (find-robot Toot))))
 
 (defmethod Toot-position ((null null))
   (v:warn :null "Toot-position called with NIL")
@@ -252,6 +252,11 @@ Active Clients (~:d secs): ~:d (~:d%)."
 
 (pushnew 'find-infinity-websocket-resource hunchensocket:*websocket-dispatch-table*)
 
+(defgeneric user-stream (whom)
+  (:documentation "Get the stream associated with WHOM.
+
+WHOM might be a Toot, person, websocket client, robot, &c."))
+
 (defmethod user-stream ((null null))
   "Returns null for null input"
   nil)
@@ -268,8 +273,8 @@ Active Clients (~:d secs): ~:d (~:d%)."
   "Find the stream associated with USER"
   (or (gethash (uuid:uuid-to-byte-array (person-uuid User)) *ws-client-for-user*)
       (dolist (client 
-                (remove-if-not #'user-account
-                               (hunchensocket:clients *infinity-websocket-resource*)))
+               (remove-if-not #'user-account
+                              (hunchensocket:clients *infinity-websocket-resource*)))
         (when (and (not (eql t (user-account client)))
                    (uuid:uuid= (person-uuid (user-account client))
                                (person-uuid user)))
@@ -424,10 +429,11 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   "The number of seconds from Universal Time Epoch to Unix Epoch.")
 
 (defun ayt-idle-users ()
-  "Send Are You There to idle (websocket) users"
-  (let ((server-time (* 1000 (- (get-universal-time) +unix-time-in-universal+)))
-        (idle-time (* 1000 (- (- (get-universal-time) +ws-idle-seconds+)
-                              +unix-time-in-universal+))))
+  "Send Are You There to idle (websocket) users.
+
+Idle is defined as idle for `+WS-IDLE-SECONDS+' seconds."
+  (let ((server-time (* 1000 (get-Unix-time)))
+        (idle-time (* 1000 (- (get-Unix-time) +ws-idle-seconds+))))
     (dolist (client (remove-if (lambda (client)
                                  (< (last-active client) idle-time))
                                (hunchensocket:clients *infinity-websocket-resource*)))
@@ -438,11 +444,15 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                   client))))
 
 (defun all-connected ()
-  "All clients connected via websockets"
+  "All clients connected via websockets.
+
+Returns websocket client objects."
   (hunchensocket:clients *infinity-websocket-resource*))
 
 (defun who-is-connected ()
-  "All users currently connected via websockets"
+  "All users currently connected via websockets.
+
+Returns person objects, removing nulls for unauthenticated users."
   (remove-if #'null
              (mapcar #'user-account
                      (all-connected))))
@@ -454,10 +464,11 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                      (mapcar #'Toot (hash-table-values *Robots*)))))
 
 (defun connected-Toot-names ()
-  "The names of all Toots currently connected — players or NPCs"
+  "The names of all Toots currently connected — players or NPCs."
   (mapcar #'Toot-name (connected-Toots)))
 
 (defun try-reconnect-Toot-name (Toot-name user)
+  "Allow TOOT-NAME to try to reconnect as USER."
   (when (and Toot-name (plusp (length Toot-name))
              (not (equalp "$new Toot" Toot-name)))
     (if-let ((Toot (ignore-not-found (find-record 'Toot :name Toot-name))))
