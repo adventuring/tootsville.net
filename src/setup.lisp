@@ -80,6 +80,12 @@
 
 (pushnew :verbose-no-init *features*)
 
+;;; Darwin-Homebrew mySQL libs
+
+(when (equal "Darwin" (software-type))
+  (pushnew #p"/usr/local/opt/mysql-client/lib/"
+           cffi:*foreign-library-directories*))
+
 ;;; Ensure  that   the  ASD   files  of   any  submodules   are  loaded.
 ;;; By convention, we load submodules into lib/
 
