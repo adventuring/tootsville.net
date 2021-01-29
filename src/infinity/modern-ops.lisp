@@ -171,6 +171,73 @@ See `INFINITY-STATS'.
   (format nil "This server is ~a.~2%~a"
           (machine-instance) (infinity-stats)))
 
+(define-operator-command journal (words u r)
+  "Add a staff journal entry or review last entries.
+
+UNIMPLEMENTED in 2.0
+
+See also `INFINITY-JOURNAL' for an Infinity Mode command for the same
+purpose.
+
+@subsection Usage
+
+To read the last journal entry, use @code{#journal #last}. To read the
+one before that, use @code{#journal #last -1}, and for farther back,
+use lesser (more negative) values of REFERENCE.
+
+To read a journal entry relative to a certain user, use @code{#ref}.
+
+To post a new journal entry, simply enter it after
+@code{#journal}. You can associate it with one or more users with
+@code{#for}.
+
+@verbatim
+#journal #last [REFERENCE]
+
+#journal #ref USER [REFERENCE]
+
+#journal [#for USER[,...]] ENTRY...
+@end verbatim
+
+REFERENCE will always be zero or negative.
+
+@subsection Examples
+
+@verbatim
+#journal #last
+#journal #last -1
+#journal #last -2
+
+#journal #ref Pil
+#journal #ref Pil -1
+
+#journal #for pil,zap Added a new game with Pil and Zap
+#journal #for mayor-louis Had to kick off mayor-louis for sedition
+
+#journal Server game2 shut down for maintenance
+@end verbatim
+"
+  (unless (<= 1 (length words))
+    (return-from tootsville-user::journal
+      "Usage: #journal [#last | #ref | #for] ..."))
+  (cond
+    ((string-equal "#last" (first words))
+     (let ((reference (if (<= 2 (length words))
+                          (parse-integer (second words))
+                          0)))
+       (assert (or (zerop reference) (minusp reference)))
+       (error 'unimplemented)))
+    ((string-equal "#ref" (first words))
+     (let ((users (split-sequence #\, (second words)))
+           (reference (if (<= 3 (length words))
+                          (parse-integer (third words))
+                          0)))
+       (assert (plusp (length users)))
+       (assert (or (zerop reference) (minusp reference)))
+       (error 'unimplemented)))
+    (t
+     "Usage: #journal [#last | #ref | #for] ...")))
+
 (define-operator-command doodle (words u r)
   "Change the colors of a Toot.
 
@@ -204,7 +271,8 @@ NEW-COLOR can be in any format understood by `PARSE-COLOR24', qv."
                            ("pattern"
                             (setf (Toot-pattern-color who) color))
                            (otherwise
-                            "Color place name must be base, pad, or pattern"))
+                            (return-from tootsville-user::doodle
+                              "Color place name must be base, pad, or pattern")))
                          (save-record who)
                          (broadcast (from-avatars (list :|doodled| (Toot-name who)))))
                   (format nil "Can't understand color ~a" (fourth words))))
@@ -264,7 +332,8 @@ See `SERVER-LIST'
   "Issue an operator command on a particular server instance.
 
 UNIMPLEMENTED. Remote code execution is not possible. Only works if
-SERVER is `MACHINE-INSTANCE', i.e. the local machine.
+SERVER is `MACHINE-INSTANCE', i.e. the local machine, which is
+identical to not using this command at all.
 
 @subsection Usage
 
@@ -308,11 +377,15 @@ Examples:
 @end example
 
 Returns the same report as `TOOTSVILLE-USER::MEM'
+
 "
-  (if (and (<= 1 (length words))
-           (string-equal "#full" (first words)))
-      (sb-ext:gc :full t)
-      (sb-ext:gc))
+  (cond
+    ((and (= 1 (length words))
+          (string-equal "#full" (first words)))
+     (sb-ext:gc :full t))
+    ((= 0 (length words))
+     (sb-ext:gc))
+    (t (return-from tootsville-user::gc "Usage: #gc [#full]")))
   (Tootsville-user::mem))
 
 (define-operator-command doc (words u r)
