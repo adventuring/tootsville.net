@@ -528,8 +528,8 @@ constants.")
 (defun interpret-facing (facing)
   "Given a FACING string, return an angle in radians.
 
-This supports a string that is a floating-point number of radians that
-can be parsed by `PARSE-FLOAT' or one of the cardinal eight directions
+This supports a  string that is a floating-point number  of radians that
+can be parsed by `PARSE-NUMBER' or  one of the cardinal eight directions
 as a string: @code{N NE E SE S SW W NW}.
 
 @subsection Changes from 1.2 to 2.0
@@ -540,8 +540,8 @@ arbitrary rotation in radians is possible.
 
 TODO: Throw a 400-type exception when junk is passed in."
   (if-let (angle (gethash facing +facing-angles+))
-          angle
-          (parse-float facing :junk-allowed-p nil)))
+    angle
+    (parse-number facing :junk-allowed-p nil)))
 
 (definfinity shoot ((i course facing) u r)
   "Fire a shot from a projectile device.
