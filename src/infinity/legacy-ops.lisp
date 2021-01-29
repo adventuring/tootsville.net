@@ -1676,7 +1676,7 @@ enumerated in the following sections.
 An item will be placed at the point specified, which must be a single
 point (or a named spot).
 
-@SUBSECTION @code{#exit} Placing a transwarp conduit
+@subsection @code{#exit} Placing a transwarp conduit
 
 An ``exit'' is a hyperspace link between two spots in the game universe.
 A place will be created at the indicated location. Any player who enters
