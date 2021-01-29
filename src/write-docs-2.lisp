@@ -270,99 +270,6 @@ position of the name."
 @documentdescription
 The Book of Romance II for Tootsville V version ~a
 @end documentdescription
-@c Lisp files
-@macro lispfileindex{name}
-@cindex @t{\name\}
-@cindex Lisp File, @t{\name\}
-@cindex File, Lisp, @t{\name\}
-@end macro
-@c JavaScript files
-@macro jsfileindex{name}
-@cindex @t{\name\}
-@cindex JavaScript File, @t{\name\}
-@cindex File, JavaScript, @t{\name\}
-@end macro
-
-@c Constants
-@macro constantsubindex{name}
-@vindex @r{Constant, }\name\
-@end macro
-
-@c Special variables
-@macro specialsubindex{name}
-@vindex @r{Special Variable, }\name\
-@end macro
-
-@c Symbol macros
-@macro symbolmacrosubindex{name}
-@vindex @r{Symbol Macro, }\name\
-@end macro
-
-@c Slots
-@macro slotsubindex{name}
-@vindex @r{Slot, }\name\
-@end macro
-
-@c Macros
-@macro macrosubindex{name}
-@findex @r{Macro, }\name\
-@end macro
-
-@c Compiler Macros
-@macro compilermacrosubindex{name}
-@findex @r{Compiler Macro, }\name\
-@end macro
-
-@c Functions
-@macro functionsubindex{name}
-@findex @r{Function, }\name\
-@end macro
-
-@c Methods
-@macro methodsubindex{name}
-@findex @r{Method, }\name\
-@end macro
-
-@c Generic Functions
-@macro genericsubindex{name}
-@findex @r{Generic Function, }\name\
-@end macro
-
-@c Setf Expanders
-@macro setfexpandersubindex{name}
-@findex @r{Setf Expander, }\name\
-@end macro
-
-@c Method Combinations
-@macro shortcombinationsubindex{name}
-@tpindex @r{Short Method Combination, }\name\
-@tpindex @r{Method Combination, Short, }\name\
-@end macro
-
-@macro longcombinationsubindex{name}
-@tpindex @r{Long Method Combination, }\name\
-@tpindex @r{Method Combination, Long, }\name\
-@end macro
-
-@c Conditions
-@macro conditionsubindex{name}
-@tpindex @r{Condition, }\name\
-@end macro
-
-@c Structures
-@macro structuresubindex{name}
-@tpindex @r{Structure, }\name\
-@end macro
-
-@c Types
-@macro typesubindex{name}
-@tpindex @r{Type, }\name\
-@end macro
-
-@c Classes
-@macro classsubindex{name}
-@tpindex @r{Class, }\name\
-@end macro
 
 @dircategory Common Lisp
 @direntry
@@ -451,7 +358,7 @@ XXX this is a huge function that ought to be broken up more"
 * Copying:: The GNU Affero General Public License
 * Introduction:: What Tootsville V (Romance II) is all about
 * Definitions:: Index of defined symbols
-~{* ~a:: Symbols in package ~:*~a~%~}~
+~{* Package ~a:: Symbols in package ~:*~a~%~}~
 * Javascript:: The front-end documentation
 * Conclusion:: Time to go
 * Indices:: Concepts, functions, variables, data types, and pathnames
@@ -511,7 +418,7 @@ as well, whose documentation may not have been included here.
         (dolist (symbol defs)
           (unless (eql last-package (symbol-package symbol))
             (setf last-package (symbol-package symbol))
-            (format docs "~2&@chapter Package ~:(~a~)~2%"
+            (format docs "~2&@node Package ~:(~a~)~2%@chapter Package ~:*~:(~a~)~2%"
                     (package-name (symbol-package symbol)))
             (let ((doc (documentation (symbol-package symbol) t)))
               (unless (emptyp doc)
@@ -716,6 +623,10 @@ Google Closure Javascript compressor
 @node Javascript index
 @appendixsec Javascript
 @printindex js
+
+@page
+
+``It's always dark at the beginning . . . ''
 
 @bye
 

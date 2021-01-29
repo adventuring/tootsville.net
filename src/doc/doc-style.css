@@ -1,0 +1,37 @@
+body {
+    margin: 3rem;
+    background-color: ivory;
+    color: #333;
+}
+* { font-face: "NewCentury", serif }
+nav { border: 2pt solid navy; }
+nav#top {
+    display: block;
+    background-color: navy;
+    color: white;
+}
+nav#top>ul {
+    display: inline-block;
+    width: 100%;
+}
+nav#top>ul>li {
+    display: inline-block;
+    text-align: center;
+    width: 30%;
+}
+nav#top a:link {
+    color: white;
+    text-decoration: none;
+    font-face: sans-serif;
+    font-weight: bold;
+}
+nav#top a:visited {
+    color: cyan;
+    text-decoration: none;
+}
+h1, h2, h3, h4 { color: navy; font-weight: bold;
+                 font-family: sans-serif; }
+pre, tt { font-face: fixed; }
+#footer {
+    color: #888;
+    ]
