@@ -226,7 +226,7 @@ REFERENCE will always be zero or negative.
                           (parse-integer (second words))
                           0)))
        (assert (or (zerop reference) (minusp reference)))
-       (error 'unimplemented)))
+       (read-staff-journal :last reference)))
     ((string-equal "#ref" (first words))
      (let ((users (split-sequence #\, (second words)))
            (reference (if (<= 3 (length words))
@@ -235,8 +235,13 @@ REFERENCE will always be zero or negative.
        (assert (plusp (length users)))
        (assert (or (zerop reference) (minusp reference)))
        (error 'unimplemented)))
+    ((string-equal "#for" (first words))
+     (let ((users (split-sequence #\, (second words))))
+       (assert (plusp (length users)))
+       (write-staff-journal-entry (join #\Space (subseq words 3))
+                                  users)))
     (t
-     "Usage: #journal [#last | #ref | #for] ...")))
+     (write-staff-journal-entry (join #\Space words)))))
 
 (define-operator-command doodle (words u r)
   "Change the colors of a Toot.
