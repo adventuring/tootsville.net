@@ -193,6 +193,7 @@ server-doc: \
 	doc/Tootsville.pdf \
 	doc/Tootsville.html.tar.gz \
 	doc/Tootsville.html.d/index.html \
+	doc/Tootsville.txt \
 	doc/index.html
 
 doc/index.html:	src/doc/index.html
@@ -452,8 +453,8 @@ git-tag-deployment:
 deploy-docs:
 	make doc-publish
 	scp ../tootsville.org/dist/htaccess.all/goethe.tootsville.net.htaccess goethe.tootsville.org:goethe.tootsville.org/.htaccess
-	scp www/favicon.??? goethe.tootsville.org:goethe.tootsville.org/
-	rsync -essh -zar www/error goethe.tootsville.org:goethe.tootsville.org/
+	scp ../tootsville.org/www/favicon.??? goethe.tootsville.org:goethe.tootsville.org/
+	rsync -essh -zar ../tootsville.org/www/error goethe.tootsville.org:goethe.tootsville.org/
 
 ####################
 
