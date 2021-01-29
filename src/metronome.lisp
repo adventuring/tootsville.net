@@ -97,21 +97,27 @@ opportunity and have to wait for the next window."
               lost-time)
       (setf *metronome-next-tick* (- (get-universal-time) 30))))
   (loop for now from *metronome-next-tick* 
-     below (get-universal-time)
-     do
-       (dolist (task (metronome-idle-tasks))
-         (when (and (metronome-task-frequency task)
-                    (zerop (mod now (metronome-task-frequency task))))
-           (setf (metronome-task-thread task)
-                 (make-thread (metronome-task-function task)
-                              :name (format nil "Metronome: ~a"
-                                            (metronome-task-name task)))))
-         (when (and (metronome-task-one-shot-time task)
-                    (<= (metronome-task-one-shot-time task) now))
-           (make-thread (metronome-task-function task)
-                        :name (format nil "Metronome: ~a"
-                                      (metronome-task-name task)))
-           (metronome-remove task)))
+          below (get-universal-time)
+        do
+           (dolist (task (metronome-idle-tasks))
+             (when (and (metronome-task-frequency task)
+                        (zerop (mod now (metronome-task-frequency task))))
+               (run-async (metronome-task-function task)
+                          :name (format nil "Metronome: ~a" (metronome-task-name task)))
+               #+ (or)
+               (setf (metronome-task-thread task)
+                     (make-thread (metronome-task-function task)
+                                  :name (format nil "Metronome: ~a"
+                                                (metronome-task-name task)))))
+             (when (and (metronome-task-one-shot-time task)
+                        (<= (metronome-task-one-shot-time task) now))
+               (run-async (metronome-task-function task)
+                          :name (format nil "Metronome: ~a" (metronome-task-name task)))
+               #+ (or)
+               (make-thread (metronome-task-function task)
+                            :name (format nil "Metronome: ~a"
+                                          (metronome-task-name task)))
+               (metronome-remove task)))
         do (setf *metronome-next-tick* now)))
 
 (defun metronome-remove (task)
