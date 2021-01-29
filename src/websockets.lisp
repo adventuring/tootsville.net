@@ -309,10 +309,10 @@ WHOM might be a Toot, person, websocket client, robot, &c."))
   "Low-level broadcast MESSAGE to all WebSocket clients of resource RES near NEAR except EXCEPT.
 
 You almost certainly don't want to call this --- you want `BROADCAST'."
-  (declare (ignore near)) ; TODO
   (ws-bandwidth-record message (length (hunchensocket:clients res)))
   (let ((message (ensure-message-is-characters message))
-        (clients (remove-if (lambda (client) (equalp client except))
+        (clients (remove-if (lambda (client) (or (equalp client except)
+                                                 (when near (not (nearp client near)))))
                             (hunchensocket:clients res))))
     (when clients
       (lparallel:pmapcar
