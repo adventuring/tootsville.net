@@ -94,25 +94,48 @@ NIL
          ((typep identifier 'person)
           identifier)
          ((typep identifier 'Toot)
-          (Toot-owner identifier))
-        ((find #\, identifier)
-         (ensure-list-of-people (split-sequence #\, identifier)))
-        ((find #\; identifier)
-         (ensure-list-of-people (split-sequence #\; identifier)))
-        ((find #\@ identifier)
-         (ignore-not-found
-           (person-contact-person
-            (find-record 'person-contact
-                         :url (concatenate 'string "mailto:" identifier)))))
-        ((potential-Toot-name-p identifier)
-         (Toot-owner (find-record 'Toot :name identifier)))
-        ((uuid-string-p identifier)
-         (ensure-list-of-people (uuid:make-uuid-from-string identifier)))
-        ((stringp identifier)
-         (error 'not-found))
-        ((typep identifier 'uuid:uuid)
-         (or (ignore-not-found (Toot-owner (find-record 'Toot :uuid identifier)))
-             (ignore-not-found (find-record 'person :uuid identifier))
-             (error 'not-found))))
-       nil))
-  
+          (Toot-player identifier))
+         ((find #\, identifier)
+          (ensure-list-of-people (split-sequence #\, identifier)))
+         ((find #\; identifier)
+          (ensure-list-of-people (split-sequence #\; identifier)))
+         ((find #\@ identifier)
+          (ignore-not-found
+            (contact-owner
+             (find-record 'contact
+                          :url (concatenate 'string "mailto:" identifier)))))
+         ((potential-Toot-name-p identifier)
+          (Toot-player (find-record 'Toot :name identifier)))
+         ((uuid-string-p identifier)
+          (ensure-list-of-people (uuid:make-uuid-from-string identifier)))
+         ((stringp identifier)
+          (error 'not-found))
+         ((typep identifier 'uuid:uuid)
+          (or (ignore-not-found (Toot-player (find-record 'Toot :uuid identifier)))
+              (ignore-not-found (find-record 'person :uuid identifier))
+              (error 'not-found))))
+       nil)))
+
+(defun uuid-string-p (string)
+  "Does STRING look like a UUID?
+
+Checks for 36 characters with #\- in the correct positions and hex
+characters elsewhere.
+
+@subsection Example
+
+@verbatim
+6D559B46-D021-4814-A7F7-D8D67AD64800
+@end verbatim
+"
+  (and (= 36 (length string))
+       (char= #\- (char string 8))
+       (char= #\- (char string 13))
+       (char= #\- (char string 18))
+       (char= #\- (char string 23))
+       (let ((hex (string-upcase (remove #\- string))))
+         (and (= 32 (length hex))
+              (every (lambda (char)
+                       (or (char<= #\0 char #\9)
+                           (char<= #\A char #\F)))
+                     hex)))))
