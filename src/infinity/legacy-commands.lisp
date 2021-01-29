@@ -2216,6 +2216,15 @@ WRITEME
       (private-admin-message "Can't do that"
                              "Not an operator command"))))
 
+(defun @-message (string)
+  (let ((recipient (find-record 'Toot
+                                (subseq string
+                                        (1+ (position #\@ string))
+                                        (position #\Space string))))
+        (text (subseq string (1+ (position #\Space string)))))
+    (when (nearp *Toot* recipient)
+      (Toot-private-message *Toot* recipient text))))
+
 (definfinity speak ((key speech vol) user recipient/s)
   "The user speaks SPEECH at volume VOL in public.
 
@@ -2426,8 +2435,9 @@ WRITEME
          (return))
     (#\# (parse-operator-command speech)
          (return))
-    (#\@ (v:warn :speak "@ command not handled ~a" speech)) ; TODO
-    (#\/ (v:warn :speak "emote not handled ~a" speech))     ; TODO
+    (#\@ (@-message speech))
+    (#\/ (v:warn :speak "emote not handled ~a" speech)
+         "Emote not handled")     ; TODO
     ((#\\ #\! #\% #\_ #\^ #\|) 
      (v:warn :speak "command not supported ~a" speech)
      (private-admin-message "Oops"

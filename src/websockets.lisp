@@ -766,6 +766,16 @@ Note that the current Tootsville V client does not make use of LABEL."
                    :|id| (Toot-UUID Toot))
              :near Toot))
 
+(defun Toot-private-message (speaker listener speech)
+  "SPEAKER whispers the message SPEECH to LISTENER."
+  (let ((datagram (list :|from| "pub"
+                        :|u| (Toot-name speaker)
+                        :|t| speech
+                        :|x| "whisper"
+                        :|id| (Toot-UUID speaker))))
+    (unicast datagram speaker)
+    (unicast datagram listener)))
+
 (defun return-new-apple (client)
   "Used by `INFINITY-GET-APPLE' to send CLIENT a new apple value."
   (let ((random-key (cl-base64:integer-to-base64-string
