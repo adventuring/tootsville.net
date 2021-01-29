@@ -30,34 +30,89 @@
 
 
 
-(defun read-staff-journal (&key (start-date (yesterday)) (end-date (now)))
-  "Read staff journal entries between (inclusive) START-DATE and END-DATE; default, yesterday and today."
+(defun read-staff-journal (&key (start-date (yesterday)) (end-date (now))
+                             last)
+  "Read staff journal entries between (inclusive) START-DATE and END-DATE; default, yesterday and today.
+
+Or, read the single item LAST from the end; when LAST = 0, the very
+latest entry; when LAST < 0, then the ``nth'' entry from the
+end. Thus, -1 is the next-to-last entry, -2 is the third from the
+end."
   (error 'unimplemented))
 
 (defun write-staff-journal-entry (entry who)
   "Write ENTRY to the staff journal, timestamped now. Reference WHO in the entry.
 
-WHO may be:
-
-@itemize
-@item
-A Toot, Toot name, or Toot UUID
-@item
-A player email address, or player UUID
-@item
-a list of Toots or players
-@item
-NIL
-@end itemize
-
-Journal entries are associated with the person (people) owning the relevant Toot(s)
+WHO may be anything accepted by `ENSURE-LIST-OF-PEOPLE'.
+ 
+Journal entries are associated with the person (people) owning the
+relevant Toot(s)
 "
   (error 'unimplemented))
 
-(defun read-related-journal (who)
+(defun read-related-journal (who &key last)
   "Read staff journal entries related to WHO.
 
-See `WRITE-STAFF-JOURNAL-ENTRY' for the format of WHO."
+Or, read the single item LAST from the end; when LAST = 0, the very
+latest entry; when LAST < 0, then the ``nth'' entry from the
+end. Thus, -1 is the next-to-last entry, -2 is the third from the
+end.
+
+WHO may be anything accepted by `ENSURE-LIST-OF-PEOPLE'."
   (error 'unimplemented))
 
+(defun ensure-list-of-people (identifier)
+  "Map IDENTIFIER to a list of humans.
 
+IDENTIFIER may be:
+
+@itemize
+@item
+A person
+@item
+A Toot (whose owner is returned)
+@item
+A person's eMail address
+@item
+A Toot name
+@item
+A person or Toot's UUID, in UUID or string-UUID form
+@item 
+A list of any of the above
+@item
+A string list of the above, joined by #\, or  #\;
+@item
+NIL
+@end itemize
+"
+  (if (listp identifier)
+      (remove-if #'null (flatten (mapcar #'ensure-list-of-people identifier)))
+      (cons
+       (cond
+         ((null identifier)
+          nil)
+         ((typep identifier 'person)
+          identifier)
+         ((typep identifier 'Toot)
+          (Toot-owner identifier))
+        ((find #\, identifier)
+         (ensure-list-of-people (split-sequence #\, identifier)))
+        ((find #\; identifier)
+         (ensure-list-of-people (split-sequence #\; identifier)))
+        ((find #\@ identifier)
+         (ignore-not-found
+           (person-contact-person
+            (find-record 'person-contact
+                         :url (concatenate 'string "mailto:" identifier)))))
+        ((potential-Toot-name-p identifier)
+         (Toot-owner (find-record 'Toot :name identifier)))
+        ((uuid-string-p identifier)
+         (ensure-list-of-people (uuid:make-uuid-from-string identifier)))
+        ((stringp identifier)
+         (error 'not-found))
+        ((typep identifier 'uuid:uuid)
+         (or (ignore-not-found (Toot-owner (find-record 'Toot :uuid identifier)))
+             (ignore-not-found (find-record 'person :uuid identifier))
+             (error 'not-found))))
+       nil))
+  
