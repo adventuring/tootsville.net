@@ -940,13 +940,8 @@ If any item ID cannot be found, the entire query fails with a 404."
 { buddyList: { … } , ignoreList: { … } }
 @end verbatim
 
-jso - no parameters needed
-
-u - The user whose buddy and ignore lists will be fetched
-
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
-
 
 Buddies on the buddy list can be starred, with attribute @code{starred: true}.
 
