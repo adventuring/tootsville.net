@@ -83,8 +83,9 @@
 ;;; Darwin-Homebrew mySQL libs
 
 (when (equal "Darwin" (software-type))
+  (require 'cffi)
   (pushnew #p"/usr/local/opt/mysql-client/lib/"
-           cffi:*foreign-library-directories*))
+           (intern "*FOREIGN-LIBRARY-DIRECTORIES*" (find-package "CFFI"))))
 
 ;;; Ensure  that   the  ASD   files  of   any  submodules   are  loaded.
 ;;; By convention, we load submodules into lib/
