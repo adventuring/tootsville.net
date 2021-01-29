@@ -916,7 +916,7 @@ Following approval, a flood of related  login packets will be sent which
 should trigger the  usual login process; these  will include positioning
 the  Toot  character,  observations   of  the  world  (so-called  ``room
 variables'' and avatar  information, &c.) and other  packets. Review the
-`Tootsville.Game.Gatekeeper' documentation for  the client's handling of
+Tootsville.Game.Gatekeeper documentation for  the client's handling of
 these packets.
 
 @subsection New in 1.1

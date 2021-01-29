@@ -216,6 +216,7 @@ doc/Tootsville.html.zip:	doc/Tootsville.html.d/index.html
 	cd doc; zip -9 Tootsville.html.zip Tootsville.html.d
 
 doc/Tootsville.html.d/doc-style.css:	src/doc/doc-style.css
+	mkdir -p doc/Tootsville.html.d/
 	cp $< $@
 
 doc/Tootsville.html.d/index.html:	doc/Tootsville.texi doc/Tootsville.html.d/doc-style.css

@@ -366,10 +366,30 @@ This is based upon `DOCUMENTATION', qv."
 #apropos EXPRESSION
 @end verbatim
 
-Example
+@subsection Example
 
-@example
+@verbatim
 #apropos apropos
-@end example"
+@end verbatim"
   (with-output-to-string (*standard-output*)
     (apropos (first words) :tootsville-user)))
+
+(define-operator-command script (words u r)
+  "Push a new function into the TOOTSVILLE-USER package.
+
+UNIMPLEMENTED.
+
+@subsection Usage
+
+@verbatim
+#script TITLE SOURCE TEXT ...
+@end verbatim
+
+@subsection Example
+
+@verbatim
+#script simply-string \"simply\"
+@end verbatim
+
+"
+  (error 'unimplemented))
