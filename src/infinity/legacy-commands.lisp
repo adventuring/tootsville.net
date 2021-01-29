@@ -523,7 +523,7 @@ These game actions are identified by function names beginning with
 `GAME-ACTION-START-SPORTS-BALL-GAME'
 
 @item
-`GAME-ACION-JOIN-CARD-GAME'
+`GAME-ACTION-JOIN-CARD-GAME'
 
 @item
 `GAME-ACTION-TAG-YOU-RE-IT'
