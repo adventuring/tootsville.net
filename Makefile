@@ -216,10 +216,12 @@ doc/Tootsville.html.tar:	doc/Tootsville.html.d/index.html
 doc/Tootsville.html.zip:	doc/Tootsville.html.d/index.html
 	cd doc; zip -9 Tootsville.html.zip Tootsville.html.d
 
-doc/Tootsville.html.d/index.html:	doc/Tootsville.texi doc/doc.css
-	cd doc; makeinfo -o Tootsville.html.d/ \
-		--html --css-include=doc.css \
-		--split=node Tootsville.texi
+doc/Tootsville.html.d/doc-style.css:	src/doc/doc-style.css
+	cp $< $@
+
+doc/Tootsville.html.d/index.html:	doc/Tootsville.texi doc/Tootsville.html.d/doc-style.css
+	emacsclient -e '(with-current-buffer (find-file "doc/Tootsville.texi") (texinfo-all-menus-update) (texinfo-every-node-update) (save-buffer) (kill-buffer))'
+	perl texi-to-html
 
 doc/Tootsville.ps:	doc/Tootsville.pdf
 	cd doc; pdf2ps Tootsville.pdf

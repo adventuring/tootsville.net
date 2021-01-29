@@ -511,7 +511,7 @@ as well, whose documentation may not have been included here.
         (dolist (symbol defs)
           (unless (eql last-package (symbol-package symbol))
             (setf last-package (symbol-package symbol))
-            (format docs "~2&@chapter Package ~:(~a~)~2%"
+            (format docs "~2&@node Package ~:(~a~)~2%@chapter Package ~:*~:(~a~)~2%"
                     (package-name (symbol-package symbol)))
             (let ((doc (documentation (symbol-package symbol) t)))
               (unless (emptyp doc)
