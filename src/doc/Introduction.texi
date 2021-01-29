@@ -2,6 +2,9 @@
 
 This is the manual for the tootsville server for CIWTA.
 
+@menu
+@end menu
+
 @node Who are CIWTA?
 @section Who are CIWTA?
 

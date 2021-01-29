@@ -358,7 +358,7 @@ XXX this is a huge function that ought to be broken up more"
 * Copying:: The GNU Affero General Public License
 * Introduction:: What Tootsville V (Romance II) is all about
 * Definitions:: Index of defined symbols
-~{* ~a:: Symbols in package ~:*~a~%~}~
+~{* Package ~a:: Symbols in package ~:*~a~%~}~
 * Javascript:: The front-end documentation
 * Conclusion:: Time to go
 * Indices:: Concepts, functions, variables, data types, and pathnames
@@ -623,6 +623,10 @@ Google Closure Javascript compressor
 @node Javascript index
 @appendixsec Javascript
 @printindex js
+
+@page
+
+``It's always dark at the beginning . . . ''
 
 @bye
 
