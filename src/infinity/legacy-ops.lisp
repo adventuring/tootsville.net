@@ -1660,7 +1660,7 @@ enumerated in the following sections.
 
 @subsection Examples
 
-@example
+@verbatim
 #place #here #item 1337
 #place #here #room TootSweets
 #place #here #vitem 42
@@ -1669,7 +1669,7 @@ enumerated in the following sections.
 #place #here-big #walk
 #place 100,100~100,200~200,200~200,100 #unwalk
 #place 100x10 #item 1234
-@end example
+@end verbatim
 
 @subsection @code{#download} Placing a download trigger item
 
