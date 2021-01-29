@@ -580,11 +580,11 @@ inventory back-and-forth later.
 
 @subsection Format
 
-@verbose
+@verbatim
 { from: \"tootList\",
   status: true,
   toots: [ TOOT-INFO, ... ] }
-@end verbose
+@end verbatim
 
 The value of @code{toots} is an array (list) of `TOOT-INFO' ordered by
 the time that the Toot was last active in the game, most recent to
