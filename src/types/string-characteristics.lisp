@@ -100,3 +100,27 @@ entire (original) string is returned."
         collecting line into lines
         when (emptyp line)
           do (return-from first-paragraph (join #\Newline lines))))
+
+(defun uuid-string-p (string)
+  "Does STRING look like a UUID?
+
+Checks for 36 characters with #\- in the correct positions and hex
+characters elsewhere.
+
+@subsection Example
+
+@verbatim
+6D559B46-D021-4814-A7F7-D8D67AD64800
+@end verbatim
+"
+  (and (= 36 (length string))
+       (char= #\- (char string 8))
+       (char= #\- (char string 13))
+       (char= #\- (char string 18))
+       (char= #\- (char string 23))
+       (let ((hex (string-upcase (remove #\- string))))
+         (and (= 32 (length hex))
+              (every (lambda (char)
+                       (or (char<= #\0 char #\9)
+                           (char<= #\A char #\F)))
+                     hex)))))
