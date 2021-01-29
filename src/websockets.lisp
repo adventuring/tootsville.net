@@ -1264,3 +1264,19 @@ RESOURCE."
                 '(:|from| "migrate"
                   :|status| t
                   :|newConnection| "#same")))
+
+(defmethod nearp ((client ws-client) place)
+  (when-let (Toot-position (Toot-position client))
+    (nearp Toot-position place)))
+
+(defmethod nearp (place (client ws-client))
+  (when-let (Toot-position (Toot-position client))
+    (nearp Toot-position place)))
+
+(defmethod nearp (a b)
+  (and (equalp (world a) (world b))
+       (< (distance (latitude a) (longitude a) (altitude a)
+                    (latitude b) (longitude b) (altitude b))
+          2)))
+
+

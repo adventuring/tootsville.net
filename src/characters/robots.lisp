@@ -167,12 +167,10 @@ PLACE.''  Network events  are not  propagated to  observers who  are not
 NEARP to the event being observed."))
 
 (defmethod nearp ((robot robot) place)
-  "Is ROBOT near PLACE?" ; FIXME, do better
-  (or (null place)
-      (and (= (latitude place) (latitude robot))
-           (= (longitude place) (longitude robot))
-           (= (altitude place) (altitude robot))
-           (eql (world place) (world robot)))))
+ (nearp (robot-position robot) place))
+
+(defmethod nearp (place (robot robot))
+ (nearp place (robot-position robot)))
 
 (defun robot-broadcast (message near &key except)
   "Broadcast MESSAGE to all robots near NEAR, except robot EXCEPT."
@@ -217,6 +215,9 @@ NEARP to the event being observed."))
 
 (defmethod current-position ((robot robot))
   (current-position (wtl-course robot)))
+
+(defun robot-position (robot)
+  (list (world robot) (latitude robot) (longitude robot) (altitude robot)))
 
 (defun parse-wtl-for-robot (wtl)
   "Parse the WTL JSON into a WTL-Course structure "
