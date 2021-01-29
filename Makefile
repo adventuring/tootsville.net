@@ -191,8 +191,7 @@ doc:	server-doc
 
 server-doc: \
 	doc/Tootsville.pdf \
-	doc/Tootsville.html.tar.gz \
-	doc/Tootsville.info
+	doc/Tootsville.html.tar.gz
 
 doc-install-info:	doc/Tootsville.info
 	install-info doc/Tootsville.info /usr/local/share/info/dir
@@ -220,7 +219,7 @@ doc/Tootsville.html.d/doc-style.css:	src/doc/doc-style.css
 	cp $< $@
 
 doc/Tootsville.html.d/index.html:	doc/Tootsville.texi doc/Tootsville.html.d/doc-style.css
-	emacsclient -e '(with-current-buffer (find-file "doc/Tootsville.texi") (texinfo-all-menus-update) (texinfo-every-node-update) (save-buffer) (kill-buffer))'
+	emacsclient -e '(with-current-buffer (find-file "doc/Tootsville.texi") (texinfo-all-menus-update) (texinfo-every-node-update) (texinfo-master-menu t) (save-buffer) (kill-buffer))'
 	perl texi-to-html
 
 doc/Tootsville.ps:	doc/Tootsville.pdf
@@ -233,7 +232,7 @@ doc/Tootsville.txt:	doc/Tootsville.texi
 	cd doc; makeinfo --plaintext -o Tootsville.txt Tootsville.texi
 
 doc/Tootsville.info:	doc/Tootsville.texi
-	emacsclient -e '(with-current-buffer (find-file "doc/Tootsville.texi") (texinfo-all-menus-update) (texinfo-every-node-update) (save-buffer) (kill-buffer))'
+	emacsclient -e '(with-current-buffer (find-file "doc/Tootsville.texi") (texinfo-all-menus-update) (texinfo-every-node-update) (texinfo-master-menu t) (save-buffer) (kill-buffer))'
 	cd doc; makeinfo -o Tootsville.info Tootsville.texi
 
 doc/doc.css:	build/doc.less

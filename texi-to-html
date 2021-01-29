@@ -10,6 +10,7 @@ my %files = ();
 my $book_title = '';
 my $current_chapter = 'forematter';
 my $chapter_number = 0;
+my $copying = '';
 
 my %indices = ();
 
@@ -34,6 +35,7 @@ sub untexi ($) {
                      $rname =~ s(__)(/)g;
                      "<a href='$ref.html'>$rname</a>")ge;
   s(\@url\{(.*?)\}) (<a href="$1">$1</a>)g;
+  s(\@copyright\{\}) (©)g;
   s/\@\@/\@/g;
   s(``(.*)'') (“$1”)g;
   s(`(.*)') (‘$1’)g;
@@ -64,16 +66,28 @@ while (<TEXI>) {
   next if /\@setchapternewpage/;
   next if /\@macro/ .. /\@end macro/;
   next if /\@defindex/;
+  next if /\@top/;
+
+ # if (/\@copying/../\@end copying/) { $copying .= untexi($_) . "\n"; next; }
+  if (/\@insertcopying/) { print NODE $copying; next }
 
   if (/\@settitle (.*)/) {
     $book_title = $1; next;
   }
 
+  next if /\@ignore/;
+  next if /\@end ignore/;
+
+  next if /\@detailmenu/;
+  next if /\@end detailmenu/;
+  next if /\@ifnottex/;
+  next if /\@end ifnottex/;
+  
   if (/\@menu/) {
     print NODE "<nav><ul>\n"; next;
   }
-  if (/^\* (.*)::/) {
-    print NODE "<li> <a href='$1.html'>$1</a></li>\n"; next
+  if (/^\* (.*):: *(.*)?/) {
+    print NODE "<li> <a href='$1.html'>$1 $2</a></li>\n"; next
   }
   if (/\@end menu/) {
     print NODE "</ul></nav>\n"; next;
@@ -114,6 +128,8 @@ while (<TEXI>) {
       print NODE "<li>" ; next;
     }
   }
+
+
   if (/\@node (.*), (.*), (.*), (.*)/) {
     $node = $1;
     my ($next, $back, $top) = ($2, $3, $4);
@@ -127,6 +143,7 @@ endfoot
     close NODE;
     my $title = $node;
     $node =~ s(/) (__)g;
+    $node =~ s(\?) (%3f)g;
     open NODE, '>', "doc/Tootsville.html.d/$node.html" or die "can't write $node: $!";
     print NODE <<endhead;
 <!DOCTYPE html>
@@ -141,6 +158,11 @@ endhead
     $backlink =~ s(/) (__)g;
     $uplink =~ s(/) (__)g;
     $nextlink =~ s(/) (__)g;
+    $backlink =~ s(\?) (%3f)g;
+    $uplink =~ s(\?) (%3f)g;
+    $nextlink =~ s(\?) (%3f)g;
+    if ($backlink eq '(dir)') { $back = undef; }
+    if ($uplink eq '(dir)') { $top = undef; }
     print NODE "<li id='backlink'><a href='$backlink.html'>$back</a></li>  " if $back;
     print NODE "<li id='uplink'><a href='$uplink.html'>$top</a></li>  " if $top;
     print NODE "<li id='nextlink'><a href='$nextlink.html'>$next</a></li>  " if $next;
@@ -148,7 +170,8 @@ endhead
     ++$files{$node};
     next;
   }
-
+  if (/\@node/) { die "Probably missing \@node markups, check TeXinfo file for navigation" }
+  
   if (/\@printindex (..?)/) {
     my $index = $1;
     print NODE "<dl>\n";
