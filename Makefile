@@ -308,6 +308,7 @@ deploy-servers:	predeploy-servers
 	for host in $(GAMEHOSTS) ; \
 	do \
 		echo " » Deploy $$host.$(clusternet)" ;\
+		ssh root@$$host.$(clusternet) dnf -y update ;\
                     scp ~/.config/Tootsville/Tootsville.config.lisp $$host.$(clusternet):.config/Tootsville ;\
 		ssh root@$$host.$(clusternet) make -k -C ~pil/tootsville.net install ;\
 		ssh root@$$host.$(clusternet) systemctl daemon-reload ;\
