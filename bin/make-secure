@@ -33,8 +33,9 @@ systemctl start firewalld
 
 zone=$( firewall-cmd  --get-default-zone )
 
-firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b1'" port port="5000" protocol="tcp" accept' --zone=$zone --permanent
-firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b2'" port port="5000" protocol="tcp" accept' --zone=$zone --permanent
-firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b1'" port port="5010" protocol="tcp" accept' --zone=$zone --permanent
-firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b2'" port port="5010" protocol="tcp" accept' --zone=$zone --permanent
+firewall-cmd --add-rich-rule='rule family=ipv4 port port="5000" protocol="tcp" accept' --zone=$zone --permanent
+#firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b1'" port port="5000" protocol="tcp" accept' --zone=$zone --permanent
+#firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b2'" port port="5000" protocol="tcp" accept' --zone=$zone --permanent
+#firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b1'" port port="5010" protocol="tcp" accept' --zone=$zone --permanent
+#firewall-cmd --add-rich-rule='rule family=ipv4 source address="'$b2'" port port="5010" protocol="tcp" accept' --zone=$zone --permanent
 
