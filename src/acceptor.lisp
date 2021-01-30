@@ -194,9 +194,9 @@ parameters."
         (gracefully-report-error.html status-code c))))
 
 (defmacro with-http-conditions (() &body body)
-  `(handler-bind
-       ((error 'gracefully-report-http-client-error))
-     (progn ,@body)))
+  `(handler-case
+       (progn ,@body)
+     (error (e) (gracefully-report-http-client-error e))))
 
 (defun handle-options-request (uri-parts ua-accept)
   (v:info :request "Method is OPTIONS")
@@ -250,6 +250,12 @@ parameters."
                     method uri-parts ua-accept)
       (error 'not-found :the (format nil "The URI you requested")))))
 
+(defun whitespace-char-p (character)
+  (find character #(#\Space #\Newline #\Return #\Tab #\Page)))
+
+(defun whitespacep (string)
+  (every #'whitespace-char-p string))
+
 (defmethod hunchentoot:acceptor-dispatch-request
     ((acceptor Tootsville-REST-acceptor) request)
   (declare (optimize (speed 3) (safety 1) (space 0) (debug 1)))
@@ -274,7 +280,7 @@ parameters."
                     (find "13" (remove-if #'whitespacep (split-sequence #\, sec-websocket-version))
                           :test #'equal))
           (gracefully-report-http-client-error (make-condition 'bad-request)))
-        (handle-websocket-request sec-websocket-key)))
+        #+ (or) (handle-websocket-request sec-websocket-key)))
     (with-http-conditions ()
       (set-http-default-headers)
       (if (eql :options method)
@@ -302,7 +308,7 @@ parameters."
       (let ((sec-websocket-key (hunchentoot:header-in* "Sec-Websocket-Key"))
             (sec-websocket-version (hunchentoot:header-in* "Sec-Websocket-Version")))
         (unless (or (equal "13" sec-websocket-version)
-                    (find "13" (remove #\space (split-sequence #\, sec-websocket-version))
+                    (find "13" (remove-if #'whitespacep (split-sequence #\, sec-websocket-version))
                           :test #'equal))
           (gracefully-report-http-client-error (make-condition 'bad-request)))
         #+ (or) (handle-websocket-request sec-websocket-key)))
@@ -318,7 +324,7 @@ parameters."
   (declare (ignore _))
   (unless (wants-json-p) (call-next-method))
   (when (< (the fixnum HTTP-status-code) 400) (call-next-method))
-
+  
   (gracefully-report-HTTP-client-error
    (make-condition 'HTTP-client-error :status HTTP-status-code)))
 
