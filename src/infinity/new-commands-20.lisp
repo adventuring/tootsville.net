@@ -491,7 +491,8 @@ See `INTERPRET-FACING'.
                    :|facing| facing
                    :|u| (Toot-uuid *Toot*)
                    :|n| (Toot-name *Toot*))
-             :except *client*))
+             :except *client*
+             :near *client*))
 
 (definfinity wtl-4 ((u course facing) u r)
   "Walk the Line indirect refresher from observer
@@ -859,7 +860,7 @@ state. When a client receives a message of the form:
 … they are expected to submit a quiesce message to the central
 servers.
 "
-
+  
   (find-record 'Toot :UUID (Toot-UUID Toot)) ; signals an error if not found
   
   (if-let (old (ignore-not-found (find-record 'Toot-quiesced :Toot (Toot-UUID Toot))))
@@ -874,18 +875,18 @@ servers.
                  (Toot-quiesced-emotion old) (or emotion "")
                  (Toot-quiesced-observed old) (now))
            (save-record old))
-          
-  (make-record 'Toot-quiesced
-               :Toot (Toot-UUID Toot)
-               :world (or world :chor)
-               :latitude (or latitude 0)
-               :longitude (or longitude 0)
-               :altitude (or altitude 0)
-               :wtl (jonathan.encode:to-json wtl)
-               :d3 (jonathan.encode:to-json d3)
-               :peer-address (peer-address Toot)                                 
-               :emotion emotion
-               :observed (now)))
+    
+    (make-record 'Toot-quiesced
+                 :Toot (Toot-UUID Toot)
+                 :world (or world :chor)
+                 :latitude (or latitude 0)
+                 :longitude (or longitude 0)
+                 :altitude (or altitude 0)
+                 :wtl (jonathan.encode:to-json wtl)
+                 :d3 (jonathan.encode:to-json d3)
+                 :peer-address (peer-address Toot)                                 
+                 :emotion emotion
+                 :observed (now)))
   (list :|from| "quiesce"
         :|status| t))
 

@@ -405,8 +405,17 @@ Returns a list of ITEM objects."
           (find-records 'inventory-item :Toot (Toot-UUID Toot))))
 
 (defun Toot-has-item-p (item-template-id &optional (Toot *Toot*))
-  "Returns a generalize boolean indicating whether TOOT has any item based upon ITEM-TEMPLATE-ID"
+  "A generalize boolean indicating whether TOOT has any item based upon ITEM-TEMPLATE-ID
+
+Calls `TOOT-INVENTORY' to benefit from caching."
   (member item-template-id (mapcar #'item-template (Toot-inventory Toot))))
+
+(defun item-owned-by-p (item &optional (Toot *Toot*))
+  "A generalized boolean indicating whether ITEM is owned by TOOT.
+
+Calls `TOOT-INVENTORY' to benefit from caching."
+  (member item (Toot-inventory Toot)))
+
 
 
 
@@ -507,6 +516,7 @@ segments string used by the client; i.e. a list of the form
 lists joined by @code{,}."
   (format nil "~{~{~8,6f,0,~8,6f~}~^~~~}" 
           (loop for i from 1.0 below segments 
-             collecting (list
-                         (+ x-center (* radius (cos (* 2 pi (/ i segments)))))
-                         (+ z-center (* radius (sin (* 2 pi (/ i segments)))))))))
+                collecting (list
+                            (+ x-center (* radius (cos (* 2 pi (/ i segments)))))
+                            (+ z-center (* radius (sin (* 2 pi (/ i segments)))))))))
+

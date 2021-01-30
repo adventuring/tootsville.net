@@ -369,9 +369,18 @@ a distinct  wear slot with specific  meaning (ie, the user  can activate
 that item).
 "
   (unless (null color)
-    (error 'infinity-error :http-status 400 :memo :cannot-select-color))
-  ;; TODO don
-  (error 'unimplemented))
+    (return-from infinity-don
+      (list 400 (list :|from| "don"
+                      :|error| "Color selection is not allowed any more"
+                      :|err| "cannotSelectColor"
+                      :|status| :false))))
+  (let ((item (find-record 'inventory-item :uuid (uuid:make-uuid-from-string slot))))
+    (if (item-owned-by-p item *Toot*)
+        (don-item item (item-template-wear-slot (item-template (inventory-item-item item))))
+        (list 403 (list :|from| "don"
+                        :|error| "That is not your item"
+                        :|err| "notYourItem"
+                        :|status| :false)))))
 
 (definfinity echo ((&rest d) user recipient/s)
   "Echoes back the supplied JSON (or ActionScript) object to the client.
@@ -2069,6 +2078,49 @@ WRITEME
 "
   (error 'unimplemented))
 
+(defun set-user-var-d (Toot value)
+  (destructuring-bind (x₁ y₁ x₂ y₂ facing start-time &optional z₁ z₂)
+      (split-sequence #\~ value)
+    (unless (and z₁ z₂)
+      (setf z₁ y₁ z₂ y₂
+            y₁ 0 y₂ 0))
+    (setf facing (interpret-facing facing))
+    (broadcast (list :|from| "wtl"
+                     :|status| t
+                     :|course| (list :|startPosition| (list :|x| x₁
+                                                            :|y| y₁
+                                                            :|z| z₁)
+                                     :|startTime| start-time
+                                     :|endPosition| (list :|x| x₂
+                                                          :|y| y₂
+                                                          :|z| z₂)
+                                     :|speed| 0.1)
+                     :|facing| (interpret-facing facing))
+               :near Toot)))
+
+(defun set-user-var-wtl (Toot value)
+  (destructuring-bind (&key |course| |facing|) value
+    (broadcast (list :|from| "wtl"
+                     :|status| t
+                     :|course| |course|
+                     :|facing| (interpret-facing |facing|))
+               :near Toot)))
+
+(defun set-user-var (Toot key value)
+  (cond
+    ((equal "d" key)
+     (set-user-var-d Toot value))
+    ((equal "wtl" key)
+     (set-user-var-wtl Toot value))
+    ((equal "d3" key)
+     (error 'unimplemented))
+    ((equal "xpr" key)
+     (error 'unimplemented))
+    ((string-begins "s" key)
+     (error 'unimplemented))
+    ((string-begins "shot" key)
+     (error 'unimplemented))))
+
 (definfinity set-user-var ((&rest key+value-pairs) user recipient/s)
   "Set ``User Variables''
 
@@ -2182,7 +2234,8 @@ When no key is from the set of supported keys, an error is returned:
   unset: [ \"key\", ... ] }
 @end verbatim
  "
-  (error 'unimplemented))
+  (doplist (key value key+value-pairs)
+           (set-user-var *Toot* key value)))
 
 (definfinity spawn-zone ((&rest d) user recipient/s)
   "Spawn an additional server peer pairing.
