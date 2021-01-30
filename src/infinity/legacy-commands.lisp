@@ -219,6 +219,8 @@ When the player has a house and wishes to add a room, they send
     connectAt: pointMoniker } 
 @end verbatim
 
+WRITEME
+
 @subsection 201 Created
 
 A house or room was created as demanded
@@ -238,6 +240,11 @@ The house ID or room connection point given was not found.
 @cindex Changes from 1.2 to 2.0
 
 In 1.2 adding a room required only an index.
+
+@subsection Changes from 1.1 to 1.2
+@cindex Changes from 1.1 to 1.2
+
+In 1.1, houses could have only one room
 "
   (let ((lot (find-record 'lot :id lot)))
     (unless lot
@@ -265,11 +272,11 @@ In 1.2 adding a room required only an index.
                     (zerop index)
                     (minusp index)
                     (> index 9))
-            (infinity-error 400 :index-not-valid))
+            (error 'infinity-error :http-status 400 :memo :index-not-valid))
           ;; TODO create room and affix to house
           ))))))
 
-(definfinity dofff ((&rest d) user recipient/s)
+(definfinity dofff (() user recipient/s)
   "Doff all clothing items.
 
 See also `INFINITY-DOFF' for single items.  To put on (don) an item, see
@@ -298,7 +305,6 @@ All clothing items have been removed.
 @end verbatim
 
 A separate @code{wardrobe} packet will be sent."
-  ;; TODO dofff
   (error 'unimplemented))
 
 (definfinity don ((slot color) user recipient/s)
@@ -653,10 +659,6 @@ Returns a set of items as
 { from: \"getInventory\", 
   inv: { 0: { id: 123, isActive: boolean }, ... } }
 @end verbatim
-
-furniture with placement data will also have x, y, z, and facing vars.
-Other attributes are \"from\":\"inventory\", \"type\": matching the
-type of the question
 
 WRITEME
 
@@ -1032,19 +1034,18 @@ receive items.
 }
 @end verbatim
 
-u - the user doing something
+The facing can be given as per `INTERPRET-FACING'.
 
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
 @code{z} can no longer be omitted if @code{x} or @code{y} are specified.
+In 1.2, a pair with only x,y was valid.
 "
   (error 'unimplemented))
 
 (definfinity init-user-room ((room autoJoin) user recipient/s)
   "Create a user's private room (in their house).
-
-
 
 Creates room  named user/user's  name/room — room  is the  room index
 number given in the JSON data as  ``room,'' it will always be zero right
@@ -1926,6 +1927,12 @@ SQLException - if the palettes can't be loaded"
   (destructuring-bind (pad-red pad-green pad-blue) (rgb-bytes->rgb extra)
     (setf (Toot-pad-color *Toot*) (color24-rgb pad-red pad-green pad-blue))))
 
+(defun remove-furniture (slot)
+  (error 'unimplemented))
+
+(defun place-furniture (slot x y z facing)
+  (error 'unimplemented))
+
 (definfinity set-furniture ((item slot x y z facing remove) user recipient/s)
   "Set or change a furniture item.
 
@@ -1945,7 +1952,8 @@ The position at which to place the item
 The angle (in radians) of the facing of this item. Alternatively, for 
 backward compatibility with 1.2, the facing direction can be
 specified as @code{N}, @code{NE}, @code{E}, @code{SE}, @code{S},
-@code{SW}, @code{W}, or @code{NW} (case-insensitive).
+@code{SW}, @code{W}, or @code{NW} (case-insensitive). 
+See `INTERPRET-FACING'.
 @end table
 @item slot
 To position or reposition a particular item by its UUID, send a
@@ -1960,6 +1968,7 @@ The angle (in radians) of the facing of this item. Alternatively, for
 backward compatibility with 1.2, the facing direction can be
 specified as @code{N}, @code{NE}, @code{E}, @code{SE}, @code{S},
 @code{SW}, @code{W}, or @code{NW} (case-insensitive).
+See `INTERPRET-FACING'
 @end table
 @item remove
 Remove a furniture item from the scene, putting it back into your
@@ -1990,9 +1999,6 @@ Parameters:
 jso - @{ slot:  #, x: #, y: #, facing:  $ @} or @{ item: #,  x: #, y: #,
  facing: $ @} or @{ slot: #, remove: true @}
 
- u - The user calling this method
-
-room - The room in which this user is standing
 
 @end quotation
 
@@ -2006,11 +2012,14 @@ z position is required
 structural items no longer exist
 @item
 slot is the item's UUID
+@item
+facing can  be specified  as an  arbitrary angle,  rather than  just the
+eight cardinal directions.
 @end itemize
 
 @subsection 200 OK
 
-WRIETME
+WRITEME
 
 @subsection 400 Error in parameters
 
@@ -2022,14 +2031,14 @@ WRITEME
   (cond
     (remove
      (with-errors-as-http (400) (assert (and (null item) (null x) (null y) (null z))))
-     (remove-furniture% slot))
+     (remove-furniture slot))
     (slot
      (with-errors-as-http (400) (assert (and (null item) x y z facing)))
-     (place-furniture% slot x y z facing))
+     (place-furniture slot x y z facing))
     (item
      (with-errors-as-http (400) (assert (and (null slot) x y z facing)))
      (let ((slot (drop-item item)))
-       (place-furniture% slot x y z facing)))
+       (place-furniture slot x y z facing)))
     (t (error 'http-client-error :status 400))))
 
 (definfinity set-room-var ((&rest key+value-pairs) user recipient/s)
@@ -2087,9 +2096,10 @@ client implementors.
 @subsection Example
 
 @verbatim
-{ d: \"100~100~200~200~NE~6029604401000\",
-  s0: \"100~100~300~300~NE~6029604401000\",
-  xpr: \"smile\" }
+{ c: \"setUserVar\",
+  { d: \"100~100~200~200~NE~6029604401000\",
+    s0: \"100~100~300~300~NE~6029604401000\",
+    xpr: \"smile\" } }
 @end verbatim
 
 @subsection Changes from 1.2 to 2.0

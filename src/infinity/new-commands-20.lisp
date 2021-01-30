@@ -247,7 +247,7 @@ should be used for Z instead. (The Y axis used to run across the
 floor.)
 
 The facing value can be given in radians, or as a special moniker from
-the set: @code{N NE E SE S SW W NW}
+the set: @code{N NE E SE S SW W NW}. See `INTERPRET-FACING'.
 
 @example
 itemfoo123: \"flowerPot~100~931~N\"
@@ -440,7 +440,12 @@ determine where along the line (linear interpolation) the walker is now.
   facing: RADIANS }
 @end verbatim
 
+Facing  can be  given as  `INTERPRET-FACING', and  will be  converted to
+decimal radians.
+
 In return, all observers receive these ``wtl'' packets back ... WRITEME
+
+
 
 @subsection Reply
 
@@ -475,8 +480,9 @@ a @code{datList}.
 x1~z1~x2~z2~facing~startTime or x1~y1~x2~y2~facing~startTime~z1~z2.
 Note how the two-coördinate form uses x,z with y pinned at zero.
 
-As with @code{wtl}, @code{facing} can be supplied in either radians or
-as a value from the list @code{N NE E SE S SW W NW}.
+As with @code{wtl},  @code{facing} can be supplied in  either radians or
+as   a  value   from  the   list  @code{N   NE  E   SE  S   SW  W   NW}.
+See `INTERPRET-FACING'.
 
 "
   (broadcast (list :|from| "wtl"
@@ -497,6 +503,8 @@ as a value from the list @code{N NE E SE S SW W NW}.
   course: { COURSE },
   facing: RADIANS }
 @end verbatim
+
+Facing can be provided as per `INTERPRET-FACING'.
 
 WRITEME"
   (broadcast (list :|from| "wtl"
@@ -561,6 +569,8 @@ Projectiles are currently UNIMPLEMENTED.
        course: COURSE,
        facing: FACING } }
 @end verbatim
+
+Facing is interpreted by `INTERPRET-FACING'.
 
 @subsection Example
 
@@ -810,6 +820,8 @@ The Toot named CHARACTER must exist.
   longitude: LONG,
   altitude: ALT }
 @end verbatim
+
+Facing may be provided as per `INTERPRET-FACING'.
 
 A quiescent copy of the character information will be saved in a
 central database. Should the player lose connection and not
