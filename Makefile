@@ -400,15 +400,15 @@ quicklisp-update-servers:
 	done
 
 remotes:
-	if ! git remote -v | grep github &>/dev/null ;\
+	if ! git remote -v | grep -q github &>/dev/null ;\
 	then \
 		git remote add github git@github.com:adventuring/tootsville.net ;\
 	fi
-	if ! git remote -v | grep gitlab &>/dev/null ;\
+	if ! git remote -v | grep -q gitlab &>/dev/null ;\
 	then \
 		git remote add gitlab git@gitlab.com:adventuring/tootsville.net ;\
 	fi
-	if ! git remote -v | grep goethe &>/dev/null ;\
+	if ! git remote -v | grep -q goethe &>/dev/null ;\
 	then \
 		git remote add goethe goethe.Tootsville.org:devel/git/tootsville.net ;\
 	fi
