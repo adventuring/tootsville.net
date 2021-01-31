@@ -248,7 +248,7 @@ This prevents that from signaling an error, giving a warning instead."
 
 Writes  the   port  number   to  a  file   named  after   this  (parent)
 process's PID."
-  (asdf:load-system :swank)
+  (ql:quickload :swank)
   (v:info :swank "~&Starting Swank listener on port ~d" port)
   (swank:create-server :port port :dont-close t)
   (ensure-directories-exist "~/run/")
