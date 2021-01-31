@@ -447,10 +447,10 @@ git-tag-deployment:
 	git submodule foreach --recursive 'git push --tags origin ||:'
 	git push --tags github ||:
 	git submodule foreach --recursive 'git push --tags github ||:'
-	git push --tags gitlab ||:
-	git submodule foreach --recursive 'git push --tags gitlab ||:'
-	git push --tags goethe ||:
-	git submodule foreach --recursive 'git push --tags goethe ||:'
+	# git push --tags gitlab ||:
+	# git submodule foreach --recursive 'git push --tags gitlab ||:'
+	# git push --tags goethe ||:
+	# git submodule foreach --recursive 'git push --tags goethe ||:'
 
 	$(MAKE) bump-next-version
 
