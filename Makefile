@@ -127,7 +127,7 @@ quicklisp-manifest.tmp:	tootsville.asd \
 doc/Tootsville.texi:	Tootsville ../tootsville.org/dist/doc.texi
 	./Tootsville write-docs
 
-install:	tootsville.service Tootsville
+install:	tootsville.service
 	chcon system_u:object_r:bin_t:s0 /home/pil/tootsville.net/Tootsville
 	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/
 	restorecon /usr/lib/systemd/system/tootsville.service
@@ -312,6 +312,7 @@ deploy-servers:	predeploy-servers
 		echo " » Deploy $$host.$(clusternet)" ;\
 		ssh root@$$host.$(clusternet) dnf -y update ;\
                     scp ~/.config/Tootsville/Tootsville.config.lisp $$host.$(clusternet):.config/Tootsville ;\
+		ssh $$host.$(clusternet) make -k -C ~pil/tootsville.net Tootsville ;\
 		ssh root@$$host.$(clusternet) make -k -C ~pil/tootsville.net install ;\
 		ssh root@$$host.$(clusternet) systemctl daemon-reload ;\
 		ssh root@$$host.$(clusternet) systemctl restart tootsville ;\
@@ -377,7 +378,8 @@ predeploy-servers:	servers quicklisp-update-servers
 	for host in $(GAMEHOSTS) ;\
 	do \
 		echo " » Pre-deploy $$host.$(clusternet)" ;\
-		rsync -essh --delete -zar * .??* $$host.$(clusternet):tootsville.net/ ;\
+		rsync -essh --exclude '*~' --exclude 'Tootsville' --delete -zar * .??* \
+			$$host.$(clusternet):tootsville.net/ ;\
 		ssh $$host.$(clusternet) rm tootsville.net/*~ ;\
 		ssh $$host.$(clusternet) make -C tootsville.net clean || exit 6 ;\
 		ssh $$host.$(clusternet) sbcl --non-interactive --eval "'(ql:update-all-dists)'" || exit 6 ;\
