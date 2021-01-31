@@ -218,8 +218,9 @@ REFERENCE will always be zero or negative.
 @end verbatim
 "
   (unless (<= 1 (length words))
-    (return-from tootsville-user::journal
-      "Usage: #journal [#last | #ref | #for] ..."))
+    (private-admin-message "#journal"
+                           "Usage: #journal [#last | #ref | #for] …")
+    (return-from tootsville-user::journal))
   (cond
     ((string-equal "#last" (first words))
      (let ((reference (if (<= 2 (length words))
@@ -241,7 +242,7 @@ REFERENCE will always be zero or negative.
        (write-staff-journal-entry (join #\Space (subseq words 3))
                                   users)))
     (t
-     (write-staff-journal-entry (join #\Space words)))))
+     (write-staff-journal-entry (join #\Space words) nil))))
 
 (define-operator-command doodle (words u r)
   "Change the colors of a Toot.
@@ -249,7 +250,7 @@ REFERENCE will always be zero or negative.
 @subsection Usage
 
 @verbatim
-#doodle WHO ( base | pad | pattern ) NEW-COLOR
+#doodle WHO ( #base | #pad | #pattern ) NEW-COLOR
 @end verbatim
 
 @subsection Examples
@@ -269,15 +270,16 @@ NEW-COLOR can be in any format understood by `PARSE-COLOR24', qv."
             (let ((color (ignore-errors (parse-color24 (third words)))))
               (if color
                   (progn (string-case (second words)
-                           ("base"
+                           ("#base"
                             (setf (Toot-base-color who) color))
-                           ("pad"
+                           ("#pad"
                             (setf (Toot-pad-color who) color))
-                           ("pattern"
+                           ("#pattern"
                             (setf (Toot-pattern-color who) color))
                            (otherwise
-                            (return-from tootsville-user::doodle
-                              "Color place name must be base, pad, or pattern")))
+                            (private-admin-message "#doodle"
+                                                   "Color place name must be #base, #pad, or #pattern")
+                            (return-from tootsville-user::doodle)))
                          (save-record who)
                          (broadcast (from-avatars (list :|doodled| (Toot-name who)))))
                   (format nil "Can't understand color ~a" (fourth words))))
@@ -361,7 +363,7 @@ To issue a command on every server, send @code{#at #each #OTHER-COMMAND}.
   (if (string-equal (machine-instance) (first words))
       (parse-operator-command (format nil "~{~a~^ ~}" (rest words)))
       (if (string-equal "#each" (first words))
-          (parse-operator-command (format nil "#at ~a ~{~a~^ ~}" server (rest words)))
+          (parse-operator-command (format nil "#at ~a ~{~a~^ ~}" (machine-instance) (rest words)))
           (format nil "Can't execute ~s at ~a" (rest words) (first words)))))
 
 (define-operator-command gc (words u r)
@@ -390,7 +392,9 @@ Returns the same report as `TOOTSVILLE-USER::MEM'
      (sb-ext:gc :full t))
     ((= 0 (length words))
      (sb-ext:gc))
-    (t (return-from tootsville-user::gc "Usage: #gc [#full]")))
+    (t (private-admin-message "#gc"
+                              "Usage: #gc [#full]")
+       (return-from tootsville-user::gc)))
   (Tootsville-user::mem))
 
 (define-operator-command doc (words u r)
