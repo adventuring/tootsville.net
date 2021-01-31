@@ -132,6 +132,8 @@ install:	tootsville.service Tootsville
 	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/
 	restorecon /usr/lib/systemd/system/tootsville.service
 	cp 55-tootsville.conf -f /etc/rsyslog.conf/
+	systemctl reload-daemon
+	systemctl restart tootsville
 
 ####################
 
