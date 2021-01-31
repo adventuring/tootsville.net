@@ -119,7 +119,7 @@ meaningless question.
              type: \"neu\",
              label_en_US: \"MEBBE\" } } }
 @end verbatim
-" 
+"
   (error 'unimplemented))
 
 (define-operator-command ban (words user plane)
@@ -145,7 +145,7 @@ The same reason codes and syntax are used for @code{#ban} as for
 
 Unlike a @code{#kick}, a @code{#ban} remains in effect persistently
 --- permanently, unless an operator reverses it."
-  
+
   (error 'unimplemented))
 
 (define-operator-command banhammer (words user plane)
@@ -198,7 +198,7 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
   "Beam yourself to a different location.
 
 @subsection Usage
- 
+
 @verbatim
 #beam LATITUDE LONGITUDE [ALTITUDE]
 @end verbatim
@@ -224,7 +224,7 @@ since rooms as such no longer exist, we use latitude and longitude now.
 
 (define-operator-command spawnroom (words user plane)
   "Mark a ``spot'' in the game.
-  
+
 UNIMPLEMENTED.
 
 Mark the current position of your Toot as a named ``spot'' in the game
@@ -268,7 +268,7 @@ room has been created by setting the 'f' room variable.
 
 (define-operator-command census (words user plane)
   "Load a number of users.
- 
+
 Simply  reference a  range  of  users, for  testing  purposes. Takes  an
 optional  low and  high point,  or  runs 0…250000.  (250,000) This  will
 load their Toots, and seriously strain the caché and database subsystems.
@@ -314,7 +314,7 @@ Stress-load 100 Toots starting with offset 1,000.
              (length (if (<= 2 (length words))
                          (1+ (- (parse-integer (second words)) low))
                          250000))
-             (uuids (mapcar 
+             (uuids (mapcar
                      (compose #'base64-to-uuid #'second)
                      (db-select-all :friendly
                                     (format nil "SELECT uuid FROM people LIMIT ~d OFFSET ~d"
@@ -338,7 +338,7 @@ UNIMPLEMENTED: This is not yet implemented for Tootsville V.
 
 @subsection Usage
 
-@verbatim 
+@verbatim
 #clearbadge [NICKNAME] [SPOT]
 #clearbadge #me [SPOT]
 
@@ -424,15 +424,15 @@ Room variables can no longer be cleared.  This command is no longer useful.
 
 @subsection Usage
 
-@verbatim 
-#clearvar @[ROOM] [VARIABLE] [VALUE] 
+@verbatim
+#clearvar @[ROOM] [VARIABLE] [VALUE]
 #clearvar [VARIABLE] [VALUE]
 @end verbatim
 
 @subsection Examples
 
 @verbatim
-#clearvar @tootsSquareWest anim~ropes 2 
+#clearvar @tootsSquareWest anim~ropes 2
 #clearvar anim~ropes 2
 @end verbatim
 
@@ -447,7 +447,7 @@ This command was rendered inoperable in 2.0.
   "Clone a room. (no longer supported)
 
 This is no longer supported in Tootsville V.
- 
+
 @subsection Usage
 
 @verbatim
@@ -464,7 +464,7 @@ This command existed in Romance 1.2, but is no longer effective.
 
 (define-operator-command createroom (words user plane)
   "Create a new room.
-  
+
 This is a synonym for `TOOTSVILLE-USER::SPAWNROOM' now.
 
 @subsection Usage
@@ -497,13 +497,13 @@ the name.
 
 @subsection Usage
 
-@verbatim 
+@verbatim
 #dbcpinfo
 @end verbatim
 
  Examples:
 
-@example 
+@example
 #dbcpinfo
 @end example
 
@@ -557,7 +557,7 @@ Usage: #drop ITEM-TEMPLATE-ID
   "Silently disconnect a user
 
 UNIMPLEMENTED
- 
+
 Silently remove the named user from the game by disconnection. Must have
 staff level 4 (DESIGNER) to use this command.
 
@@ -578,7 +578,7 @@ staff level 4 (DESIGNER) to use this command.
 
 @subsection Usage
 
-@verbatim 
+@verbatim
 #dumpthreads
 ,dumpthreads
 @end verbatim
@@ -592,9 +592,10 @@ staff level 4 (DESIGNER) to use this command.
 
 Note that this  can be invoked as @code{,dumpthreads}  by a non-operator
 user as well."
-  (v:info :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
-          (all-threads))
-  (format nil "Dumped names of ~:d thread~:p" (length (all-threads))))
+  (let ((all-threads (all-threads)))
+    (v:info :dump-threads "Dumping threads on end user imperative ~{~%~a~}"
+            all-threads)
+    (format nil "Dumped names of ~:d thread~:p" (length all-threads))))
 
 (define-operator-command enablepathfinder (words user plane)
   "Temporary test routine for testing pathfinders on users
@@ -655,7 +656,7 @@ See `CASSANDRA-FILTER' et al."
               children-present-p t)
         (when (string-equal "#all" (first words))
           (setf words (rest words))))
-    (format nil "“~{~a~^ ~}” ~:[is not~;is~] OK to say." 
+    (format nil "“~{~a~^ ~}” ~:[is not~;is~] OK to say."
             words
             (cassandra-filter (format nil "~{~a~^ ~}" words) children-present-p))))
 
@@ -663,10 +664,10 @@ See `CASSANDRA-FILTER' et al."
   "Converts JSON to a set of key-value pairs in pretty-printed HTML form."
   (with-output-to-string (s)
     (doplist (key value json)
-        (format s "~%<div><strong>~/HTML/</strong>: &nbsp; ~/HTML/</div>" key value))))
+             (format s "~%<div><strong>~/HTML/</strong>: &nbsp; ~/HTML/</div>" key value))))
 
 (define-operator-command finger (words user plane)
-  "Finger a user account. 
+  "Finger a user account.
 
 Return interesting details in an administrative message.
 
@@ -690,7 +691,7 @@ The format of the response has changed slightly, but is similar.
 
 @subsection Response
 
-@quotation 
+@quotation
 
 Mouser is a Toot with base color red, pad color black, and pattern
 black spots. This is an adult's account. (sensitive player) (patron)
@@ -704,12 +705,12 @@ player: AC14ABCF-518D-4DC5-B783-3A4DFE4838B2
 "
   (let* ((Toot (find-record 'Toot :name (first words)))
          (player (find-reference Toot :player)))
-    (format nil " ~a is a ~a with base color ~a, pad color ~a, and pattern ~a ~a. 
+    (format nil " ~a is a ~a with base color ~a, pad color ~a, and pattern ~a ~a.
  This is a~:[n adult~; child~]'s account. ~@[~*(sensitive player)~] ~@[~*(patron)~]
  The user has ~:d peanut~:p, ~:d fairy dust, and was last active ~a
  (Earth time, ~a ago; ~a)
- The player owning ~a is ~a (~a). 
- Toot: ~a; player: ~a 
+ The player owning ~a is ~a (~a).
+ Toot: ~a; player: ~a
 "
             (Toot-name Toot)
             (avatar-moniker (find-reference Toot :avatar))
@@ -720,10 +721,10 @@ player: AC14ABCF-518D-4DC5-B783-3A4DFE4838B2
             (Toot-childp Toot)
             (person-sensitivep player)
             (person-is-patron-p player)
-            (Toot-peanuts Toot) (Toot-fairy-dust Toot)
+            v(Toot-peanuts Toot) (Toot-fairy-dust Toot)
             (Toot-last-active Toot)
             (human-duration (timestamp-difference (now)
-                                                 (Toot-last-active Toot)))
+                                                  (Toot-last-active Toot)))
             (Chœrogryllum:date-string (timestamp-to-universal (Toot-last-active Toot)))
             (Toot-name Toot)
             (person-display-name player)
@@ -770,7 +771,7 @@ game (if that game provides one)
   (error 'unimplemented))
 
 (define-operator-command getconfig (words user plane)
-  "Reads a configuration key. 
+  "Reads a configuration key.
 
 All WORDS are expected to be the keywords on the path to the config
 value.
@@ -852,7 +853,7 @@ schedules.
 (define-operator-command getschedulefor (words user plane)
   "Get scheduled events for a particular class (scheduled by that class)
 
-UNIMPLEMENTED 
+UNIMPLEMENTED
 
 "
   (error 'unimplemented))
@@ -992,7 +993,7 @@ NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 @example
 #givehead 1337 catvlle
 @end example
- 
+
 This creates  a new item  from the  item template number  indicated, and
 equips it on the recipient. To give  a gift from your own inventory, see
 `TOOTSVILLE-USER::GIVE'. To grant a new item without equipping it, see `TOOTSVILLE-USER::GRANT'."
@@ -1016,7 +1017,7 @@ NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 @example
 #grant 1337 catvlle
 @end example
- 
+
 This creates  a new item  from the  item template number  indicated, and
 gives it to the recipient.  To give a gift from your own inventory, see
 `TOOTSVILLE-USER::GIVE'.  To grant a new item and equipping it, see
@@ -1097,7 +1098,7 @@ specified in the configuration file.
 
 (define-operator-command kick (words user plane)
   "Kick a user offline for a certain reason.
-  
+
 @subsection Usage
 
 @verbatim
@@ -1114,7 +1115,7 @@ List reason codes.
 
 @subsection Example
 
-@example 
+@example
 #kick bully pil
 #kick #list
 @end example
@@ -1148,25 +1149,25 @@ Don't share personal information like eMail addresses!
 @item PER.PASS
  Don't share personal information like passwords!
 @item PER.CHAT
- Don't share personal information like chat and instant messaging \ information! @item PER.LOCA 
-Don't share personal information like your location! 
-@item PER.AGES 
+ Don't share personal information like chat and instant messaging \ information! @item PER.LOCA
+Don't share personal information like your location!
+@item PER.AGES
 Don't share personal information like your age!
-@item PER.BDAY 
+@item PER.BDAY
 Don't share personal information like your birth date!
-@item BUL.MEAN 
+@item BUL.MEAN
 Don't be mean!
-@item OBS.RUDE 
+@item OBS.RUDE
 Don't be rude!
-@item OBS.FOUL 
+@item OBS.FOUL
 Don't use foul words!
-@item NET.CHTR 
+@item NET.CHTR
 No cheating!
-@item APP.PARN 
+@item APP.PARN
 You need your parent's permission in order to chat in Tootsville.
-@item APP.MAIL 
+@item APP.MAIL
 You need to confirm your eMail address in order to chat in Tootsville.
-@item APP.AGES 
+@item APP.AGES
 Lying about your birth date is against the law!
 @end table
  "
@@ -1229,10 +1230,10 @@ unsaved or recent changes.
   (error 'unimplemented))
 
 (define-operator-command mem (words user plane)
-  "Display some memory usage and other debugging type information as an pop-up message. 
+  "Display some memory usage and other debugging type information as an pop-up message.
 
 This is an abbreviated version of the output of `ROOM' on the server.
- 
+
 @subsection Usage
 
 @verbatim
@@ -1275,7 +1276,7 @@ output of @code{mem} was quite differently formatted.
           (first-paragraph (with-output-to-string (*standard-output*) (room)))))
 
 (define-operator-command metronome (words user plane)
-  "Display information  about or  micromanage the metronome. 
+  "Display information  about or  micromanage the metronome.
 
 @subsection Usage
 
@@ -1300,7 +1301,7 @@ output of @code{mem} was quite differently formatted.
 
 @table @code
 @item #help
-list these options 
+list these options
 @item #rate
 Displays  a message  indicating the  rate  that the  metronome ticks  in
 milliseconds. Always 1000 (1s).
@@ -1308,12 +1309,12 @@ milliseconds. Always 1000 (1s).
 Displays a  message indicating  the time in  milliseconds when  the last
 metronome tick occured. Always rounded to 1s.
 @item #start
-Starts the metronome. 
+Starts the metronome.
 @item #stop
-Stops the metronome. 
-@item #restart 
-Restarts the metronome. 
-@item #tick 
+Stops the metronome.
+@item #restart
+Restarts the metronome.
+@item #tick
 Forces the metronome to tick.
 @item #list
 List all tasks scheduled with the metronome
@@ -1325,7 +1326,7 @@ Cancel a specific task by name
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
-Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #cancel NAME} 
+Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #cancel NAME}
 
  "
   (string-case (or (first words) "#help")
@@ -1350,8 +1351,8 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
                      *metronome-tasks*))
     ("#cancel" (let ((task-name (join #\Space (rest words))))
                  (let ((potentials (loop for task in *metronome-tasks*
-                                      when (search task-name (metronome-task-name task))
-                                      collect task)))
+                                         when (search task-name (metronome-task-name task))
+                                           collect task)))
                    (cond
                      ((null potentials)
                       (format nil "There are no tasks matching ~a" task-name))
@@ -1359,7 +1360,7 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
                       (format nil "Removing ~/HTML/ from metronome: ~/HTML/"
                               (metronome-task-name (first potentials))
                               (metronome-remove (first potentials))))
-                     (t 
+                     (t
                       (format nil "There are ~:d task~:p matching ~a. \
 Use #metronome #list to enumerate tasks."
                               (length potentials) task-name))))))))
@@ -1373,7 +1374,7 @@ Use #metronome #list to enumerate tasks."
 #motd The new message of the day, literally.
 @end verbatim
 
- 
+
 @subsection Example
 
 @example
@@ -1392,7 +1393,7 @@ parents will see it when approving their sign-on."
     (setf *motd* (format nil "~{~a~^ ~}" words))))
 
 (define-operator-command mute (words user plane)
-  "Mute a user or area. 
+  "Mute a user or area.
 
 This is a simpler form of `TOOTSVILLE-USER:STFU' that does not accept a
 duration.
@@ -1452,7 +1453,7 @@ happened.
 
 Every user will be given an admin message which is essentially a lie:
 
-@quotation 
+@quotation
 A problem with the game caused you to be disconnected.  We're sorry for the
 inconvenience, and a system operator is already aware of the situation.  You
 can sign back in immediately.
@@ -1507,7 +1508,7 @@ child request from TOOT.
 
 (define-operator-command ping (words user plane)
   "Ping the  server, to force  a neutral administrative  message reply.
- 
+
 @subsection Usage
 
 @verbatim
@@ -1555,19 +1556,19 @@ Pong!
 
 (defun %operator-place-place (where params)
   (destructuring-bind (kind) params
-                      (error 'unimplemented)))
+    (error 'unimplemented)))
 
 (defun %operator-place-room (where params)
   (destructuring-bind (spot-moniker) params
-                      (error 'unimplemented)))
+    (error 'unimplemented)))
 
 (defun %operator-place-shop (where params)
   (destructuring-bind (item-template-number price &optional facing) params
-                      (error 'unimplemented)))
+    (error 'unimplemented)))
 
 (defun %operator-place-snowball (where params)
   (destructuring-bind (item-template-number &optional facing) params
-                      (error 'unimplemented)))
+    (error 'unimplemented)))
 
 (defun %operator-place-unwalk (where params)
   (assert (emptyp params))
@@ -1575,7 +1576,7 @@ Pong!
 
 (defun %operator-place-vitem (where params)
   (destructuring-bind (item-template-number &optional facing) params
-                      (error 'unimplemented)))
+    (error 'unimplemented)))
 
 (defun %operator-place-walk (where params)
   (assert (emptyp params))
@@ -1588,7 +1589,7 @@ Pong!
   "Put a thing or a Place into the game
 
 ``Place a thing'' or ``create a place'' in the game.
- 
+
 This command supports  the basic  types of event Places, and adds them to
 the room in the given WHERE place.  WHERE can be a diamond-shaped area
 around the operator issuing the command (using #here, #here-tiny, or
@@ -1605,14 +1606,14 @@ UNIMPLEMENTED. Target version: 0.7
 @verbatim
 #place #list
 #place WHERE #download ITEM-TEMPLATE-NUMBER URL [FACING]
-#place WHERE #exit MONIKER 
+#place WHERE #exit MONIKER
 #place WHERE #fountain ITEM-TEMPLATE-NUMBER
 #place WHERE #game GAME-MONIKER GAME-ATTRIBUTES
 #place WHERE #item ITEM-TEMPLATE-NUMBER [FACING]
 #place WHERE #item2 ITEM-TEMPLATE-NUMBER OTHER-ITEM-TEMPLATE-NUMBER
-#place WHERE #mini MINIGAME-MONIKER 
+#place WHERE #mini MINIGAME-MONIKER
 #place WHERE #place PLACE-KIND
-#place WHERE #room MONIKER 
+#place WHERE #room MONIKER
 #place WHERE #shop ITEM-TEMPLATE-NUMBER PRICE [FACING]
 #place WHERE #snowball ITEM-TEMPLATE-NUMBER [FACING]
 #place WHERE #unwalk
@@ -1728,7 +1729,7 @@ A Place designator WRITEME
 
 @subsection @code{room} Placing a ``room'' (spot) marker
 
-A ``spot'' designator will be created at the point indicated, which must 
+A ``spot'' designator will be created at the point indicated, which must
 be @code{#here} or a point coördinate pair. The moniker given will be
 associated with the spot and can be used for certain other commands.
 
@@ -1777,7 +1778,7 @@ it.
 
 An item-gifting spot will be placed at the position indicated.  Position
 must be @code{#here} or a point coördinate pair.  The identifier is an item
-template ID number.  An instance of the item will be placed at that point. 
+template ID number.  An instance of the item will be placed at that point.
 An optional facing direction can be specified, either in radians, or from
 the set @code{N NE E SE S SW W NW}.  Any player who clicks on the item at
 this spot will receive an instance of the template in their inventory, and
@@ -1808,11 +1809,11 @@ Each subcommand is implemented by a ``private'' function named
     (return-from tootsville-user::place
       "#place
 #place WHERE #download ITEM-TEMPLATE-NUMBER URL [FACING]
-#place WHERE #exit MONIKER 
+#place WHERE #exit MONIKER
 #place WHERE #fountain ITEM-TEMPLATE-NUMBER
 #place WHERE #game GAME-MONIKER GAME-ATTRIBUTES
 #place WHERE #item ITEM-TEMPLATE-NUMBER [FACING]
-#place WHERE #mini MINIGAME-MONIKER 
+#place WHERE #mini MINIGAME-MONIKER
 #place WHERE #place PLACE-KIND
 #place WHERE #room MONIKER
 #place WHERE #shop ITEM-TEMPLATE-NUMBER PRICE [FACING]
@@ -1839,7 +1840,7 @@ Each subcommand is implemented by a ``private'' function named
       (funcall subcommand where (subseq words 2)))))
 
 (define-operator-command purgephysics (words user plane)
-  "Purge pending physics interactions. 
+  "Purge pending physics interactions.
 
 This is a no-op.
 
@@ -1886,7 +1887,7 @@ This is a violent way to go, and is for emergencies @i{only}.
 
 @subsection Usage
 
-@verbatim 
+@verbatim
 #reboot
 @end verbatim
 
@@ -1921,7 +1922,7 @@ command is received.
 @end example
 
 @subsection Effect
- 
+
 Reloads                         the                        configuration
 file (.config/Tootsville/Tootsville.config.lisp under the server owner's
 home directory).  See `LOAD-CONFIG'. Reports  back the file  loaded, and
@@ -1934,7 +1935,7 @@ Read at ~a. File write date ~a, author ~a."
             (getf info :read) (getf info :file-write-date) (getf info :author))))
 
 (define-operator-command retire (words user plane)
-  "Retire a server,
+  "Retire a server.
 
 Forces  a  server to  retire.  This  will disconnect  anyone  currently
 connected via WebSockets to that  server; they should reconnect through
@@ -1947,7 +1948,7 @@ server (see `TOOTSVILLE-USER::EVACUATE').
 #retire SERVER
 #retire
 @end verbatim
- 
+
 @subsection Examples
 @verbatim
 #retire game3.test.Tootsville.org
@@ -1977,7 +1978,7 @@ server (see `TOOTSVILLE-USER::EVACUATE').
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
-In 1.x: 
+In 1.x:
  Run an arbitrary Java routine through an uploaded Runnable or RunCommands class
 
 In 2.x:
@@ -2057,7 +2058,7 @@ In 1.2, this moved an user into another room.
                   (first words) latitude longitude altitude world))))
 
 (define-operator-command setavatarcolors (words user plane)
-  "Sets the  base and extra colors  of a user's avatar.  
+  "Sets the  base and extra colors  of a user's avatar.
 
 @subsection Usage
 
@@ -2126,7 +2127,7 @@ which are identical to typing #setbadge #me #here
   "Set a config property.
 
 @subsection Usage
- 
+
 @verbatim
 #setconfig PROPERTY VALUE
 #setconfig PROP1 PROP2 VALUE
@@ -2152,7 +2153,7 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
 
 UNIMPLEMENTED
 
-   WRITEME
+ WRITEME
 "
   (error 'unimplemented))
 
@@ -2292,14 +2293,14 @@ a character.
 
 @subsection  Usage
 @verbatim
-  #speak [LOGIN]
+ #speak [LOGIN]
 @end verbatim
 
 @subsection  Examples
 @verbatim
-  #speak flappyperry
+ #speak flappyperry
 @end verbatim
-  "
+ "
   (error 'unimplemented))
 
 (define-operator-command stfu (words user plane)
@@ -2334,7 +2335,7 @@ Earth minutes).
 
 See also: `TOOTSVILLE-USER:MUTE' for a more direct form that does not
 have a fixed duration.
-  "
+ "
   (error 'unimplemented))
 
 (define-operator-command testcensor (words user plane)
@@ -2345,16 +2346,16 @@ UNIMPLEMENTED.
 @subsection  Usage
 
 @verbatim
-  #testcensor [MESSAGE]
+ #testcensor [MESSAGE]
 @end verbatim
 
 @subsection  Examples
 
 @verbatim
-  #testcensor This message will be filtered and the result will be displayed.
+ #testcensor This message will be filtered and the result will be displayed.
 @end verbatim
 
-  "
+ "
   (error 'unimplemented))
 
 (define-operator-command time (words user plane)
@@ -2377,7 +2378,7 @@ the verb ``time this to see how long it takes'' like `TIME'.
 
 @subsection Example Reply
 
-@example 
+@example
 
 Now it is 2021-01-26T00:35:11.341489Z (Universal: 3,820,610,111; Unix:
 1,611,621,311). In Chœrogryllum, it is 0:35:11 on Blanksday, the
@@ -2402,8 +2403,8 @@ time code, and Chœrogryllum date and time are new.
 
 (define-operator-command unbuild (words user plane)
   "Destroy a named spot.
- 
-UNIMPLEMENTED. 
+
+UNIMPLEMENTED.
 
  Destroys a named spot.
 
@@ -2452,7 +2453,7 @@ See `INFINITY-SPEAK'
 
 This no longer allows ventriloquism of operator commands &c.
 "
-  (Toot-speak (join #\Space (rest words)) 
+  (Toot-speak (join #\Space (rest words))
               :Toot (find-record 'Toot :name (first words))))
 
 (define-operator-command verbosebugs (words u plane)
@@ -2554,14 +2555,14 @@ To obtain the list of mnemonics, type @code{#warn #list}.
 @subsection Usage
 
 @verbatim
-#warn #list 
+#warn #list
 #warn REASONCODE LOGIN
 @end verbatim
 
 @subsection Examples
 
 @example
-#warn #list 
+#warn #list
 #warn BULLY Pil
 @end example
 
@@ -2580,7 +2581,7 @@ The new list is kept under `TOOTSVILLE-USER::KICK'.
   (error 'unimplemented))
 
 (define-operator-command whatis (words user plane)
-  "Displays information about an item template. 
+  "Displays information about an item template.
 
 The  item template  info is  essentially  that which  is available  from
 `ITEM-TEMPLATE-INFO'.
@@ -2710,11 +2711,11 @@ Hello, my name is Pil.
   nil)
 
 (define-operator-command whoareyou (words user plane)
-  "Ask  the  server who  it  is.  
+  "Ask  the  server who  it  is.
 
 This command should  return version information on some  of the critical
 components used in the game server.
- 
+
 @subsection Usage
 
 @verbatim
@@ -2726,10 +2727,10 @@ components used in the game server.
 @verbatim
 #whoareyou
 @end verbatim
- 
+
 @subsection Example Response
 
-@quotation 
+@quotation
 
 This server is Inktomi, a X86-64  Intel(R) Core(TM) i7 CPU 860 @ 2.80GHz
 running    Linux   5.6.8-300.fc32.x86_64    with   SBCL    2.0.1-1.fc32.
@@ -2745,7 +2746,7 @@ The format of the response is different, but the purpose of the
 command is the same.
 "
   (format nil "This server is ~a, a ~a ~a running ~a ~a with ~a ~a.
-Quicklisp dist version ~a; 
+Quicklisp dist version ~a;
 ~@[Ultralisp dist version ~a; ~]
 Tootsville version ~a"
           (machine-instance) (machine-type) (machine-version)
