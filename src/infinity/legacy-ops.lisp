@@ -1806,8 +1806,8 @@ Each subcommand is implemented by a ``private'' function named
 "
   (when (and (= 1 (length words))
              (string-equal "#list" (first words)))
-    (return-from tootsville-user::place
-      "#place
+    (private-admin-message "#place #list"
+                           "<pre>\
 #place WHERE #download ITEM-TEMPLATE-NUMBER URL [FACING]
 #place WHERE #exit MONIKER
 #place WHERE #fountain ITEM-TEMPLATE-NUMBER
@@ -1821,22 +1821,27 @@ Each subcommand is implemented by a ``private'' function named
 #place WHERE #unwalk
 #place WHERE #vitem ITEM-TEMPLATE-NUMBER [FACING]
 #place WHERE #walk
-"))
+</pre>")
+    (return-from tootsville-user::place))
   (unless (<= 2 (length words))
-    (return-from Tootsville-user::place "#place syntax error"))
+    (private-admin-message "#place" "Syntax error")
+    (return-from Tootsville-user::place))
   (let ((where (%parse-operator-place-where (first words))))
     (unless where
-      (return-from Tootsville-user::place "#place where error"))
+      (private-admin-message "#place" "WHERE error")
+      (return-from Tootsville-user::place))
     (unless (char= #\# (char (second words) 0))
-      (return-from Tootsville-user::place "#place subcommands start with #"))
+      (private-admin-message "#place" "Subcommands start with #")
+      (return-from Tootsville-user::place))
     (let ((subcommand
             (find-symbol (concatenate 'string
                                       "%OPERATOR-PLACE-"
                                       (string-upcase (subseq (second words) 1)))
                          :Tootsville)))
       (unless subcommand
-        (return-from Tootsville-user::place
-          (format nil "#place subcommand ~a not found" (second words))))
+        (private-admin-message "#place"
+                               (format nil "#place subcommand ~a not found" (second words)))
+        (return-from Tootsville-user::place))
       (funcall subcommand where (subseq words 2)))))
 
 (define-operator-command purgephysics (words user plane)
