@@ -92,7 +92,7 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
 <meta charset=\"utf-8\">
 <title> Error ~D — Tootsville</title>
 <link rel=\"stylesheet\"
- href=\"https://www.tootsville.org/error/simple-error.2017.css\">
+ href=\"https://www.tootsville.org/error/simple-error.2021.css\">
 </head>
 <body>
 <h2> Error ~:*~D </h2>
@@ -106,8 +106,8 @@ TODO: Use templates, filter backtrace like Rollbar, do better."
 </li>
 </ul>
 ~:[<pre>~A</pre>~;Our operations team can find out more in the server logs.~]
-~@[<dl>
-~{<dt> ~a </dt> ~^ <dd> ~a </dd> ~}
+~@[<ul class=\"backtrace\">
+~{<li> <dl> ~{ <dt> ~a </dt> ~^ <dd> ~a </dd> ~} </dl> </li> ~}
 </dl>~]
 </body>
 </html>"

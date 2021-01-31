@@ -131,7 +131,7 @@ install:	tootsville.service Tootsville
 	chcon system_u:object_r:bin_t:s0 /home/pil/tootsville.net/Tootsville
 	cp tootsville.service --backup=simple -f /usr/lib/systemd/system/
 	restorecon /usr/lib/systemd/system/tootsville.service
-	cp 55-tootsville.conf -f /etc/rsyslog.conf
+	cp 55-tootsville.conf -f /etc/rsyslog.conf/
 
 ####################
 
