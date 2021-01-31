@@ -388,7 +388,7 @@ The weight of instances of this template
         :|weight| (item-template-weight template)
         :|scale| (list :|x| (item-template-avatar-scale-x template)
                        :|y| (item-template-avatar-scale-y template)
-                       |z| (item-template-avatar-scale-z template))))
+                       :|z| (item-template-avatar-scale-z template))))
 
 
 
