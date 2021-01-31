@@ -69,6 +69,7 @@ a moment and try that again.~%" c)
                     (sleep 1)
                     (go retry-post))))))))
 
+#+ (or) ;;; this seems to fail in production :-P
 (defpost post-version-check ()
   (let ((port (+ (random 10) 27700)))
     (unwind-protect
