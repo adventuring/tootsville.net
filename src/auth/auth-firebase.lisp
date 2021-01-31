@@ -28,8 +28,11 @@
 (in-package :Tootsville)
 
 (defparameter *google-account-keys-refresh* (* 20 60)
-  "How  often (in  sec)  to  refresh the  Google  account  keys used  in
- Firebase authentication verification?")
+  "How  often (in  sec)  to  refresh the  Google  account  keys?
+ 
+These are used in Firebase  authentication verification, but only in the
+event  Cache-Control:  max-age  is  not   set  on  the  keys,  which  it
+usually is.")
 
 (defun subheader-field (header-assoc label)
   (when header-assoc
