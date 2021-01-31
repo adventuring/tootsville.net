@@ -380,6 +380,7 @@ predeploy-servers:	servers quicklisp-update-servers
 		rsync -essh --delete -zar * .??* $$host.$(clusternet):tootsville.net/ ;\
 		ssh $$host.$(clusternet) rm tootsville.net/*~ ;\
 		ssh $$host.$(clusternet) make -C tootsville.net clean || exit 6 ;\
+		ssh $$host.$(clusternet) sbcl --non-interactive --eval '(ql:update-all-dists)'
 		ssh $$host.$(clusternet) make -C tootsville.net Tootsville || exit 6 ;\
 		ssh $$host.$(clusternet) make -C tootsville.net test || exit 6 ;\
 	done
