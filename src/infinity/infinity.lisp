@@ -90,7 +90,7 @@ Used by the WebSockets and direct TCP stream handlers."
             (setf (Toot-last-active *Toot*) (now)))
           (incf *infinity-stream-requests*)
           (with-http-errors-as-infinity-errors (command)
-            (funcall method data *Toot* (Toot-world *client*))))
+            (funcall method data *Toot* (world *client*))))
         (let ((c (or command "(No command sent)")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)
@@ -313,7 +313,7 @@ For a complete enumeration
        (defun ,(intern (string command) (find-package :Tootsville-User)) (&rest ,words)
          ,docstring-with-prefix
          (declare (ignorable ,words))
-         (let ((,user *Toot*) (,plane (Toot-world *client*)))
+         (let ((,user *Toot*) (,plane (world *client*)))
            (declare (ignorable ,user ,plane))
            (if (or (null *Toot*) (and *Toot* (builder-Toot-p *Toot*)))
                (let ((reply (block nil (progn ,@body))))
