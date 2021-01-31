@@ -50,6 +50,11 @@ Used to create the REST endpoints mapping to METHOD."
 (defmacro with-http-errors-as-infinity-errors ((command) &body body)
   `(handler-case
        (progn ,@body)
+     (error (c)
+       (list :|status| :false
+             :|from| "c"
+             :|command| ,command
+             :|error| (format nil "~a" c)))
      (http-client-error (c)
        (list :|status| :false
              :|from| "c"
