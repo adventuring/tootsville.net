@@ -107,6 +107,15 @@ USER may be a robot or a Toot that is controlled by a robot."
 (defmethod altitude ((cons cons))
   (fourth cons))
 
+(defmethod world ((null null)) 
+  :chor)
+(defmethod latitude ((null null))
+  0)
+(defmethod longitude ((null null))
+  0)
+(defmethod altitude ((null null))
+  0)
+
 (defmethod latitude ((game-point game-point))
   (game-point-latitude game-point))
 
