@@ -1289,4 +1289,11 @@ RESOURCE."
                     (latitude b) (longitude b) (altitude b))
           2)))
 
-
+(defmethod world ((client ws-client))
+  (world (Toot-position client)))
+(defmethod latitude ((client ws-client))
+  (latitude (Toot-position client)))
+(defmethod longitude ((client ws-client))
+  (longitude (Toot-position client)))
+(defmethod altitude ((client ws-client))
+  (altitude (Toot-position client)))
