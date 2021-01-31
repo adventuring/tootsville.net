@@ -28,6 +28,8 @@
 (cl:in-package :cl-user)
 (require :asdf)
 
+#.(progn #+sbcl (setf sb-impl::*default-external-format* :utf-8))
+
 ;; bug in  recent ASDF or  what? Don't know,  don't care; this  fixes it
 ;; for now.
 #.(unless (find-package "ASDF/INTERFACE")
