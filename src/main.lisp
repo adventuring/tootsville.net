@@ -99,7 +99,7 @@ If NAME is omitted, a generic name will be created based on FUNCTION."
     (lparallel:submit-task
      *async-channel*
      (lambda ()
-       (catch 'bazinga
+       (catch 'thread-pool-taskmaster::bazinga
          (let ((idle-name (thread-name (current-thread)))
                (start-time (get-internal-real-time)))
            (setf (thread-name (current-thread)) (or name
