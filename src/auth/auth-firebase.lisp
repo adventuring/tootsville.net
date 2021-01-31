@@ -36,22 +36,22 @@
     (let* ((label* (concatenate 'string label ":"))
            (len (length label*))
            (finds
-            (mapcar
-             (compose #'second (curry #'split-sequence #\:))
-             (remove-if-not
-              (lambda (section)
-                (and (> (length section) len)
-                     (string-equal label* section
-                                   :end2 len)))
-              (mapcar
-               (curry #'string-trim +whitespace+)
-               (split-sequence #\, (cdr header-assoc)))))))
+             (mapcar
+              (compose #'second (curry #'split-sequence #\:))
+              (remove-if-not
+               (lambda (section)
+                 (and (> (length section) len)
+                      (string-equal label* section
+                                    :end2 len)))
+               (mapcar
+                (curry #'string-trim +whitespace+)
+                (split-sequence #\, (cdr header-assoc)))))))
       (case (length finds)
         (0 nil)
         (1 (string-trim +whitespace+ (first finds)))
         (otherwise (warn "Multiple sub-header hits in ~:(~a~) for ~(~a~)"
                          (car header-assoc) label)
-                   (string-trim +whitespace+ (first finds)))))))
+         (string-trim +whitespace+ (first finds)))))))
 
 (defpost subheader-field-parses ()
   (equal "123"
