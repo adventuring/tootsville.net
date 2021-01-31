@@ -99,21 +99,22 @@ If NAME is omitted, a generic name will be created based on FUNCTION."
     (lparallel:submit-task
      *async-channel*
      (lambda ()
-       (let ((idle-name (thread-name (current-thread)))
-             (start-time (get-internal-real-time)))
-         (setf (thread-name (current-thread)) (or name
-                                                  (format nil "Async: run ~s" function)))
-         (unwind-protect
-              (thread-pool-taskmaster:with-pool-thread-restarts
-                  ((thread-name (current-thread)))
-                (verbose:info '(:threadpool-worker :async-worker :worker-start)
-                              "{~a}: working" (thread-name (current-thread)))
-                (funcall function))
-           (verbose:info '(:threadpool-worker :async-worker :worker-finish)
-                         "{~a}: done (~,2f sec)" (thread-name (current-thread))
-                         (/ (- (get-internal-real-time) start-time)
-                            internal-time-units-per-second))
-           (setf (sb-thread:thread-name (current-thread)) idle-name)))))))
+       (catch 'bazinga
+         (let ((idle-name (thread-name (current-thread)))
+               (start-time (get-internal-real-time)))
+           (setf (thread-name (current-thread)) (or name
+                                                    (format nil "Async: run ~s" function)))
+           (unwind-protect
+                (thread-pool-taskmaster:with-pool-thread-restarts
+                    ((thread-name (current-thread)))
+                  (verbose:info '(:threadpool-worker :async-worker :worker-start)
+                                "{~a}: working" (thread-name (current-thread)))
+                  (funcall function))
+             (verbose:info '(:threadpool-worker :async-worker :worker-finish)
+                           "{~a}: done (~,2f sec)" (thread-name (current-thread))
+                           (/ (- (get-internal-real-time) start-time)
+                              internal-time-units-per-second))
+             (setf (sb-thread:thread-name (current-thread)) idle-name))))))))
 
 (defun background-gc ()
   "Start a garbage collection in a different thread.
