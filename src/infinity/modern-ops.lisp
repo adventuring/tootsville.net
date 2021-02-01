@@ -475,3 +475,9 @@ UNIMPLEMENTED.
 
 "
   (error 'unimplemented))
+
+(define-operator-command uptime (words u r)
+  "Gives the uptime of the server software."
+  (let ((uptime (- (get-universal-time) *started*)))
+    (format nil "The server has been up for ~a (precisely ~:d sec)"
+            (human-duration uptime) uptime)))
