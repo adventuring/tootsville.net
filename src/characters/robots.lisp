@@ -233,16 +233,16 @@ NEARP to the event being observed."))
   (destructuring-bind (&key |facing| |course|) wtl
     (declare (ignore |facing|))
     (destructuring-bind (&key |speed| |startTime| |endTime|
-                           |startPoint| |endPoint|
-                           |latitude| |longitude| |altitude|
-                           |world|)
+                              |startPoint| |endPoint|
+                              |latitude| |longitude| |altitude|
+                              |world|)
         |course|
       (make-wtl-course :speed |speed|
                        :start-time |startTime|
                        :end-time |endTime|
-                       :start-point (destructuring-bind (&key |x| |y| |z|) |startPoint|
+                       :start-point (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |startPoint|
                                       (list |x| |y| |z|))
-                       :end-point (destructuring-bind (&key |x| |y| |z|) |endPoint|
+                       :end-point (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |endPoint|
                                     (list |x| |y| |z|))
                        :latitude (or |latitude| 0)
                        :longitude (or |longitude| 0)
