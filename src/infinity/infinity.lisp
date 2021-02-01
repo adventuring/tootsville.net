@@ -48,7 +48,7 @@ Used to create the REST endpoints mapping to METHOD."
       (funcall method json *user* nil))))
 
 (defmacro with-http-errors-as-infinity-errors ((command) &body body)
-  `(handler-case
+  `(handler-case 
        (progn ,@body)
      (error (c)
        (list :|status| :false
@@ -67,8 +67,9 @@ Used to create the REST endpoints mapping to METHOD."
 
 (defun infinity-stats ()
   (format nil "Infinity commands:
-Handled ~:d stream request~:p and ~:d REST request~:p; total of ~:d request~:p, for a total of ~:d user~:p.
-
+Handled ~:d stream request~:p and
+~:d REST request~:p; total of ~:d request~:p,
+for a total of ~:d user~:p.
 Average user connected ~:d time~:p; 
 most active user connected ~:d time~:p."
           *infinity-stream-requests* *infinity-rest-requests*
@@ -78,14 +79,14 @@ most active user connected ~:d time~:p."
           (reduce #'max (hash-table-values *infinity-users*))))
 
 (defun call-infinity-from-stream (json)
-  "Call an Infinity-mode command from a stream of JSON$ packets.
+  "Call an Infinity-mode command from a stream of JSON packets.
 
 Used by the WebSockets and direct TCP stream handlers."
   (let* ((command (getf json :|c|))
          (method (find-symbol (concatenate 'string "INFINITY-"
                                            (string-upcase (symbol-munger:camel-case->lisp-name command)))
-                              :tootsville))
-         (data (getf json :|d|)))
+                              :Tootsville))
+         (data (ignore-errors (getf json :|d|))))
     (if (and (symbolp method) (not (eql 'nil method)))
         (let ((*Toot* (or *Toot* (Toot *client*))))
           (v:info '(:infinity :stream) 
