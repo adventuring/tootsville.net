@@ -3,6 +3,13 @@
 This is the manual for the tootsville server for CIWTA.
 
 @menu
+Who are CIWTA?::
+What is the Romance Game System?::
+Technology Stack::
+Affiliated Services::
+Clusters::
+Overview of Major Systems::
+Back Story::
 @end menu
 
 @node Who are CIWTA?

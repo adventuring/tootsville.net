@@ -357,8 +357,8 @@ XXX this is a huge function that ought to be broken up more"
       (format docs "~2%@menu
 * Copying:: The GNU Affero General Public License
 * Introduction:: What Tootsville V (Romance II) is all about
-* Definitions:: Index of defined symbols
-~{* Package ~a:: Symbols in package ~:*~a~%~}~
+* Definitions::
+~{* Package ~a::~%~}~
 * Javascript:: The front-end documentation
 * Conclusion:: Time to go
 * Indices:: Concepts, functions, variables, data types, and pathnames
@@ -391,10 +391,7 @@ MA 02139, USA.
 @node Introduction
 @chapter Introduction ~2%"
               
-              (mapcar #'string-capitalize
-                      (mapcar #'package-name
-                              (remove-duplicates (mapcar #'symbol-package
-                                                         (all-symbols-alphabetically))))))
+              (mapcar #'string-capitalize +doc-packages+))
       (princ (alexandria:read-file-into-string
               (merge-pathnames #p"src/doc/Introduction.texi" source-dir))
              docs)
@@ -417,9 +414,15 @@ as well, whose documentation may not have been included here.
         (format docs "~&@end menu~2% ")
         (dolist (symbol defs)
           (unless (eql last-package (symbol-package symbol))
-            (setf last-package (symbol-package symbol))
-            (format docs "~2&@node Package ~:(~a~)~2%@chapter Package ~:*~:(~a~)~2%"
+            (format docs "~2&@page
+@node Package ~:(~a~),,Package ~:(~a~),Top
+@chapter Package ~:(~a~)
+@menu
+@end menu~%"
+                    (package-name (symbol-package symbol))
+                    (or (and last-package (package-name last-package)) "")
                     (package-name (symbol-package symbol)))
+            (setf last-package (symbol-package symbol))
             (let ((doc (documentation (symbol-package symbol) t)))
               (unless (emptyp doc)
                 (format docs "~2&~a~2%" (texi-ref doc)))))
