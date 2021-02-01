@@ -72,7 +72,7 @@ deploy:	bin test deploy-servers
 
 VERSION=$(shell grep :version tootsville.asd | cut -d '"' -f 2)
 doc-publish:	doc
-	rsync -rv -essh doc/* goethet@goethe.tootsville.org:goethe.tootsville.org/devel/docs/Tootsville/$(VERSION)/
+	rsync -rv -essh --exclude='*~' doc/* goethet@goethe.tootsville.org:goethe.tootsville.org/devel/docs/Tootsville/$(VERSION)/
 
 bin:	Tootsville
 
