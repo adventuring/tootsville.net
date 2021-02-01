@@ -235,12 +235,12 @@ position of the name."
                 symbol (texi-ref docu) (value-to-texi symbol))
         (format s "~2&@subsection Variable~%~:(~a~) names an undocumented variable with the value ~a"
                 symbol (value-to-texi symbol))))
-    (dolist (kind '(structure type))
-      (when-let (docu (documentation symbol kind))
-        (format s "~&@tindex ~:(~a~)" symbol)
-        (format s "~2&@subsection ~:(~a~)~%~:(~a~) names a ~a:~2%~a" kind symbol kind (texi-ref docu))))
-    (when-let (metaobject (ignore-errors (find-class symbol)))
-      (write-class-docs symbol metaobject s))))
+    (if-let (metaobject (ignore-errors (find-class symbol)))
+      (write-class-docs symbol metaobject s)
+      (dolist (kind '(structure type))
+        (when-let (docu (documentation symbol kind))
+          (format s "~&@tindex ~:(~a~)" symbol)
+          (format s "~2&@subsection ~:(~a~)~%~:(~a~) names a ~a:~2%~a" kind symbol kind (texi-ref docu)))))))
 
 (defun gather-all-symbols ()
   "Gathers all defined symbols in `+DOC-PACKAGES+'"
