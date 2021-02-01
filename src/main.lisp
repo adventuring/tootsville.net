@@ -41,6 +41,9 @@ using the `TOOTSVILLE-USER::MOTD' command.")
 (defvar *acceptors* nil
   "The set of listening acceptors awaiting incoming connections.")
 
+(defvar *started* nil
+  "The time at which the server was started")
+
 (defun find-acceptor (host port)
   "Find an active Acceptor running on the given HOST address and PORT"
   (dolist (acceptor *acceptors*)
@@ -150,12 +153,12 @@ is available."
     (power-on-self-test)
     (cassandra-boot)
     (background-gc))
-
+  
   (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")
   (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp"))
   
   (setf hunchentoot:*hunchentoot-default-external-format* :utf-8)
-
+  
   (when-let ((previous (find-acceptor host port)))
     (restart-case (error "Server is already running on ~a port ~a" host port)
       (stop-previous ()
@@ -189,6 +192,7 @@ is available."
                                  host port))
                    (push acceptor *acceptors*)))
              (listen-for-websockets)
+             (setf *started* (get-universal-time))
              (start-game-metronome))
     (change-port (port*)
       :report "Use a different port"
