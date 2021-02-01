@@ -264,7 +264,7 @@ print INDEX <<index_end;
 href="https://ciwta.org/">The  Corporation for  Inter-World Tourism  and
 Adventuring</a> </p>
 
-<nav>  <a href="Top.html">Begin here.</a> </nav>«
+<nav>  <a href="Top.html">Begin here.</a> </nav>
  </body>
 </html>
 index_end
