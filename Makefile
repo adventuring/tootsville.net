@@ -382,7 +382,9 @@ predeploy-servers:	servers quicklisp-update-servers
 			$$host.$(clusternet):tootsville.net/ ;\
 		ssh $$host.$(clusternet) rm tootsville.net/*~ ;\
 		ssh $$host.$(clusternet) make -C tootsville.net clean || exit 6 ;\
-		ssh $$host.$(clusternet) sbcl --non-interactive --eval "'(ql:update-all-dists :prompt nil)'" || exit 6 ;\
+		ssh $$host.$(clusternet) sbcl --non-interactive \
+			--load ~/quicklisp/setup.lisp \
+			--eval "'(ql:update-all-dists :prompt nil)'" || exit 6 ;\
 		ssh $$host.$(clusternet) make -C tootsville.net Tootsville || exit 6 ;\
 		ssh $$host.$(clusternet) make -C tootsville.net test || exit 6 ;\
 	done
