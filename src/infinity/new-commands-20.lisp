@@ -677,7 +677,16 @@ of the world.
 (defun make-new-Toot-state (Toot)
   "Set up the state for TOOT, who has never logged in before.
 
-WRITEME"
+WRITEME
+
+@itemize
+@item
+Sends a private admin message welcoming the player to Toot Square
+@item
+Create a New Toot Quaestor event
+@item
+Creates a Toot-Quiesced record for them
+@end itemize"
   (private-admin-message
    (format nil "Welcome to Tootsville, ~:(~a~)!" (Toot-name Toot))
    "Welcome  to Tootsville!  This is  Toot Square,  the center of town.")
