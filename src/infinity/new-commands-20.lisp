@@ -150,14 +150,21 @@ See `INFINITY-GET-ROOM-VARS' for a discussion of the Place system."
 (defun local-room-vars ()
   "Gets ``room variables'' local to *CLIENT*.
 
-See `INFINITY-GET-ROOM-VARS' for a discussion."
+See `INFINITY-GET-ROOM-VARS' for a discussion.
+
+@subsection Example
+@verbatim
+{ from: \"rv\",
+  status: true,
+  var: { [ key: value ] ... } }
+@end verbatim"
   (let* ((position (Toot-position *client*))
          (world (first position))
          (pos (rest position))
          (hash (make-hash-table :test 'equal))
          (vars (make-hash-table :test 'equal)))
     (doplist (key val (sky-room-var world))
-        (setf (gethash (string key) vars) val))
+             (setf (gethash (string key) vars) val))
     (dolist (item (find-records 'item
                                 :world world
                                 :latitude (elt pos 0)
