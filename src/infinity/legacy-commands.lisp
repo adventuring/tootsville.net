@@ -1568,10 +1568,19 @@ a certain limit (typically 4KiB), so  it's most helpful to keep it short
 backtrace (with as much detail as  possible), rather than a complete log
 trace or something.
 
- The suggested usage  is to include the exception  itself as ``cause,''
- the backtrace up to a maximum of  1KiB, a log backtrace up to its last
- 1KiB as ``bug,''  and as much machine-formatted  system information as
- possible in the ``info'' object. Fields of ``info''
+The suggested usage  is to include the exception  itself as ``cause,''
+the backtrace up to a maximum of  1KiB, a log backtrace up to its last
+1KiB as ``bug,''  and as much machine-formatted  system information as
+possible in the ``info'' object.
+
+@subsection Usage
+
+@verbatim
+@end verbatim
+
+WRITME
+
+@subsection Fields of ``info''
 
  As many fields as possible, limit the contents to a reasonable length though…
 
@@ -1600,51 +1609,51 @@ trace or something.
 
 @item navigator.language
  JavaScript: navigator.language
- @item navigator.product
+@item navigator.product
  JavaScript: navigator.product
- @item navigator.appVersion
+@item navigator.appVersion
  JavaScript: navigator.appVersion
- @item navigator.platform
+@item navigator.platform
  JavaScript: navigator.platform
- @item navigator.vendor
+@item navigator.vendor
  JavaScript: navigator.vendor
- @item navigator.appCodeName
+@item navigator.appCodeName
  JavaScript: navigator.appCodeName
- @item navigator.cookieEnabled
+@item navigator.cookieEnabled
  JavaScript: navigator.cookieEnabled
- @item navigator.appName
+@item navigator.appName
  JavaScript: navigator.appName
- @item navigator.productSub
+@item navigator.productSub
  JavaScript: navigator.productSub
- @item navigator.userAgent
+@item navigator.userAgent
  JavaScript: navigator.userAgent
- @item navigator.vendorSub
+@item navigator.vendorSub
  JavaScript: navigator.vendorSub
- @item screen.height
+@item screen.height
  JavaScript: screen.height; 
 
  ActionScript: flash.system.Capabilities.screenResolutionX
- @item screen.width
+@item screen.width
  JavaScript: screen.width; 
 
  ActionScript: flash.system.Capabilities.screenResolutionY
- @item screen.availHeight
+@item screen.availHeight
  JavaScript: screen.availHeight; 
 
  ActionScript: flash.display.Stage.fullScreenHeight
- @item screen.availWidth
+@item screen.availWidth
  JavaScript: screen.availWidth; 
 
  ActionScript: flash.display.Stage.fullScreenWidth
- @item window.outerHeight
+@item window.outerHeight
  JavaScript: window.outerheight note case
- @item window.outerWidth
+@item window.outerWidth
  JavaScript: window.outerwidth note case
- @item window.innerHeight
+@item window.innerHeight
  JavaScript: window.innerheight note case
- @item window.innerWidth
+@item window.innerWidth
  JavaScript: window.innerwidth note case
- @item window.windowName
+@item window.windowName
  JavaScript: the window.name property of the highest parent of this window (frame); e.g.
 @verbatim
  var topWindow = window.parent;
@@ -1654,69 +1663,69 @@ trace or something.
  info [\"window.windowName\"] = topWindow.name;
 @end verbatim
 
- @item flash.sys.totalMemory
+@item flash.sys.totalMemory
  ActionScript: flash.system.System.totalMemory
- @item flash.sys.ime
+@item flash.sys.ime
  ActionScript: flash.system.System.ime
- @item flash.sys.useCodePage
+@item flash.sys.useCodePage
  ActionScript: flash.system.System.useCodePage
- @item flash.sysCap.avHardwareDisable
+@item flash.sysCap.avHardwareDisable
  ActionScript: flash.system.Capabilities.avHardwareDisable
- @item flash.sysCap.hasAccessibility
+@item flash.sysCap.hasAccessibility
  ActionScript: flash.system.Capabilities.hasAccessibility
- @item flash.sysCap.hasAudio
+@item flash.sysCap.hasAudio
  ActionScript: flash.system.Capabilities.hasAudio
- @item flash.sysCap.hasAudioEncoder
+@item flash.sysCap.hasAudioEncoder
  ActionScript: flash.system.Capabilities.hasAudioEncoder
- @item flash.sysCap.hasEmbeddedVideo
+@item flash.sysCap.hasEmbeddedVideo
  ActionScript: flash.system.Capabilities.hasEmbeddedVideo
- @item flash.sysCap.hasIME
+@item flash.sysCap.hasIME
  ActionScript: flash.system.Capabilities.hasIME
- @item flash.sysCap.hasMP3
+@item flash.sysCap.hasMP3
  ActionScript: flash.system.Capabilities.hasMP3
- @item flash.sysCap.hasPrinting
+@item flash.sysCap.hasPrinting
  ActionScript: flash.system.Capabilities.hasPrinting
- @item flash.sysCap.hasScreenBroadcast
+@item flash.sysCap.hasScreenBroadcast
  ActionScript: flash.system.Capabilities.hasScreenBroadcast
- @item flash.sysCap.hasScreenPlayback
+@item flash.sysCap.hasScreenPlayback
  ActionScript: flash.system.Capabilities.hasScreenPlayback
- @item flash.sysCap.hasStreamingAudio
+@item flash.sysCap.hasStreamingAudio
  ActionScript: flash.system.Capabilities.hasStreamingAudio
- @item flash.sysCap.hasStreamingVideo
+@item flash.sysCap.hasStreamingVideo
  ActionScript: flash.system.Capabilities.hasStreamingVideo
- @item flash.sysCap.hasTLS
+@item flash.sysCap.hasTLS
  ActionScript: flash.system.Capabilities.hasTLS
- @item flash.sysCap.hasVideoEncoder
+@item flash.sysCap.hasVideoEncoder
  ActionScript: flash.system.Capabilities.hasVideoEncoder
- @item flash.sysCap.isDebugger
+@item flash.sysCap.isDebugger
  ActionScript: flash.system.Capabilities.isDebugger
- @item flash.sysCap.isEmbeddedInAcrobat
+@item flash.sysCap.isEmbeddedInAcrobat
  ActionScript: flash.system.Capabilities.isEmbeddedInAcrobat
- @item flash.sysCap.language
+@item flash.sysCap.language
  ActionScript: flash.system.Capabilities.language
- @item flash.sysCap.localFileReadDisable
+@item flash.sysCap.localFileReadDisable
  ActionScript: flash.system.Capabilities.localFileReadDisable
- @item flash.sysCap.manufacturer
+@item flash.sysCap.manufacturer
  ActionScript: flash.system.Capabilities.manufacturer
- @item flash.sysCap.os
+@item flash.sysCap.os
  ActionScript: flash.system.Capabilities.os
- @item flash.sysCap.pixelAspectRatio
+@item flash.sysCap.pixelAspectRatio
  ActionScript: flash.system.Capabilities.pixelAspectRatio
- @item flash.sysCap.playerType
+@item flash.sysCap.playerType
  ActionScript: flash.system.Capabilities.playerType
- @item flash.sysCap.screenColor
+@item flash.sysCap.screenColor
  ActionScript: flash.system.Capabilities.screenColor
- @item flash.sysCap.screenDPI
+@item flash.sysCap.screenDPI
  ActionScript: flash.system.Capabilities.screenDPI
- @item flash.sysCap.version
+@item flash.sysCap.version
  ActionScript: flash.system.Capabilities.version
- @item flash.displayState
+@item flash.displayState
  ActionScript: if flash.display.Stage.displayState == FULL_SCREEN_INTERACTIVE, then \"fullScreen\"; for NORMAL, return \"window\".
- @item flash.frameRate
+@item flash.frameRate
  ActionScript: flash.display.Stage.frameRate
- @item flash.quality
+@item flash.quality
  ActionScript: flash.display.Stage.quality
- @item flash.scaleMode
+@item flash.scaleMode
  ActionScript: flash.display.Stage.scaleMode
 @end table
 
@@ -1943,18 +1952,21 @@ SQLException - if the palettes can't be loaded"
   (error 'unimplemented))
 
 (definfinity set-furniture ((item slot x y z facing remove) user recipient/s)
-  "Set or change a furniture item.
+  "Set or change a ``furniture'' item.
+
+There is no longer a distinction between ``furniture'' items and other
+items in the game world --- this command's name is historical.
 
 There are 3 distinct forms in which this command can be used.
 
 @table @code
 @item item
-To add a piece of furniture to the area, send a packet with the
+To add an item to the area, send a packet with the
 following data:
 @table @code
 @item item
-The item's class number --- WRITEME @dots{}
-You must have an item of this type in your inventory.
+The item template ID number
+You must have an item of this type in your inventory. or:
 @item x, y, z
 The position at which to place the item
 @item facing
@@ -1969,7 +1981,7 @@ To position or reposition a particular item by its UUID, send a
 packet like:
 @table @code
 @item slot
-The item's UUID. This item must be in your inventory.
+The item's UUID. This item must be in your inventory or owned by you.
 @item x, y, z
 The position at which to (re)position the item
 @item facing
@@ -1989,6 +2001,9 @@ This value must be @code{true}.
 The UUID of the item to remove from the scene.
 @end table
 @end table
+
+Note that you may be able to pick up an item by @code{remove} even
+if it does not belong to you, if it is disowned. WRITEME
 
 @subsection Romance 1.2 instructions
 
