@@ -147,7 +147,7 @@ See `INFINITY-GET-ROOM-VARS' for a discussion of the Place system."
                                           :longitude lo
                                           :altitude alt)))))
 
-(defun local-room-vars ()
+(defun local-room-vars (&optional (observer *client*))
   "Gets ``room variables'' local to *CLIENT*.
 
 See `INFINITY-GET-ROOM-VARS' for a discussion.
@@ -158,20 +158,19 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
   status: true,
   var: { [ key: value ] ... } }
 @end verbatim"
-  (let* ((position (Toot-position *client*))
-         (world (first position))
-         (pos (rest position))
+  (let* ((world (world observer))
          (vars (make-hash-table :test 'equal)))
     (setf (gethash "s" vars) (sky-room-var world))
     (dolist (item (find-records 'item
                                 :world world
-                                :latitude (elt pos 0)
-                                :longitude (elt pos 1)
-                                :altitude (elt pos 2)))
+                                :latitude (latitude observer)
+                                :longitude (longitude observer)
+                                :altitude (altitude observer)))
       (setf (gethash (format nil "itm2~~~a" (item-uuid item))
                      vars) 
             (item-info item)))
-    (dolist (place (apply #'places-at-position world pos))
+    (dolist (place (places-at-position (world observer) (latitude observer)
+                                       (longitude observer) (altitude observer)))
       (setf (gethash (format nil "zone~~~a" (place-uuid place))
                      vars)
             (place-string place)))
