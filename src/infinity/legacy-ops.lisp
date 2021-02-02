@@ -31,7 +31,7 @@
 
 (defconstant +builder-toot-hard-hat-template+ 2494)
 
-(define-operator-command $ (words user plane)
+(define-operator-command $ (words user _)
   "Execute a command script.
 
 @subsection Usage
@@ -52,7 +52,7 @@ The script name must be a function previously defined by @code{#SCRIPT}; see
 "
   (error 'unimplemented))
 
-(define-operator-command addevent (words user plane)
+(define-operator-command addevent (words user _)
   "Add a GameEvent to a Zone
 
 UNIMPLEMENTED
@@ -76,7 +76,7 @@ This is not currently implemented.
 "
   (error 'unimplemented))
 
-(define-operator-command agent (words user plane)
+(define-operator-command agent (words user _)
   "Set the clothing and colors of a robot to match the invoking user.
 
 @subsection Usage
@@ -87,7 +87,7 @@ This is not currently implemented.
 "
   (error 'unimplemented))
 
-(define-operator-command askme (words user plane)
+(define-operator-command askme (words user _)
   "Used to test the question-and-answer subsystem.
 
 @subsection Usage
@@ -122,7 +122,7 @@ meaningless question.
 "
   (error 'unimplemented))
 
-(define-operator-command ban (words user plane)
+(define-operator-command ban (words user _)
   "Ban a user persistently (permanently) from the game.
 
 @subsection Usage
@@ -148,7 +148,7 @@ Unlike a @code{#kick}, a @code{#ban} remains in effect persistently
 
   (error 'unimplemented))
 
-(define-operator-command banhammer (words user plane)
+(define-operator-command banhammer (words user _)
   "Ban an IP address from connecting.
 
 Bans can be listed using @samp{#banhammer #list}
@@ -179,7 +179,7 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 "
   (string-case (first words)
     ("#list" (list-banhammers))
-    ("#user" (banhammer-ip-address (user-ip (user-stream (find-Toot-by-name (second words))))))
+    ("#user" (banhammer-ip-address (peer-address (user-stream (find-Toot-by-name (second words))))))
     ("#+ip" (banhammer-ip-address (second words)))
     ("#-ip" (un-banhammer-ip-address (second words)))))
 
@@ -194,7 +194,7 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
   (remhash (concatenate 'string "inet:" address) *banhammer*)
   (format nil "Address ~a can connect" address))
 
-(define-operator-command beam (words user plane)
+(define-operator-command beam (words user _)
   "Beam yourself to a different location.
 
 @subsection Usage
@@ -222,7 +222,7 @@ since rooms as such no longer exist, we use latitude and longitude now.
                                (string-upcase (fourth words))
                                "CHOR"))))
 
-(define-operator-command spawnroom (words user plane)
+(define-operator-command spawnroom (words user _)
   "Mark a ``spot'' in the game.
 
 UNIMPLEMENTED.
@@ -266,7 +266,7 @@ room has been created by setting the 'f' room variable.
 "
   (error 'unimplemented))
 
-(define-operator-command census (words user plane)
+(define-operator-command census (words user _)
   "Load a number of users.
 
 Simply  reference a  range  of  users, for  testing  purposes. Takes  an
@@ -331,7 +331,7 @@ Stress-load 100 Toots starting with offset 1,000.
                 users low Toots))
       "Only Pil can trigger a #census"))
 
-(define-operator-command clearbadge (words user plane)
+(define-operator-command clearbadge (words user _)
   "Clear a badge off the map.
 
 UNIMPLEMENTED: This is not yet implemented for Tootsville V.
@@ -369,7 +369,7 @@ See `TOOTSVILLE-USER::SPAWNROOM' to mark a spot with a moniker, so that it
 can be passed to @code{#clearbadge} and other ``spot-based'' commands."
   (error 'unimplemented))
 
-(define-operator-command clearcache (words user plane)
+(define-operator-command clearcache (words user _)
   "Forcibly clear all cachés (MemCacheD)
 
 Flush all contents of the MemCacheD server.  This may negatively impact the
@@ -389,7 +389,7 @@ system's performance.
 "
   (cl-memcached:mc-flush-all))
 
-(define-operator-command clearevent (words user plane)
+(define-operator-command clearevent (words user _)
   "Clear a GameEvent
 
 UNIMPLEMENTED
@@ -417,7 +417,7 @@ The unique ID parameter is now required.
 "
   (error 'unimplemented))
 
-(define-operator-command clearvar (words user plane)
+(define-operator-command clearvar (words user _)
   "Clear a room variable. (no longer supported)
 
 Room variables can no longer be cleared.  This command is no longer useful.
@@ -443,7 +443,7 @@ This command was rendered inoperable in 2.0.
 "
   (error 'gone))
 
-(define-operator-command cloneroom (words u plane)
+(define-operator-command cloneroom (words u _)
   "Clone a room. (no longer supported)
 
 This is no longer supported in Tootsville V.
@@ -462,7 +462,7 @@ This command existed in Romance 1.2, but is no longer effective.
 "
   (error 'unimplemented))
 
-(define-operator-command createroom (words user plane)
+(define-operator-command createroom (words user _)
   "Create a new room.
 
 This is a synonym for `TOOTSVILLE-USER::SPAWNROOM' now.
@@ -488,7 +488,7 @@ This command existed in Romance 1.2 and was different than
 "
   (error 'unimplemented))
 
-(define-operator-command dbcpinfo (words user plane)
+(define-operator-command dbcpinfo (words user _)
   "Get information from the DBI (database) layer.
 
 
@@ -522,7 +522,7 @@ connection: ~/HTML/; working: ~/HTML/"
               (dbi.driver:connection-handle *dbi-connection*)
               (db-select-all :friendly "select true")))))
 
-(define-operator-command dress (words user plane)
+(define-operator-command dress (words user _)
   "Force a character to wear a specific clothing item.
 
 UNIMPLEMENTED
@@ -542,7 +542,7 @@ UNIMPLEMENTED
   (error 'unimplemented)
   )
 
-(define-operator-command drop (words user plane)
+(define-operator-command drop (words user _)
   "Drop an item
 
 UNIMPLEMENTED
@@ -553,7 +553,7 @@ Usage: #drop ITEM-TEMPLATE-ID
 "
   (error 'unimplemented))
 
-(define-operator-command dropkick (words user plane)
+(define-operator-command dropkick (words user _)
   "Silently disconnect a user
 
 UNIMPLEMENTED
@@ -573,7 +573,7 @@ staff level 4 (DESIGNER) to use this command.
 "
   (error 'unimplemented))
 
-(define-operator-command dumpthreads (words user plane)
+(define-operator-command dumpthreads (words user _)
   "Dump debugging information including all running threads to the server logs.
 
 @subsection Usage
@@ -597,7 +597,7 @@ user as well."
             all-threads)
     (format nil "Dumped names of ~:d thread~:p" (length all-threads))))
 
-(define-operator-command enablepathfinder (words user plane)
+(define-operator-command enablepathfinder (words user _)
   "Temporary test routine for testing pathfinders on users
 
 UNIMPLEMENTED
@@ -617,7 +617,7 @@ UNIMPLEMENTED
     ("false" "Pathfinder is not enabled.")
     (t (error 'unimplemented))))
 
-(define-operator-command evacuate (words user plane)
+(define-operator-command evacuate (words user _)
   "Evacuate all users from the current Zone to another Zone.
 
 UNIMPLEMENTED
@@ -638,7 +638,7 @@ error if the server specified does not exist in the cluster.
 "
   (error 'unimplemented))
 
-(define-operator-command filter (words user plane)
+(define-operator-command filter (words user _)
   "Test censorship rules against words or phrases
 
 @subsection Usage
@@ -666,7 +666,7 @@ See `CASSANDRA-FILTER' et al."
     (doplist (key value json)
              (format s "~%<div><strong>~/HTML/</strong>: &nbsp; ~/HTML/</div>" key value))))
 
-(define-operator-command finger (words user plane)
+(define-operator-command finger (words user _)
   "Finger a user account.
 
 Return interesting details in an administrative message.
@@ -721,7 +721,7 @@ player: AC14ABCF-518D-4DC5-B783-3A4DFE4838B2
             (Toot-childp Toot)
             (person-sensitivep player)
             (person-is-patron-p player)
-            v(Toot-peanuts Toot) (Toot-fairy-dust Toot)
+            (Toot-peanuts Toot) (Toot-fairy-dust Toot)
             (Toot-last-active Toot)
             (human-duration (timestamp-difference (now)
                                                   (Toot-last-active Toot)))
@@ -732,7 +732,7 @@ player: AC14ABCF-518D-4DC5-B783-3A4DFE4838B2
             (Toot-uuid Toot)
             (person-uuid player))))
 
-(define-operator-command flush (words user plane)
+(define-operator-command flush (words user _)
   "Historically, this flushed the database write caché.
 
 This command is not currently implemented. It is a no-op.
@@ -754,7 +754,7 @@ no-op. It might be re-activated in future as needed.
 "
   "Thanks, but I don't have a write caché to flush.")
 
-(define-operator-command game (words user plane)
+(define-operator-command game (words user _)
   "Send a command to the operator command interpreter for a running game.
 
 UNIMPLEMENTED
@@ -770,7 +770,7 @@ game (if that game provides one)
 "
   (error 'unimplemented))
 
-(define-operator-command getconfig (words user plane)
+(define-operator-command getconfig (words user _)
   "Reads a configuration key.
 
 All WORDS are expected to be the keywords on the path to the config
@@ -803,7 +803,7 @@ structure which is arranged entirely differerently.
   (format nil "<pre>~/HTML/</pre>"
           (apply #'config (mapcar (compose #'make-keyword #'string-upcase) words))))
 
-(define-operator-command getevents (words user plane)
+(define-operator-command getevents (words user _)
   "List GameEvents in your current Zone
 
 UNIMPLEMENTED
@@ -826,7 +826,7 @@ See also `TOOTSVILLE-USER::ADDEVENT'
 "
   (error 'unimplemented))
 
-(define-operator-command getmotd (words user plane)
+(define-operator-command getmotd (words user _)
   "Retrieve the current Message Of The Day as a server message.
 
 @subsection Usage
@@ -841,7 +841,7 @@ See also `TOOTSVILLE-USER::ADDEVENT'
 @end example"
   *motd*)
 
-(define-operator-command getschedule (words user plane)
+(define-operator-command getschedule (words user _)
   "Get schedule
 
 Gets all scheduled events in the metronome system, with their
@@ -850,7 +850,7 @@ schedules.
   (format nil "<section><h2>Schedule</h2>~{<p>~/HTML/</p>~}</section>"
           (metronome-idle-tasks)))
 
-(define-operator-command getschedulefor (words user plane)
+(define-operator-command getschedulefor (words user _)
   "Get scheduled events for a particular class (scheduled by that class)
 
 UNIMPLEMENTED
@@ -858,7 +858,7 @@ UNIMPLEMENTED
 "
   (error 'unimplemented))
 
-(define-operator-command getuvar (words user plane)
+(define-operator-command getuvar (words user _)
   "Get a user variable.
 
 UNIMPLEMENTED
@@ -885,7 +885,7 @@ See also `TOOTSVILLE-USER::SETUVAR', `TOOTSVILLE-USER::GETUVARS'
 "
   (error 'unimplemented))
 
-(define-operator-command getuvars (words user plane)
+(define-operator-command getuvars (words user _)
   "Get all user variables for a given user.
 
 UNIMPLEMENTED
@@ -909,7 +909,7 @@ See also `TOOTSVILLE-USER::SETUVAR', `TOOTSVILLE-USER::GETUVAR'
 "
   (error 'unimplemented))
 
-(define-operator-command getvar (words user plane)
+(define-operator-command getvar (words user _)
   "Get a room variable.
 
 @subsection Usage
@@ -931,7 +931,7 @@ See also `TOOTSVILLE-USER::SETVAR', `TOOTSVILLE-USER::CLEARVAR',
 "
   (error 'unimplemented))
 
-(define-operator-command getvars (words user plane)
+(define-operator-command getvars (words user _)
   "Get all room variables.
 
 @subsection Usage
@@ -953,7 +953,7 @@ See also `TOOTSVILLE-USER::SETVAR', `TOOTSVILLE-USER::CLEARVAR',
 "
   (error 'unimplemented))
 
-(define-operator-command give (words u plane)
+(define-operator-command give (words u _)
   "Give an item as a gift to another user.
 
 @subsection Usage
@@ -975,7 +975,7 @@ The item to be gifted must be in your inventory.  To give a new item see
 `TOOTSVILLE-USER::GRANT' "
   (error 'unimplemented))
 
-(define-operator-command givehead (words user plane)
+(define-operator-command givehead (words user _)
   "Grants a new inventory item to a user and equips it.
 
 NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
@@ -999,7 +999,7 @@ equips it on the recipient. To give  a gift from your own inventory, see
 `TOOTSVILLE-USER::GIVE'. To grant a new item without equipping it, see `TOOTSVILLE-USER::GRANT'."
   (error 'unimplemented))
 
-(define-operator-command grant (words user plane)
+(define-operator-command grant (words user _)
   "Grants a new inventory item to a user.
 
 NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
@@ -1024,7 +1024,7 @@ gives it to the recipient.  To give a gift from your own inventory, see
 `TOOTSVILLE-USER::GIVEHEAD'."
   (error 'unimplemented))
 
-(define-operator-command headcount (words user plane)
+(define-operator-command headcount (words user _)
   "Get headcount information about the running system.
 
 @subsection Usage
@@ -1069,7 +1069,7 @@ who have been online since the last boot.
     ("#room" (error 'unimplemented))
     ("#highwater" (error 'unimplemented))))
 
-(define-operator-command inv (words user plane)
+(define-operator-command inv (words user _)
   "Get a user's inventory
 
 Get inventory  items for  a particular user.  By default,  this will
@@ -1096,7 +1096,7 @@ specified in the configuration file.
 "
   (error 'UNIMPLEMENTED))
 
-(define-operator-command kick (words user plane)
+(define-operator-command kick (words user _)
   "Kick a user offline for a certain reason.
 
 @subsection Usage
@@ -1175,7 +1175,7 @@ Lying about your birth date is against the law!
       "Reasons: BULLY CHEAT DIAMOND MEAN NICE PARENT"
       (error 'unimplemented)))
 
-(define-operator-command king (words user plane)
+(define-operator-command king (words user _)
   "Upgrade a user account
 
 @subsection Usage
@@ -1191,7 +1191,7 @@ Lying about your birth date is against the law!
 "
   (error 'unimplemented))
 
-(define-operator-command liftban (words user plane)
+(define-operator-command liftban (words user _)
   "Lift the ban upon a user.
 
 @subsection Usage
@@ -1213,7 +1213,7 @@ first. This is to avoid accidentally lifting a ban.
 "
   (error 'unimplemented))
 
-(define-operator-command loadlists (words user plane)
+(define-operator-command loadlists (words user _)
   "Reload the censorship lists.
 
 @subsection Usage
@@ -1229,7 +1229,7 @@ unsaved or recent changes.
 "
   (error 'unimplemented))
 
-(define-operator-command mem (words user plane)
+(define-operator-command mem (words user _)
   "Display some memory usage and other debugging type information as an pop-up message.
 
 This is an abbreviated version of the output of `ROOM' on the server.
@@ -1275,7 +1275,7 @@ output of @code{mem} was quite differently formatted.
           (machine-instance)
           (first-paragraph (with-output-to-string (*standard-output*) (room)))))
 
-(define-operator-command metronome (words user plane)
+(define-operator-command metronome (words user _)
   "Display information  about or  micromanage the metronome.
 
 @subsection Usage
@@ -1365,7 +1365,7 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
 Use #metronome #list to enumerate tasks."
                               (length potentials) task-name))))))))
 
-(define-operator-command motd (words user plane)
+(define-operator-command motd (words user _)
   "Set the  message of the day.
 
 @subsection Usage
@@ -1392,7 +1392,7 @@ parents will see it when approving their sign-on."
   (when (not (emptyp words))
     (setf *motd* (format nil "~{~a~^ ~}" words))))
 
-(define-operator-command mute (words user plane)
+(define-operator-command mute (words user _)
   "Mute a user or area.
 
 This is a simpler form of `TOOTSVILLE-USER:STFU' that does not accept a
@@ -1428,7 +1428,7 @@ See Also: `TOOTSVILLE-USER::STFU'
 "
   (error 'unimplemented))
 
-(define-operator-command nuke (words user plane)
+(define-operator-command nuke (words user _)
   "Forcibly disconnect everyone in an area.
 
 This is a horrible command and it lies to the user.
@@ -1482,7 +1482,7 @@ down; the new engine should not have this kind of timing issue.
 "
   (error 'unimplemented))
 
-(define-operator-command parentapproves (words user plane)
+(define-operator-command parentapproves (words user _)
   "Signal that a parent approves a user signing in.
 
 @subsection Usage
@@ -1506,7 +1506,7 @@ child request from TOOT.
  "
   (error 'unimplemented))
 
-(define-operator-command ping (words user plane)
+(define-operator-command ping (words user _)
   "Ping the  server, to force  a neutral administrative  message reply.
 
 @subsection Usage
@@ -1547,8 +1547,27 @@ Pong!
     (error 'unimplemented)))
 
 (defun %operator-place-item (where params)
-  (destructuring-bind (item-template-number &optional facing) params
-    (error 'unimplemented)))
+  (destructuring-bind (item-template-number &optional facing base-color alt-color) params
+    (make-record 'item
+                 :uuid (uuid:make-v4-uuid)
+                 :base-color (or (and base-color (parse-color24 base-color))
+                                 0)
+                 :alt-color (or (and alt-color (parse-color24 alt-color))
+                                0)
+                 :template (parse-number item-template-number)
+                 :energy 1
+                 :avatar-scale-x 1.0
+                 :avatar-scale-y 1.0
+                 :avatar-scale-z 1.0
+                 :x (game-point-x where)
+                 :y (game-point-y where)
+                 :z (game-point-z where)
+                 :facing (interpret-facing facing)
+                 :world (world where)
+                 :latitude (latitude where)
+                 :longitude (longitude where)
+                 :altitude (altitude where)
+                 :world (world where))))
 
 (defun %operator-place-mini (where params)
   (destructuring-bind (moniker) params
@@ -1575,17 +1594,157 @@ Pong!
   (error 'unimplemented))
 
 (defun %operator-place-vitem (where params)
+  (check-type where game-point)
   (destructuring-bind (item-template-number &optional facing) params
-    (error 'unimplemented)))
+    (make-record 'place
+                 :uuid (uuid:make-v4-uuid)
+                 :world (world where)
+                 :latitude (latitude where)
+                 :longitude (longitude where)
+                 :altitude (altitude where)
+                 :shape (format nil "~d,~d,~d" 
+                                (game-point-x where)
+                                (game-point-y where)
+                                (game-point-z where))
+                 :kind :vitem
+                 :attributes (princ-to-string item-template-number)
+                 :appearance (format nil "~d~~~g"
+                                     item-template-number
+                                     (interpret-facing facing)))))
 
 (defun %operator-place-walk (where params)
   (assert (emptyp params))
   (error 'unimplemented))
 
-(defun %parse-operator-place-where (where)
-  (error 'unimplemented))
+(defun parse-polygon (polygon-string reference)
+  "Parses the POLYGON-STRING near REFERENCE into a list of GAME-POINTs
 
-(define-operator-command place (words user plane)
+The POLYGON-STRING  is a  sequence of  x,z or  x,y,z points  joined with
+@code{~}, making up the points at the edge of the polygon.
+
+When y coördinates are omitted, they default to 0.
+
+Coördinate values can be in any format understood by `PARSE-NUMBER'
+
+@subsection Examples
+
+@verbatim
+-1,1~1,1~1,-1~-1,-1
+
+-1,0,1~1,0,1~1,0,-1~-1,0,-1
+
+#x-40,#x40~#x40,#x40~#x40,#x-40~#x-40,#x-40
+@end verbatim
+"
+  (let ((latitude (latitude reference))
+        (longitude (longitude reference))
+        (altitude (altitude reference))
+        (world (world reference)))
+    (map 'vector
+         (lambda (point)
+           (destructuring-bind (x y &optional z) (split-sequence #\, point)
+             (make-game-point :latitude latitude
+                              :longitude longitude
+                              :altitude altitude
+                              :world world
+                              :x (parse-number x)
+                              :y (if z (parse-number y) 0)
+                              :z (if z (parse-number z) (parse-number y)))))
+         (split-sequence #\~ polygon-string))))
+
+(defun %parse-operator-place-where (where)
+  "Parse the WHERE parameter to the #place operator command.
+
+WHERE can be one of:
+
+@table @b
+@item @code{#here}
+The location of the operator issuing the command, surrounded by an ``average
+size'' polygon approximating a circle.
+
+@item @code{#here-tiny}
+The location of the operator issuing the command, surrounded by a ``tiny''
+polygon approximating a circle.
+
+@item @code{#here-big}
+The location of the operator issuing the command, suroounded by a ``big''
+polygon approximating a circle.
+
+@item A point
+An x,z coördinate pair; e.g. @code{100,100}.
+
+@item A polygon designator
+The specific location can be outlined as a series of x,z coördinates
+delimited by tildes; e.g.  @code{100,100~100,200~200,200~200,100}.
+
+@item A circle designator A polygon approximating a circle originating
+at the location of the operator issuing the command, whose radius R
+and number of segments S are specified, delimited by a @code{x}
+character; e.g.  @code{100x10}. A circle can be designated to start at
+another position with the notation @code{50,60+100x10}, where the
+center will be at x position 50, z position 60.
+
+@end table"
+  (cond
+    ((string-equal "#here" where) ; here
+     (destructuring-bind (x y z) (current-position *Toot*)
+       (declare (ignore y))
+       (make-game-point :x x :y 0 :z z
+                        :latitude (latitude *Toot*)
+                        :longitude (longitude *Toot*)
+                        :altitude (altitude *Toot*)
+                        :world (world *Toot*))))
+    ((string-equal "#here-tiny" where) ; small spot around here
+     (destructuring-bind (x y z) (current-position *Toot*)
+       (declare (ignore y))
+       (parse-polygon (place-string-circle 10 x z 6) *Toot*)))
+    ((string-equal "#here-big" where) ; big spot around here
+     (destructuring-bind (x y z) (current-position *Toot*)
+       (declare (ignore y))
+       (parse-polygon (place-string-circle 40 x z 12) *Toot*)))
+    ((find #\x where) ; specific circle
+     (parse-polygon
+      (if (find #\+ where)
+          (destructuring-bind (center radius) (split-sequence #\+ where)
+            (destructuring-bind (x z) (split-sequence #\, center)
+              (if (find #\x radius)
+                  (destructuring-bind (radius segments) (split-sequence #\x radius)
+                    (place-string-circle (parse-number radius) 
+                                         (parse-number x)
+                                         (parse-number z)
+                                         (parse-number segments)))
+                  (place-string-circle (parse-number radius)
+                                       (parse-number x) 
+                                       (parse-number z)
+                                       (round (/ (parse-number radius) 3))))))
+          (if (find #\x where)
+              (destructuring-bind (x y z) (current-position *Toot*)
+                (declare (ignore y))
+                (destructuring-bind (radius segments) (split-sequence #\x where )
+                  (place-string-circle (parse-number radius)
+                                       x
+                                       z 
+                                       (parse-number segments))))
+              (destructuring-bind (x y z) (current-position *Toot*)
+                (declare (ignore y))
+                (place-string-circle (parse-number where)
+                                     x
+                                     z
+                                     (round (/ (parse-number where) 3))))))
+      *Toot*))
+    ((find #\~ where) ; specific polygon
+     (parse-polygon where *Toot*)) 
+    (t
+     (destructuring-bind (x z) (split-sequence #\, where)
+       (make-game-point :x (parse-number x)
+                        :y 0
+                        :z (parse-number z)
+                        :latitude (latitude *Toot*)
+                        :longitude (longitude *Toot*)
+                        :altitude (altitude *Toot*)
+                        :world (world *Toot*))))))
+
+(define-operator-command place (words user _)
   "Put a thing or a Place into the game
 
 ``Place a thing'' or ``create a place'' in the game.
@@ -1844,7 +2003,7 @@ Each subcommand is implemented by a ``private'' function named
         (return-from Tootsville-user::place))
       (funcall subcommand where (subseq words 2)))))
 
-(define-operator-command purgephysics (words user plane)
+(define-operator-command purgephysics (words user _)
   "Purge pending physics interactions.
 
 This is a no-op.
@@ -1856,7 +2015,7 @@ In Romance II, physics are handled by the clients. This command is no
 longer needed."
   "#purgephysics is no longer used")
 
-(define-operator-command rc (words user plane)
+(define-operator-command rc (words user _)
   "Run an RC (Run Commands) script.
 
 UNIMPLEMENTED
@@ -1882,7 +2041,7 @@ WRITEME
 "
   (error 'unimplemented))
 
-(define-operator-command reboot (words user plane)
+(define-operator-command reboot (words user _)
   "Restart the game server.
 
 No, really;  this actually kills the  game server with an  error exit so
@@ -1911,7 +2070,7 @@ command is received.
   (sleep 3)
   (sb-ext:quit :unix-status 66))
 
-(define-operator-command reloadconfig (words user plane)
+(define-operator-command reloadconfig (words user _)
   "Reloads configuration properties.
 
 @subsection Usage
@@ -1939,7 +2098,7 @@ Read at ~a. File write date ~a, author ~a."
             (getf info :path) (getf info :truename) (getf info :host)
             (getf info :read) (getf info :file-write-date) (getf info :author))))
 
-(define-operator-command retire (words user plane)
+(define-operator-command retire (words user _)
   "Retire a server.
 
 Forces  a  server to  retire.  This  will disconnect  anyone  currently
@@ -1998,7 +2157,7 @@ In 2.x:
          (format nil "No function nor method named ~a::~a" (first words) (second words))))
     (otherwise "Improper usage: #run FUNCTION or #run PACKAGE FUNCTION")))
 
-(define-operator-command saveroomvars (words user plane)
+(define-operator-command saveroomvars (words user _)
   "Save room variables.
 
 No longer used.
@@ -2011,7 +2170,7 @@ to represent are already persisted to the database.
 "
   (error 'unimplemented))
 
-(define-operator-command scotty (words user plane)
+(define-operator-command scotty (words user _)
   "Force a user to relocate to another location
 
 @subsection Usage
@@ -2062,7 +2221,7 @@ In 1.2, this moved an user into another room.
           (format nil "Beamed ~a to (~:d, ~:d, ~:d) in ~a"
                   (first words) latitude longitude altitude world))))
 
-(define-operator-command setavatarcolors (words user plane)
+(define-operator-command setavatarcolors (words user _)
   "Sets the  base and extra colors  of a user's avatar.
 
 @subsection Usage
@@ -2100,7 +2259,7 @@ See also `TOOTSVILLE-USER::DOODLE' for a similar-but-different way to set
 avatar colors.  "
   (error 'unimplemented))
 
-(define-operator-command setbadge (words user plane)
+(define-operator-command setbadge (words user _)
   "Set the badge on  a map area.
 
 @subsection Usage
@@ -2128,7 +2287,7 @@ which are identical to typing #setbadge #me #here
  "
   (error 'unimplemented))
 
-(define-operator-command setconfig (words user plane)
+(define-operator-command setconfig (words user _)
   "Set a config property.
 
 @subsection Usage
@@ -2153,7 +2312,7 @@ configuration file is  reloaded. See `TOOTSVILLE-USER::RELOADCONFIG' and
 "
   (error 'unimplemented))
 
-(define-operator-command setstafflevel (words user plane)
+(define-operator-command setstafflevel (words user _)
   "Set the staff level for a user
 
 UNIMPLEMENTED
@@ -2162,7 +2321,7 @@ UNIMPLEMENTED
 "
   (error 'unimplemented))
 
-(define-operator-command setuvar (words user plane)
+(define-operator-command setuvar (words user _)
   "Set a user variable.
 
 UNIMPLEMENTED
@@ -2195,7 +2354,7 @@ variables in Romance II.
 "
   (error 'unimplemented))
 
-(define-operator-command setvar (words user plane)
+(define-operator-command setvar (words user _)
   "Set a room variable.
 
 UNIMPLEMENTED.
@@ -2236,7 +2395,7 @@ Use @code{#replace} to change a room variable from one value to another.
 "
   (error 'unimplemented))
 
-(define-operator-command shanghai (words user plane)
+(define-operator-command shanghai (words user _)
   "Force a client into a different room and zone
 
 UNIMPLEMENTED
@@ -2244,7 +2403,7 @@ UNIMPLEMENTED
 WRITEME"
   (error 'unimplemented))
 
-(define-operator-command shout (words user plane)
+(define-operator-command shout (words user _)
   "Speak in another zone.
 
 This is intended for using operator commands in a remote zone, not
@@ -2273,7 +2432,7 @@ See modern version `TOOTSVILLE-USER::AT' also
  "
   (error 'unimplemented))
 
-(define-operator-command spawnzone (words user plane)
+(define-operator-command spawnzone (words user _)
   "Create a new zone.
 
 @subsection  Usage
@@ -2290,7 +2449,7 @@ WRITEME
 "
   (error 'unimplemented))
 
-(define-operator-command speak (words user plane)
+(define-operator-command speak (words user _)
   "Allows a user to speak who had previously been muted.
 
 See `TOOTSVILLE-USER::MUTE', `TOOTSVILLE-USER::STFU' for ways to mute
@@ -2308,7 +2467,7 @@ a character.
  "
   (error 'unimplemented))
 
-(define-operator-command stfu (words user plane)
+(define-operator-command stfu (words user _)
   "Silences (mutes) a user.
 
 @subsection Usage
@@ -2343,7 +2502,7 @@ have a fixed duration.
  "
   (error 'unimplemented))
 
-(define-operator-command testcensor (words user plane)
+(define-operator-command testcensor (words user _)
   "Test a message with the censor, displays the filter result.
 
 UNIMPLEMENTED.
@@ -2363,7 +2522,7 @@ UNIMPLEMENTED.
  "
   (error 'unimplemented))
 
-(define-operator-command time (words user plane)
+(define-operator-command time (words user _)
   "Displays a message  with the current server time.
 
 This is a convenience function to ask ``what time is it,'' as opposed to
@@ -2406,7 +2565,7 @@ time code, and Chœrogryllum date and time are new.
               (now) universal (- universal +unix-time-in-universal+)
               hour minute second (chœrogryllum:date-string universal)))))
 
-(define-operator-command unbuild (words user plane)
+(define-operator-command unbuild (words user _)
   "Destroy a named spot.
 
 UNIMPLEMENTED.
@@ -2432,7 +2591,7 @@ have rooms, so it is instead used to destroy named spots.
 "
   (error 'unimplemented))
 
-(define-operator-command v (words user plane)
+(define-operator-command v (words user _)
   "Forces a user to say a message.
 
 Mnemonic: Ventriloquism
@@ -2461,7 +2620,7 @@ This no longer allows ventriloquism of operator commands &c.
   (Toot-speak (join #\Space (rest words))
               :Toot (find-record 'Toot :name (first words))))
 
-(define-operator-command verbosebugs (words u plane)
+(define-operator-command verbosebugs (words u _)
   "Set verbose bug backtrace reporting on or off.
 
 UNIMPLEMENTED.
@@ -2481,7 +2640,7 @@ receive stack backtraces from unhandled errors as admin messages.
 "
   (error 'unimplemented))
 
-(define-operator-command wall (words user plane)
+(define-operator-command wall (words user _)
   "Write to all players.
 
 Sends an admin (parrot) pop-up message to everyone currently online.
@@ -2504,7 +2663,7 @@ Sends an admin (parrot) pop-up message to everyone currently online.
          :|title| "Squawk!"
          :|message| (format nil "~{~a~^ ~}" words))))
 
-(define-operator-command wallops (words user plane)
+(define-operator-command wallops (words user _)
   "Write to all operators
 
 Sends an pop-up message to all Builder Toots currently online
@@ -2524,7 +2683,7 @@ Sends an pop-up message to all Builder Toots currently online
  "
   (error 'unimplemented))
 
-(define-operator-command wallzones (words user plane)
+(define-operator-command wallzones (words user _)
   "Write to all zones.
 
 This is now the same as `TOOTSVILLE-USER::WALL', qv.
@@ -2546,9 +2705,9 @@ In Romance 1.2,  Zones (shards) were implemented,  although not actually
 used by Tootsville IV. This command wrote to all users in all zones.
 
 "
-  (Tootsville-user::wall words user plane))
+  (Tootsville-user::wall words user _))
 
-(define-operator-command warn (words user plane)
+(define-operator-command warn (words user _)
   "Warn a user about breaking a rule.
 
 Warns  a user  (anonymously)  about the  Tootsville  rules. The  warning
@@ -2585,7 +2744,7 @@ The new list is kept under `TOOTSVILLE-USER::KICK'.
 "
   (error 'unimplemented))
 
-(define-operator-command whatis (words user plane)
+(define-operator-command whatis (words user _)
   "Displays information about an item template.
 
 The  item template  info is  essentially  that which  is available  from
@@ -2613,7 +2772,7 @@ The  item template  info is  essentially  that which  is available  from
       (return (format nil "~{~a: ~a~%<BR>~}"
                       (item-template-info template))))))
 
-(define-operator-command whereami (words user plane)
+(define-operator-command whereami (words user _)
   "Return an administrative message with the  name of the server to which
  the player is currently connected.
 
@@ -2634,7 +2793,7 @@ are connected.
 "
   (machine-instance))
 
-(define-operator-command whereis (words user plane)
+(define-operator-command whereis (words user _)
   "Locate a user in the game world.
 
 Find  out in  what what  room a  character is  standing, if  s/he is
@@ -2664,7 +2823,7 @@ User Name of a specific user;
 "
   (error 'unimplemented))
 
-(define-operator-command who (words user plane)
+(define-operator-command who (words user _)
   "Displays a  list of everyone  currently in  a room.
 
 WRITEME this has not been updated for Romance II yet.
@@ -2686,7 +2845,7 @@ the room the command was initialized in.
 "
   (error 'unimplemented))
 
-(define-operator-command whoami (words user plane)
+(define-operator-command whoami (words user _)
   "Cause the character to speak his/her name in the current room.
 
 Appears as dialogue in the form: ``Hello, my name is NAME.''
@@ -2715,7 +2874,7 @@ Hello, my name is Pil.
   (toot-speak (format nil "Hello, my name is ~a." (Toot-name *Toot*)))
   nil)
 
-(define-operator-command whoareyou (words user plane)
+(define-operator-command whoareyou (words user _)
   "Ask  the  server who  it  is.
 
 This command should  return version information on some  of the critical
@@ -2761,7 +2920,7 @@ Tootsville version ~a"
           (ignore-errors (ql:dist-version "ultralisp"))
           (asdf:component-version (asdf:find-system :Tootsville))))
 
-(define-operator-command zoom (words user plane)
+(define-operator-command zoom (words user _)
   "Set the visual Zoom level of a room.
 
 UNIMPLEMENTED
