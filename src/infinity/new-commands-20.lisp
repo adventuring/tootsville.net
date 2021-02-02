@@ -673,7 +673,7 @@ of the world.
                                    :|startTime| (* 1000 (- (get-universal-time)
                                                            +unix-zero-in-universal-time+)))
                    :|facing| θ₂))))
-«
+
 (defun make-new-Toot-state (Toot)
   "Set up the state for TOOT, who has never logged in before.
 
