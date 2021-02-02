@@ -2001,7 +2001,8 @@ Each subcommand is implemented by a ``private'' function named
         (private-admin-message "#place"
                                (format nil "#place subcommand ~a not found" (second words)))
         (return-from Tootsville-user::place))
-      (funcall subcommand where (subseq words 2)))))
+      (funcall subcommand where (subseq words 2))
+      (list 200 (local-room-vars)))))
 
 (define-operator-command purgephysics (words user _)
   "Purge pending physics interactions.
