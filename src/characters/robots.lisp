@@ -236,7 +236,7 @@ NEARP to the event being observed."))
 (defun parse-wtl-for-robot (wtl)
   "Parse the WTL JSON into a WTL-Course structure 
 
-XXX this is basically a duplicate of `PARSE-WTL-COURSE' "
+XXX this is basically a weak duplicate of `PARSE-WTL-COURSE' "
   (destructuring-bind (&key |facing| |course|) wtl
     (declare (ignore |facing|))
     (destructuring-bind (&key |speed| |startTime| |endTime|
