@@ -161,7 +161,6 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
   (let* ((position (Toot-position *client*))
          (world (first position))
          (pos (rest position))
-         (hash (make-hash-table :test 'equal))
          (vars (make-hash-table :test 'equal)))
     (doplist (key val (sky-room-var world))
              (setf (gethash (string key) vars) val))
@@ -175,12 +174,11 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
             (item-info item)))
     (dolist (place (apply #'places-at-position world pos))
       (setf (gethash (format nil "zone~~~a" (place-uuid place))
-                     vars) 
+                     vars)
             (place-string place)))
-    (setf (gethash "from" hash) "rv"
-          (gethash "status" hash) t
-          (gethash "var" hash) vars)
-    hash))
+    (list :|from| "rv"
+          :|status| t
+          :|var| vars)))
 
 (definfinity get-room-vars (nil u recipient/s)
   "Returns ``room variables.''
