@@ -162,8 +162,7 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
          (world (first position))
          (pos (rest position))
          (vars (make-hash-table :test 'equal)))
-    (doplist (key val (sky-room-var world))
-             (setf (gethash (string key) vars) val))
+    (setf (gethash "s" vars) (sky-room-var world))
     (dolist (item (find-records 'item
                                 :world world
                                 :latitude (elt pos 0)
