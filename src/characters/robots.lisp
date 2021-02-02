@@ -225,6 +225,11 @@ NEARP to the event being observed."))
 (defmethod current-position ((robot robot))
   (current-position (wtl-course robot)))
 
+(defmethod current-position ((Toot Toot))
+  (if-let (stream (user-stream Toot))
+    (current-position (wtl-course stream))
+    (current-position (find-robot Toot))))
+
 (defun robot-position (robot)
   (list (world robot) (latitude robot) (longitude robot) (altitude robot)))
 
