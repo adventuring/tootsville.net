@@ -234,7 +234,9 @@ NEARP to the event being observed."))
   (list (world robot) (latitude robot) (longitude robot) (altitude robot)))
 
 (defun parse-wtl-for-robot (wtl)
-  "Parse the WTL JSON into a WTL-Course structure "
+  "Parse the WTL JSON into a WTL-Course structure 
+
+XXX this is basically a duplicate of `PARSE-WTL-COURSE' "
   (destructuring-bind (&key |facing| |course|) wtl
     (declare (ignore |facing|))
     (destructuring-bind (&key |speed| |startTime| |endTime|
