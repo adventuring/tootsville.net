@@ -548,9 +548,11 @@ Facing directions used to be @i{only} the cardinal directions; now, an
 arbitrary rotation in radians is possible.
 
 TODO: Throw a 400-type exception when junk is passed in."
-  (if-let (angle (gethash facing +facing-angles+))
-    angle
-    (parse-number facing :junk-allowed-p nil)))
+  (* 1.0d0 (if facing
+               (if-let (angle (gethash facing +facing-angles+))
+                 angle
+                 (parse-number facing))
+               0.0d0)))
 
 (definfinity shoot ((i course facing) u r)
   "Fire a shot from a projectile device.
