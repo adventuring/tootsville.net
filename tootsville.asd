@@ -73,7 +73,7 @@ REST services for the front-end."
                :trivial-signal
                :uiop
                :uuid
-               ;:zeromq
+                                        ;:zeromq
 
                ;; Systems that travel bundled with Tootsville
 
@@ -139,7 +139,7 @@ REST services for the front-end."
                              (:module "db"
                               :depends-on ("package-post")
                               :components ((:file "memcached")
-                                           ; (:file "zeromq")
+                                        ; (:file "zeromq")
                                            (:file "maria" :depends-on ("memcached"))
                                            (:file "generic-db" :depends-on ("memcached"))
                                            (:file "db-central" :depends-on ("maria" "generic-db"))
@@ -213,5 +213,4 @@ REST services for the front-end."
                                            (:file "modern-ops" :depends-on ("infinity"))
                                            (:file "game-actions" :depends-on ("infinity"))
                                            (:file "tootsville-commands" :depends-on ("infinity"))
-                                           (:file "new-commands-20" :depends-on ("infinity"))
-                                           (:file "new-commands-50" :depends-on ("infinity"))))))))
+                                           (:file "new-commands-20" :depends-on ("infinity"))))))))
