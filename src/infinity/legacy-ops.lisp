@@ -2765,12 +2765,13 @@ The  item template  info is  essentially  that which  is available  from
  "
   (unless (= 1 (length words))
     (return "Give exactly one template item ID"))
-  (let ((item-id (parse-integer (first words) :junk-allowed t)))
+  (let ((item-id (parse-integer (first words))))
     (unless (plusp item-id)
       (return "Usage: #whatis <TEMPLATE ID #>"))
-    (let ((template (find-record 'item-template :id item-id)))
-      (return (format nil "~{~a: ~a~%<BR>~}"
-                      (item-template-info template))))))
+    (if-let (template (ignore-not-found (find-record 'item-template :id item-id)))
+      (format nil "~{~a: ~a~%<BR>~}"
+              (item-template-info template))
+      "Item template not found")))
 
 (define-operator-command whereami (words user _)
   "Return an administrative message with the  name of the server to which
