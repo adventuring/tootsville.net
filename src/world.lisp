@@ -110,3 +110,32 @@ Returns all items in that volume which are not in a character's inventory."
 (defun distance (x₁ y₁ z₁ x₂ y₂ z₂)
   (sqrt (+ (square (- x₂ x₁)) (square (- y₁ y₂)) (square (- z₁ z₂)))))
 
+
+
+(defgeneric parse-wtl-course (course)
+  (:documentation "Parse COURSE into a WTL-COURSE object"))
+
+(defmethod parse-wtl-course ((course wtl-course))
+  course)
+
+(defmethod parse-wtl-course ((null null))
+  nil)
+
+(defmethod parse-wtl-course ((course string))
+  (parse-wtl-course (jonathan.decode:parse course)))
+
+(defmethod parse-wtl-course ((course cons))
+  (destructuring-bind (&key |course| |facing|) course
+    (destructuring-bind (&key |startTime| |endTime| |speed| |startPoint| |endPoint|) |course|
+      (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |startPoint|
+        (let ((x₁ |x|) (y₁ |y|) (z₁ |z|))
+          (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |endPoint|
+            (let ((x₂ |x|) (y₂ |y|) (z₂ |z|))
+              (make-wtl-course :speed |speed|
+                               :start-time |startTime|
+                               :end-time (if |endTime| |endTime|
+                                             (+ |startTime| (/ (distance x₁ y₁ z₁ x₂ y₂ z₂) (or |speed| 0.1))))
+                               :start-point (list x₁ y₁ z₁)
+                               :end-point (list x₂ y₂ z₂)
+                               :speed (or |speed| 0.1)
+                               :facing (interpret-facing |facing|)))))))))

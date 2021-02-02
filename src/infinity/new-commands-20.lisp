@@ -483,8 +483,10 @@ Note how the two-coördinate form uses x,z with y pinned at zero.
 As with @code{wtl},  @code{facing} can be supplied in  either radians or
 as   a  value   from  the   list  @code{N   NE  E   SE  S   SW  W   NW}.
 See `INTERPRET-FACING'.
-
 "
+  
+  (when *client*
+    (setf (wtl-course *client*) (parse-wtl-course (list :|course| course :|facing| facing))))
   (broadcast (list :|from| "wtl"
                    :|status| t
                    :|course| course
@@ -671,7 +673,7 @@ of the world.
                                    :|startTime| (* 1000 (- (get-universal-time)
                                                            +unix-zero-in-universal-time+)))
                    :|facing| θ₂))))
-
+«
 (defun make-new-Toot-state (Toot)
   "Set up the state for TOOT, who has never logged in before.
 
@@ -696,6 +698,8 @@ WRITEME"
   (let ((state (or (ignore-not-found
                      (find-record 'Toot-quiesced :Toot (Toot-uuid Toot)))
                    (make-new-Toot-state Toot))))
+    (when (and *client* *Toot* (Toot= Toot *Toot*))
+      (setf (wtl-course *client*) (parse-wtl-course (Toot-quiesced-wtl state))))
     (unicast (list :|status| t
                    :|from| "burgeon"
                    :|world| (Toot-quiesced-world state)

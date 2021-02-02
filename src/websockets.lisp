@@ -207,7 +207,8 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (pre-login-commands :accessor pre-login-commands :initform +pre-login-max-commands+)
    (connect-time :reader connect-time :initform (get-universal-time))
    (last-active :accessor last-active :initform (get-universal-time))
-   (location :accessor Toot-position :initform (list :chor 0 0 0))))
+   (location :accessor Toot-position :initform (list :chor 0 0 0))
+   (wtl-course :accessor wtl-course :initform nil)))
 
 (defgeneric Toot (identifier)
   (:documentation "Find the Toot associated with IDENTIFIER."))
