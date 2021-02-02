@@ -481,3 +481,31 @@ UNIMPLEMENTED.
   (let ((uptime (- (get-universal-time) *started*)))
     (format nil "The server has been up for ~a (precisely ~:d sec)"
             (human-duration uptime) uptime)))
+
+(define-operator-command whatabout (words user _)
+  "Searches for related item templates.
+
+@subsection Usage
+
+@verbatim
+#whatabout WORD
+@end verbatim
+
+@subsection Example
+
+@verbatim
+#whatabout bucket
+@end verbatim
+
+ "
+  (unless (= 1 (length words))
+    (return "Give exactly one word"))
+  (if-let (results (mapcar (lambda (template)
+                             (list (item-template-id template) (item-template-name template)))
+                           (remove-if-not (lambda (template)
+                                            (search (first words) (item-template-name template)))
+                                          (find-records 'item-template))))
+    (format nil "Item templates like ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
+            (first words)
+            results)
+    "No results found"))
