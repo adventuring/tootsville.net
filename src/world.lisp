@@ -112,6 +112,42 @@ Returns all items in that volume which are not in a character's inventory."
 
 
 
+
+(defstruct wtl-course
+  speed
+  start-time
+  end-time
+  start-point
+  end-point
+  latitude
+  longitude
+  altitude
+  world
+  facing)
+
+(defmethod current-position ((course wtl-course))
+  (let ((now (get-Unix-time)))
+    (if (> now (or (wtl-course-end-time course) 0))
+        (wtl-course-end-point course)
+        (destructuring-bind (x₁ y₁ z₁) (wtl-course-start-point course)
+          (destructuring-bind (x₂ y₂ z₂) (wtl-course-end-point course)
+            (let* ((δ-x (- x₂ x₁))
+                   (δ-y (- y₂ y₁))
+                   (δ-z (- z₂ z₁))
+                   (δ-τ (- (wtl-course-end-time course)
+                           (wtl-course-start-time course)))
+                   (τ (- now (wtl-course-start-time course)))
+                   (fraction (/ τ δ-τ))
+                   (x (+ x₁ (* δ-x fraction)))
+                   (y (+ y₁ (* δ-y fraction)))
+                   (z (+ z₁ (* δ-z fraction))))
+              (list x y z)))))))
+
+(defmethod current-position ((Toot Toot))
+  (if-let (stream (user-stream Toot))
+    (current-position (wtl-course stream))
+    (current-position (find-robot Toot))))
+
 (defgeneric parse-wtl-course (course)
   (:documentation "Parse COURSE into a WTL-COURSE object"))
 
