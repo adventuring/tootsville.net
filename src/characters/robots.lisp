@@ -294,7 +294,9 @@ XXX this is basically a weak duplicate of `PARSE-WTL-COURSE' "
                                   :|world| world)))))))
 
 (defun relative-facing (x₁ z₁ x₂ z₂)
-  "Compute the direction to face if traveling from X1,Z1 to X2,Z2"
+  "Compute the direction to face if traveling from X1,Z1 to X2,Z2
+
+Returns the angle in radians"
   (if (and (= x₁ x₂) (= z₁ z₂))
       nil
       (atan (/ (- z₂ z₁) (- x₂ x₁)))))
