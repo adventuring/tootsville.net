@@ -132,6 +132,9 @@ that feature.
                (cassandra-obnoxious-filter "Why can't people ..." "talk")))
 
 (defun cassandra-boot ()
-  "Startup procedure to load Cassandra's blacklist and redlist from the database.
-
-UNIMPLEMENTED. This is still a no-op.")
+  "Startup procedure to load Cassandra's blacklist and redlist from the database."
+  
+  (do-db-records-simply (pattern "cassandra_blacklist")
+    (cassandra-add-to-blacklist (second pattern)))
+  (do-db-records-simply (pattern "cassandra_redlist")
+    (cassandra-add-to-redlist (second pattern))))
