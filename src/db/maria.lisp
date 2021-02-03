@@ -372,7 +372,9 @@ staff_journal_references
   constraint pair_key primary key (entry, person),
   constraint staff_journal_entry foreign key (entry) references staff_journal_entries (uuid) on delete restrict on update cascade,
   constraint about_whom foreign key (person) references people (uuid) on delete restrict on update cascade )
-engine=InnoDB default charset=utf8;"))
+engine=InnoDB default charset=utf8;"
+    "alter table items add column if not exists effect varchar(64);"
+    "alter table items add column if not exists attributes text;"))
 
 (defun perform-all-migrations ()
   "Perform all necessary database migrations."
