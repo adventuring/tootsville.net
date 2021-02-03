@@ -527,14 +527,17 @@ lists joined by @code{,}."
 
 As per the VITEM placement command; see also 
 `TOOTSVILLE-USER::PLACE'. "
-  (error 'unimplemented))
+  (grant-item (item-template-id item) recipient))
+
+(defconstant +snowball-item+ 100)
 
 (defun grant-snowballs (recipient &optional (count 6))
   "RECIPIENT receives COUNT snowballs.
 
 As     per    the     SNOWBALL    placement     command;    see     also
 `TOOTSVILLE-USER::PLACE'."
-  (error 'unimplemented))
+  (dotimes (i count)
+    (grant-item +snowball-item+ recipient)))
 
 (defun swing-door (item)
   "Swing the door open or shut (toggle)"
@@ -549,8 +552,7 @@ As     per    the     SNOWBALL    placement     command;    see     also
   (:method (item (effect (eql :shop)) clicker mods x y z)
     (ask-buy-item item clicker))
   (:method (item (effect (eql :swing-door)) clicker mods x y z)
-    (swing-door item))
-  )
+    (swing-door item)))
 
 (defun item-accept-click (item clicker mods &optional x y z)
   "CLICKER has clicked on ITEM with MODS in effect at item-relative X Y Z"
