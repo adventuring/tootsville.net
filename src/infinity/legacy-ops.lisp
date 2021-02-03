@@ -1547,6 +1547,12 @@ Pong!
     (error 'unimplemented)))
 
 (defun %operator-place-item (where params)
+  "The operator is placing an item WHERE with PARAMS.
+
+PARAMS are the item-template ber, and optional facing angle, base color,
+and alt color.
+
+See `TOOTSVILLE-USER::PLACE'"
   (destructuring-bind (item-template-number &optional facing base-color alt-color) params
     (make-record 'item
                  :uuid (uuid:make-v4-uuid)
@@ -1582,18 +1588,44 @@ Pong!
     (error 'unimplemented)))
 
 (defun %operator-place-shop (where params)
+  "The operator is placing a shop item at WHERE with PARAMS.
+
+PARAMS are the item template number, price, and optional facing angle.
+
+Creates a SHOP effect item.
+
+See `TOOTSVILLE-USER::PLACE'"
   (destructuring-bind (item-template-number price &optional facing) params
     (error 'unimplemented)))
 
 (defun %operator-place-snowball (where params)
+  "The operator is placing a snowball pile at WHERE with PARAMS.
+
+PARAMS are the item template number and an optional facing angle.
+
+Creates a SNOWBALL effect item.
+
+See `TOOTSVILLE-USER::PLACE'"
   (destructuring-bind (item-template-number &optional facing) params
     (error 'unimplemented)))
 
 (defun %operator-place-unwalk (where params)
+  "The operator is making WHERE an unwalkable space. PARAMS are empty.
+
+Creates an UNWALK place.
+
+See `TOOTSVILLE-USER::PLACE'"
   (assert (emptyp params))
   (error 'unimplemented))
 
 (defun %operator-place-vitem (where params)
+  "The operator is placing a VITEM at WHERE with PARAMS.
+
+PARAMS are the item template number and an optional facing angle.
+
+Creates a VITEM effect item.
+
+See `TOOTSVILLE-USER::PLACE'"
   (check-type where game-point)
   (destructuring-bind (item-template-number &optional facing) params
     (make-record 'place

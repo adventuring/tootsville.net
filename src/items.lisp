@@ -520,3 +520,40 @@ lists joined by @code{,}."
                             (+ x-center (* radius (cos (* 2 pi (/ i segments)))))
                             (+ z-center (* radius (sin (* 2 pi (/ i segments)))))))))
 
+
+
+(defun vitem-grant-item (item recipient)
+  "RECIPIENT receives an item from ITEM.
+
+As per the VITEM placement command; see also 
+`TOOTSVILLE-USER::PLACE'. "
+  (error 'unimplemented))
+
+(defun grant-snowballs (recipient &optional (count 6))
+  "RECIPIENT receives COUNT snowballs.
+
+As     per    the     SNOWBALL    placement     command;    see     also
+`TOOTSVILLE-USER::PLACE'."
+  (error 'unimplemented))
+
+(defun swing-door (item)
+  "Swing the door open or shut (toggle)"
+  (error 'unimplemented))
+
+(defgeneric %item-click-effect (item effect clicker mods x y z)
+  (:documentation "Low-level mapping of EFFECT to a handler")
+  (:method (item (effect (eql :vitem)) clicker mods x y z)
+    (vitem-grant item clicker))
+  (:method (item (effect (eql :snowballs)) clicker mods x y z)
+    (grant-snowballs clicker))
+  (:method (item (effect (eql :shop)) clicker mods x y z)
+    (ask-buy-item item clicker))
+  (:method (item (effect (eql :swing-door)) clicker mods x y z)
+    (swing-door item))
+  )
+
+(defun item-accept-click (item clicker mods &optional x y z)
+  "CLICKER has clicked on ITEM with MODS in effect at item-relative X Y Z"
+  (let ((item (ensure-item item)))
+    (when-let (effect (item-effect item))
+      (%item-click-effect item effect clicker mods x y z))))
