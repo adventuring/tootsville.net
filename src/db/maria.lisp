@@ -202,7 +202,8 @@ connection in the pool."
   (with-dbi (:friendly)          ; XXX Each DB defined in the config
     (let ((q (cl-dbi:prepare *dbi-connection* "SELECT 1 AS one;")))
       (cl-dbi:execute q)
-      (assert (equalp '((:|one| 1)) (cl-dbi:fetch-all q)))))
+      (assert (equalp '((:|one| 1)) (cl-dbi:fetch-all q))))
+    (perform-all-migrations))
   t)
 
 
@@ -345,3 +346,38 @@ LOCK-NAME is case-insensitive."
       (0 (error 'cluster-wide-lock-not-ours))
       (1 t)
       ((nil) (warn 'cluster-wide-lock-not-locked)))))
+
+
+
+(defvar *migrations*
+  '("create table if not exists 
+cassandra_blacklist ( pattern varchar(255), constraint pattern_key primary key (pattern) )
+engine=InnoDB default charset=utf8;"
+    "create table if not exists
+cassandra_redlist ( pattern varchar(255), constraint pattern_key primary key (pattern) )
+engine=InnoDB default charset=utf8;"
+    "create table if not exists
+staff_journal_entries 
+( uuid char(22) not null,
+  written_by char(22) not null,
+  written_at datetime not null,
+  entry text,
+  constraint uuid_key primary key (uuid),
+   constraint written_by_person foreign key (written_by) references people (uuid) on delete restrict on update cascade )
+engine=InnoDB default charset=utf8;"
+    "create table if not exists
+staff_journal_references
+( entry char(22) not null,
+  person char(22) not null,
+  constraint pair_key primary key (entry, person),
+  constraint staff_journal_entry foreign key (entry) references staff_journal_entries (uuid) on delete restrict on update cascade,
+  constraint about_whom foreign key (person) references people (uuid) on delete restrict on update cascade )
+engine=InnoDB default charset=utf8;"))
+
+(defun perform-all-migrations ()
+  "Perform all necessary database migrations."
+  
+  (dolist (migration *migrations*)
+    (with-dbi (:friendly) 
+      (format t "Migration: ~a ~{~2%~{~%~a: ~a~}~}" migration
+              (db-select-all *db* migration)))))
