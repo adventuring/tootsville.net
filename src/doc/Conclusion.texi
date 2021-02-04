@@ -42,7 +42,126 @@ other contents. Credit through the User Interface is given whenever
 practical. Here, too, is a partial listing of acknowledgements for
 Additional Media Content:
 
-WRITEME
+@subsubsection Purchased Content
+
+Some   assets   were   purchased  under   royalty-free   licenses   from
+specific authors. These  assets are licensed only for  use in Tootsville
+and may not be repurposed. These assets may have been adapted from their
+original formats by changing their file type, editing them, and changing
+their textures and coloration.
+
+@subsubsection 3D CC-BY Assets
+
+Tootsville makes  use of 3D  assets licensed under the  Creative Commons
+Attributions 3.0 license,  created by the following  users. This license
+is available at @url{http://creativecommons.org/licenses/by/3.0/us/} and
+in this manual at @ref{CC-BY License}.
+
+See the directory of an individual item for details.
+
+Some 3D assets were created by and Copyright @copyright{} Andrew Kator &
+Jennifer Legaz.
+
+Some 3D assets were created by and Copyright @copyright{} Reallusion.
+
+@node BlendSwap Assets
+@subsubsection BlendSwap Assets
+
+Assets used in Tootsville came from the following users on BlendSwap:
+
+@itemize
+@item
+ betomo16
+@item
+ bgamage
+@item
+ bheema
+@item
+ bjobernis
+@item
+ BrunoMatheus
+@item
+ bulgakov
+@item
+ Cattail
+@item
+ cephei
+@item
+ dalenryder
+@item
+ DennisH2010
+@item
+ DooL
+@item
+ dzerbs
+@item
+ fabbyone
+@item
+ farcgs
+@item
+ Gwinna
+@item
+ hermescn
+@item
+ hilux
+@item
+ Jay
+@item
+ Jo3D.
+@item
+ krabz
+@item
+ LarryStephenRobb
+@item
+ Leximumxii
+@item
+ LVlittering
+@item
+ Mayollo
+@item
+ NabHlEsCK
+@item
+ nikitron
+@item
+ Nmn9
+@item
+ northstar.
+@item
+ oldtimer
+@item
+ poifox
+@item
+ Priide
+@item
+ PrinterKiller
+@item
+ Pyrophorus
+@item
+ Radio_hate
+@item
+ renderbob
+@item
+ rosenth
+@item
+ SirOccor
+@item
+ sizzler
+@item
+ SONGKRO
+@item
+ tadine
+@item
+ voodoc
+@item
+ xablend1122
+@end itemize
+
+@node Assets may have been edited
+@subsubsection Assets may have been edited.
+
+Some  assets were  scaled, converted  into a  different file  format, or
+otherwise altered from their original form.
+
 
 
 
@@ -722,3 +841,54 @@ specific requirements.
 if any, to sign a "copyright disclaimer" for the program, if necessary.
 For more information on this, and how to apply and follow the GNU AGPL, see
 <http://www.gnu.org/licenses/>.
+
+@page
+@node CC-BY License
+@subsection CC-BY License
+
+Some assets  in Tootsville are  licensed under the Creative  Commons 3.0
+Attribution License, found at 
+@url{http://creativecommons.org/licenses/by/3.0/us/}  and reproduced  in
+brief below.
+
+You are free to:
+
+@itemize
+@item
+Share — copy and redistribute the material in any medium or format
+@item
+Adapt — remix, transform, and build upon the material
+for any purpose, even commercially.
+@end itemize
+
+This license is acceptable for Free Cultural Works.
+
+The licensor  cannot revoke  these freedoms  as long  as you  follow the
+license terms.
+
+Under the following terms:
+
+@itemize
+@item
+Attribution —  You must give appropriate  credit, provide a link  to the
+license,  and indicate  if  changes were  made.  You may  do  so in  any
+reasonable  manner,  but not  in  any  way  that suggests  the  licensor
+endorses you or your use.
+@item
+No  additional  restrictions  —  You   may  not  apply  legal  terms  or
+technological measures that legally  restrict others from doing anything
+the license permits.
+
+@end itemize
+
+Notices:
+
+You do not have to comply with  the license for elements of the material
+in the  public domain or  where your use  is permitted by  an applicable
+exception or limitation.
+    
+No  warranties are  given.  The license  may  not give  you  all of  the
+permissions necessary for  your intended use. For  example, other rights
+such  as publicity,  privacy,  or moral  rights may  limit  how you  use
+the material.
+
