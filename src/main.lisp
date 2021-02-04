@@ -362,6 +362,7 @@ This is the entry point for running a Production, stand-alone server.
 SBCL's Low-level Debugger  is disabled, so crashes  are instantly fatal,
 allowing SystemD to start a new instance in case of a fatal error."
   (disable-sbcl-ldb)
+  (hook-into-debugger)
   (set-up-for-daemon/start-logging)
   (v:info :starting "Starting on host interface ~a port ~a" host port)
   (start :host host :port port)
@@ -474,3 +475,30 @@ of dependancies from Tootsville through ASDF."
                                                     (asdf:component-sideway-dependencies system))))
              (unless (member other-system systems-seen)
                (pushnew other-system systems :test 'equalp))))))))
+
+(defvar *original-debugger-hook* nil
+  "The value of `*DEBUGGER-HOOK*' saved by `HOOK-INTO-DEBUGGER'")
+
+(defun hook-into-debugger ()
+  "Hook the Tootsville `DEBUGGER-HOOK' into `*DEBUGGER-HOOK*'."
+  (setf *original-debugger-hook* *debugger-hook*
+        *debugger-hook* 'debugger-hook))
+
+(defun debugger-hook (condition myself-ish)
+  "Handle an unhandled error in Production."
+  (declare (ignore myself-ish))
+  (when *verbose-bugs*
+    (private-admin-message "Debugger-Hook"
+                           (format nil "Unhandled condition <Q>~/HTML/</Q>."
+                                   condition)
+                           :user *client*))
+
+  (v:error :error "Unhandled condition: ~a" condition)
+  (format *error-output* "~&~|~%Unhandled condition: ~a~%" condition)
+  (trivial-backtrace:print-backtrace-to-stream *error-output*)
+  (format *error-output* "~2%~|~%")
+
+  (rollbar:debugger-hook condition)
+
+  ;; fall through to next hook
+  (funcall *original-debugger-hook* condition *original-debugger-hook*))
