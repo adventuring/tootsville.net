@@ -2680,7 +2680,12 @@ When verbose bug reporting is enabled, the user requesting it will
 receive stack backtraces from unhandled errors as admin messages.
 
 "
-  (error 'unimplemented))
+  (string-case (first words)
+    ("true" (setf *verbose-bugs* *client*))
+    ("false" (setf *verbose-bugs* nil))
+    (otherwise (return "true or false")))
+  (format nil "Verbose bugs ~:[will not~;will~] be reported."
+          *verbose-bugs*))
 
 (define-operator-command wall (words user _)
   "Write to all players.
