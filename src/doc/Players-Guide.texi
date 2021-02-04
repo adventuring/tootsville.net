@@ -51,6 +51,7 @@ The document was typeset with
 
 @c Generate the nodes for this menu with `C-c C-u C-m'.
 @menu
+* ::
 @end menu
 
 @node Introduction
@@ -108,9 +109,9 @@ If you later decide you want to create another one, perhaps for a family
 member, you can also do so from the login screen.
 
 @menu
-* ::
-* ::
-* ::
+* Creating a New Toot::
+* Toots for Children::
+* Sensitive Players::
 @end menu
 
 @node Creating a New Toot, , Managing Toots, Managing Toots
@@ -143,9 +144,12 @@ You can also choose what pattern they will have.
 Once you've made  these choices, you can immediately  start playing as
 your Toot character.
 
-
 @node Toots for Children, , Creating a New Toot, Managing Toots
 @section Toots for Children
+
+You can also create a Toot character for a child (under the age of
+13). A child account is special because they won't be able to play in
+Tootsville without your permission.
 
 WRITEME
 
@@ -175,12 +179,12 @@ will never be tolerated.
 WRITEME Now that you're in Tootsville
 
 @menu
-* ::
-* ::
-* ::
-* ::
-* ::
-* ::
+* Wishing Wells::
+* Getting Around::
+* Building a House::
+* Shopping::
+* Useful Tools::
+* Troops and Operators::
 @end menu
 
 @node Wishing Wells, , Now That  You're In Tootsville, Now That You're In Tootsville
