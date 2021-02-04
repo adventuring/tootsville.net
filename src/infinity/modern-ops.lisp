@@ -485,10 +485,16 @@ UNIMPLEMENTED.
 (define-operator-command whatabout (words user _)
   "Searches for related item templates.
 
+Replies with an admin (parrot) message with the item numbers of
+related item templates.
+
+See also `TOOTSVILLE-USER::WHATIS' to get details about a specific
+item.
+
 @subsection Usage
 
 @verbatim
-#whatabout WORD
+#whatabout WORD(S)
 @end verbatim
 
 @subsection Example
@@ -497,7 +503,7 @@ UNIMPLEMENTED.
 #whatabout bucket
 @end verbatim
 
- "
+"
   (unless (plusp (length words))
     (return "Give some search term to look for"))
   (if-let (results (mapcar (lambda (template)
@@ -507,6 +513,6 @@ UNIMPLEMENTED.
                                                     :test 'string-equal))
                                           (find-records 'item-template))))
     (format nil "Item templates like ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
-            (first words)
+            (join #\Space words)
             results)
     "No results found"))
