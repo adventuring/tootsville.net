@@ -1628,6 +1628,8 @@ Creates a VITEM effect item.
 See `TOOTSVILLE-USER::PLACE'"
   (check-type where game-point)
   (destructuring-bind (item-template-number &optional facing) params
+    (error 'unimplemented)
+    ;; FIXME. This should be an item with an attribute.
     (make-record 'place
                  :uuid (uuid:make-v4-uuid)
                  :world (world where)
@@ -1686,6 +1688,8 @@ Coördinate values can be in any format understood by `PARSE-NUMBER'
 
 (defun %parse-operator-place-where (where)
   "Parse the WHERE parameter to the #place operator command.
+
+See also `TOOTSVILLE-USER::PLACE'
 
 WHERE can be one of:
 
@@ -1789,8 +1793,6 @@ designator.  The event region ID will be automatically assigned.
 
 These are usually communicated to  the client as ``room variables;'' see
 `INFINITY-GET-ROOM-VARS' for a description of that protocol.
-
-UNIMPLEMENTED. Target version: 0.7
 
 @subsection Usage
 
