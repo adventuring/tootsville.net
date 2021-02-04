@@ -262,6 +262,9 @@ Tells the player to make a wish again tomorrow."
     (+ 25 (mod (+ score (* 10 day-of-week)) 75))))
 
 (defun compute-fountain-random-fairy-dust ()
+  "How much fairy dust is obtained from the fountain?
+
+Usually nothing, with a 1% change of being a random amount up to 10."
   (if (zerop (random 100))
       (random 10)
       0))
