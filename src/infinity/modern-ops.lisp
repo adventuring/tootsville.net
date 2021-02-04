@@ -174,8 +174,6 @@ See `INFINITY-STATS'.
 (define-operator-command journal (words u r)
   "Add a staff journal entry or review last entries.
 
-UNIMPLEMENTED in 2.0
-
 See also `INFINITY-JOURNAL' for an Infinity Mode command for the same
 purpose.
 
