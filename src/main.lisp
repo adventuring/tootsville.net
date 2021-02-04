@@ -44,6 +44,9 @@ using the `TOOTSVILLE-USER::MOTD' command.")
 (defvar *started* nil
   "The time at which the server was started")
 
+(defvar *verbose-bugs* nil
+  "The client to whom to report bugs. See `TOOTSVILLE-USER::VERBOSEBUGS'")
+
 (defun find-acceptor (host port)
   "Find an active Acceptor running on the given HOST address and PORT"
   (dolist (acceptor *acceptors*)
