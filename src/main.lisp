@@ -44,9 +44,6 @@ using the `TOOTSVILLE-USER::MOTD' command.")
 (defvar *started* nil
   "The time at which the server was started")
 
-(defvar *verbose-bugs* nil
-  "The client to whom to report bugs. See `TOOTSVILLE-USER::VERBOSEBUGS'")
-
 (defun find-acceptor (host port)
   "Find an active Acceptor running on the given HOST address and PORT"
   (dolist (acceptor *acceptors*)
@@ -475,6 +472,13 @@ of dependancies from Tootsville through ASDF."
                                                     (asdf:component-sideway-dependencies system))))
              (unless (member other-system systems-seen)
                (pushnew other-system systems :test 'equalp))))))))
+
+
+
+;;; Debugger hook
+
+(defvar *verbose-bugs* nil
+  "The client to whom to report bugs. See `TOOTSVILLE-USER::VERBOSEBUGS'")
 
 (defvar *original-debugger-hook* nil
   "The value of `*DEBUGGER-HOOK*' saved by `HOOK-INTO-DEBUGGER'")
