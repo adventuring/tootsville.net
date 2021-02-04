@@ -498,12 +498,13 @@ UNIMPLEMENTED.
 @end verbatim
 
  "
-  (unless (= 1 (length words))
-    (return "Give exactly one word"))
+  (unless (plusp (length words))
+    (return "Give some search term to look for"))
   (if-let (results (mapcar (lambda (template)
                              (list (item-template-id template) (item-template-name template)))
                            (remove-if-not (lambda (template)
-                                            (search (first words) (item-template-name template)))
+                                            (search (join #\Space words) (item-template-name template)
+                                                    :test 'string-equal))
                                           (find-records 'item-template))))
     (format nil "Item templates like ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
             (first words)
