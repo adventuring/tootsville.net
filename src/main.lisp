@@ -485,7 +485,19 @@ of dependancies from Tootsville through ASDF."
         *debugger-hook* 'debugger-hook))
 
 (defun debugger-hook (condition myself-ish)
-  "Handle an unhandled error in Production."
+  "Handle an unhandled error in Production.
+
+If `*VERBOSE-BUGS*' is set, a private admin message is sent to the
+client identified by it with the condition text and a stack backtrace.
+
+The condition goes to the `VERBOSE:ERROR' logging.
+
+The condition and backtrace go to `*ERROR-OUTPUT*'.
+
+Calls `ROLLBAR:DEBUGGER-HOOK' to report the condition to Rollbar.
+
+Falls through to any other `*DEBUGGER-HOOK*' that may exist.
+"
   (declare (ignore myself-ish))
   (when *verbose-bugs*
     (private-admin-message "Debugger-Hook"
@@ -502,4 +514,5 @@ of dependancies from Tootsville through ASDF."
   (rollbar:debugger-hook condition)
 
   ;; fall through to next hook
-  (funcall *original-debugger-hook* condition *original-debugger-hook*))
+  (when *original-debugger-hook*
+    (funcall *original-debugger-hook* condition *original-debugger-hook*)))
