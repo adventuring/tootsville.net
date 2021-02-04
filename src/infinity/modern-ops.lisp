@@ -516,3 +516,33 @@ item.
             (join #\Space words)
             results)
     "No results found"))
+
+(define-operator-command describeitem (words user _)
+  "Set description for an item.
+
+@subsection Usage
+
+To describe an item, use the `TOOTSVILLE-USER::WHATIS' command.
+
+To change the description of an item, use this command.
+
+@verbatim
+#describeitem ITEM-TEMPLATE-ID DESCRIPTION
+@end verbatim
+
+@subsection Example
+
+@verbatim
+#describeitem 993 This is a lovely marble table 
+       of which any grandmother would be proud.
+@end verbatim
+"
+  (unless (<= 2 (length words))
+    (return "Usage: item-template-id description-text"))
+  (let ((item-template (find-record 'item-template :id (parse-number (first words)))))
+    (setf (item-template-description item-template)
+          (join #\Space (rest words)))
+    (save-record item-template)
+    (Tootsville-user::whatis (first words))))
+
+
