@@ -75,6 +75,9 @@ Note that the (x,y,z) values passed  are relative to the origin point of
 the item;  thus, if an  item is placed  at (200,200,200) and  is clicked
 at (210,210,210), the coördinates reported should be (10,10,10).
 
+Note: We currently have nothing that cares about the (x,y,z) relative
+coördinates, the item ID is the important bit. (February 2021)
+
 If the  user clicks on the  ground, normally it will  result in walking,
 but it could instead be reported as:
 
@@ -194,18 +197,23 @@ the server.
 @subsection Usage
 
 @verbatim
-{ lot: \"Lot ID\",
-  house: \"House ID\" }
+{ lot: LOT-ID,
+  house: HOUSE-ID }
 
 { index: ROOM-INDEX,
   connectTo: ROOM-INDEX,
-  connectAt: \"point moniker\" }
+  connectAt: CONNECTION-POINT-MONIKER }
+
+{ query: \"houses\" }
 @end verbatim
 
-Data describing the user's lot.
+Returns data describing the user's lot for the first two forms, or
+data describing houses and rooms available in the third form.
+
+@subsection Examples
 
 When the player has found an empty lot and wishes to claim it as their
-own, they choose a base house item and send
+own, they choose a base house and send
 
 @verbatim
  { lot: lot-ID, house: house-ID }
@@ -213,17 +221,61 @@ own, they choose a base house item and send
 
 When the player has a house and wishes to add a room, they send
 
- @verbatim
+@verbatim
  { index: roomIndex,
-    connectTo: roomIndex,
-    connectAt: pointMoniker } 
+   connectTo: roomIndex,
+   connectAt: pointMoniker } 
 @end verbatim
+
+Connection point monikers need to be obtained from the house design.
+
+@verbatim
+ { query: \"houses\" }
+@end verbatim
+
+This queries the list of houses and rooms available. UNIMPLEMENTED.
+This command was added in Romance 2.0 so that the client need not be
+updated with all available houses and rooms.
+
+@subsection 200 OK --- Query Form
+
+Returns an enumeration of houses and rooms available as follows:
+
+@verbatim
+{ houses: [ { name: \"NAME\",
+              description: \"DESCRIPTION\",
+              preview: \"URL\",
+              moniker: \"UUID\",
+              rooms: [ { id: \"UUID\",
+                         connect: { \"MONIKER\": \"UUID\", ... },
+                         preview: \"URL\" },
+                       ... ] },
+            ... ] }
+
+Each house has a list of rooms. The first room in each house is the
+default, and is the room created when the lot is first claimed.
+
+The houses themselves have visible names, descriptions, and preview
+URLs (also relative to the same base Buildings URL).  The client
+should give the user the opportunity to select a house from this set
+by browsing their names, descriptions, and preview graphics.
+
+Rooms have connection points with monikers. Each room has a preview
+URL which is an image file (e.g. a PNG) relative to the base URL
+@url{https://jumbo.tootsville.org/Assets/Buildings/5/}. The preview
+can be shown to the user when they are choosing to connect a new
+room. Rooms have no established names --- we want to allow the players
+full freedom to develop each room as they like.
 
 WRITEME
 
-@subsection 201 Created
+@subsection 201 Created --- Add house or add room
 
-A house or room was created as demanded
+A house or room was created as demanded.
+
+Returns a description of the house as follows:
+
+WRITEME
 
 @subsection 409 Conflict
 
@@ -240,6 +292,10 @@ The house ID or room connection point given was not found.
 @cindex Changes from 1.2 to 2.0
 
 In 1.2 adding a room required only an index.
+
+In 2.0 we added the @verb{|query: \"houses\"|} form; in 1.2 (and
+prior) the client had a hard-coded list of available houses and rooms
+for each.
 
 @subsection Changes from 1.1 to 1.2
 @cindex Changes from 1.1 to 1.2
@@ -815,7 +871,15 @@ present.
 
 @subsection Status 200 OK
 
-WRITEME
+@verbatim
+{ from: \"getOnlineUsers\",
+  status: true,
+  inRoom: \"@Tootsville\",
+  toots: [ TOOT-INFO, ... ] }
+@end verbatim
+
+The @samp{toots} array is a list of `TOOT-INFO' JSON objects
+describing every user online at the moment. This can be quite large.
 
 @subsection Status 403 Permission Denied
 
@@ -833,7 +897,7 @@ This is returned if the user is not a Builder Toot.
       (list 200 (list :|from| "getOnlineUsers"
                       :|status| t
                       :|inRoom| "@Tootsville"
-                      :|toots| (connected-toots)))
+                      :|toots| (mapcar #'Toot-info (connected-toots))))
       (list 403 (list :|from| "getOnlineUsers"
                       :|status| :false
                       :|error| "That is a Builder Toot command"))))
