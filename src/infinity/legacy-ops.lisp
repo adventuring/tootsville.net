@@ -2558,8 +2558,8 @@ UNIMPLEMENTED.
   (let ((normal (cassandra-filter (join #\Space words)))
         (sensitive (cassandra-filter (join #\Space words) t)))
     (format nil "<P>Testing phrase:</P><P><Q>~a</Q></P>
-<P>According to Cassandra, that ~:[should not~;should~] be
-allowed normally, and ~:[should not~;should~] be allowed
+<P>According to Cassandra, that ~:[should <EM>not</EM>~;should~] be
+allowed normally, and ~:[should <EM>not</EM>~;should~] be allowed
 around children or sensitive players.</P>"
             (join #\Space words)
             normal sensitive)))
