@@ -489,8 +489,9 @@ of dependancies from Tootsville through ASDF."
   (declare (ignore myself-ish))
   (when *verbose-bugs*
     (private-admin-message "Debugger-Hook"
-                           (format nil "Unhandled condition <Q>~/HTML/</Q>."
-                                   condition)
+                           (format nil "Unhandled condition <Q>~/HTML/</Q>. <PRE>~/HTML/</PRE>"
+                                   condition
+                                   (trivial-backtrace:backtrace-string))
                            :user *client*))
 
   (v:error :error "Unhandled condition: ~a" condition)
