@@ -106,14 +106,15 @@ that feature.
                                     ( "\\?\\?+" . "?" )
                                     ( ",,+" . "," )
                                     ( "\\bi\\b" . "I" )
-                                    ( "\\b\"" . "“" )
                                     ( "\"\\b" . "”" )
+                                    ( "\\b\"" . "“" )
                                     ( "([a-z])'([a-z])" . "\\1’\\2")
                                     ( "\\b'" . "‘" )
                                     ( "'\\b" . "’" )
                                     ( "\\bet\\b" . "&" )
                                     ( "\\b\\(c\\)\\b" . "©" )
                                     ( "\\b\\(tm\\)\\b" . "™" )
+                                    ( "\\b\\(t\\)\\b" . "Ⓣ" )
                                     ( "\\b\\(r\\)\\b" . "®" )
                                     ( "--" . "–" )
                                     ( "---+" . "—" )
@@ -126,10 +127,14 @@ that feature.
 
 (assert (equal "why am I shouting?"
                (cassandra-obnoxious-filter "WHY AM I SHOUTING?" "talk")))
+;; (assert (equal "Don’t guess, “find out”"
+;;                (cassandra-obnoxious-filter "Don't guess, \"find out\"")))
 (assert (equal "One exclamation mark suffices!"
                (cassandra-obnoxious-filter "One exclamation mark suffices!!!!" "talk")))
 (assert (equal "Why can’t people …"
                (cassandra-obnoxious-filter "Why can't people ..." "talk")))
+;; (assert (equal "Ⓣ Tootsville!"
+;;                (cassandra-obnoxious-filter "(T) Tootsville!")))
 
 (defun cassandra-boot ()
   "Startup procedure to load Cassandra's blacklist and redlist from the database."
