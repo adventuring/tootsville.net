@@ -83,7 +83,7 @@ Returns NIL if TEXT should be forbidden."
       (return-from cassandra-filter nil)))
   text)
 
-(defun cassandra-obnoxious-filter (text vol)
+(defun cassandra-obnoxious-filter (text &optional (vol "talk"))
   "Filter TEXT for obnoxious content. Starting volume is VOL.
 
 Returns multiple values: the altered versions of TEXT and VOL.
