@@ -86,8 +86,11 @@
 
 (when (equal "Darwin" (software-type))
   (require 'cffi)
-  (pushnew #p"/usr/local/opt/mysql-client/lib/"
-           (intern "*FOREIGN-LIBRARY-DIRECTORIES*" (find-package "CFFI"))))
+  (let ((libs (intern "*FOREIGN-LIBRARY-DIRECTORIES*" (find-package "CFFI"))))
+    (let ((existing (symbol-value libs)))
+      (if existing
+          (pushnew #p"/usr/local/opt/mysql-client/lib/" (symbol-value libs))
+          (setf (symbol-value libs) (list #p"/usr/local/opt/mysql-client/lib/"))))))
 
 ;;; Ensure  that   the  ASD   files  of   any  submodules   are  loaded.
 ;;; By convention, we load submodules into lib/
