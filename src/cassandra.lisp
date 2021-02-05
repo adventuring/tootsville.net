@@ -95,6 +95,14 @@ converted.
 
 Note that this is @i{not} a profanity filter. See `CASSANDRA-FILTER' for
 that feature.
+
+This also handles  some miscellaneous tasks to make  the typography more
+attractive, such  as replacing  @samp{...} with @samp{…}  (three periods
+with an ellipsis), making quotation  marks be opening or closing quotes,
+multiple hyphens with en or em  dashes, capitalizing the word ``I,'' and
+replacing text  equivalents of  hard-to-type characters  like @samp{(c)}
+with @samp{©}. In particular, @samp{(t)} is replaced with a circled T in
+imitation of the Tootsville logo.
 "
   (when (string= text (string-upcase text))		 
     (setf text (string-downcase text)
@@ -106,7 +114,9 @@ that feature.
                                     ( "\\?\\?+" . "?" )
                                     ( ",,+" . "," )
                                     ( "\\bi\\b" . "I" )
-                                    ( "([A-Za-z])\"" . "\\1”" )
+                                    ( "--" . "–" )
+                                    ( "---+" . "—" )
+                                    ( "([A-Za-z\\,\\.\\!\\?–—])\"" . "\\1”" )
                                     ( "\"([A-Za-z])" . "“\\1" )
                                     ( "([a-zA-Z])'([a-z])" . "\\1’\\2")
                                     ( "\\b'" . "‘" )
@@ -116,8 +126,6 @@ that feature.
                                     ( "\\([Tt][Mm]\\)" . "™" )
                                     ( "\\([Tt]\\)" . "Ⓣ" )
                                     ( "\\([Rr]\\)" . "®" )
-                                    ( "--" . "–" )
-                                    ( "---+" . "—" )
                                     ( "\\*\\*+" . "*" )
                                     ( "\\.\\.\\." . "…" )
                                     ( "\\.\\." . "." )
