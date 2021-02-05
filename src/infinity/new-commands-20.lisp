@@ -554,9 +554,11 @@ arbitrary rotation in radians is possible.
 
 TODO: Throw a 400-type exception when junk is passed in."
   (* 1.0d0 (if facing
-               (if-let (angle (gethash facing +facing-angles+))
-                 angle
-                 (parse-number facing))
+               (if (numberp facing)
+                   facing
+                   (if-let (angle (gethash facing +facing-angles+))
+                     angle
+                     (parse-number facing)))
                0.0d0)))
 
 (definfinity shoot ((i course facing) u r)
