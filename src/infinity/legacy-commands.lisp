@@ -2571,15 +2571,15 @@ WRITEME
     (return))
   (case (char speech 0)
     (#\~ (v:warn :speak "Received a client command ~a" speech)
-         (private-admin-message "Client Command"
-                                (format nil "~a should have been handled by your client software."
-                                        (first (split-sequence #\Space speech))))
-         (return))
+     (private-admin-message "Client Command"
+                            (format nil "~a should have been handled by your client software."
+                                    (first (split-sequence #\Space speech))))
+     (return))
     (#\# (parse-operator-command speech)
-         (return))
+     (return))
     (#\@ (@-message speech))
     (#\/ (v:warn :speak "emote not handled ~a" speech)
-         "Emote not handled")     ; TODO
+     "Emote not handled")     ; TODO
     ((#\\ #\! #\% #\_ #\^ #\|) 
      (v:warn :speak "command not supported ~a" speech)
      (private-admin-message "Oops"
@@ -2596,12 +2596,14 @@ WRITEME
      (when (search ",credits" speech)
        (dump-credits)
        (setf speech "📜"))
-     (let ((vol (when (member vol '("shout" "whisper") :test 'equalp)
-                  vol)))
-       (toot-speak speech :Toot *Toot* :vol vol)))))
+     (let ((vol (or (when (member vol '("shout" "whisper") :test 'equalp) vol)
+                    "talk")))
+       (multiple-value-bind (speech vol) (cassandra-obnoxious-filter speech vol)
+                                        ;TODO — Cassandra filters
+         (toot-speak speech :Toot *Toot* :vol vol))))))
 
 (define-constant +credits+
-    "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
+  "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
 
 Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
 Levi Mc Call, and Zephyr Salz.
@@ -2611,8 +2613,8 @@ In memory of the contributions of Maureen Kenny (RIP).
 Tootsville IV by Brandon Booker, Gene Cronk, Robert Dawson, Eric
 Feiling, Tim Hays, Sean King, Mark Mc Corkle, Cassandra Nichol,
 Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC."
-    :test 'equal
-    :documentation "The Tootsville credits")
+  :test 'equal
+  :documentation "The Tootsville credits")
 
 (defun dump-credits ()
   "Send +CREDITS+ as a private admin message. Response to the ,credits user utterance."
