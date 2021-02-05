@@ -430,7 +430,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 
 Idle is defined as idle for `+WS-IDLE-SECONDS+' seconds."
   (let ((server-time (* 1000 (get-Unix-time)))
-        (idle-time (* 1000 (- (get-Unix-time) +ws-idle-seconds+))))
+        (idle-time (* 1000 (- (get-Unix-time) +ws-idle-seconds+)))
+        (pinged 0))
     (dolist (client (remove-if (lambda (client)
                                  (< (last-active client) idle-time))
                                (hunchensocket:clients *infinity-websocket-resource*)))
@@ -438,7 +439,9 @@ Idle is defined as idle for `+WS-IDLE-SECONDS+' seconds."
                         :|status| t
                         :|serverTime| server-time
                         :|idleTime| idle-time)
-                  client))))
+                  client)
+      (incf pinged))
+    (v:info :websockets "Sent AYT to ~:d idle client~:p")))
 
 (defun all-connected ()
   "All clients connected via websockets.
