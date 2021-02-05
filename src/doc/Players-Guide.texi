@@ -215,17 +215,23 @@ WRITEME Useful Tools
 @node Troops and Operators,  , Useful Tools, Now That You're In Tootsville
 @section Troops and Operators
 
-WRITEME Troops and Operators
+Tootsville players may  volunteer to join the ranks of  the Toot Troops.
+This  is  an  organization  who  help new  players  and  keep  the  game
+running smoothly.
 
-@node Copying This Manual, Index, Now That You're In Tootsville, Top
-@appendix Copying This Manual
+WRITEME
 
-@menu
-* GNU Free Documentation License::  License for copying this manual.
-@end menu
+Some players are  invited to be Tootsville Operators.  Operators can see
+``behind the curtains'' into the inner workings of Tootsville.
 
-@c Get fdl.texi from https://www.gnu.org/licenses/fdl.html
-@include fdl.texi
+WRITEME
+
+Some operators are  Builder Toots. Builder Toots  actually construct the
+game itself, including arranging public spaces like Toot Square.
+
+WRITEME
+
+@include Conclusion.texi
 
 @node Index,  , Copying This Manual, Top
 @unnumbered Index
