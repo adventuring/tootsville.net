@@ -312,11 +312,11 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                                                  (when near (not (nearp client near)))))
                             (hunchensocket:clients res))))
     (when clients
-      (lparallel:pmapcar
-       (lambda (client)
-         (with-websocket-disconnections (client)
-           (hunchensocket:send-text-message client message)))
-       clients)
+      (map nil #+ (or) lparallel:pmapcar
+           (lambda (client)
+             (with-websocket-disconnections (client)
+               (hunchensocket:send-text-message client message)))
+           clients)
       (incf *ws-chars-broadcast* (* (length clients) (length message)))
       (v:info :stream "Broadcast to ~a (~:d client~:p): ~:d character~:p"
               res (length clients) (length message)))))
