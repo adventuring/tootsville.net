@@ -42,7 +42,23 @@ Tootsville incorporates a variety of Additional Media Content, in the
 form of 2D and 3D graphics, music, sound effects, movies, books, and
 other contents. Credit through the User Interface is given whenever
 practical. Here, too, is a partial listing of acknowledgements for
-Additional Media Content:
+Additional Media Content.
+
+@subsubsection Public Domain Content
+
+Tootsville   makes  use   of   some  assets   in   the  public   domain.
+Where practical, artists are credited for these assets.
+
+@itemize
+@item
+The elephant bellow and trumpet sounds used for the Toot characters
+@item
+The starfield visible in the night sky
+@item
+The parrot squawk sound
+@item
+The ``impact'' sounds by Iwan ``qubodup'' Gabovich
+@end itemize
 
 @subsubsection Purchased Content
 
@@ -66,7 +82,55 @@ Jennifer Legaz.
 
 Some 3D assets were created by and Copyright @copyright{} Reallusion.
 
-@node BlendSwap Assets
+@subsubsection Music
+
+Tootsville contains music by:
+
+@itemize
+@item
+Admiral Bob
+@item
+Advent Chamber Orchestra
+@item
+Apoxode
+@item
+artemisstrong
+@item
+John Bartmann
+@item
+Bersarin Quartet
+@item
+Calyman
+@item
+Ivan Chew
+@item
+Martijn de Boer (NiGiD)
+@item
+Dee Yan-Key
+@item
+Scott Holmes
+@item
+Jahzzar
+@item
+Javolenus
+@item
+Stefan Kertenberg
+@item
+Lobo Lobo
+@item
+Puma Studios @url{https://puma-studios.com/}
+@item
+Antony Raijekov
+@item
+reusenoise
+@item
+Kara Square
+@item
+Benjamin TISSOT (Bensound)
+@item
+Vidian
+@end itemize
+
 @subsubsection BlendSwap Assets
 
 Assets used in Tootsville came from the following users on BlendSwap:
@@ -161,8 +225,8 @@ Assets used in Tootsville came from the following users on BlendSwap:
 @node Assets may have been edited
 @subsubsection Assets may have been edited.
 
-Some  assets were  scaled, converted  into a  different file  format, or
-otherwise altered from their original form.
+Some  assets  were scaled,  cropped,  converted  into a  different  file
+format, or otherwise altered from their original form.
 
 
 
