@@ -106,16 +106,63 @@ their textures and coloration.
 @subsubsection 3D CC-BY Assets
 
 Tootsville makes  use of 3D  assets licensed under the  Creative Commons
-Attributions 3.0 license,  created by the following  users. This license
+Attributions 3.0 or 4.0 license, created by the following users. This license
 is available at @url{http://creativecommons.org/licenses/by/3.0/us/} and
 in this manual at @ref{CC-BY License}.
 
 See the directory of an individual item for details.
 
+@subsubsection 3D Assets
+
 Some 3D assets were created by and Copyright @copyright{} Andrew Kator &
 Jennifer Legaz.
 
 Some 3D assets were created by and Copyright @copyright{} Reallusion.
+
+3D Assets or textures were created also by:
+
+@itemize
+@item
+acasas
+@item
+Amstrad
+@item
+badmug
+@item
+Bernhard
+@item
+ctdabomb
+@item
+Dm3d
+@item
+Elegant Crow
+@item
+EmacEArt
+@item
+Marianne Gagnon
+@item
+GoldenThumbs
+@item
+Viktor Hahn (Viktor.Hahn@web.de)
+@item
+khalkues3d (sakuyo)
+@item
+lelino95
+@item
+OdinTdh
+@item
+Luca Quartero ya2.it (flavio)
+@item
+sandsound
+@item
+Gokhan Solak (hansolo)
+@item
+TheKingofDemons
+@item
+Varivar
+@item
+WeaponGuy
+@end itemize
 
 @subsubsection Music
 
