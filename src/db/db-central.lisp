@@ -366,13 +366,29 @@ Identity is determined by the ID column, ~A."
            (and (,$fname a b) (apply ',$fname a more))
            (equal (,id-accessor a) (,id-accessor b))))))
 
+(defun defrecord/reload-record (name columns)
+  (when (id-column-for name)
+    (let ((id-accessor (intern (concatenate 'string (symbol-name name) "-"
+                                            (symbol-name (id-column-for name))))))
+      `(defmethod reload-record ((object ,name))
+         (let ((instance (find-record ',name 
+                                      ,(make-keyword (symbol-name (id-column-for name))) (,id-accessor object))))
+           (setf ,@ (loop for column in columns
+                          collecting (list (intern (concatenate 'string (symbol-name name) "-"
+                                                                (symbol-name (car column))))
+                                           'object)
+                          collecting (list (intern (concatenate 'string (symbol-name name) "-"
+                                                                (symbol-name (car column))))
+                                           'instance)))
+           object)))))
+
 (defun defrecord/save-record-with-id-column (name database table columns)
   (when (id-column-for name)
     (let ((id-accessor (intern (concatenate 'string (symbol-name name) "-"
                                             (symbol-name (id-column-for name))))))
       `(,(defrecord/record= name id-accessor)
-         ,(defrecord/save-record name id-accessor database table columns)
-         ,(defrecord/destroy-record name id-accessor database table columns)))))
+        ,(defrecord/save-record name id-accessor database table columns)
+        ,(defrecord/destroy-record name id-accessor database table columns)))))
 
 (defun defrecord/find-reference (name column)
   `(defmethod find-reference
@@ -501,9 +517,13 @@ translates to a LOCAL-TIME:TIMESTAMP on loading.
      ,(defrecord/find-records-by-sql name database)
      ,(defrecord/before-save-normalize name columns)
      ,@(defrecord/save-record-with-id-column name database table columns)
+     ,(defrecord/reload-record name columns)
  ;;;,(defrecord/to-json name columns)
      ,(defrecord/find-reference-columns name columns)))
 
 (defmethod save-record ((list cons))
   (warn "Got a list to SAVE-RECORD: ~s" list)
   (map nil #'save-record list))
+
+(defgeneric reload-record (object)
+  (:documentation "Reload the contents of OBJECT from the database"))
