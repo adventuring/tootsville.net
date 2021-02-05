@@ -121,6 +121,7 @@ imitation of the Tootsville logo.
                                     ( "([a-zA-Z])'([a-z])" . "\\1’\\2")
                                     ( "\\b'" . "‘" )
                                     ( "'\\b" . "’" )
+                                    ("\\btoot" . "Toot")
                                     ( "\\bet\\b" . "&" )
                                     ( "\\([Cc]\\)" . "©" )
                                     ( "\\([Tt][Mm]\\)" . "™" )
