@@ -162,7 +162,7 @@ Active Clients (~:d secs): ~:d (~:d%)."
        (progn ,@body)
      (type-error (c)
        (if (and (eql (type-error-expected-type c) 'sb-thread:mutex)
-                  (null (type-error-datum c)))
+                (null (type-error-datum c)))
            (progn (v:warn :stream "Type-error: mutex is null on stream for ~a"
                           ,client)
                   (force-close-hunchensocket ,client)
@@ -172,11 +172,7 @@ Active Clients (~:d secs): ~:d (~:d%)."
        (v:warn :stream "Disconnect detected on ~a for ~a"
                (stream-error-stream c) ,client)
        (force-close-hunchensocket ,client)
-       (incf *ws-surprise-disconnects*))
-     ;; (error (c)
-     ;;   (v:error :stream "Error ~a sending ~:d character~:p to ~:a"
-     ;;            c (length message) ,client))
-     ))
+       (incf *ws-surprise-disconnects*))))
 
 (defclass websocket-acceptor (hunchensocket:websocket-acceptor)
   ()
