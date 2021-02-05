@@ -2359,7 +2359,7 @@ WRITEME
                              "Not an operator command"))))
 
 (defun @-message (string)
-  (let ((recipient (find-record 'Toot
+  (let ((recipient (find-record 'Toot :name
                                 (subseq string
                                         (1+ (position #\@ string))
                                         (position #\Space string))))
