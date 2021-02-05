@@ -1573,7 +1573,13 @@ See `TOOTSVILLE-USER::PLACE'"
                  :latitude (latitude where)
                  :longitude (longitude where)
                  :altitude (altitude where)
-                 :world (world where))))
+                 :world (world where))
+    (private-admin-message "#place #item"
+                           (format nil "Created item from template ~d at (~d, ~d, ~d)"
+                                   (parse-number item-template-number)
+                                   (game-point-x where)
+                                   (game-point-y where)
+                                   (game-point-z where)))))
 
 (defun %operator-place-mini (where params)
   (destructuring-bind (moniker) params
@@ -2015,26 +2021,22 @@ Each subcommand is implemented by a ``private'' function named
 #place WHERE #vitem ITEM-TEMPLATE-NUMBER [FACING]
 #place WHERE #walk
 </pre>")
-    (return-from tootsville-user::place))
+    (return))
   (unless (<= 2 (length words))
-    (private-admin-message "#place" "Syntax error")
-    (return-from Tootsville-user::place))
+    (return "Syntax error"))
   (let ((where (%parse-operator-place-where (first words))))
     (unless where
-      (private-admin-message "#place" "WHERE error")
-      (return-from Tootsville-user::place))
+      (return "WHERE error"))
     (unless (char= #\# (char (second words) 0))
-      (private-admin-message "#place" "Subcommands start with #")
-      (return-from Tootsville-user::place))
+      (return "Subcommands start with #"))
     (let ((subcommand
             (find-symbol (concatenate 'string
                                       "%OPERATOR-PLACE-"
                                       (string-upcase (subseq (second words) 1)))
                          :Tootsville)))
       (unless subcommand
-        (private-admin-message "#place"
-                               (format nil "#place subcommand ~a not found" (second words)))
-        (return-from Tootsville-user::place))
+        (return
+          (format nil "#place subcommand ~a not found" (second words))))
       (funcall subcommand where (subseq words 2))
       (list 200 (local-room-vars)))))
 
