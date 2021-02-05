@@ -106,16 +106,16 @@ that feature.
                                     ( "\\?\\?+" . "?" )
                                     ( ",,+" . "," )
                                     ( "\\bi\\b" . "I" )
-                                    ( "\"\\b" . "”" )
-                                    ( "\\b\"" . "“" )
-                                    ( "([a-z])'([a-z])" . "\\1’\\2")
+                                    ( "([A-Za-z])\"" . "\\1”" )
+                                    ( "\"([A-Za-z])" . "“\\1" )
+                                    ( "([a-zA-Z])'([a-z])" . "\\1’\\2")
                                     ( "\\b'" . "‘" )
                                     ( "'\\b" . "’" )
                                     ( "\\bet\\b" . "&" )
-                                    ( "\\b\\(c\\)\\b" . "©" )
-                                    ( "\\b\\(tm\\)\\b" . "™" )
-                                    ( "\\b\\(t\\)\\b" . "Ⓣ" )
-                                    ( "\\b\\(r\\)\\b" . "®" )
+                                    ( "\\([Cc]\\)" . "©" )
+                                    ( "\\([Tt][Mm]\\)" . "™" )
+                                    ( "\\([Tt]\\)" . "Ⓣ" )
+                                    ( "\\([Rr]\\)" . "®" )
                                     ( "--" . "–" )
                                     ( "---+" . "—" )
                                     ( "\\*\\*+" . "*" )
@@ -127,14 +127,14 @@ that feature.
 
 (assert (equal "why am I shouting?"
                (cassandra-obnoxious-filter "WHY AM I SHOUTING?" "talk")))
-;; (assert (equal "Don’t guess, “find out”"
-;;                (cassandra-obnoxious-filter "Don't guess, \"find out\"")))
+(assert (equal "Don’t guess, “find out”"
+               (cassandra-obnoxious-filter "Don't guess, \"find out\"")))
 (assert (equal "One exclamation mark suffices!"
                (cassandra-obnoxious-filter "One exclamation mark suffices!!!!" "talk")))
 (assert (equal "Why can’t people …"
                (cassandra-obnoxious-filter "Why can't people ..." "talk")))
-;; (assert (equal "Ⓣ Tootsville!"
-;;                (cassandra-obnoxious-filter "(T) Tootsville!")))
+(assert (equal "Ⓣ Tootsville! © 2021"
+               (cassandra-obnoxious-filter "(T) Tootsville! (c) 2021")))
 
 (defun cassandra-boot ()
   "Startup procedure to load Cassandra's blacklist and redlist from the database."
