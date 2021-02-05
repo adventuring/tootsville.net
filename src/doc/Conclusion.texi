@@ -1,8 +1,8 @@
 @node Conclusion
 @chapter Conclusion
 
-@node License
-@section License
+@node License, AGPL v3 License, Conclusion, Conclusion
+@section License and Credits
 
 Tootsville V and the Romance II game system are based upon Braque,
 Copyright © 2006, 2007, Bruce-Robert Pocock, and Appius Claudius
@@ -12,10 +12,45 @@ Bruce-Robert Pocock.
 Tootsville V is Copyright © 2016-2017 Bruce-Robert Pocock; © 2018-2021
 The Corporation for Inter-World Tourism and Adventuring.
 
-Tootsville and the The Toots characters were created by Res
-Interactive,  LLC, a  dissolved  Florida limited-liability  corporation.
-No  original   assets  taken  from   Res  Interactive  are  in   use  in
-Tootsville V.
+Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
+Levi Mc Call, and Zephyr Salz.
+
+In memory of the contributions of Maureen Kenny (RIP).
+
+@subsubsection Res Interactive, LLC
+
+Tootsville and the The Toots characters were created by Res Interactive,
+LLC,  a dissolved  Florida  limited-liability  corporation. No  original
+assets taken from  Res Interactive are in use in  the Tootsville V game.
+
+Tootsville IV (Romance 1.0 and 1.1) by Tim Hays, Bruce-Robert Pocock and
+Ed  Winkelman  at   Res  Interactive,  LLC  is   Copyright  ©  2008-2011
+Bruce-Robert Pocock  and is licensed under  the terms of the  GNU Affero
+General  Public License.  Tootsville  V  is based  upon  Romance 1.2  by
+Bruce-Robert Pocock, © 2011-2015 Bruce-Robert Pocock (AGPL).
+
+Tootsville I-III client front-end ``Nightmare'' and Tootsville IV client
+front-end ``Persephone'' by Brandon Booker, Robert Dawson, Eric Feiling,
+Sean King, and Bruce-Robert Pocock  is Copyright © 2008 Res Interactive,
+LLC; no portion of Persephone is used in Tootsville V.
+
+Tootsville IV application  ``Zookeeper'' by Eric Feiling  is Copyright ©
+2008 Res Interactive, LLC; no portion of Zookeeper is used in Tootsville V.
+
+Tootsville extensions  to Appius and  stand-alone PHP and  other utility
+programs  by Gene  Cronk, Tim  Hays, Mark  Mc Corkle,  Cassandra Nichol,
+Bruce-Robert  Pocock  and   Ed  Winkelman  are  Copyright   ©  2008  Res
+Interactive, LLC; no portion of  the Tootsville extensions libraries are
+used in Tootsville V.
+
+Tootsville Membership &  Billing by Tim Hays and  Bruce-Robert Pocock is
+Copyright  ©  2008  Res  Interactive,  LLC;  no  portion  of  Tootsville
+Membership & Billing is used in Tootsville V.
+
+Tootsbook (Res Interactive Version) by Tim  Hays is Copyright © 2008 Res
+Interactive, LLC. No  portion of Tootsbook (Res  Interactive Version) is
+used in Tootsville V or Tootsbook (current version); the current version
+of Tootsbook is built upon Wordpress.
 
 @subsection Tootsville Contents
 
@@ -222,7 +257,7 @@ Assets used in Tootsville came from the following users on BlendSwap:
  xablend1122
 @end itemize
 
-@node Assets may have been edited
+@node Assets may have been edited,  , License, License
 @subsubsection Assets may have been edited.
 
 Some  assets  were scaled,  cropped,  converted  into a  different  file
@@ -231,7 +266,7 @@ format, or otherwise altered from their original form.
 
 
 
-@node AGPL v3 License
+@node AGPL v3 License,  , License, Conclusion
 @section AGPL v3 License
 
 This program is free software: you can redistribute it and/or modify
@@ -909,7 +944,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 <http://www.gnu.org/licenses/>.
 
 @page
-@node CC-BY License
+@node CC-BY License,  , AGPL v3 License, AGPL v3 License
 @subsection CC-BY License
 
 Some assets  in Tootsville are  licensed under the Creative  Commons 3.0
