@@ -2351,7 +2351,11 @@ WRITEME
       (if (and (fboundp sym)
                (= 2 (length (function-lambda-list sym)))
                (eql '&rest (first (function-lambda-list sym))))
-          (apply sym params)
+          (handler-case 
+              (apply sym params)
+            (error (e)
+              (private-admin-message (format nil "~a error" command)
+                                     (format nil "~/HTML/" e))))
           (private-admin-message 
            (concatenate 'string "Can't run #" command) 
            "Not a remote operator command"))
