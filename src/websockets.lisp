@@ -441,7 +441,7 @@ Idle is defined as idle for `+WS-IDLE-SECONDS+' seconds."
                         :|idleTime| idle-time)
                   client)
       (incf pinged))
-    (v:info :websockets "Sent AYT to ~:d idle client~:p")))
+    (v:info :websockets "Sent AYT to ~:d idle client~:p" pinged)))
 
 (defun all-connected ()
   "All clients connected via websockets.
