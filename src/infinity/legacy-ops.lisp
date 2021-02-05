@@ -1729,7 +1729,7 @@ center will be at x position 50, z position 60.
 @end table"
   (cond
     ((string-equal "#here" where) ; here
-     (destructuring-bind (x y z) (current-position *Toot*)
+     (destructuring-bind (x y z) (current-position (or *client* *Toot*))
        (declare (ignore y))
        (make-game-point :x x :y 0 :z z
                         :latitude (latitude *Toot*)
