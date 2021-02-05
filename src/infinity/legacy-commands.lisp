@@ -2371,6 +2371,13 @@ WRITEME
     (when (nearp *Toot* recipient)
       (Toot-private-message *Toot* recipient text))))
 
+(defun player-speak (speech vol &optional (Toot *Toot*))
+  (let ((vol (or (when (member vol '("shout" "whisper") :test 'equalp) vol)
+                 "talk")))
+    (multiple-value-bind (speech vol) (cassandra-obnoxious-filter speech vol)
+                                        ;TODO — Cassandra filters
+      (toot-speak speech :Toot Toot :vol vol))))
+
 (definfinity speak ((key speech vol) user recipient/s)
   "The user speaks SPEECH at volume VOL in public.
 
@@ -2581,10 +2588,14 @@ WRITEME
      (return))
     (#\# (parse-operator-command speech)
      (return))
+    (#\! (when (find #\! (subseq speech 1))
+           (setf speech (concatenate 'string "¡" (subseq speech 1)))))
+    (#\? (when (find #\? (subseq speech 1))
+           (setf speech (concatenate 'string "¿" (subseq speech 1)))))
     (#\@ (@-message speech))
     (#\/ (v:warn :speak "emote not handled ~a" speech)
-     "Emote not handled")     ; TODO
-    ((#\\ #\! #\% #\_ #\^ #\|) 
+     "Emote not handled")               ; TODO
+    ((#\\ #\% #\_ #\^ #\|) 
      (v:warn :speak "command not supported ~a" speech)
      (private-admin-message "Oops"
                             (format nil "Try saying something that does not start with ~c" (char speech 0)))) ; XXX
@@ -2600,11 +2611,7 @@ WRITEME
      (when (search ",credits" speech)
        (dump-credits)
        (setf speech "📜"))
-     (let ((vol (or (when (member vol '("shout" "whisper") :test 'equalp) vol)
-                    "talk")))
-       (multiple-value-bind (speech vol) (cassandra-obnoxious-filter speech vol)
-                                        ;TODO — Cassandra filters
-         (toot-speak speech :Toot *Toot* :vol vol))))))
+     (player-speak speech vol))))
 
 (define-constant +credits+
   "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
