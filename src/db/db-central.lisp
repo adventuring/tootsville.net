@@ -230,8 +230,8 @@ Used in `DEFRECORD', qv."
 
 (defun defrecord/load-record (name columns)
   `(defmethod load-record ((class (eql ',name)) record)
-     (,(intern (concatenate 'string "MAKE-" (symbol-name name)))
-      ,@(mapcan #'column-load-mapping columns))))
+     (make-instance ',name
+                    ,@(mapcan #'column-load-mapping columns))))
 
 (defun arrange-columns+values-for-find (columns+values column-definitions)
   (when columns+values
@@ -414,10 +414,7 @@ Identity is determined by the ID column, ~A."
 
 (defun defrecord/make-record (name)
   `(defmethod make-record ((class (eql ',name)) &rest columns+values)
-     (let ((record (apply (function
-                           ,(intern (concatenate 'string
-                                                 "MAKE-" (symbol-name name))))
-                          columns+values)))
+     (let ((record (apply #'make-instance ',name columns+values)))
        (save-record record)
        record)))
 
