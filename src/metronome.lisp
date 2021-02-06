@@ -36,8 +36,8 @@
   ((frequency :initarg :frequency :accessor metronome-task-frequency)
    (one-shot-time :initarg :one-shot-time :accessor metronome-task-one-shot-time)
    (name :initarg :name :accessor metronome-task-name)
-   (function :initarg :name :function metronome-task-function)
-   (thread :initarg :thread :function metronome-task-thread)))
+   (function :initarg :function :accessor metronome-task-function)
+   (thread :initarg :thread :accessor metronome-task-thread)))
 
 (defmethod print-object ((task metronome-task) s)
   (format s "#<Metronome-Task \"~a\" ~a ~a>"
