@@ -129,28 +129,28 @@ USER may be a robot or a Toot that is controlled by a robot."
   (game-point-world game-point))
 
 (defmethod latitude ((robot robot))
-  (wtl-course-latitude (robot-course robot)))
+  (latitude (robot-course robot)))
 
 (defmethod longitude ((robot robot))
-  (wtl-course-longitude (robot-course robot)))
+  (longitude (robot-course robot)))
 
 (defmethod altitude ((robot robot))
-  (wtl-course-altitude (robot-course robot)))
+  (altitude (robot-course robot)))
 
 (defmethod world ((robot robot))
-  (wtl-course-world (robot-course robot)))
+  (world (robot-course robot)))
 
 (defmethod latitude (thing)
-  (wtl-course-latitude (wtl-course thing)))
+  (latitude (wtl-course thing)))
 
 (defmethod longitude (thing)
-  (wtl-course-longitude (wtl-course thing)))
+  (longitude (wtl-course thing)))
 
 (defmethod altitude (thing)
-  (wtl-course-altitude (wtl-course thing)))
+  (altitude (wtl-course thing)))
 
 (defmethod world (thing)
-  (wtl-course-world (wtl-course thing)))
+  (world (wtl-course thing)))
 
 (defun Toot-quiesced-data (Toot)
   (find-record 'Toot-quiesced :Toot (Toot-UUID Toot)))
