@@ -114,16 +114,16 @@ Returns all items in that volume which are not in a character's inventory."
 
 
 (defclass wtl-course ()
-  ((speed :initarg :speed :accessor wtl-course-speed)
-   (start-time :initarg :start-time :accessor wtl-course-start-time)
-   (end-time :initarg :end-time :accessor wtl-course-end-time)
-   (start-point :initarg :start-point :accessor wtl-course-start-point)
-   (end-point :initarg :end-point :accessor wtl-course-end-point)
-   (latitude :initarg :latitude :accessor latitude)
-   (longitude :initarg :longitude :accessor longitude)
-   (altitude :initarg :altitude :accessor altitude)
-   (world :initarg :world :accessor world)
-   (facing :initarg :facing :accessor facing)))
+  ((speed :initarg :speed :initform 0 :accessor wtl-course-speed)
+   (start-time :initarg :start-time :initform 0 :accessor wtl-course-start-time)
+   (end-time :initarg :end-time :initform nil :accessor wtl-course-end-time)
+   (start-point :initarg :start-point :initform (list 0 0 0) :accessor wtl-course-start-point)
+   (end-point :initarg :end-point :initform (list 0 0 0) :accessor wtl-course-end-point)
+   (latitude :initarg :latitude :initform 0 :accessor latitude)
+   (longitude :initarg :longitude :initform 0 :accessor longitude)
+   (altitude :initarg :altitude :initform 1000 :accessor altitude)
+   (world :initarg :world :initform :chor :accessor world)
+   (facing :initarg :facing :initform 0 :accessor facing)))
 
 (defmethod current-position ((course wtl-course))
   (let ((now (get-Unix-time)))
@@ -167,11 +167,12 @@ Returns all items in that volume which are not in a character's inventory."
         (let ((x₁ |x|) (y₁ |y|) (z₁ |z|))
           (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |endPoint|
             (let ((x₂ |x|) (y₂ |y|) (z₂ |z|))
-              (make-wtl-course :speed |speed|
-                               :start-time |startTime|
-                               :end-time (if |endTime| |endTime|
-                                             (+ |startTime| (/ (distance x₁ y₁ z₁ x₂ y₂ z₂) (or |speed| 0.1))))
-                               :start-point (list x₁ y₁ z₁)
-                               :end-point (list x₂ y₂ z₂)
-                               :speed (or |speed| 0.1)
-                               :facing (interpret-facing |facing|)))))))))
+              (make-instance 'wtl-course
+                             :speed |speed|
+                             :start-time |startTime|
+                             :end-time (or |endTime|
+                                           (+ |startTime| (/ (distance x₁ y₁ z₁ x₂ y₂ z₂) (or |speed| 0.1))))
+                             :start-point (list x₁ y₁ z₁)
+                             :end-point (list x₂ y₂ z₂)
+                             :speed (or |speed| 0.1)
+                             :facing (interpret-facing |facing|)))))))))

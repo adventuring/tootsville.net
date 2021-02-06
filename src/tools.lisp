@@ -142,10 +142,10 @@
       (format t "~& set owner toot ~a for ~a"
               (getf record :toot-name) (getf record :gmail))
       (let ((person (ensure-record 'person :given_name (getf record :gmail)
-                                   :display_name (getf record :gmail)
-                                   :surname ""
-                                   :gender :X
-                                   :language "en_US")))
+                                           :display_name (getf record :gmail)
+                                           :surname ""
+                                           :gender :X
+                                           :language "en_US")))
         (setf (toot-player toot) (person-uuid person)
               (person-link-person email) (person-uuid person))
         (save-record toot))))
@@ -195,9 +195,9 @@
                                       :equipped "N"))))))
 
 ;; (make-record   'toot  :name   "Shade"   :pattern  13   :base-color
-;; (make-color24  :red  #x90  :green  #x20  :blue  #x90)  :pattern-color
-;; (make-color24   :red  #xff   :green  #xff   :blue  #x00)   :pad-color
-;; (make-color24   :red   #xff   :green   #xff   :blue   #x00)   :avatar
+;; (make-instance 'color24  :red  #x90  :green  #x20  :blue  #x90)  :pattern-color
+;; (make-instance 'color24   :red  #xff   :green  #xff   :blue  #x00)   :pad-color
+;; (make-instance 'color24   :red   #xff   :green   #xff   :blue   #x00)   :avatar
 ;; 8     :last-active     (parse-timestring    "2013-01-01")     :player
 ;; (person-uuid ☠brp) :note "")
 

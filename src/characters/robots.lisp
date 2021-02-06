@@ -209,17 +209,18 @@ XXX this is basically a weak duplicate of `PARSE-WTL-COURSE' "
                               |latitude| |longitude| |altitude|
                               |world|)
         |course|
-      (make-wtl-course :speed |speed|
-                       :start-time |startTime|
-                       :end-time |endTime|
-                       :start-point (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |startPoint|
-                                      (list |x| |y| |z|))
-                       :end-point (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |endPoint|
+      (make-instance 'wtl-course
+                     :speed |speed|
+                     :start-time |startTime|
+                     :end-time |endTime|
+                     :start-point (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |startPoint|
                                     (list |x| |y| |z|))
-                       :latitude (or |latitude| 0)
-                       :longitude (or |longitude| 0)
-                       :altitude (or |altitude| 0)
-                       :world (or |world| :chor)))))
+                     :end-point (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |endPoint|
+                                  (list |x| |y| |z|))
+                     :latitude (or |latitude| 0)
+                     :longitude (or |longitude| 0)
+                     :altitude (or |altitude| 0)
+                     :world (or |world| :chor)))))
 
 (defmethod Toot-position ((robot robot))
   (let ((course (robot-course robot)))
@@ -293,7 +294,8 @@ Returns the angle in radians"
                      :|u| (Toot-UUID (Toot robot))
                      :|n| (Toot-name (Toot robot)))
                :except robot)
-    (setf (robot-course robot) (make-wtl-course
+    (setf (robot-course robot) (make-instance
+                                'wtl-course
                                 :start-time start-time
                                 :end-time end-time
                                 :start-point (list x₁ y₁ z₁)

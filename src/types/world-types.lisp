@@ -47,15 +47,6 @@ In orbit of Chœrogryllum, but not on any moon.
   (and (symbolp moniker)
        (member moniker '(:CHOR :MOON :OTHM :PINK :ORBIT))))
 
-(defun world-name (moniker)
-  "Give the printed string name of the world plane identified by the keyword MONIKER."
-  (ecase moniker
-    (:chor "Chœorgryllum")
-    (:moon "The Moon")
-    (:othm "The Other Moon")
-    (:pink "The Pink Moon")
-    (:orbit "Orbit around Chœrogryllum")))
-
 (deftype world-moniker ()
   "cv `MAP-PLACES'"
   '(satisfies world-moniker-p))

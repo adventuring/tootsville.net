@@ -174,9 +174,9 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
 
 
 (defclass color24 ()
-  ((red :initform 0 :type (unsigned-byte 8) :accessor color24-red)
-   (green :initform 0 :type (unsigned-byte 8) :accessor color24-green)
-   (blue :initform 0 :type (unsigned-byte 8) :accessor color24-blue)))
+  ((red :initform 0 :type (unsigned-byte 8) :accessor color24-red :initarg :red)
+   (green :initform 0 :type (unsigned-byte 8) :accessor color24-green :initarg :green)
+   (blue :initform 0 :type (unsigned-byte 8) :accessor color24-blue :initarg :blue)))
 
 (defun color24= (a b &rest more)
   "Comparator of two or more `COLOR24' values.
@@ -199,7 +199,7 @@ Values are the same only if all three channels
 
 (defun color24-rgb (r g b)
   "Construct a Color24 from a R G B triplet"
-  (make-color24 :red r :green g :blue b))
+  (make-instance 'color24 :red r :green g :blue b))
 
 (defun color24-hsv (color)
   "Extract the Hue, Saturation, Value of a Color24 as a list of reals 0...1"
@@ -261,9 +261,9 @@ See `COLOR24-HSV'."
 
 The upper 8  bits are the red  channel; the next 8 bits,  green; and the
 lowest 8 bits, the blue channel."
-  (make-color24 :red (ldb (byte 8 16) number)
-                :green (ldb (byte 8 8) number)
-                :blue (ldb (byte 8 0) number)))
+  (make-instance 'color24 :red (ldb (byte 8 16) number)
+                          :green (ldb (byte 8 8) number)
+                          :blue (ldb (byte 8 0) number)))
 
 (defun color24-to-integer (color)
   "Return a 24-bit integer representing COLOR.

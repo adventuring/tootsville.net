@@ -33,11 +33,11 @@
 (defvar *metronome-tasks* nil)
 
 (defclass metronome-task ()
-  ((frequency :initarg :frequency :accessor metronome-task-frequency)
-   (one-shot-time :initarg :one-shot-time :accessor metronome-task-one-shot-time)
-   (name :initarg :name :accessor metronome-task-name)
-   (function :initarg :function :accessor metronome-task-function)
-   (thread :initarg :thread :accessor metronome-task-thread)))
+  ((frequency :initarg :frequency :initform (* 24 60 60) :accessor metronome-task-frequency)
+   (one-shot-time :initarg :one-shot-time :initform nil :accessor metronome-task-one-shot-time)
+   (name :initarg :name :initform "Unnamed Metronome Task" :accessor metronome-task-name)
+   (function :initarg :function :initform nil :accessor metronome-task-function)
+   (thread :initarg :thread :initform nil :accessor metronome-task-thread)))
 
 (defmethod print-object ((task metronome-task) s)
   (format s "#<Metronome-Task \"~a\" ~a ~a>"
@@ -147,11 +147,11 @@ FREQUENCY is given in seconds, or ONE-SHOT-TIME is given in Universal
 time. When both are given, the facility will execute at the rate of
 FREQUENCY until a final execution at ONE-SHOT-TIME.
 "
-  `(metronome-register (make-metronome-task
-                        :frequency ,frequency
-                        :one-shot-time ,one-shot-time
-                        :name ,name
-                        :function (lambda () ,@body))))
+  `(metronome-register (make-instance 'metronome-task
+                                      :frequency ,frequency
+                                      :one-shot-time ,one-shot-time
+                                      :name ,name
+                                      :function (lambda () ,@body))))
 
 (defvar *the-metronome-thread* nil
   "The thread from which the metronome's coördination efforts are conducted.")
