@@ -293,13 +293,14 @@ WHOM might be a Toot, person, websocket client, robot, &c."))
 
 (defun force-close-hunchensocket (client)
   "Attempt to destroy the connection to CLIENT"
+  (v:warn :websockets "Force-closing socket ~a" client)
   (ignore-errors
-    (with-slots (clients lock) *infinity-websocket-resource*
-      (bt:with-lock-held (lock)
-        (with-slots (write-lock) client
-          (bt:with-lock-held (write-lock)
-            (setq clients (remove client clients))
-            (setq write-lock nil))))))
+   (with-slots (clients lock) *infinity-websocket-resource*
+     (bt:with-lock-held (lock)
+       (with-slots (write-lock) client
+         (bt:with-lock-held (write-lock)
+           (setq clients (remove client clients))
+           (setq write-lock nil))))))
   (hunchensocket:client-disconnected *infinity-websocket-resource* client))
 
 (defun ws-broadcast (res message &key near except)
