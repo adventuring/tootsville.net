@@ -2375,8 +2375,10 @@ WRITEME
   (let ((vol (or (when (member vol '("shout" "whisper") :test 'equalp) vol)
                  "talk")))
     (multiple-value-bind (speech vol) (cassandra-obnoxious-filter speech vol)
-                                        ;TODO — Cassandra filters
-      (toot-speak speech :Toot Toot :vol vol))))
+      (if (cassandra-filter speech #|children-present-p FIXME |#)
+          (toot-speak speech :Toot Toot :vol vol)
+          (private-admin-message "Oops!"
+                                 "You can't say that here")))))
 
 (definfinity speak ((key speech vol) user recipient/s)
   "The user speaks SPEECH at volume VOL in public.
