@@ -447,10 +447,12 @@ Identity is determined by the ID column, ~A."
          (with-slots (,@(mapcar #'car columns)) ,name
            (erase-all-memcached-for
             ',name ,@(loop for column in columns
-                        collect (make-keyword (string-downcase (car column)))
-                        collect (car column)))))))
+                           collect (make-keyword (string-downcase (car column)))
+                           collect (car column)))))))
 
 
+
+(defclass db-record () ())
 
 (defmacro defrecord (name (database table &key pull id-column) &rest columns)
   "Define a database-mapping object type NAME, for DATABASE and TABLE, with COLUMNS.
@@ -500,8 +502,14 @@ translates to a LOCAL-TIME:TIMESTAMP on loading.
 @end table
 "
   `(eval-when (:compile-toplevel :load-toplevel :execute)
-     (defstruct ,name
-       ,@(mapcar #'car columns))
+     (defclass ,name (db-record)
+       (,@(mapcar
+           (lambda (column)
+             (destructuring-bind (col-name type &optional ref reference) column
+               `(,col-name :type ,type :accessor 
+                           ,(intern (concatenate 'string (symbol-name name) "-" (symbol-name col-name)))
+                           :initarg ,(make-keyword (symbol-name col-name)))))
+           columns)))
      (defmethod db-table-for ((class (eql ',name))) ,table)
      (defmethod database-for ((class (eql ',name))) (list :maria ,database))
      ,(defrecord/id-column-for name columns id-column)

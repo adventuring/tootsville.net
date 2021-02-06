@@ -63,5 +63,6 @@
         (return-from fetch-ice-credentials/xirsys (fetch-ice-credentials/xirsys)))
       (extract json :|v| :|iceServers|))))
 
-(defstruct gossip-initiation
-  uuid answer)
+(defclass gossip-initiation ()
+  ((uuid :initarg :uuid :type uuid :accessor gossip-initiation-uuid)
+   (answer :initarg :answer :accessor gossip-initiation-answer)))

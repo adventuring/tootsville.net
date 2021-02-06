@@ -32,12 +32,12 @@
 (defvar *metronome* nil)
 (defvar *metronome-tasks* nil)
 
-(defstruct metronome-task
-  frequency
-  one-shot-time
-  name
-  function
-  thread)
+(defclass metronome-task ()
+  ((frequency :initarg :frequency :accessor metronome-task-frequency)
+   (one-shot-time :initarg :one-shot-time :accessor metronome-task-one-shot-time)
+   (name :initarg :name :accessor metronome-task-name)
+   (function :initarg :name :function metronome-task-function)
+   (thread :initarg :thread :function metronome-task-thread)))
 
 (defmethod print-object ((task metronome-task) s)
   (format s "#<Metronome-Task \"~a\" ~a ~a>"

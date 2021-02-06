@@ -113,17 +113,17 @@ Returns all items in that volume which are not in a character's inventory."
 
 
 
-(defstruct wtl-course
-  speed
-  start-time
-  end-time
-  start-point
-  end-point
-  latitude
-  longitude
-  altitude
-  world
-  facing)
+(defclass wtl-course ()
+  ((speed :initarg :speed :accessor wtl-course-speed)
+   (start-time :initarg :start-time :accessor wtl-course-start-time)
+   (end-time :initarg :end-time :accessor wtl-course-end-time)
+   (start-point :initarg :start-point :accessor wtl-course-start-point)
+   (end-point :initarg :end-point :accessor wtl-course-end-point)
+   (latitude :initarg :latitude :accessor latitude)
+   (longitude :initarg :longitude :accessor longitude)
+   (altitude :initarg :altitude :accessor altitude)
+   (world :initarg :world :accessor world)
+   (facing :initarg :facing :accessor facing)))
 
 (defmethod current-position ((course wtl-course))
   (let ((now (get-Unix-time)))

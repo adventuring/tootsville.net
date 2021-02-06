@@ -173,10 +173,10 @@ the index from 1 to ~d of a new base color in the list where 1=~{~a~^, ~}"
 
 
 
-(defstruct color24
-  (red 0 :type (unsigned-byte 8))
-  (green 0 :type (unsigned-byte 8))
-  (blue 0 :type (unsigned-byte 8)))
+(defclass color24 ()
+  ((red :initform 0 :type (unsigned-byte 8) :accessor color24-red)
+   (green :initform 0 :type (unsigned-byte 8) :accessor color24-green)
+   (blue :initform 0 :type (unsigned-byte 8) :accessor color24-blue)))
 
 (defun color24= (a b &rest more)
   "Comparator of two or more `COLOR24' values.

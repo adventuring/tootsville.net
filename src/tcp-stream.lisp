@@ -33,11 +33,11 @@
 (defvar *tcp-clients* (make-hash-table :test 'equalp))
 (defvar *tcp-peer-traffic* 0)
 
-(defstruct tcp-client
-  socket
-  buffer
-  expected-length
-  peer)
+(defclass tcp-client ()
+  ((socket :initarg :socket :accessor tcp-client-socket)
+   (buffer :initarg :buffer :accessor tcp-client-buffer)
+   (expected-length :initarg :expected-length :accessor tcp-client-expected-length)
+   (peer :initarg :peer :accessor tcp-client-peer)))
 
 (defun tcp-unicast (message tcp-client)
   "Writes MESSAGE to TCP-CLIENT.

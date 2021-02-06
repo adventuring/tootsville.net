@@ -74,14 +74,14 @@ USER may be a robot or a Toot that is controlled by a robot."
         (robot-course robot) (restore-robot-wtl robot))
   (v:info :robots "Added a robot: ~:(~a~)" (Toot-name Toot)))
 
-(defstruct game-point
-  latitude
-  longitude
-  altitude
-  world
-  x
-  y
-  z)
+(defclass game-point ()
+  ((latitude :accessor latitude :initarg :latitude)
+   (longitude :accessor longitude :initarg :longitude)
+   (altitude :accessor altitude :initarg :altitude)
+   (world :accessor world :initarg :world)
+   (x :accessor game-point-x :initarg :x)
+   (y :accessor game-point-y :initarg :y)
+   (z :accessor game-point-z :initarg :z)))
 
 (defgeneric world (thing)
   (:documentation "The keyword name of the world on which THING is."))
