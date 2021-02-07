@@ -331,7 +331,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
     (nil nil)))
 
 (defun websockets-unicast-low-level% (message user-stream)
-  (hunchensocket:send-text-message user-stream message)
+  (with-websocket-disconnections (user-stream)
+    (hunchensocket:send-text-message user-stream message))
   (v:info :stream "Unicast to ~a: ~:d character~:p" user-stream (length message))
   (format *trace-output* "[~a] ~a" (if-let (Toot (Toot user-stream)) (Toot-name Toot)) message)
   (incf *ws-chars-unicast* (length message)))
@@ -418,7 +419,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                                                 client message)
   (incf *ws-chars-received* (length message))
   (setf (last-active client) (get-universal-time))
-  (progn ; with-websocket-disconnections (client)
+  (with-websocket-disconnections (client)
     (if (user-account client)
         (ws-to-infinity client message)
         (ws-without-login client message))))
