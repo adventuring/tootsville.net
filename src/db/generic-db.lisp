@@ -130,13 +130,20 @@ a  :BEFORE method  on this  function.  The default  :AFTER method  calls
   "Invalidate any cached version of OBJECT"
   (invalidate-cache object))
 
-(defvar *weak-record-cache* (make-hash-table :test 'eql :weakness :key))
+(defvar *weak-record-cache* (make-hash-table :test 'eql :weakness :key)
+  "A cache for loaded single objects.
+
+Used by `REFIND-RECORD', which in turn is used by `FIND-RECORD'.")
 
 (defun weakly-remember-record (record)
+  "Add RECORD to `*WEAK-RECORD-CACHE*'"
   (setf (gethash record *weak-record-cache*) t)
   record)
 
 (defun refind-record (class columns+values)
+  "Search `*WEAK-RECORD-CACHE*' for an object of CLASS with attributes COLUMNS+VALUES.
+
+Used by `FIND-RECORD', which should be preferred."
   (dolist (object (hash-table-keys *weak-record-cache*) nil)
     (when (and (eql (class-name (class-of object)) class)
                (loop for (column value) on columns+values by #'cddr
