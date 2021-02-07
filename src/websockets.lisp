@@ -172,25 +172,29 @@ Active Clients (~:d secs): ~:d (~:d%)."
        (v:warn :stream "Disconnect detected on ~a for ~a"
                (stream-error-stream c) ,client)
        (force-close-hunchensocket ,client)
-       (incf *ws-surprise-disconnects*))))
+       (incf *ws-surprise-disconnects*))
+     (error (c)
+       (v:error :stream "Error detected on ~a for ~a:~%~a"
+                (stream-error-stream c) ,client c)
+       (error c))))
 
 (defclass websocket-acceptor (hunchensocket:websocket-acceptor)
   ()
   (:default-initargs
    :access-log-destination (config :log :websocket :access)
-    :message-log-destination (config :log :websocket :message)
-    :port 5004))
+   :message-log-destination (config :log :websocket :message)
+   :port 5004))
 
 (defclass websocket-ssl-acceptor (hunchensocket:websocket-ssl-acceptor)
   ()
   (:default-initargs
    :access-log-destination (config :log :websocket :access)
-    :message-log-destination (config :log :websocket :message)
-    :port 5004
-    :request-class 'hunchensocket::websocket-request
-    :reply-class 'hunchensocket::websocket-reply
-    :ssl-certificate-file (ssl-certificate)
-    :ssl-privatekey-file (ssl-private-key)))
+   :message-log-destination (config :log :websocket :message)
+   :port 5004
+   :request-class 'hunchensocket::websocket-request
+   :reply-class 'hunchensocket::websocket-reply
+   :ssl-certificate-file (ssl-certificate)
+   :ssl-privatekey-file (ssl-private-key)))
 
 (defclass infinity-websocket-resource (hunchensocket:websocket-resource)
   ()
@@ -284,8 +288,7 @@ WHOM might be a Toot, person, websocket client, robot, &c."))
   (or (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*)
       (when-let (stream (find Toot 
                               (remove-if-not 
-                               #'Toot (hunchensocket:clients
-                                       *infinity-websocket-resource*))
+                               #'Toot (hunchensocket:clients *infinity-websocket-resource*))
                               :key #'Toot :test #'Toot=))
         (setf (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot))
                        *ws-client-for-Toot*)
@@ -380,8 +383,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defmethod hunchensocket::process-connection :around ((acceptor websocket-acceptor) socket)
   (handler-bind
       ((sb-sys:io-timeout 
-        (lambda (c)
-          (v:warn "Ignoring ~a" c))))
+         (lambda (c)
+           (v:warn "Ignoring ~a" c))))
     (call-next-method)))
 
 (defun disconnect-no-login (client)
