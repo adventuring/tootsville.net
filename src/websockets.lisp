@@ -1300,3 +1300,5 @@ RESOURCE."
   (longitude (Toot-position client)))
 (defmethod altitude ((client ws-client))
   (altitude (Toot-position client)))
+(defmethod current-position ((ws-client ws-client))
+  (current-position (wtl-course ws-client)))

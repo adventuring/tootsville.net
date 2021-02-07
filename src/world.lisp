@@ -148,9 +148,6 @@ Returns all items in that volume which are not in a character's inventory."
     (current-position (wtl-course stream))
     (current-position (find-robot Toot))))
 
-(defmethod current-position ((ws-client ws-client))
-  (current-position (wtl-course ws-client)))
-
 (defgeneric parse-wtl-course (course)
   (:documentation "Parse COURSE into a WTL-COURSE object"))
 
