@@ -1346,6 +1346,8 @@ unchanged; otherwise, @code{pingStarted} is replied with the server-time
 as well.
 "
   (let ((java-now (* 1000 (get-Unix-time))))
+    (setf (Toot-last-active *Toot*) (now))
+    (save-record *Toot*)
     (list 200 (list :|from| "ping"
                     :|ping| "pong"
                     :|status| t
@@ -2338,7 +2340,7 @@ WRITEME
   (error 'unimplemented))
 
 (defun parse-operator-command (string)
-  "Parse an operator command in STRING (beginning with #)"
+  "Parse and execute an operator command in STRING (beginning with #)"
   (assert (char= (char string 0) #\#))
   (let ((command (subseq string 1 (position #\Space string)))
         (params (when-let (space (position #\Space string))
@@ -2351,15 +2353,18 @@ WRITEME
       (if (and (fboundp sym)
                (= 2 (length (function-lambda-list sym)))
                (eql '&rest (first (function-lambda-list sym))))
-          (handler-case 
-              (apply sym params)
-            (error (e)
-              (private-admin-message (format nil "~a error" command)
-                                     (format nil "~/HTML/" e))))
+          (progn
+            (v:info :infinity "Operator command ~a ~{~a~^ ~} from ~a"
+                    command params *client*)
+            (handler-case
+                (apply sym params)
+              (error (e)
+                (private-admin-message (format nil "~a error" command)
+                                       (format nil "~/HTML/" e)))))
           (private-admin-message 
            (concatenate 'string "Can't run #" command) 
            "Not a remote operator command"))
-      (private-admin-message "Can't do that"
+      (private-admin-message (concatenate 'string "Can't run #" command)
                              "Not an operator command"))))
 
 (defun @-message (string)
@@ -2588,8 +2593,7 @@ WRITEME
                             (format nil "~a should have been handled by your client software."
                                     (first (split-sequence #\Space speech))))
      (return))
-    (#\# (parse-operator-command speech)
-     (return))
+    (#\# (return (parse-operator-command speech)))
     (#\! (when (find #\! (subseq speech 1))
            (setf speech (concatenate 'string "¡" (subseq speech 1)))))
     (#\? (when (find #\? (subseq speech 1))
@@ -2612,8 +2616,8 @@ WRITEME
        (setf speech "♥ Bye! ♥"))
      (when (search ",credits" speech)
        (dump-credits)
-       (setf speech "📜"))
-     (player-speak speech vol))))
+       (setf speech "📜"))))
+  (player-speak speech vol))
 
 (define-constant +credits+
   "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.

@@ -714,24 +714,25 @@ Creates a Toot-Quiesced record for them
                    (make-new-Toot-state Toot))))
     (when (and *client* *Toot* (Toot= Toot *Toot*))
       (setf (wtl-course *client*) (parse-wtl-course (Toot-quiesced-wtl state))))
-    (unicast (list :|status| t
-                   :|from| "burgeon"
-                   :|world| (Toot-quiesced-world state)
-                   :|latitude| (Toot-quiesced-latitude state)
-                   :|longitude| (Toot-quiesced-longitude state)
-                   :|altitude| (Toot-quiesced-altitude state)
-                   :|wtl| (when-let (wtl (Toot-quiesced-wtl state))
-                            (jonathan.decode:parse wtl))
-                   :|d3| (when-let (d3 (Toot-quiesced-d3 state))
-                           (jonathan.decode:parse d3))
-                   :|emotion| (Toot-quiesced-emotion state)
-                   :|peanuts| (Toot-peanuts Toot)
-                   :|fairy-dust| (Toot-fairy-dust Toot)
-                   :|attribs| (Toot-quiesced-attribs state)))
-    (setf (Toot-position (user-stream Toot)) (list (Toot-quiesced-world state)
-                                                   (Toot-quiesced-latitude state)
-                                                   (Toot-quiesced-longitude state)
-                                                   (Toot-quiesced-altitude state)))))
+    (let ((wtl (and (Toot-quiesced-wtl state) (jonathan.decode:parse (Toot-quiesced-wtl state)))))
+      (unicast (list :|status| t
+                     :|from| "burgeon"
+                     :|world| (Toot-quiesced-world state)
+                     :|latitude| (Toot-quiesced-latitude state)
+                     :|longitude| (Toot-quiesced-longitude state)
+                     :|altitude| (Toot-quiesced-altitude state)
+                     :|wtl| wtl
+                     :|d3| (when-let (d3 (Toot-quiesced-d3 state))
+                             (jonathan.decode:parse d3))
+                     :|emotion| (Toot-quiesced-emotion state)
+                     :|peanuts| (Toot-peanuts Toot)
+                     :|fairy-dust| (Toot-fairy-dust Toot)
+                     :|attribs| (Toot-quiesced-attribs state)))
+      (setf (Toot-position (user-stream Toot)) (list (Toot-quiesced-world state)
+                                                     (Toot-quiesced-latitude state)
+                                                     (Toot-quiesced-longitude state)
+                                                     (Toot-quiesced-altitude state))
+            (wtl-course (user-stream Toot)) wtl))))
 
 (defun update-Toot-last-active (Toot)
   "Set the `TOOT-LAST-ACTIVE' time for TOOT to the present time."
