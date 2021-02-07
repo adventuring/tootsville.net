@@ -141,8 +141,6 @@ a  :BEFORE method  on this  function.  The default  :AFTER method  calls
     (when (and (eql (class-name (class-of object)) class)
                (loop for (column value) on columns+values by #'cddr
                      unless (equal (slot-value object (intern (symbol-name column) :Tootsville)) value)
-                       do (progn (format t "Mismatch on ~a: ~s vs ~s" column
-                                         (slot-value object (intern (symbol-name column) :Tootsville)) value)
-                                 (return nil))
+                       do (return nil)
                      finally (return t)))
       (return-from refind-record object))))
