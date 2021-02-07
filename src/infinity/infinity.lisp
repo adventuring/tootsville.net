@@ -48,19 +48,20 @@ Used to create the REST endpoints mapping to METHOD."
       (funcall method json *user* nil))))
 
 (defmacro with-http-errors-as-infinity-errors ((command) &body body)
-  `(handler-case 
+  `(handler-case
        (progn ,@body)
      (error (c)
-       (list :|status| :false
-             :|from| "c"
-             :|command| ,command
-             :|error| (format nil "~a" c)))
+       (list 500 (list :|status| :false
+                       :|from| "c"
+                       :|command| ,command
+                       :|error| (format nil "~a" c))))
      (http-client-error (c)
-       (list :|status| :false
-             :|from| "c"
-             :|command| ,command
-             :|httpError| (http-status-code c)
-             :|error| (format nil "~a" c)))))
+       (list (http-status-code c)
+             (list :|status| :false
+                   :|from| "c"
+                   :|command| ,command
+                   :|httpError| (http-status-code c)
+                   :|error| (format nil "~a" c))))))
 
 (defun average (list)
   (/ (reduce #'+ list) (length list)))
@@ -87,23 +88,24 @@ Used by the WebSockets and direct TCP stream handlers."
                                            (string-upcase (symbol-munger:camel-case->lisp-name command)))
                               :Tootsville))
          (data (ignore-errors (getf json :|d|))))
-    (if (and (symbolp method) (not (eql 'nil method)))
+    (if (and (symbolp method) (not (eql 'nil method)) (fboundp method))
         (let ((*Toot* (or *Toot* (Toot *client*))))
           (v:info '(:infinity :stream) 
                   "Stream request from ~a for command ~a"
                   *client* method)
           (when *Toot*
-            (setf (Toot-last-active *Toot*) (now)))
+            (setf (Toot-last-active *Toot*) (now))
+            (when (zerop (random 10)) (save-record *Toot*)))
           (incf *infinity-stream-requests*)
           (with-http-errors-as-infinity-errors (command)
             (funcall method data *Toot* (world *client*))))
         (let ((c (or command "(No command sent)")))
           (v:warn '(:infinity :stream) "Unknown command from stream ~a: ~a"
                   *user* c)
-          (list :|from| "c"
-                :|status| :false
-                :|error| (format nil "Unrecognized command ~a"
-                                 (limit-string-length c 100)))))))
+          (list 404 (list :|from| "c"
+                          :|status| :false
+                          :|error| (format nil "Unrecognized command ~a"
+                                           (limit-string-length c 100))))))))
 
 (defmacro definfinity (name (lambda-list user-var plane-var) &body body)
   "Define an Infinity-mode “c” command NAME.
