@@ -247,10 +247,12 @@ columns are ~{~:(~a~)~^, ~}" column (mapcar #'car column-definitions)))
 
 (defun defrecord/find-record (name table columns)
   `(defmethod find-record ((class (eql ',name)) &rest columns+values)
-     (load-record ',name (apply #'db-select-single-record
-                                ,table
-                                (arrange-columns+values-for-find
-                                 columns+values ',columns)))))
+     (or (refind-record ',name columns+values)
+         (weakly-remember-record
+          (load-record ',name (apply #'db-select-single-record
+                                     ,table
+                                     (arrange-columns+values-for-find
+                                      columns+values ',columns)))))))
 
 (defun defrecord/find-record/pull (name table columns)
   (declare (ignore table columns))
@@ -364,7 +366,11 @@ Identity is determined by the ID column, ~A."
                 id-accessor)
        (if more
            (and (,$fname a b) (apply ',$fname a more))
-           (equal (,id-accessor a) (,id-accessor b))))))
+           (,(case id-accessor
+               (ID '=)
+               (UUID 'UUID:UUID=)
+               (t 'equal))
+            (,id-accessor a) (,id-accessor b))))))
 
 (defun defrecord/reload-record (name columns)
   (when (id-column-for name)
@@ -503,6 +509,7 @@ translates to a LOCAL-TIME:TIMESTAMP on loading.
        (,@(mapcar
            (lambda (column)
              (destructuring-bind (col-name type &optional ref reference) column
+               (declare (ignore ref reference))
                `(,col-name :type ,type :accessor 
                            ,(intern (concatenate 'string (symbol-name name) "-" (symbol-name col-name)))
                            :initarg ,(make-keyword (symbol-name col-name)))))
