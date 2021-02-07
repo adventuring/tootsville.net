@@ -322,8 +322,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
                (hunchensocket:send-text-message client message)))
            clients)
       (incf *ws-chars-broadcast* (* (length clients) (length message)))
-      (v:info :stream "Broadcast to ~a (~:d client~:p): ~:d character~:p"
-              res (length clients) (length message)))))
+      (v:info :stream "Broadcast to ~a (~:d client~:p)~@[, near ~a~]~@[, except ~a~]: ~:d character~:p"
+              res (length clients) near except (length message)))))
 
 (defun ensure-message-is-characters (message)
   "Convert MESSAGE into a string of characters, probably as JSON."
@@ -479,7 +479,8 @@ Returns person objects, removing nulls for unauthenticated users."
              (not (equalp "$new Toot" Toot-name)))
     (if-let ((Toot (ignore-not-found (find-record 'Toot :name Toot-name))))
       (if (uuid:uuid= (Toot-player Toot) (person-uuid user))
-          (progn (setf (Toot *client*) Toot)
+          (progn (setf (Toot *client*) Toot
+                       (wtl-course *client*) (wtl-course Toot))
                  (v:info :stream "Client ~a reconnected Toot ~a" *client* Toot))
           (unicast (list :|from| "login"
                          :|status| :false
