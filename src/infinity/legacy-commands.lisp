@@ -1985,9 +1985,7 @@ encode a response into a JSON form
 @end verbatim"
   (list 200 (list :|from| "serverTime"
                   :|status| t
-                  :|serverTime| (* 1000
-                                   (- (get-universal-time)
-                                      +Unix-zero-in-universal-time+)))))
+                  :|serverTime| (* 1000 (get-Unix-time)))))
 
 (definfinity set-avatar-color ((base extra) user recipient/s)
   "Set the avatar base and extra (pad) colours for the given user.
