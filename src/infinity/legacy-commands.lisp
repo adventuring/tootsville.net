@@ -2388,9 +2388,10 @@ WRITEME
                                         (1+ (position #\@ string))
                                         (position #\Space string))))
         (text (subseq string (1+ (position #\Space string)))))
-    ;; TODO Cassandra
-    (when (nearp *Toot* recipient)
-      (Toot-private-message *Toot* recipient text))))
+    (let ((speech (cassandra-obnoxious-filter text "whisper")))
+      (when (and (nearp *Toot* recipient)
+                 (cassandra-filter speech #|children-present-p FIXME |#))
+        (Toot-private-message *Toot* recipient speech)))))
 
 (defun player-speak (speech vol &optional (Toot *Toot*))
   (let ((vol (or (when (member vol '("shout" "whisper") :test 'equalp) vol)
