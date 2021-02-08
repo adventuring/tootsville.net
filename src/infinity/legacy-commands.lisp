@@ -2623,7 +2623,7 @@ WRITEME
   "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
 
 Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
-Levi Mc Call, and Zephyr Salz.
+Levi Mc Call, and Gian Ratnapala, and Zephyr Salz.
 
 In memory of the contributions of Maureen Kenny (RIP).
 
