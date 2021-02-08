@@ -2354,7 +2354,7 @@ WRITEME
                (= 2 (length (function-lambda-list sym)))
                (eql '&rest (first (function-lambda-list sym))))
           (progn
-            (v:info :infinity "Operator command ~a ~{~a~^ ~} from ~a"
+            (v:info :infinity "Operator command #~a ~{~a~^ ~} from ~a"
                     command params *client*)
             (handler-case
                 (apply sym params)
