@@ -1572,8 +1572,7 @@ See `TOOTSVILLE-USER::PLACE'"
                  :world (world where)
                  :latitude (latitude where)
                  :longitude (longitude where)
-                 :altitude (altitude where)
-                 :world (world where))
+                 :altitude (altitude where))
     (private-admin-message "#place #item"
                            (format nil "Created item from template ~d at (~d, ~d, ~d)"
                                    (parse-number item-template-number)
@@ -1731,11 +1730,11 @@ center will be at x position 50, z position 60.
     ((string-equal "#here" where) ; here
      (destructuring-bind (x y z) (current-position (or *client* *Toot*))
        (declare (ignore y))
-       (make-game-point :x x :y 0 :z z
-                        :latitude (latitude *Toot*)
-                        :longitude (longitude *Toot*)
-                        :altitude (altitude *Toot*)
-                        :world (world *Toot*))))
+       (make-instance 'game-point :x x :y 0 :z z
+                                  :latitude (latitude *Toot*)
+                                  :longitude (longitude *Toot*)
+                                  :altitude (altitude *Toot*)
+                                  :world (world *Toot*))))
     ((string-equal "#here-tiny" where) ; small spot around here
      (destructuring-bind (x y z) (current-position *Toot*)
        (declare (ignore y))
@@ -1778,13 +1777,13 @@ center will be at x position 50, z position 60.
      (parse-polygon where *Toot*)) 
     (t
      (destructuring-bind (x z) (split-sequence #\, where)
-       (make-game-point :x (parse-number x)
-                        :y 0
-                        :z (parse-number z)
-                        :latitude (latitude *Toot*)
-                        :longitude (longitude *Toot*)
-                        :altitude (altitude *Toot*)
-                        :world (world *Toot*))))))
+       (make-instance 'game-point :x (parse-number x)
+                                  :y 0
+                                  :z (parse-number z)
+                                  :latitude (latitude *Toot*)
+                                  :longitude (longitude *Toot*)
+                                  :altitude (altitude *Toot*)
+                                  :world (world *Toot*))))))
 
 (define-operator-command place (words user _)
   "Put a thing or a Place into the game

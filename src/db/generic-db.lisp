@@ -151,3 +151,7 @@ Used by `FIND-RECORD', which should be preferred."
                        do (return nil)
                      finally (return t)))
       (return-from refind-record object))))
+
+(defpost refind-record ()
+  (eql (find-record 'Toot :name "Pil")
+       (find-record 'Toot :name "Pil")))

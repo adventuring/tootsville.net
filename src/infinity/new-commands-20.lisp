@@ -692,20 +692,22 @@ Create a New Toot Quaestor event
 @item
 Creates a Toot-Quiesced record for them
 @end itemize"
+  (when (find-record 'Toot-quiesced :Toot (Toot-UUID Toot))
+    (return-from make-new-Toot-state))
   (private-admin-message
    (format nil "Welcome to Tootsville, ~:(~a~)!" (Toot-name Toot))
    "Welcome  to Tootsville!  This is  Toot Square,  the center of town.")
   (quaestor-new-Toot Toot)
-  (make-record 'Toot-quiesced
-               :Toot (Toot-uuid Toot)
-               :world :chor
-               :latitude 0
-               :longitude 0
-               :altitude 0
-               :wtl (random-start-wtl-for-Toot)
-               :d3 nil
-               :emotion nil
-               :attribs nil))
+  (ensure-record 'Toot-quiesced
+                 :Toot (Toot-uuid Toot)
+                 :world :chor
+                 :latitude 0
+                 :longitude 0
+                 :altitude 0
+                 :wtl (random-start-wtl-for-Toot)
+                 :d3 nil
+                 :emotion nil
+                 :attribs nil))
 
 (defun burgeon-quiesced-state (Toot)
   "Restore quiescent state for TOOT as they return to the game."

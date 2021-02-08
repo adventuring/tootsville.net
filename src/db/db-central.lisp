@@ -512,7 +512,8 @@ translates to a LOCAL-TIME:TIMESTAMP on loading.
                (declare (ignore ref reference))
                `(,col-name :type ,type :accessor 
                            ,(intern (concatenate 'string (symbol-name name) "-" (symbol-name col-name)))
-                           :initarg ,(make-keyword (symbol-name col-name)))))
+                           :initarg ,(make-keyword (symbol-name col-name))
+                           :initform nil)))
            columns)))
      (defmethod db-table-for ((class (eql ',name))) ,table)
      (defmethod database-for ((class (eql ',name))) (list :maria ,database))

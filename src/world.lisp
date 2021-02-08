@@ -180,3 +180,73 @@ Returns all items in that volume which are not in a character's inventory."
                              :end-point (list x₂ y₂ z₂)
                              :speed (or |speed| 0.1)
                              :facing (interpret-facing |facing|)))))))))
+
+
+
+(defclass game-point ()
+  ((latitude :accessor latitude :initarg :latitude)
+   (longitude :accessor longitude :initarg :longitude)
+   (altitude :accessor altitude :initarg :altitude)
+   (world :accessor world :initarg :world)
+   (x :accessor game-point-x :initarg :x)
+   (y :accessor game-point-y :initarg :y)
+   (z :accessor game-point-z :initarg :z)))
+
+(defgeneric world (thing)
+  (:documentation "The keyword name of the world on which THING is."))
+
+(defgeneric latitude (thing)
+  (:documentation "The latitude of THING"))
+
+(defgeneric longitude (thing)
+  (:documentation "The longitude of THING"))
+
+
+
+(defgeneric altitude (thing)
+  (:documentation "The altitude of THING"))
+
+(defmethod world ((cons cons))
+  (first cons))
+
+(defmethod latitude ((cons cons))
+  (second cons))
+
+(defmethod longitude ((cons cons))
+  (third cons))
+
+(defmethod altitude ((cons cons))
+  (fourth cons))
+
+(defmethod world ((null null)) 
+  :chor)
+
+
+(defmethod latitude ((null null))
+  0)
+(defmethod longitude ((null null))
+  0)
+(defmethod altitude ((null null))
+  0)
+
+(defmethod latitude ((game-point game-point))
+  (game-point-latitude game-point))
+
+(defmethod longitude ((game-point game-point))
+  (game-point-longitude game-point))
+
+(defmethod altitude ((game-point game-point))
+  (game-point-altitude game-point))
+
+(defmethod world ((game-point game-point))
+  (game-point-world game-point))
+
+(defmethod print-object ((point game-point) s)
+  (format s "#<Game-Point (~d, ~d, ~d) at ~a (~d, ~d) + ~d>"
+          (game-point-x point)
+          (game-point-y point)
+          (game-point-z point)
+          (world point)
+          (latitude point)
+          (longitude point)
+          (altitude point)))

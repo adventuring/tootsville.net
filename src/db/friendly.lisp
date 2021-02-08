@@ -171,6 +171,14 @@
            (effect keyword)
            (attributes string))
 
+(defmethod print-object ((item item) s)
+  (format s "#<Item (~a) @ (~d, ~d, ~d) on ~a (~d, ~d) + ~d>"
+          (item-template item)
+          (item-x item) (item-y item) (item-z item)
+          (item-world item) 
+          (item-latitude item) (item-longitude item)
+          (item-altitude item)))
+
 (defrecord inventory-item (:friendly "inventory" :id-column item)
            (item uuid ref item)
            (person uuid ref person)
