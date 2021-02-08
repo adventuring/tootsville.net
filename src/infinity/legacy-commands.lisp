@@ -1869,7 +1869,14 @@ as a string.
   (error 'unimplemented))
 
 (defun generate-buddy-list-signature (requestor requestee)
-  (error 'unimplemented))
+  "Generate a signature for a buddy-list request"
+  (sha1-hex (concatenate 'string requestor "/" requestee
+                         "/buddy-list-request/v"
+                         (asdf:component-version (asdf:find-system :Tootsville)))))
+
+(defun check-buddy-list-signature (requestor requestee signature)
+  "Check whether a buddy-list request is valid"
+  (equal signature (generate-buddy-list-signature requestor requestee)))
 
 (definfinity request-buddy ((buddy) user recipient/s)
   "Request adding a user to your buddy list (mutual-add) using the notification-based system
