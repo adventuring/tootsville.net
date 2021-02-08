@@ -2382,11 +2382,13 @@ WRITEME
                              "Not an operator command"))))
 
 (defun @-message (string)
+  "Interpret @ as a private message."
   (let ((recipient (find-record 'Toot :name
                                 (subseq string
                                         (1+ (position #\@ string))
                                         (position #\Space string))))
         (text (subseq string (1+ (position #\Space string)))))
+    ;; TODO Cassandra
     (when (nearp *Toot* recipient)
       (Toot-private-message *Toot* recipient text))))
 
