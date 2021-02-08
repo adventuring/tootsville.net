@@ -2165,6 +2165,9 @@ WRITEME
   (error 'unimplemented))
 
 (defun set-user-var-d (Toot value)
+  "Set the ``d user variable''
+
+See `INFINITY-SET-USER-VAR' for discussion."
   (destructuring-bind (x₁ y₁ x₂ y₂ facing start-time &optional z₁ z₂)
       (split-sequence #\~ value)
     (unless (and z₁ z₂)
@@ -2185,6 +2188,9 @@ WRITEME
                :near Toot)))
 
 (defun set-user-var-wtl (Toot value)
+  "Sets the ``wtl user variable''
+
+See `INFINITY-SET-USER-VAR' for discussion."
   (destructuring-bind (&key |course| |facing|) value
     (broadcast (list :|from| "wtl"
                      :|status| t
@@ -2193,6 +2199,9 @@ WRITEME
                :near Toot)))
 
 (defun set-user-var (Toot key value)
+  "Set a ``user variable''
+
+See `INFINITY-SET-USER-VAR' for discussion."
   (cond
     ((equal "d" key)
      (set-user-var-d Toot value))
