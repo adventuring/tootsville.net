@@ -1346,6 +1346,7 @@ as well.
   (let ((java-now (get-java-time)))
     (setf (Toot-last-active *Toot*) (now))
     (save-record *Toot*)
+    (setf (last-active *client*) (get-Unix-time))
     (list 200 (list :|from| "ping"
                     :|ping| "pong"
                     :|status| t
