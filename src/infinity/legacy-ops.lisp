@@ -220,6 +220,7 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
 @verbatim
 #beam LATITUDE LONGITUDE [ALTITUDE]
+#beam SPOT-NAME
 @end verbatim
 
 Altitude is optional.
@@ -231,15 +232,19 @@ In Romance  1, this command took  a room moniker as  its sole parameter;
 since rooms as such no longer exist, we use latitude and longitude now.
 
 "
-  (list 200 (list :|from| "beam"
-                  :|latitude| (parse-integer (first words))
-                  :|longitude| (parse-integer (second words))
-                  :|altitude| (if (< 2 (length words))
-                                  (parse-integer (third words))
-                                  0)
-                  :|world| (if (< 3 (length words))
-                               (string-upcase (fourth words))
-                               "CHOR"))))
+  (case (length words)
+    (1 (return "Unimplemented, can't beam to a named spot yet"))
+    ((2 3)
+     (list 200 (list :|from| "beam"
+                     :|latitude| (parse-integer (first words))
+                     :|longitude| (parse-integer (second words))
+                     :|altitude| (if (< 2 (length words))
+                                     (parse-integer (third words))
+                                     0)
+                     :|world| (if (< 3 (length words))
+                                  (string-upcase (fourth words))
+                                  "CHOR"))))
+    (otherwise (return "Usage: #beam (placename) or #beam lat long [alt]"))))
 
 (define-operator-command spawnroom (words user _)
   "Mark a ``spot'' in the game.
