@@ -104,7 +104,8 @@ replacing text  equivalents of  hard-to-type characters  like @samp{(c)}
 with @samp{©}. In particular, @samp{(t)} is replaced with a circled T in
 imitation of the Tootsville logo.
 "
-  (when (string= text (string-upcase text))		 
+  (when (and (scan "[A-Z]" text)
+             (string= text (string-upcase text)))		 
     (setf text (string-downcase text)
           vol (string-case vol
                 ("shout" "shout")
