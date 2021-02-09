@@ -1553,8 +1553,6 @@ PARAMS are the item-template ber, and optional facing angle, base color,
 and alt color.
 
 See `TOOTSVILLE-USER::PLACE'"
-  (private-admin-message "#place #item"
-                         (format nil "Going to place an item ~s" params))
   (handler-case 
       (destructuring-bind (item-template-number &optional facing base-color alt-color) params
         (make-record 'item
