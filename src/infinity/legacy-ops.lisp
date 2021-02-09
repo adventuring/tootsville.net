@@ -216,7 +216,7 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 (define-operator-command beam (words user _)
   "Beam yourself to a different location.
 
-           @subsection Usage
+@subsection Usage
 
 @verbatim
 #beam LATITUDE LONGITUDE [ALTITUDE]
