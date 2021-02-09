@@ -168,14 +168,19 @@ Active Clients (~:d secs): ~:d (~:d%)."
                   (force-close-hunchensocket ,client)
                   (incf *ws-surprise-disconnects*))
            (error c)))
+     (end-of-file (c)
+       (v:warn :stream "Disconnect detected on ~a for ~a"
+               (stream-error-stream c) ,client)
+       (force-close-hunchensocket ,client)
+       (incf *ws-surprise-disconnects*))
      (sb-int:broken-pipe (c)
        (v:warn :stream "Disconnect detected on ~a for ~a"
                (stream-error-stream c) ,client)
        (force-close-hunchensocket ,client)
        (incf *ws-surprise-disconnects*))
      (error (c)
-       (v:error :stream "Error detected on ~a for ~a:~%~a"
-                (stream-error-stream c) ,client c)
+       (v:error :stream "Error detected on ~a:~%~a"
+                ,client c)
        (error c))))
 
 (defclass websocket-acceptor (hunchensocket:websocket-acceptor)
