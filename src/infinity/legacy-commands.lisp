@@ -1345,7 +1345,7 @@ If  the  user sends  a  @code{pingStarted}  value,  it is  replied  back
 unchanged; otherwise, @code{pingStarted} is replied with the server-time
 as well.
 "
-  (let ((java-now (* 1000 (get-Unix-time))))
+  (let ((java-now (get-java-time)))
     (setf (Toot-last-active *Toot*) (now))
     (save-record *Toot*)
     (list 200 (list :|from| "ping"
