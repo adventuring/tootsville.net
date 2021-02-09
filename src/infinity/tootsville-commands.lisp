@@ -38,7 +38,8 @@ UNIMPLEMENTED in 2.0.
 @subsection Usage
 
 @verbatim
-{ entry: \"journal text\" }
+{ c: \"addJournalEntry\",
+  d: { entry: \"journal text\" } }
 @end verbatim
 
 @subsection Example
