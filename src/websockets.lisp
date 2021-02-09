@@ -527,14 +527,16 @@ Returns person objects, removing nulls for unauthenticated users."
          :|status| t
          :|auth| "accepted auth, ∞ mode ℵ₀ protocol (Tootsville/5.0)"
          :|greet| "Welcome to Tootsville! Let's make some noise."
-         :|motd| (if (and *user* (person-is-patron-p *user*))
-                     "<P>Yo, I kinda feel like God here</P>
+         :|motd| (concatenate 'string
+                              (get-daily-greeting)
+                              (if (and *user* (person-is-patron-p *user*))
+                                  "<P>Yo, I kinda feel like God here</P>
 <P> You are a Builder. You have great power. </P>
 <P> With great power comes great responsibility. </P>
 <P> Remember, your operator commands are in the  
   <A TARGET='new' HREF='https://goethe.tootsville.org/devel/docs/Tootsville/0.6.9/Tootsville.pdf'>developers' guide</A>
 chapter 7. </P>"
-                     *motd*)
+                                  *motd*))
          :|userAccount| (if *user* (person-info *user*)))))
 
 (defun login-failed-message ()
