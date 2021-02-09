@@ -355,6 +355,7 @@ LOCK-NAME is case-insensitive."
   (with-dbi (:friendly) 
     (dolist (migration (split-sequence #\Page
                                        (read-file-into-string (asdf:system-relative-pathname (asdf:find-system :Tootsville)
-                                                                                             #p "src/db/migrations.sql"))))
+                                                                                             #p "src/db/migrations.sql")
+                                                              :external-format :utf-8)))
       (format t "~2&Migration: ~a ~{~2%~{~%~a: ~a~}~}" migration
               (db-select-all *db* migration)))))
