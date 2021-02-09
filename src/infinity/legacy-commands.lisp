@@ -945,9 +945,7 @@ not the Universal time, and in milliseconds, not seconds."
   (list 200
         (list :|from| "getServerTime"
               :|status| t
-              :|serverTime| (* (- (get-universal-time)
-                                  +unix-zero-in-universal-time+)
-                               1000))))
+              :|serverTime| (get-java-time))))
 
 (definfinity get-session-apple ((&rest d) user recipient/s)
   "Initialise a session key for stream or batch mode operations.
@@ -1985,7 +1983,7 @@ encode a response into a JSON form
 @end verbatim"
   (list 200 (list :|from| "serverTime"
                   :|status| t
-                  :|serverTime| (* 1000 (get-Unix-time)))))
+                  :|serverTime| (get-java-time))))
 
 (definfinity set-avatar-color ((base extra) user recipient/s)
   "Set the avatar base and extra (pad) colours for the given user.
