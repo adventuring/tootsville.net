@@ -125,7 +125,17 @@ Returns all items in that volume which are not in a character's inventory."
    (world :initarg :world :initform :chor :accessor world)
    (facing :initarg :facing :initform 0 :accessor facing)))
 
+(defun wtl-find-end-time-if-blank (course)
+  (unless (wtl-course-end-time course)
+    (let ((speed (or (wtl-course-speed course) 0.1)))
+      (setf (wtl-course-end-time course)
+            (+ (wtl-course-start-time course)
+               (destructuring-bind (x₁ y₁ z₁) (wtl-course-start-point course)
+                 (destructuring-bind (x₂ y₂ z₂) (wtl-course-end-point course)
+                   (/ (distance x1 y1 z1 x2 y2 z2) speed))))))))
+
 (defmethod current-position ((course wtl-course))
+  (wtl-find-end-time-if-blank course)
   (let ((now (get-Unix-time)))
     (if (> now (or (wtl-course-end-time course) 0))
         (wtl-course-end-point course)
@@ -137,7 +147,7 @@ Returns all items in that volume which are not in a character's inventory."
                    (δ-τ (- (wtl-course-end-time course)
                            (wtl-course-start-time course)))
                    (τ (- now (wtl-course-start-time course)))
-                   (fraction (/ τ δ-τ))
+                   (fraction (if (plusp δ-τ) (/ τ δ-τ) 1))
                    (x (+ x₁ (* δ-x fraction)))
                    (y (+ y₁ (* δ-y fraction)))
                    (z (+ z₁ (* δ-z fraction))))
@@ -147,6 +157,9 @@ Returns all items in that volume which are not in a character's inventory."
   (if-let (stream (user-stream Toot))
     (current-position (wtl-course stream))
     (current-position (find-robot Toot))))
+
+(defmethod current-position ((cons cons))
+  (current-position (parse-wtl-course cons)))
 
 (defmethod current-position ((null null))
   (v:warn :world "Tried to get the current position of NIL")
@@ -228,18 +241,6 @@ Returns all items in that volume which are not in a character's inventory."
   0)
 (defmethod altitude ((null null))
   0)
-
-(defmethod latitude ((game-point game-point))
-  (game-point-latitude game-point))
-
-(defmethod longitude ((game-point game-point))
-  (game-point-longitude game-point))
-
-(defmethod altitude ((game-point game-point))
-  (game-point-altitude game-point))
-
-(defmethod world ((game-point game-point))
-  (game-point-world game-point))
 
 (defmethod print-object ((point game-point) s)
   (format s "#<Game-Point (~d, ~d, ~d) at ~a (~d, ~d) + ~d>"
