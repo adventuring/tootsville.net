@@ -120,63 +120,81 @@ meaningless question.
              label_en_US: \"MEBBE\" } } }
 @end verbatim
 "
-  (error 'unimplemented))
+  (list 200
+        `(:|from| "prompt" 
+           :|status| t
+           :|title| "Title Here"
+           :|label| "example"
+           :|label_en_US| "example"
+           :|attachUser| ,(Toot-name *Toot*)
+           :|id| "example/2134§þ=?/x'<>'\\\\\\\",:/blah"
+           :|msg| "Because it's really important to me that you are able to hear this question and give me an informed answer, I want to know: “Can you hear me now?”"
+           :|replies|
+           ( :|si| ( :|label| "Yes"
+                      :|type| "aff"
+                      :|label_en_US| "YES" )
+              :|no| ( :|label| "No"
+                       :|type| "neg"
+                       :|label_en_US| "NO" )
+              :|maybe| ( :|label| "Maybe. I'm not really sure. This one is mostly just in here to be a really long answer."
+                          :|type| "neu"
+                          :|label_en_US| "MEBBE" )))))
 
 (define-operator-command ban (words user _)
   "Ban a user persistently (permanently) from the game.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
- #ban [REASONCODE] [LOGIN]
- #ban #list
-@end verbatim
+           @verbatim
+           #ban [REASONCODE] [LOGIN]
+           #ban #list
+           @end verbatim
 
-@subsection Examples
-@verbatim
- #ban BULLY pil
- #ban #list
-@end verbatim
+           @subsection Examples
+           @verbatim
+           #ban BULLY pil
+           #ban #list
+           @end verbatim
 
-@code{#ban #list} is identical to @code{#kick #list}, for convenience.
+           @code{#ban #list} is identical to @code{#kick #list}, for convenience.
 
-The same reason codes and syntax are used for @code{#ban} as for
-@code{#kick}, so refer to `TOOTSVILLE-USER::KICK' for reason codes.
+           The same reason codes and syntax are used for @code{#ban} as for
+           @code{#kick}, so refer to `TOOTSVILLE-USER::KICK' for reason codes.
 
-Unlike a @code{#kick}, a @code{#ban} remains in effect persistently
---- permanently, unless an operator reverses it."
+           Unlike a @code{#kick}, a @code{#ban} remains in effect persistently
+           --- permanently, unless an operator reverses it."
 
   (error 'unimplemented))
 
 (define-operator-command banhammer (words user _)
   "Ban an IP address from connecting.
 
-Bans can be listed using @samp{#banhammer #list}
+           Bans can be listed using @samp{#banhammer #list}
 
-Bans  can  be lifted  using  @samp{#banhammer  #-ip IP-ADDRESS}  (or
-hostname)
+           Bans  can  be lifted  using  @samp{#banhammer  #-ip IP-ADDRESS}  (or
+                                                                             hostname)
 
-A  ban  can   be  placed  with  @samp{#banhammer   #+ip  IP-ADDRESS}  or
-@samp{#banhammer  #+ip HOSTNAME}  or  @samp{#banhammer #user  USERNAME}.
-In the  latter case, the  user's connected IP  address is used.  This is
-expected to be the most common usage.
+           A  ban  can   be  placed  with  @samp{#banhammer   #+ip  IP-ADDRESS}  or
+           @samp{#banhammer  #+ip HOSTNAME}  or  @samp{#banhammer #user  USERNAME}.
+           In the  latter case, the  user's connected IP  address is used.  This is
+           expected to be the most common usage.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#banhammer #list
-#banhammer #user NICKNAME
-#banhammer #+ip ADDRESS
-#banhammer #-ip ADDRESS
-@end verbatim
+           @verbatim
+           #banhammer #list
+           #banhammer #user NICKNAME
+           #banhammer #+ip ADDRESS
+           #banhammer #-ip ADDRESS
+           @end verbatim
 
-@subsection Parameters
+           @subsection Parameters
 
-The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
-@samp{#-ip},   @samp{#user},    or   @samp{#list}.    For   @samp{#+ip},
-@samp{#-ip}, or @samp{#user}, an additional parameter is needed.
+           The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
+           @samp{#-ip},   @samp{#user},    or   @samp{#list}.    For   @samp{#+ip},
+           @samp{#-ip}, or @samp{#user}, an additional parameter is needed.
 
-"
+           "
   (string-case (first words)
     ("#list" (list-banhammers))
     ("#user" (banhammer-ip-address (peer-address (user-stream (find-Toot-by-name (second words))))))
@@ -197,21 +215,21 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 (define-operator-command beam (words user _)
   "Beam yourself to a different location.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#beam LATITUDE LONGITUDE [ALTITUDE]
-@end verbatim
+           @verbatim
+           #beam LATITUDE LONGITUDE [ALTITUDE]
+           @end verbatim
 
-Altitude is optional.
+           Altitude is optional.
 
-@subsection Changes from 1.2 to 2.0
-@cindex Changes from 1.2 to 2.0
+           @subsection Changes from 1.2 to 2.0
+           @cindex Changes from 1.2 to 2.0
 
-In Romance  1, this command took  a room moniker as  its sole parameter;
-since rooms as such no longer exist, we use latitude and longitude now.
+           In Romance  1, this command took  a room moniker as  its sole parameter;
+           since rooms as such no longer exist, we use latitude and longitude now.
 
-"
+           "
   (list 200 (list :|from| "beam"
                   :|latitude| (parse-integer (first words))
                   :|longitude| (parse-integer (second words))
@@ -225,88 +243,88 @@ since rooms as such no longer exist, we use latitude and longitude now.
 (define-operator-command spawnroom (words user _)
   "Mark a ``spot'' in the game.
 
-UNIMPLEMENTED.
+           UNIMPLEMENTED.
 
-Mark the current position of your Toot as a named ``spot'' in the game
-world.
+           Mark the current position of your Toot as a named ``spot'' in the game
+           world.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#spawnroom [MONIKER]
-@end verbatim
+           @verbatim
+           #spawnroom [MONIKER]
+           @end verbatim
 
-@subsection Changes from 1.2 to 2.0
-@cindex Changes from 1.2 to 2.0
+           @subsection Changes from 1.2 to 2.0
+           @cindex Changes from 1.2 to 2.0
 
-This command has been completely repurposed, since there are no longer
-rooms.
+           This command has been completely repurposed, since there are no longer
+           rooms.
 
-@subsection Legacy 1.2 Documentation
+           @subsection Legacy 1.2 Documentation
 
-Create a new room in the current zone.
+           Create a new room in the current zone.
 
-@subsection Usage in 1.2
+           @subsection Usage in 1.2
 
-@verbatim
- #spawnroom [MONIKER] [TITLE] [SWF]
- #spawnroom [MONIKER] [TITLE]
-@end verbatim
+           @verbatim
+           #spawnroom [MONIKER] [TITLE] [SWF]
+           #spawnroom [MONIKER] [TITLE]
+           @end verbatim
 
-NOTE: Uses tootCastleJoust.swf as default. This can be set after the
-room has been created by setting the 'f' room variable.
+           NOTE: Uses tootCastleJoust.swf as default. This can be set after the
+           room has been created by setting the 'f' room variable.
 
-@subsection Examples of 1.2 syntax
+           @subsection Examples of 1.2 syntax
 
-@verbatim
- #spawnroom tootCastleJoust2 Joust2 tootCastleJoust.swf
- #spawnroom tootCastleJoust2 Joust2
-@end verbatim
+           @verbatim
+           #spawnroom tootCastleJoust2 Joust2 tootCastleJoust.swf
+           #spawnroom tootCastleJoust2 Joust2
+           @end verbatim
 
-"
+           "
   (error 'unimplemented))
 
 (define-operator-command census (words user _)
   "Load a number of users.
 
-Simply  reference a  range  of  users, for  testing  purposes. Takes  an
-optional  low and  high point,  or  runs 0…250000.  (250,000) This  will
-load their Toots, and seriously strain the caché and database subsystems.
+           Simply  reference a  range  of  users, for  testing  purposes. Takes  an
+           optional  low and  high point,  or  runs 0…250000.  (250,000) This  will
+           load their Toots, and seriously strain the caché and database subsystems.
 
-Afterwards, due to cache flooding,  database accesses may be slower than
-usual until things balance out to a more normal workload.
+           Afterwards, due to cache flooding,  database accesses may be slower than
+           usual until things balance out to a more normal workload.
 
-Since this is designed  to stress the servers, it can  be called only by
-God (Pil).
+           Since this is designed  to stress the servers, it can  be called only by
+           God (Pil).
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#census
-#census [START]
-#census [START] [COUNT]
-@end verbatim
+           @verbatim
+           #census
+           #census [START]
+           #census [START] [COUNT]
+           @end verbatim
 
-@subsection Examples
+           @subsection Examples
 
-@verbatim
-#census
-@end verbatim
+           @verbatim
+           #census
+           @end verbatim
 
-Stress-load the first 250,000 Toots
+           Stress-load the first 250,000 Toots
 
-@verbatim
-#census 20000
-@end verbatim
+           @verbatim
+           #census 20000
+           @end verbatim
 
-Stress-load 250,000 Toots starting with offset 20,000.
+           Stress-load 250,000 Toots starting with offset 20,000.
 
-@verbatim
-#census 1000 100
-@end verbatim
+           @verbatim
+           #census 1000 100
+           @end verbatim
 
-Stress-load 100 Toots starting with offset 1,000.
-"
+           Stress-load 100 Toots starting with offset 1,000.
+           "
   (if (equal (Toot-name *Toot*) "Pil")
       (let* ((low (if (<= 1 (length words))
                       (parse-integer (first words))
@@ -334,193 +352,193 @@ Stress-load 100 Toots starting with offset 1,000.
 (define-operator-command clearbadge (words user _)
   "Clear a badge off the map.
 
-UNIMPLEMENTED: This is not yet implemented for Tootsville V.
+           UNIMPLEMENTED: This is not yet implemented for Tootsville V.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#clearbadge [NICKNAME] [SPOT]
-#clearbadge #me [SPOT]
+           @verbatim
+           #clearbadge [NICKNAME] [SPOT]
+           #clearbadge #me [SPOT]
 
-#clearbadge #me #here
-#clearbadge [NICKNAME] #here
+           #clearbadge #me #here
+           #clearbadge [NICKNAME] #here
 
-#clearbadge #me #all
-#clearbadge [NICKNAME] #all
-@end verbatim
+           #clearbadge #me #all
+           #clearbadge [NICKNAME] #all
+           @end verbatim
 
-@subsection Examples
+           @subsection Examples
 
-@verbatim
- #clearbadge snowcone tootSquare
- #clearbadge snowcone #all
- #clearbadge snowcone #here
- #clearbadge #me #all
- #clearbadge #me #here
-@end verbatim
+           @verbatim
+           #clearbadge snowcone tootSquare
+           #clearbadge snowcone #all
+           #clearbadge snowcone #here
+           #clearbadge #me #all
+           #clearbadge #me #here
+           @end verbatim
 
-@subsection Badges
+           @subsection Badges
 
-See `TOOTSVILLE-USER::SETBADGE' for a discussion of the map badges system.
+           See `TOOTSVILLE-USER::SETBADGE' for a discussion of the map badges system.
 
-@subsection Spots
+           @subsection Spots
 
-See `TOOTSVILLE-USER::SPAWNROOM' to mark a spot with a moniker, so that it
-can be passed to @code{#clearbadge} and other ``spot-based'' commands."
+           See `TOOTSVILLE-USER::SPAWNROOM' to mark a spot with a moniker, so that it
+           can be passed to @code{#clearbadge} and other ``spot-based'' commands."
   (error 'unimplemented))
 
 (define-operator-command clearcache (words user _)
   "Forcibly clear all cachés (MemCacheD)
 
-Flush all contents of the MemCacheD server.  This may negatively impact the
-system's performance.
+           Flush all contents of the MemCacheD server.  This may negatively impact the
+           system's performance.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#clearcache
-@end verbatim
+           @verbatim
+           #clearcache
+           @end verbatim
 
-@subsection Example
+           @subsection Example
 
-@verbatim
-#clearcache
-@end verbatim
-"
+           @verbatim
+           #clearcache
+           @end verbatim
+           "
   (cl-memcached:mc-flush-all))
 
 (define-operator-command clearevent (words user _)
   "Clear a GameEvent
 
-UNIMPLEMENTED
+           UNIMPLEMENTED
 
-@subsection Usage
-@verbatim
- #clearevent [EVENTNAME] [UNIQUE ID]
-@end verbatim
+           @subsection Usage
+           @verbatim
+           #clearevent [EVENTNAME] [UNIQUE ID]
+           @end verbatim
 
-@subsection Examples
-@verbatim
- #clearevent LaserTagGame 142
- #clearevent PropsWeather 120
- #clearevent ShaddowFalls 928
- #clearevent Tootlympics 1294
-@end verbatim
+           @subsection Examples
+           @verbatim
+           #clearevent LaserTagGame 142
+           #clearevent PropsWeather 120
+           #clearevent ShaddowFalls 928
+           #clearevent Tootlympics 1294
+           @end verbatim
 
-@subsection Changes from 1.2 to 2.0
-@cindex Changes from 1.2 to 2.0
+           @subsection Changes from 1.2 to 2.0
+           @cindex Changes from 1.2 to 2.0
 
-The names of game events have changed format.
+           The names of game events have changed format.
 
-The unique ID parameter is now required.
+           The unique ID parameter is now required.
 
-"
+           "
   (error 'unimplemented))
 
 (define-operator-command clearvar (words user _)
   "Clear a room variable. (no longer supported)
 
-Room variables can no longer be cleared.  This command is no longer useful.
+           Room variables can no longer be cleared.  This command is no longer useful.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#clearvar @[ROOM] [VARIABLE] [VALUE]
-#clearvar [VARIABLE] [VALUE]
-@end verbatim
+           @verbatim
+           #clearvar @[ROOM] [VARIABLE] [VALUE]
+           #clearvar [VARIABLE] [VALUE]
+           @end verbatim
 
-@subsection Examples
+           @subsection Examples
 
-@verbatim
-#clearvar @tootsSquareWest anim~ropes 2
-#clearvar anim~ropes 2
-@end verbatim
+           @verbatim
+           #clearvar @tootsSquareWest anim~ropes 2
+           #clearvar anim~ropes 2
+           @end verbatim
 
-@subsection 410 Gone
+           @subsection 410 Gone
 
-This command was rendered inoperable in 2.0.
+           This command was rendered inoperable in 2.0.
 
-"
+           "
   (error 'gone))
 
 (define-operator-command cloneroom (words u _)
   "Clone a room. (no longer supported)
 
-This is no longer supported in Tootsville V.
+           This is no longer supported in Tootsville V.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#cloneroom NEW-MONIKER
-#cloneroom OLD-MONIKER NEW-MONIKER
-@end verbatim
+           @verbatim
+           #cloneroom NEW-MONIKER
+           #cloneroom OLD-MONIKER NEW-MONIKER
+           @end verbatim
 
-@subsection Legacy Operator Command
+           @subsection Legacy Operator Command
 
-This command existed in Romance 1.2, but is no longer effective.
+           This command existed in Romance 1.2, but is no longer effective.
 
-"
+           "
   (error 'unimplemented))
 
 (define-operator-command createroom (words user _)
   "Create a new room.
 
-This is a synonym for `TOOTSVILLE-USER::SPAWNROOM' now.
+           This is a synonym for `TOOTSVILLE-USER::SPAWNROOM' now.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#createroom NEW-MONIKER
-@end verbatim
+           @verbatim
+           #createroom NEW-MONIKER
+           @end verbatim
 
-@subsection Example
+           @subsection Example
 
-@verbatim
-#createroom JACKS-HOUSE
-#spawnroom JACKS-HOUSE
-@end verbatim
+           @verbatim
+           #createroom JACKS-HOUSE
+           #spawnroom JACKS-HOUSE
+           @end verbatim
 
-@subsection Legacy Operator Command
+           @subsection Legacy Operator Command
 
-This command existed in Romance 1.2 and was different than
-`TOOTSVILLE-USER::SPAWNROOM', but now they are synonymous.
+           This command existed in Romance 1.2 and was different than
+           `TOOTSVILLE-USER::SPAWNROOM', but now they are synonymous.
 
-"
+           "
   (error 'unimplemented))
 
 (define-operator-command dbcpinfo (words user _)
   "Get information from the DBI (database) layer.
 
 
-Earlier versions of Romance were  Java-based, using the DBCP layer, thus
-the name.
+           Earlier versions of Romance were  Java-based, using the DBCP layer, thus
+           the name.
 
-@subsection Usage
+           @subsection Usage
 
-@verbatim
-#dbcpinfo
-@end verbatim
+           @verbatim
+           #dbcpinfo
+           @end verbatim
 
- Examples:
+           Examples:
 
-@example
-#dbcpinfo
-@end example
+           @example
+           #dbcpinfo
+           @end example
 
-This identifies  the name  of the  database being  used, the  DBI driver
-type, and the active connection or connection pool.
-"
+           This identifies  the name  of the  database being  used, the  DBI driver
+           type, and the active connection or connection pool.
+           "
   (with-dbi (:friendly)
     (let ((driver (dbi:connection-driver-type *dbi-connection*)))
       (format nil "Friendly database name: ~a;
-DBI connection driver type: ~a (~a::~a);
-connection: ~/HTML/; working: ~/HTML/"
-              (dbi:connection-database-name *dbi-connection*)
-              driver
-              (package-name (symbol-package (class-name (dbi:find-driver driver))))
-              (class-name (dbi:find-driver driver))
-              (dbi.driver:connection-handle *dbi-connection*)
-              (db-select-all :friendly "select true")))))
+           DBI connection driver type: ~a (~a::~a);
+           connection: ~/HTML/; working: ~/HTML/"
+           (dbi:connection-database-name *dbi-connection*)
+           driver
+           (package-name (symbol-package (class-name (dbi:find-driver driver))))
+           (class-name (dbi:find-driver driver))
+           (dbi.driver:connection-handle *dbi-connection*)
+           (db-select-all :friendly "select true")))))
 
 (define-operator-command dress (words user _)
   "Force a character to wear a specific clothing item.
