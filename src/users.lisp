@@ -304,9 +304,14 @@ limitations under the License. |#
 (defun person-is-patron-p (person)
   "Returns true if PERSON is a patron of CIWTA.
 
-Currently just me."
+Currently just Bruce-Robert Pocock, Gene Cronk, Zephyr Salz, and Ali Dolan."
   ;; just me ☹
-  (string= (uuid-to-uri (person-uuid person)) "SAsJFzx6TRO1W6pWEFxeAA=="))
+  (member (uuid-to-uri (person-uuid person)) 
+          '("SAsJFzx6TRO1W6pWEFxeAA==" ; Bruce-Robert
+            "Vra1I1adQaGXZKZeA82vlg==" ; Gene
+            "kd7Q14M2S7iFxsH09Soaqw==" ; Bruce-Robert also
+            "hcuB9HuoStysFdReBb+efA==" ; Zephyr
+            )))
 
 (defun get-rollbar-person (&optional (person *user*))
   "Return PERSON information for Rollbar error reporting"
