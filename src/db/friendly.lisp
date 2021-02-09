@@ -78,7 +78,7 @@
            (last-used timestamp))
 
 (defmethod print-object ((contact contact) s)
-  (format s "#<Contact ~a:~a~@[ ⋆~]>" 
+  (format s "#<Contact ~a:~a~@[ ★~]>" 
           (contact-owner contact) (contact-contact contact) (contact-starredp contact)))
 
 (defrecord sms (:friendly "sms")
