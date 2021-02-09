@@ -82,6 +82,10 @@
 
 (pushnew :verbose-no-init *features*)
 
+;;; Tell SBCL to default to UTF-8
+
+#.(progn #+sbcl (setf sb-impl::*default-external-format* :utf-8))
+
 ;;; Darwin-Homebrew mySQL libs
 
 (when (equal "Darwin" (software-type))
