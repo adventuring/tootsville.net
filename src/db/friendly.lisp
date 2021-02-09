@@ -70,19 +70,23 @@
   (origin string))
 
 (defrecord contact (:friendly "contacts")
-  (uuid uuid)
-  (owner uuid ref Toot)
-  (contact uuid ref Toot)
-  (starredp yornp)
-  (added timestamp)
-  (last-used timestamp))
+           (uuid uuid)
+           (owner uuid ref Toot)
+           (contact uuid ref Toot)
+           (starredp yornp)
+           (added timestamp)
+           (last-used timestamp))
+
+(defmethod print-object ((contact contact) s)
+  (format s "#<Contact ~a:~a~@[ ⋆~]>" 
+          (contact-owner contact) (contact-contact contact) (contact-starredp contact)))
 
 (defrecord sms (:friendly "sms")
-  (uuid uuid)
-  (sender uuid ref Toot)
-  (destination uuid ref Toot)
-  (message string)
-  (mmsp yornp))
+           (uuid uuid)
+           (sender uuid ref Toot)
+           (destination uuid ref Toot)
+           (message string)
+           (mmsp yornp))
 
 
 (defrecord avatar (:friendly "avatars" :pull t)
@@ -113,7 +117,7 @@
            (avatar-scale-z number))
 
 (defmethod print-object ((Toot Toot) s)
-  (format s "#<Toot ~a>" (Toot-name Toot)))
+  (format s "#<Toot ~a ~a>" (Toot-name Toot) (Toot-UUID Toot)))
 
 (defmethod save-record :before ((Toot Toot))
   (setf (Toot-last-active Toot) (now)))
