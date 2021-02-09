@@ -2633,7 +2633,7 @@ time code, and Chœrogryllum date and time are new.
     (multiple-value-bind (second minute hour) (chœrogryllum:decode*-universal-time universal)
       (format nil "Now it is ~a (Universal: ~:d; Unix: ~:d). In Chœrogryllum, it is ~
 ~d:~2,'0d:~2,'0d on ~a"
-              (now) universal (- universal +unix-time-in-universal+)
+              (now) universal (- universal +unix-zero-in-universal-time+)
               hour minute second (chœrogryllum:date-string universal)))))
 
 (define-operator-command unbuild (words user _)
