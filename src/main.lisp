@@ -155,7 +155,7 @@ is available."
     (background-gc))
   
   (v:info '(:starting :hack) "HACK … reloading friendly neighborhood database definition file …")
-  (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp"))
+  (load (asdf:system-relative-pathname :Tootsville "src/db/friendly.lisp") :external-format :utf-8)
   
   (setf hunchentoot:*hunchentoot-default-external-format* :utf-8)
   
