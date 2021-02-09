@@ -93,6 +93,8 @@ Used by the WebSockets and direct TCP stream handlers."
           (v:info '(:infinity :stream) 
                   "Stream request from ~a for command ~a"
                   *client* method)
+          (when *client*
+            (setf (last-active *client*) (get-Unix-time)))
           (when *Toot*
             (setf (Toot-last-active *Toot*) (now))
             (when (zerop (random 10)) (save-record *Toot*)))
