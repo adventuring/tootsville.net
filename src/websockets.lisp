@@ -431,16 +431,12 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
         (ws-to-infinity client message)
         (ws-without-login client message))))
 
-(defconstant +unix-time-in-universal+
-  2208988800
-  "The number of seconds from Universal Time Epoch to Unix Epoch.")
-
 (defun ayt-idle-users ()
   "Send Are You There to idle (websocket) users.
 
 Idle is defined as idle for `+WS-IDLE-SECONDS+' seconds."
-  (let ((server-time (* 1000 (get-Unix-time)))
-        (idle-time (* 1000 (- (get-Unix-time) +ws-idle-seconds+)))
+  (let ((server-time (get-java-time))
+        (idle-time (- (get-java-time) (* 1000 +ws-idle-seconds+)))
         (pinged 0))
     (dolist (client (remove-if (lambda (client)
                                  (< (last-active client) idle-time))
