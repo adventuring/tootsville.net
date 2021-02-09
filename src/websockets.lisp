@@ -438,9 +438,9 @@ Idle is defined as idle for `+WS-IDLE-SECONDS+' seconds."
   (let ((server-time (get-java-time))
         (idle-time (- (get-java-time) (* 1000 +ws-idle-seconds+)))
         (pinged 0))
-    (dolist (client (remove-if (lambda (client)
-                                 (< (last-active client) idle-time))
-                               (hunchensocket:clients *infinity-websocket-resource*)))
+    (dolist (client (remove-if-not (lambda (client)
+                                     (< (last-active client) idle-time))
+                                   (hunchensocket:clients *infinity-websocket-resource*)))
       (ws-unicast (list :|from| "ayt"
                         :|status| t
                         :|serverTime| server-time
