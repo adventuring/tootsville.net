@@ -251,3 +251,11 @@ Returns all items in that volume which are not in a character's inventory."
           (latitude point)
           (longitude point)
           (altitude point)))
+
+(defun get-daily-greeting ()
+  "Get the date, and any holiday that it may be, to greet players signing in."
+  (multiple-value-bind (s min hour d m y) (choerogryllum:decode*-universal-time)
+    (declare (ignore s min hour))
+    (let ((holiday (choerogryllum:holiday-on y m d)))
+      (format nil "<p> Today is ~@[<b>~a</b>, ~]~a. </p>" 
+              holiday (choerogryllum:date-string (get-universal-time))))))
