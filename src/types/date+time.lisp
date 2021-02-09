@@ -87,7 +87,7 @@ Z time.
 
 Note that Java time is Unix time  multiplied by 1,000 (ie. time in msec)
 and is used is some places in the Infinity mode communications."
-  (+ universal-time +Unix-zero-in-universal-time+))
+  (- universal-time +Unix-zero-in-universal-time+))
 
 (defconstant +Unix-zero-in-universal-time+ 2208988800
   "The Unix zero timestamp occurs at Universal Time 2,208,988,800seconds.")
