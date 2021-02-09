@@ -898,18 +898,24 @@ servers.
                  (Toot-quiesced-emotion old) (or emotion "")
                  (Toot-quiesced-observed old) (now))
            (save-record old))
-    
-    (make-record 'Toot-quiesced
-                 :Toot (Toot-UUID Toot)
-                 :world (or world :chor)
-                 :latitude (or latitude 0)
-                 :longitude (or longitude 0)
-                 :altitude (or altitude 0)
-                 :wtl (jonathan.encode:to-json wtl)
-                 :d3 (jonathan.encode:to-json d3)
-                 :peer-address (peer-address Toot)                                 
-                 :emotion emotion
-                 :observed (now)))
+    (handler-case
+        (make-record 'Toot-quiesced
+                     :Toot (Toot-UUID Toot)
+                     :world (or world :chor)
+                     :latitude (or latitude 0)
+                     :longitude (or longitude 0)
+                     :altitude (or altitude 0)
+                     :wtl (jonathan.encode:to-json wtl)
+                     :d3 (jonathan.encode:to-json d3)
+                     :peer-address (peer-address Toot)                                 
+                     :emotion emotion
+                     :observed (now))
+      (dbi.error:dbi-database-error (e)
+        ;; MariaDB error code for duplicate row in DB
+        ;; XXX not sure why this is necessary, race condition maybe?
+        (when (= 1452 (dbi.error:database-error-code e))
+          (return))
+        (error e))))
   (list :|from| "quiesce"
         :|status| t))
 
