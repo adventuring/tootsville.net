@@ -83,11 +83,15 @@ TIME defaults to the present (@code{(NOW)})."
   "Get the UNIVERSAL-TIME (default to now) in Unix time.
 
 Returns the number of seconds since  the Unix epoch, 1970-01-01 at 00:00
-Z time.
+Z time."
+  (- universal-time +Unix-zero-in-universal-time+))
+
+(defun get-java-time (&optional (universal-time (get-universal-time)))
+  "Get the time since the Unix epoch in msec, as used often in Java land.
 
 Note that Java time is Unix time  multiplied by 1,000 (ie. time in msec)
 and is used is some places in the Infinity mode communications."
-  (- universal-time +Unix-zero-in-universal-time+))
+  (* 1000 (get-Unix-time universal-time)))
 
 (defconstant +Unix-zero-in-universal-time+ 2208988800
   "The Unix zero timestamp occurs at Universal Time 2,208,988,800seconds.")
