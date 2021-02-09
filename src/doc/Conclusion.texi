@@ -17,7 +17,7 @@ Levi Mc Call, and Zephyr Salz.
 
 In memory of the contributions of Maureen Kenny (RIP).
 
-@subsubsection Res Interactive, LLC
+@subsection Res Interactive, LLC
 
 Tootsville and the The Toots characters were created by Res Interactive,
 LLC,  a dissolved  Florida  limited-liability  corporation. No  original
@@ -31,20 +31,21 @@ Bruce-Robert Pocock, © 2011-2015 Bruce-Robert Pocock (AGPL).
 
 Tootsville I-III client front-end ``Nightmare'' and Tootsville IV client
 front-end ``Persephone'' by Brandon Booker, Robert Dawson, Eric Feiling,
-Sean King, and Bruce-Robert Pocock  is Copyright © 2008 Res Interactive,
-LLC; no portion of Persephone is used in Tootsville V.
+Sean  King,  and  Bruce-Robert  Pocock  is  Copyright  ©  2008-2011  Res
+Interactive, LLC; no portion of Persephone is used in Tootsville V.
 
 Tootsville IV application  ``Zookeeper'' by Eric Feiling  is Copyright ©
-2008 Res Interactive, LLC; no portion of Zookeeper is used in Tootsville V.
+2008-2011  Res Interactive,  LLC; no  portion  of Zookeeper  is used  in
+Tootsville V.
 
 Tootsville extensions  to Appius and  stand-alone PHP and  other utility
 programs  by Gene  Cronk, Tim  Hays, Mark  Mc Corkle,  Cassandra Nichol,
-Bruce-Robert  Pocock  and   Ed  Winkelman  are  Copyright   ©  2008  Res
+Bruce-Robert  Pocock and  Ed  Winkelman are  Copyright  © 2008-2011  Res
 Interactive, LLC; no portion of  the Tootsville extensions libraries are
 used in Tootsville V.
 
 Tootsville Membership &  Billing by Tim Hays and  Bruce-Robert Pocock is
-Copyright  ©  2008  Res  Interactive,  LLC;  no  portion  of  Tootsville
+Copyright ©  2009-2011 Res  Interactive, LLC;  no portion  of Tootsville
 Membership & Billing is used in Tootsville V.
 
 Tootsbook (Res Interactive Version) by Tim  Hays is Copyright © 2008 Res
