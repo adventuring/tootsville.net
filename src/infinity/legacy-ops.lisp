@@ -2838,6 +2838,8 @@ The  item template  info is  essentially  that which  is available  from
 #whatis 1337
 @end verbatim
 
+Returns the item template's attributes in an admin message, along with
+any tags assigned to it.
  "
   (unless (= 1 (length words))
     (return "Give exactly one template item ID"))
@@ -2845,8 +2847,9 @@ The  item template  info is  essentially  that which  is available  from
     (unless (plusp item-id)
       (return "Usage: #whatis <TEMPLATE ID #>"))
     (if-let (template (ignore-not-found (find-record 'item-template :id item-id)))
-      (format nil "~{~a: ~a~%<BR>~}"
-              (item-template-info template))
+      (format nil "~{~a: ~a~%<BR>~}~@[~{Tag: ~a~%~^<BR>~}~]"
+              (item-template-info template)
+              (item-template-tags template))
       "Item template not found")))
 
 (define-operator-command whereami (words user _)
