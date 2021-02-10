@@ -173,7 +173,8 @@
   (altitude number)
   (world keyword ref worlds)
   (effect keyword)
-  (attributes string))
+  (attributes string)
+  (special-texture string))
 
 (defmethod print-object ((item item) s)
   (format s "#<Item (~a) @ (~d, ~d, ~d) on ~a (~d, ~d) + ~d>"
@@ -182,6 +183,15 @@
           (item-world item) 
           (item-latitude item) (item-longitude item)
           (item-altitude item)))
+
+(defrecord item-tag (:friendly "item_tags")
+  (item number ref item-templace)
+  (tag keyword))
+
+(defmethod print-object ((item-tag item-tag) s)
+  (format s "#<Item Template ~d Tag ~a>"
+          (item-tag-item item-tag)
+          (item-tag-tag item-tag)))
 
 (defrecord inventory-item (:friendly "inventory" :id-column item)
   (item uuid ref item)
