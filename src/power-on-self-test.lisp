@@ -129,4 +129,6 @@ need to be expanded a great deal to increase confidence in these tests."
                (cl-user::exit :code 27 :abort t :timeout 5)
                nil))
           (t (v:info :power-on-self-test "POST Passed")
-             t))))
+             (if exitp
+                 (cl-user::exit :code 0 :abort t :timeout 5)
+                 t)))))
