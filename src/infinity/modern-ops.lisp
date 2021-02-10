@@ -483,8 +483,11 @@ UNIMPLEMENTED.
 (define-operator-command whatabout (words user _)
   "Searches for related item templates.
 
-Replies with an admin (parrot) message with the item numbers of
-related item templates.
+Replies with an admin (parrot) message with the item numbers and names
+of related item templates. Template names and descriptions are searche
+
+If WORD is a single word beginning with @code{#}, instead searches for
+item templates tagged with WORD.
 
 See also `TOOTSVILLE-USER::WHATIS' to get details about a specific
 item.
@@ -493,27 +496,47 @@ item.
 
 @verbatim
 #whatabout WORD(S)
+#whatabout #TAG
 @end verbatim
 
 @subsection Example
 
 @verbatim
 #whatabout bucket
+#whatabout #cute
 @end verbatim
 
 "
   (unless (plusp (length words))
     (return "Give some search term to look for"))
-  (if-let (results (mapcar (lambda (template)
-                             (list (item-template-id template) (item-template-name template)))
-                           (remove-if-not (lambda (template)
-                                            (search (join #\Space words) (item-template-name template)
-                                                    :test 'string-equal))
-                                          (find-records 'item-template))))
-    (format nil "Item templates like ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
-            (join #\Space words)
-            results)
-    "No results found"))
+  (if (and (= 1 (length words))
+           (char= #\# (char (first words) 0)))
+      (let ((tag (subseq (first words) 1)))
+        (if-let (results (mapcar
+                          (lambda (template)
+                            (list (item-template-id template)
+                                  (item-template-name template)))
+                          (mapcar
+                           (lambda (item-tag)
+                             (find-record 'item-template :id item-tag-item))
+                           (find-records 'item-tag :tag tag))))
+                (format nil "Item templates tagged ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
+                        tag results)
+                (format nil "No templates found tagged ~a" tag)))
+  (let ((term (join #\Space words)))
+    (if-let (results (mapcar (lambda (template)
+                               (list (item-template-id template)
+                                     (item-template-name template)))
+                             (remove-if-not (lambda (template)
+                                              (or (search term (item-template-name template)
+                                                          :test 'string-equal)
+                                                  (search term (item-template-description template)
+                                                          :test 'string-equal)))
+                                            (find-records 'item-template))))
+            (format nil "Item templates like ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
+                    (join #\Space words)
+                    results)
+            (format nil "No templates found like <Q>~/HTML/</Q>" results)))))
 
 (define-operator-command describeitem (words user _)
   "Set description for an item.
@@ -527,6 +550,10 @@ To change the description of an item, use this command.
 @verbatim
 #describeitem ITEM-TEMPLATE-ID DESCRIPTION
 @end verbatim
+
+When DESCRIPTION is a single word beginning with @code{#}, it is
+interpreted instead as an `ITEM-TAG' to be associated with the item
+template.
 
 @subsection Example
 
