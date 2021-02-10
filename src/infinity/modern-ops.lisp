@@ -549,24 +549,31 @@ To change the description of an item, use this command.
 
 @verbatim
 #describeitem ITEM-TEMPLATE-ID DESCRIPTION
+#describeitem ITEM-TEMPLATE-ID #TAG
 @end verbatim
 
 When DESCRIPTION is a single word beginning with @code{#}, it is
 interpreted instead as an `ITEM-TAG' to be associated with the item
 template.
 
-@subsection Example
+@subsection Examples
 
 @verbatim
 #describeitem 993 This is a lovely marble table 
        of which any grandmother would be proud.
+
+#describeitem 993 #classical
 @end verbatim
 "
   (unless (<= 2 (length words))
     (return "Usage: item-template-id description-text"))
   (let ((item-template (find-record 'item-template :id (parse-number (first words)))))
-    (setf (item-template-description item-template)
-          (join #\Space (rest words)))
+    (if (and (= 2 (length words))
+             (char= #\# (char (second words) 0)))
+        (make-record 'item-tag :item (item-template-id item-template)
+                     :tag (subseq (second words) 1))
+        (setf (item-template-description item-template)
+              (join #\Space (rest words))))
     (save-record item-template)
     (Tootsville-user::whatis (first words))))
 
