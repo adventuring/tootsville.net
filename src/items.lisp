@@ -561,6 +561,9 @@ As     per    the     SNOWBALL    placement     command;    see     also
       (%item-click-effect item effect clicker mods x y z))))
 
 (defun item-template-tags (template)
+  "Returns the set of tags associated with TEMPLATE.
+
+TEMPLATE can be an `ITEM-TEMPLATE' or the ID number for one."
   (let ((template-id (etypecase template
                        (number template)
                        (item-template (item-template-id template)))))
