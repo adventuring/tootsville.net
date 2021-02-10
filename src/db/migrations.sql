@@ -32,10 +32,10 @@ alter table items add column if not exists attributes text;
 alter table items add column if not exists special_texture text;
 
 create table if not exists item_tags
-( item char(22) not null,
+( item int not null,
   tag varchar(64) not null,
   constraint distinct_tags primary key (item, tag),
-  constraint item_tagged foreign key (item) references items (uuid) on delete restrict on update cascade )
+  constraint item_tagged foreign key (item) references item_templates (id) on delete restrict on update cascade )
 engine=InnoDB default charset=utf8;
 
 insert ignore into item_templates (id, name, default_base_color, avatar, wear_slot, description)
