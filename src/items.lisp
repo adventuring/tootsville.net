@@ -559,3 +559,10 @@ As     per    the     SNOWBALL    placement     command;    see     also
   (let ((item (ensure-item item)))
     (when-let (effect (item-effect item))
       (%item-click-effect item effect clicker mods x y z))))
+
+(defun item-template-tags (template)
+  (let ((template-id (etypecase template
+                       (number template)
+                       (item-template (item-template-id template)))))
+    (mapcar #'item-tag-tag (find-records 'item-tag
+                                         :item template-id))))
