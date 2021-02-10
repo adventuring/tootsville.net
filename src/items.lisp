@@ -251,11 +251,25 @@ The universally-unique ID of this particular item
 @item baseColor
 The base color of this item (if any). This is a primary color
 texture that may be applied to the model. See `PARSE-COLOR24'
-for the syntax.
+for the syntax. The model must have a material named @code{base}
+for this color to apply to it (case-insensitive).
+See `Tootsville.FurnitureBuilder.makeFurnitureColorizeMaterial'
+for details.
 @item altColor
 The alternate color of this item (if any). This is a secondary 
 color texture that may be applied to the model. See
-`PARSE-COLOR24' for the syntax.
+`PARSE-COLOR24' for the syntax. The model must have a material
+named @code{alt} for this color to apply to it
+(case-insensitive).
+See `Tootsville.FurnitureBuilder.makeFurnitureColorizeMaterial'
+for details.
+@item specialTexture
+The special texture image which may be applied to this image 
+(if any). Some item models have a material named @code{map} which
+is textured with this image on a per-item basis. This is often
+used for e.g. signs and things which share geometry but have one
+surface that displays something unique. See
+`Tootsville.FurnitureBuilder.setMaterialTexture' for details.
 @item template
 The Item Template of which this individual item is an instance.
 This is a table in the form described at `ITEM-TEMPLATE-INFO'.
@@ -266,7 +280,7 @@ For items with an @code{energyKind} of @code{COUNTABLE} or
 discrete energy units remaining or (@code{UNCOUNTABLE}) the
 portion of @code{energyMax} remaining (which should be surfaced to
 the user as a percentage or the like).
-@item scape
+@item scale
 The item's scaling factors in each of the @code{x}, @code{y}, and @code{z}
 dimensions, as compared to the size of the raw asset in the avatar
 model file.
@@ -289,6 +303,7 @@ The location of the item within the world in @code{lat}-itude,
   (list :|uuid| (item-uuid item)
         :|baseColor| (item-base-color item)
         :|altColor| (item-alt-color item)
+        :|specialTexture| (item-special-texture item)
         :|template| (item-template-info (find-reference item :template))
         :|energy| (item-energy item)
         :|scale| (list :|x| (item-avatar-scale-x item)
