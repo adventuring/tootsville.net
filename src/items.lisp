@@ -303,7 +303,7 @@ The location of the item within the world in @code{lat}-itude,
   (list :|uuid| (item-uuid item)
         :|baseColor| (item-base-color item)
         :|altColor| (item-alt-color item)
-        :|specialTexture| (item-special-texture item)
+        :|specialTexture| (or (item-special-texture item) :null)
         :|template| (item-template-info (find-reference item :template))
         :|energy| (item-energy item)
         :|scale| (list :|x| (item-avatar-scale-x item)
