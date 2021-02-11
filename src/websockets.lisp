@@ -1190,6 +1190,8 @@ exists. Otherwise, returns silently."
       (with-slots (hunchensocket::input-stream) client
         (hunchensocket::read-frame hunchensocket::input-stream))
     (sb-sys:io-timeout (c)
+      (throw 'hunchensocket::websocket-done c))
+    (end-of-file (c)
       (throw 'hunchensocket::websocket-done c))))
 
 
