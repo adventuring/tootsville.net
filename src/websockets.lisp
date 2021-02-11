@@ -594,13 +594,12 @@ only handles the low-level bookkeeping."
 
 Calls `WS-SIGN-IN-USER' and `WS-KICK-OTHER-STREAMS-FOR-USER'
 
-Sends logOK message, local room vars, and Toots List"
+Sends logOK message,and Toots List"
   (v:info :stream "User authenticated as ~a on ~a" user client)
   (when (not (eql t user))
     (ws-kick-other-streams-for-user user))
   (ws-sign-in-user client user)
   (ws-unicast (login-ok-message) client)
-  (ws-unicast (local-room-vars) client)
   (ws-unicast (second (toot-list-message)) client))
 
 (defun infinity-pre-login (c auth client)
