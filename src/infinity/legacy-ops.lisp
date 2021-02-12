@@ -232,15 +232,29 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
 
 Altitude is optional.
 
+@subsection Success
+
+When successful, the client will receive a ``beam'' packet. See
+`Tootsville.Game.Gatekeeper.beam' for details.
+
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
 In Romance  1, this command took  a room moniker as  its sole parameter;
-since rooms as such no longer exist, we use latitude and longitude now.
+since rooms as such no longer exist, we use latitude and longitude now or
+named spots.
 
 "
   (case (length words)
-    (1 (return "Unimplemented, can't beam to a named spot yet"))
+    (1 (let ((spot (find-record 'named-spot :name (first words))))
+         (list :|from| "beam"
+               :|latitude| (named-spot-latitude spot)
+               :|longitude| (named-spot-longitude spot)
+               :|altitude| (named-spot-altitude spot)
+               :|world| (named-spot-world spot)
+               :|x| (named-spot-x spot)
+               :|y| (named-spot-y spot)
+               :|z| (named-spot-z spot))))
     ((2 3)
      (list 200 (list :|from| "beam"
                      :|latitude| (parse-integer (first words))
