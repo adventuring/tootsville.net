@@ -795,7 +795,7 @@ Note that the current Tootsville V client does not make use of LABEL."
 (defun return-new-apple (client)
   "Used by `INFINITY-GET-APPLE' to send CLIENT a new apple value."
   (let ((random-key (cl-base64:integer-to-base64-string
-                     (ironclad:random-bits (random 32768)))))
+                     (ironclad:random-bits (+ 64 (random 4096))))))
     (setf (random-key client) random-key)
     (unicast (list :|from| "getApple"
                    :|status| t
