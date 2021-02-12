@@ -477,8 +477,8 @@ UNIMPLEMENTED.
 (define-operator-command uptime (words u r)
   "Gives the uptime of the server software."
   (let ((uptime (- (get-universal-time) *started*)))
-    (format nil "The server has been up for ~a (precisely ~:d sec)"
-            (human-duration uptime) uptime)))
+    (format nil "The server ~:(~a~) has been up for ~a (precisely ~:d sec)"
+            (machine-instance) (human-duration uptime) uptime)))
 
 (define-operator-command whatabout (words user _)
   "Searches for related item templates.
