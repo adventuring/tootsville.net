@@ -1891,12 +1891,16 @@ as a string.
 
 @verbatim
    { buddy: LOGIN }
+
+   { buddy: LOGIN, sign: SIGNATURE }
 @end verbatim
 
 @subsection Example
 
 @verbatim
  { buddy: \"catvlle\" }
+
+ { buddy: \"catvlle\", sign: \"xyzzyfoo\" }
 @end verbatim
 
 @subsection Changes from 1.0 to 1.1
@@ -1913,12 +1917,12 @@ This was new in Romance 1.1
   (unicast (list :|from| "buddyRequest"
                  :|status| t
                  :|sender| (Toot-name *Toot*)
-                 :|signature| (generate-buddy-list-signature (Toot-name *Toot*) buddy))
+                 :|sign| (generate-buddy-list-signature (Toot-name *Toot*) buddy))
            (find-record 'Toot :name buddy))
   (list 200 (list :|from| "buddyRequest"
                   :|status| t
                   :|sender| (Toot-name *Toot*)
-                  :|signature| (generate-buddy-list-signature (Toot-name *Toot*) buddy))))
+                  :|sign| (generate-buddy-list-signature (Toot-name *Toot*) buddy))))
 
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users
