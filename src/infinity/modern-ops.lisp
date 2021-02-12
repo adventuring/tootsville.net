@@ -543,7 +543,8 @@ item.
 
 @subsection Usage
 
-To describe an item, use the `TOOTSVILLE-USER::WHATIS' command.
+To see the existing description of an item, use the
+`TOOTSVILLE-USER::WHATIS' command.
 
 To change the description of an item, use this command.
 
