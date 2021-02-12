@@ -455,7 +455,8 @@ This is based upon `DOCUMENTATION', qv."
     (apropos (first words) :tootsville-user)))
 
 (define-operator-command script (words u r)
-  "Push a new function into the TOOTSVILLE-USER package.
+  "Push a new function into for the #$ operator command.
+
 
 UNIMPLEMENTED.
 
