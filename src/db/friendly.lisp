@@ -206,7 +206,7 @@
           (inventory-item-Toot item)
           (inventory-item-equipped item)))
 
-(defmethod inventory-item-equipped-p ((item inventory-item))
+(defmethod inventory-item-equippedp ((item inventory-item))
   (inventory-item-equipped item))
 
 (defrecord store-item (:friendly "store_items")
