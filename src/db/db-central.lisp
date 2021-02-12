@@ -205,6 +205,7 @@ Used in `DEFRECORD', qv."
                     (:keyword `(make-keyword (string ,name)))
                     (:yornp `(when ,name t)) ; T or NIL
                     (:number `(etypecase ,name
+                                (double-float (format nil "~f" ,name))
                                 (number ,name)
                                 (string (parse-number ,name))))
                     (:json name)        ; TODO
