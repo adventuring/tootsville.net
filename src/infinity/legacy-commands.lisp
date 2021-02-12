@@ -46,7 +46,11 @@ requestBuddy `INFINITY-REQUEST-BUDDY'
 
 @subsection Usage
 
-This command can no longer be used.
+This command can no longer be used to add a buddy, only to ignore someone.
+
+@verbatim
+{ ignore: USER }
+@end verbatim
 
 @subsection 410 Gone
 
@@ -1906,10 +1910,15 @@ confirmed adding. AKA the Twitter vs. Facebook mechanisms.
 
 This was new in Romance 1.1
 "
+  (unicast (list :|from| "buddyRequest"
+                 :|status| t
+                 :|sender| (Toot-name *Toot*)
+                 :|signature| (generate-buddy-list-signature (Toot-name *Toot*) buddy))
+           (find-record 'Toot :name buddy))
   (list 200 (list :|from| "buddyRequest"
                   :|status| t
                   :|sender| (Toot-name *Toot*)
-                  :|signature| (generate-buddy-list-signature *Toot* buddy))))
+                  :|signature| (generate-buddy-list-signature (Toot-name *Toot*) buddy))))
 
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users
