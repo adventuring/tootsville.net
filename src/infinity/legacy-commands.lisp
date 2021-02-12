@@ -1172,16 +1172,6 @@ The ``place'' form using latitude and longitude is used instead.
 
 @subsection Status 200 OK
 
-Joining a room used to return a packet like:
-
-@verbatim
-{ from: \"roomJoin\",
-  status: true,
-  room: MONIKER }
-@end verbatim
-
-You will never get this reply in Romance 2.0.
-
 You may get this reply for joining a place instead:
 
 @verbatim
@@ -1196,8 +1186,18 @@ You may get this reply for joining a place instead:
 This will usually be followed by an @code{rv} packet with the local
 room vars (see `LOCAL-ROOM-VARS').
 
-NOTE the inconsistency: the command is  join, but the reply comes from
-roomJoin
+@emph{NOTE the inconsistency}: the command is @code{join}, but the
+reply comes from @code{roomJoin}
+
+Joining a room used to return a packet like:
+
+@verbatim
+{ from: \"roomJoin\",
+  status: true,
+  room: MONIKER }
+@end verbatim
+
+You will never get this reply in Romance 2.0.
 
 @subsection Error Return values
 
