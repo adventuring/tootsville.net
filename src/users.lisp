@@ -465,7 +465,11 @@ Uses the first, alphabetically speaking."
 
 
 
+(defconstant +builder-toot-hard-hat-template+ 2494
+  "This item grants a player the ability to run operator commands.")
+
 (defun builder-Toot-p (&optional (Toot *Toot*))
+  "Determine whether TOOT is a Builder Toot who can run operator commands"
   (Toot-has-item-p +builder-Toot-hard-hat-template+ Toot))
 
 

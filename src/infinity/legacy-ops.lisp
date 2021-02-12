@@ -29,8 +29,6 @@
 
 (in-package :Tootsville)
 
-(defconstant +builder-toot-hard-hat-template+ 2494)
-
 (define-operator-command $ (words user _)
   "Execute a command script.
 
@@ -1075,7 +1073,7 @@ Gives the total number of users online now.
 
 @subsection Headcount Members
 
-Gives the total number of patron users or builder Toot users online now.
+Gives the total number of builder Toot users online now.
 
 @subsection Headcount Room
 
