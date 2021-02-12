@@ -1577,36 +1577,32 @@ PARAMS are the item-template ber, and optional facing angle, base color,
 and alt color.
 
 See `TOOTSVILLE-USER::PLACE'"
-  (handler-case 
-      (destructuring-bind (item-template-number &optional facing base-color alt-color) params
-        (make-record 'item
-                     :uuid (uuid:make-v4-uuid)
-                     :base-color (or (and base-color (parse-color24 base-color))
-                                     0)
-                     :alt-color (or (and alt-color (parse-color24 alt-color))
-                                    0)
-                     :template (parse-number item-template-number)
-                     :energy 1
-                     :avatar-scale-x 1.0
-                     :avatar-scale-y 1.0
-                     :avatar-scale-z 1.0
-                     :x (game-point-x where)
-                     :y (game-point-y where)
-                     :z (game-point-z where)
-                     :facing (interpret-facing facing)
-                     :world (world where)
-                     :latitude (latitude where)
-                     :longitude (longitude where)
-                     :altitude (altitude where))
-        (private-admin-message "#place #item"
-                               (format nil "Created item from template ~d at (~d, ~d, ~d)"
-                                       (parse-number item-template-number)
-                                       (game-point-x where)
-                                       (game-point-y where)
-                                       (game-point-z where))))
-    (error (e)
-      (private-admin-message "#place #item"
-                             (format nil "Error ~/HTML/" e)))))
+  (destructuring-bind (item-template-number &optional facing base-color alt-color) params
+    (make-record 'item
+                 :uuid (uuid:make-v4-uuid)
+                 :base-color (or (and base-color (parse-color24 base-color))
+                                 0)
+                 :alt-color (or (and alt-color (parse-color24 alt-color))
+                                0)
+                 :template (parse-number item-template-number)
+                 :energy 1
+                 :avatar-scale-x 1.0
+                 :avatar-scale-y 1.0
+                 :avatar-scale-z 1.0
+                 :x (game-point-x where)
+                 :y (game-point-y where)
+                 :z (game-point-z where)
+                 :facing (interpret-facing facing)
+                 :world (world where)
+                 :latitude (latitude where)
+                 :longitude (longitude where)
+                 :altitude (altitude where))
+    (private-admin-message "#place #item"
+                           (format nil "Created item from template ~d at (~f, ~f, ~f)"
+                                   (parse-number item-template-number)
+                                   (game-point-x where)
+                                   (game-point-y where)
+                                   (game-point-z where)))))
 
 (defun %operator-place-mini (where params)
   (destructuring-bind (moniker) params
@@ -2062,10 +2058,9 @@ Each subcommand is implemented by a ``private'' function named
                                       (string-upcase (subseq (second words) 1)))
                          :Tootsville)))
       (unless subcommand
-        (return
-          (format nil "#place subcommand ~a not found" (second words))))
+        (return (format nil "#place subcommand ~a not found" (second words))))
       (funcall subcommand where (subseq words 2))
-      (list 200 (local-room-vars)))))
+      (broadcast (local-room-vars) :near *Toot*))))
 
 (define-operator-command purgephysics (words user _)
   "Purge pending physics interactions.
