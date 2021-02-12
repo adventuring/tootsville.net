@@ -1653,7 +1653,7 @@ was not on that list.
   status: false,
   err: \"notOnList\" }
 @end verbatim
- "
+"
   (error 'unimplemented))
 
 (definfinity report-bug ((info) user recipient/s)
@@ -1888,7 +1888,6 @@ contain  an  attribute  named   ``info''  with  system  information
 key-value pairs (see  above). May also have a  subject of ``cause''
 as a string.
 
- u - The user reporting the bug.
 
  "
   (error 'unimplemented))
@@ -1896,40 +1895,55 @@ as a string.
 (definfinity report-user ((user-Name) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
- @{ userName = user to be reported @}
+@subsection Usage
 
- "
+@verbatim
+{ c: \"reportUser\", d: { userName: LOGIN } }
+@end verbatim
+
+@subsection Example
+
+@verbatim
+{ c: \"reportUser\", d: { userName: \" } }
+@end verbatim
+
+"
   (error 'unimplemented))
 
 (defun generate-buddy-list-signature (requestor requestee)
-  "Generate a signature for a buddy-list request"
+  "Generate a signature for a buddy-list request."
   (sha1-hex (concatenate 'string requestor "/" requestee
-                         "/buddy-list-request/v"
-                         (asdf:component-version (asdf:find-system :Tootsville)))))
+                         "/buddy-list-request/"
+                         (get-stable-nonce))))
 
 (defun check-buddy-list-signature (requestor requestee signature)
   "Check whether a buddy-list request is valid"
   (equal signature (generate-buddy-list-signature requestor requestee)))
 
 (definfinity request-buddy ((buddy) user recipient/s)
-  "Request adding a user to your buddy list (mutual-add) using the notification-based system
+  "Request adding a user to your buddy list (mutual-add) using the notification-based system.
 
 \(Added in 1.1)
+
+To request a buddy, first you send a @code{requestBuddy} packet. That
+user will be given an unique signature code and prompted whether they
+agree to be your buddy. If they agree, they'll send a
+@code{requestBuddy} packet back with your name and the signature code.
 
 @subsection Usage
 
 @verbatim
-   { buddy: LOGIN }
+{ buddy: LOGIN }
 
-   { buddy: LOGIN, sign: SIGNATURE }
+{ buddy: LOGIN, sign: SIGNATURE }
 @end verbatim
 
 @subsection Example
 
 @verbatim
- { buddy: \"catvlle\" }
+{ buddy: \"catvlle\" }
 
- { buddy: \"catvlle\", sign: \"xyzzyfoo\" }
+{ buddy: \"catvlle\", sign: \"xyzzyfoo\" }
 @end verbatim
 
 @subsection Changes from 1.0 to 1.1
