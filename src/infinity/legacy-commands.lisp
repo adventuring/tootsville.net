@@ -1155,18 +1155,24 @@ Removed in 2.0.
 User rooms are no longer needed nor supported."
   (error 'unimplemented))
 
-(definfinity join ((room from) user recipient/s)
-  "Join a room.
+(definfinity join ((room from lat long alt world) user recipient/s)
+  "Join a room or place.
 
-No longer needed. We no longer have rooms.
+The ``room'' form is no longer needed. We no longer have rooms.
+
+The ``place'' form using latitude and longitude is used instead.
 
 @subsection Usage
 
 @verbatim
 { c: \"join\", d: { room: NEW-ROOM, [ from: OLD-ROOM ] } }
+
+{ c: \"join\", d: { lat: LAT, long: LONG, alt: ALT, world: WORLD }}
 @end verbatim
 
 @subsection Status 200 OK
+
+Joining a room used to return a packet like:
 
 @verbatim
 { from: \"roomJoin\",
@@ -1176,8 +1182,22 @@ No longer needed. We no longer have rooms.
 
 You will never get this reply in Romance 2.0.
 
- NOTE the inconsistency: the command is  join, but the reply comes from
- roomJoin
+You may get this reply for joining a place instead:
+
+@verbatim
+{ from: \"roomJoin\",
+  status: true,
+  lat: LAT,
+  long: LONG,
+  alt: ALT,
+  world: WORLD }
+@end verbatim
+
+This will usually be followed by an @code{rv} packet with the local
+room vars (see `LOCAL-ROOM-VARS').
+
+NOTE the inconsistency: the command is  join, but the reply comes from
+roomJoin
 
 @subsection Error Return values
 
@@ -1192,11 +1212,11 @@ You will never get this reply in Romance 2.0.
  The room is too full (too many users)
 @end table
 
- @subsection 410 Gone
+@subsection 410 Gone
 
 Removed in 2.0.
 
-Attempting to call @code{join} will always result in
+Attempting to call @code{join} a room will always result in
 
 @verbatim
 { from: \"roomJoin\",
@@ -1213,11 +1233,20 @@ the case, so there is never any need to join a room.
 
 The success and error return codes are documented here for completeness,
 but only @code{room.notFound} will be returned.
+
+The new form, taking latitude and longitude, was added in 2.0.
 "
-  (list 410 (list :|from| "join"
-                  :|status| :false
-                  :|err| "room.notFound"
-                  :|error| "There are no rooms in Tootsville V.")))
+  (when room
+    (return (list 410 (list :|from| "roomJoin"
+                            :|status| :false
+                            :|err| "room.notFound"
+                            :|error| "There are no rooms in Tootsville V."))))
+  (setf (position *client*) (list world lat long alt))
+  (unicast (list :|from| "roomJoin"
+                 :|status| t
+                 :|lat| lat :|long| long
+                 :|alt| alt :|world| world))
+  (list 200 (local-room-vars)))
 
 (definfinity logout ((&rest d) user recipient/s)
   "Log out of this game session
