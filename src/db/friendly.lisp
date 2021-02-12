@@ -199,13 +199,32 @@
   (Toot uuid ref Toot)
   (equipped keyword))
 
-;; FIXME do the migration for these
+(defmethod print-object ((item inventory-item) s)
+  (format s "#<Inventory Item ~a owned by ~a (~a)~@[ (equipped)~]>"
+          (inventory-item-item item)
+          (inventory-item-person item)
+          (inventory-item-Toot item)
+          (inventory-item-equipped item)))
+
+(defmethod inventory-item-equipped-p ((item inventory-item))
+  (inventory-item-equipped item))
+
 (defrecord store-item (:friendly "store_items")
   (uuid uuid)
   (template number ref item-template)
   (qty number)
   (price number)
   (currency keyword))
+
+(defmethod print-object ((item store-item) s)
+  (format s "#<Store Item ~:d × qty ~:d @ ~a ~:d>"
+          (store-item-template item)
+          (store-item-qty item)
+          (store-item-currency item)
+          (store-item-price item)))
+
+(defmethod store-item-quantity ((item store-item))
+  (store-item-qty item))
 
 
 (defrecord music (:friendly "music" :pull t)
@@ -294,6 +313,8 @@
 (defmethod id-column-for ((type (eql 'toot-quiesced)))
   'Toot)
 
+
+
 (defrecord toot-quiesced (:friendly "toots_quiesced")
   (Toot uuid ref Toot)
   (world keyword ref worlds)
@@ -307,6 +328,8 @@
   (peer-address string)
   (attribs string))
 
+
+
 (defrecord quaestor-event (:friendly "quaestor_events")
   (uuid uuid)
   (source uuid)
@@ -319,6 +342,8 @@
   (item uuid ref items)
   (score number)
   (medal keyword))
+
+
 
 (defrecord staff-journal-entry (:friendly "staff_journal_entries")
   (uuid uuid)
