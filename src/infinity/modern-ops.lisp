@@ -579,3 +579,32 @@ template.
     (Tootsville-user::whatis (first words))))
 
 
+(define-operator-command status (words u r)
+  "Discover the general status of the host.
+
+Reports a few interesting statistics in a row.
+
+@subsection Usage
+
+@verbatim
+#status
+@end verbatim
+"
+  (format nil "Status report for ~:(~a~)
+<table>
+<tr><th>Cluster</th><td>~:d server~:p</td></tr>
+<tr><th>#mem</th><td>~a</td></tr>
+<tr><th>#ws-stats</th><td>~:d socket~:p</td></tr>
+<tr><th>#infinity-stats</th><td>~:d request~:p</td></tr>
+<tr><th>#uptime</th><td>~a</td></tr>
+<tr><th>#banhammer #list</th><td>~:d client~:p</td></tr>
+</table>"
+          (machine-instance)
+          (length (server-list))
+          (let ((s (with-output-to-string (*standard-output*) (room))))
+            (subseq s (1+ (position #\: s)) (position #\Newline s)))
+          (length (hunchensocket::clients *infinity-websocket-resource*))
+          (+ *infinity-stream-requests* *infinity-rest-requests*)
+          (human-duration (- (get-universal-time) *started*))
+          (length (hash-table-keys *banhammer*))))
+        
