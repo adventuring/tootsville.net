@@ -38,6 +38,18 @@ create table if not exists item_tags
   constraint item_tagged foreign key (item) references item_templates (id) on delete restrict on update cascade )
 engine=InnoDB default charset=utf8;
 
+create table if not exists named_spots
+( name varchar(64) not null primary key,
+  world enum('CHOR','ORBIT','MOON','OTHM','PINK') not null default 'CHOR',
+  latitude int not null,
+  longitude int not null,
+  altitude int not null,
+  x int not null,
+  y int not null,
+  z int not null,
+  badgedp enum('Y','N') not null default 'N')
+engine=InnoDB default charset=utf8;
+
 insert ignore into item_templates (id, name, default_base_color, avatar, wear_slot, description)
 values (6, 'Snowball', 'FFFFFF', 'snowball', 12, 'A ball of snow that makes a playful missile.');
 

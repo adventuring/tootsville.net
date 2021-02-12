@@ -355,4 +355,15 @@
   (entry uuid)
   (person uuid))
 
+
 
+(defrecord named-spot (:friendly "named_spots")
+  (name string)
+  (world keyword)
+  (latitude number)
+  (longitude number)
+  (altitude number)
+  (x number)
+  (y number)
+  (z number)
+  (badgedp yornp))
