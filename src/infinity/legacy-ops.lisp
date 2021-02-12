@@ -75,12 +75,21 @@ This is not currently implemented.
   (error 'unimplemented))
 
 (define-operator-command agent (words user _)
-  "Set the clothing and colors of a robot to match the invoking user.
+  "Set the clothing and colors of a Toot to match the invoking user.
+
+This is named after the way Agent Smith could take over Matrix avatars
+in the @i{Matrix Reloaded} film.
 
 @subsection Usage
 
 @verbatim
- #agent robot-name
+#agent robot-name
+@end verbatim
+
+@subsection Example
+
+@verbatim
+#agent Superstar
 @end verbatim
 "
   (error 'unimplemented))
