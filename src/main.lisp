@@ -44,6 +44,15 @@ using the `TOOTSVILLE-USER::MOTD' command.")
 (defvar *started* nil
   "The time at which the server was started")
 
+(defvar *stable-nonce*
+  (map 'string #'code-char
+       (loop for n below (+ 10 (random 25))
+             collecting (+ 32 (random 1000))))
+  "A nonce value used as a non-cryptographically-secure salt value for
+casual purposes such as generating buddy list request signatures.  It
+should remain stable for a long time, but can change occassionally
+(e.g. due to server reboots)")
+
 (defun find-acceptor (host port)
   "Find an active Acceptor running on the given HOST address and PORT"
   (dolist (acceptor *acceptors*)
