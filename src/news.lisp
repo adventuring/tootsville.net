@@ -48,7 +48,7 @@
                :content-type "application/rdfxml")
               (cxml-dom:make-dom-builder))))
     (when rdf
-      (setf *tootsbook-fetched* (get-universal-time)
+      (setf *tootsbook-fetched* (get-universal-time*)
             *tootsbook-cache* rdf))))
 
 (defun tootsbook-headlines ()
@@ -56,7 +56,7 @@
 Tootsbook's RDF feed. Uses a local cache, when available.
 
 Returns the RDF as a raw string"
-  (when (> (get-universal-time)
+  (when (> (get-universal-time*)
            (+ *tootsbook-refresh-seconds* *tootsbook-fetched*))
     (fetch-tootsbook/http))
   *tootsbook-cache*)
@@ -111,7 +111,7 @@ lists, each made by `RDF-STORY-TO-PLIST'."
   (map 'list #'rdf-story-to-plist
        (tootsbook-headline-stories)))
 
-(defun pretty-date (&optional (universal-time (get-universal-time)))
+(defun pretty-date (&optional (universal-time (get-universal-time*)))
   (multiple-value-bind (sec min hour date month year dow dst tz)
       (decode-universal-time universal-time)
     (declare (ignore sec dst min tz))

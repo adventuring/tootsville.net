@@ -477,7 +477,7 @@ UNIMPLEMENTED.
 
 (define-operator-command uptime (words u r)
   "Gives the uptime of the server software."
-  (let ((uptime (- (get-universal-time) *started*)))
+  (let ((uptime (- (get-universal-time*) *started*)))
     (format nil "The server ~:(~a~) has been up for ~a (precisely ~:d sec)"
             (machine-instance) (human-duration uptime) uptime)))
 
@@ -606,6 +606,6 @@ Reports a few interesting statistics in a row.
             (subseq s (1+ (position #\: s)) (position #\Newline s)))
           (length (hunchensocket::clients *infinity-websocket-resource*))
           (+ *infinity-stream-requests* *infinity-rest-requests*)
-          (human-duration (- (get-universal-time) *started*))
+          (human-duration (- (get-universal-time*) *started*))
           (length (hash-table-keys *banhammer*))))
         

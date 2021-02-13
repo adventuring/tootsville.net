@@ -79,14 +79,20 @@ reasons, eg, COPPA."
 TIME defaults to the present (@code{(NOW)})."
   (format-timestring nil time :format +rfc-1123-format+))
 
-(defun get-Unix-time (&optional (universal-time (get-universal-time)))
+(defun get-universal-time* ()
+  "This is a microsecond-precision replacement for `GET-UNIVERSAL-TIME'."
+  (let ((n (now)))
+    (+ (timestamp-to-universal n) 
+       (/ (timestamp-microsecond n) 1000000))))
+
+(defun get-Unix-time (&optional (universal-time (get-universal-time*)))
   "Get the UNIVERSAL-TIME (default to now) in Unix time.
 
 Returns the number of seconds since  the Unix epoch, 1970-01-01 at 00:00
 Z time."
   (- universal-time +Unix-zero-in-universal-time+))
 
-(defun get-java-time (&optional (universal-time (get-universal-time)))
+(defun get-java-time (&optional (universal-time (get-universal-time*)))
   "Get the time since the Unix epoch in msec, as used often in Java land.
 
 Note that Java time is Unix time  multiplied by 1,000 (ie. time in msec)

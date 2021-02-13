@@ -177,7 +177,7 @@ XXX this is basically a weak duplicate of `PARSE-WTL-COURSE' "
 (defmethod robot-say (robot format &rest format-args)
   "Robot ROBOT says the string formatted from FORMAT and FORMAT-ARGS."
   (let ((string (apply #'format nil format format-args)))
-    (do-metronome (:one-shot-time (+ (get-universal-time) 1 (/ (length string) 32)))
+    (do-metronome (:one-shot-time (+ (get-universal-time*) 1 (/ (length string) 32)))
       (broadcast (list :|from| "pub"
                        :|id| (Toot-UUID (Toot robot))
                        :|u| (Toot-name (Toot robot))

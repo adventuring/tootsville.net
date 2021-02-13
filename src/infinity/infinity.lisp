@@ -96,7 +96,7 @@ Used by the WebSockets and direct TCP stream handlers."
           (when *client*
             (setf (last-active *client*) (get-Unix-time)))
           (when *Toot*
-            (setf (Toot-last-active *Toot*) (get-universal-time))
+            (setf (Toot-last-active *Toot*) (get-universal-time*))
             (when (zerop (random 10)) (save-record *Toot*)))
           (incf *infinity-stream-requests*)
           (with-http-errors-as-infinity-errors (command)

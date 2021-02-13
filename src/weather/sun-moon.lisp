@@ -27,7 +27,7 @@
 
 (in-package :Tootsville)
 
-(defun sun-position (&optional (time (get-universal-time)))
+(defun sun-position (&optional (time (get-universal-time*)))
   "The position (X,Y) of the sun as a list of 2 elements"
   (multiple-value-bind (sec min hour) (chœrogryllum:decode*-universal-time time)
     (let ((θ (- (* 2 PI
@@ -36,7 +36,7 @@
       (list (* 2000 (/ (cos θ) 2))
             (* 2000 (/ (sin θ) 2))))))
 
-(defun moon-position (moon-or-period &optional (time (get-universal-time)))
+(defun moon-position (moon-or-period &optional (time (get-universal-time*)))
   "Returns the relative position of MOON-OR-PERIOD in the sky at TIME.
 
 Returns the coördinates in (x,y,φ) triplet list form, where φ

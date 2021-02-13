@@ -55,7 +55,7 @@
                   "never"))
           (if (metronome-task-thread task) "running" "waiting")))
 
-(defvar *metronome-next-tick* (get-universal-time)
+(defvar *metronome-next-tick* (get-universal-time*)
   "The time at which the Metronome should next ``tick''.")
 
 (defvar *metronome-task-lock* nil
@@ -91,13 +91,13 @@ due to system scheduler tie-ups.
 Tasks are not allowed to ``stack up;'' if a task has not finished by the
 time  its  next  execution  window   comes  around,  it  will  miss  its
 opportunity and have to wait for the next window."
-  (let ((lost-time (- (get-universal-time) *metronome-next-tick*)))
+  (let ((lost-time (- (get-universal-time*) *metronome-next-tick*)))
     (when (> lost-time 90)
       (v:warn :metronome "Skipping Metronome ahead: ~:d seconds have passed"
               lost-time)
-      (setf *metronome-next-tick* (- (get-universal-time) 30))))
+      (setf *metronome-next-tick* (- (get-universal-time*) 30))))
   (loop for now from *metronome-next-tick* 
-          below (get-universal-time)
+          below (get-universal-time*)
         do
            (dolist (task (metronome-idle-tasks))
              (when (and (metronome-task-frequency task)
@@ -167,7 +167,7 @@ FREQUENCY until a final execution at ONE-SHOT-TIME.
 (defvar *metronome-run* t)
 
 (defun start-game-metronome ()
-  (setf *metronome-next-tick* (get-universal-time)
+  (setf *metronome-next-tick* (get-universal-time*)
         *metronome-task-lock* (make-lock "Metronome task lock")
         *metronome-run* t)
   (unless *the-metronome-thread*
@@ -222,5 +222,5 @@ uninteresting records from the ``child\_requests'' database table.
   "Perform BODY after TIME seconds have elapsed.
 
 Uses a one-shot-timer metronome facility."
-  `(do-metronome (:one-shot-time (+ (get-universal-time) ,time))
+  `(do-metronome (:one-shot-time (+ (get-universal-time*) ,time))
      ,@body))

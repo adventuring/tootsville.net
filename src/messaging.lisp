@@ -52,9 +52,9 @@ message (usually the originator)"
     (with-websocket-disconnections (client)
       (ws-unicast message client))
     (if (robotp user)
-      (robot-unicast message user)
-      (v:warn :stream "Unable to transmit unicast message to ~a: not connected"
-              user))))
+        (robot-unicast message user)
+        (v:warn :stream "Unable to transmit unicast message to ~a: not connected"
+                user))))
 
 (defmethod peer-address ((Toot Toot))
   "Get the peer address of TOOT.

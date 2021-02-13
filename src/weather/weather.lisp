@@ -66,7 +66,7 @@
   "The current ambient air temperature at X,Y,Z."
   (declare (ignore x y z))
   (let ((low 15) (high 20))
-    (+ low (* (- high low) (sinus (get-universal-time) (* 18 60 60))))))
+    (+ low (* (- high low) (sinus (get-universal-time*) (* 18 60 60))))))
 
 (defun precipitation (x y z) ;; TODO
   "The current precipitation at X,Y,Z"

@@ -673,7 +673,7 @@ of the world.
     (to-json (list :|course| (list :|endPoint| (list :|x| x :|y| 0 :|z| z)
                                    :|startPoint| (list :|x| x :|y| 0 :|z| z)
                                    :|speed| 0
-                                   :|startTime| (* 1000 (- (get-universal-time)
+                                   :|startTime| (* 1000 (- (get-universal-time*)
                                                            +unix-zero-in-universal-time+)))
                    :|facing| θ₂))))
 

@@ -240,7 +240,7 @@ ORDER BY ended_at DSC LIMIT 1"
            (timestamp-to-universal (quaestor-event-ended-at (first prior))))
         (declare (ignore sec_ min_ hour_))
         (multiple-value-bind (sec_ min_ hour_ day month)
-            (choerogryllum:decode*-universal-time (get-universal-time))
+            (choerogryllum:decode*-universal-time (get-universal-time*))
           (declare (ignore sec_ min_ hour_))
           (and (= day last-day) (= month last-month)))))))
 
@@ -257,7 +257,7 @@ Tells the player to make a wish again tomorrow."
 
 (defun compute-fountain-peanuts-for-score (score)
   (multiple-value-bind (sec_ min_ hr_ day_ month_ year_ day-of-week)
-      (Choerogryllum:decode*-universal-time (get-universal-time))
+      (Choerogryllum:decode*-universal-time (get-universal-time*))
     (declare (ignore sec_ min_ hr_ day_ month_ year_))
     (+ 25 (mod (+ score (* 10 day-of-week)) 75))))
 

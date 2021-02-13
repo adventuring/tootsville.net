@@ -1383,7 +1383,7 @@ Added @code{#metronome #help}, @code{#metronome #list}, and @code{#metronome #ca
      (let ((last (1- *metronome-next-tick*)))
        (format nil
                "The last metronome tick was at ~d — ~:d second~:p ago"
-               last (- (get-universal-time) last))))
+               last (- (get-universal-time*) last))))
     ("#start" (format nil "Starting: ~/HTML/"
                       (start-game-metronome)))
     ("#stop" (format nil "Stopping: ~/HTML/"
@@ -2645,7 +2645,7 @@ time in seconds, without commas; the decoded date and time, Universal
 time code, and Chœrogryllum date and time are new.
 
   "
-  (let ((universal (get-universal-time)))
+  (let ((universal (get-universal-time*)))
     (multiple-value-bind (second minute hour) (chœrogryllum:decode*-universal-time universal)
       (format nil "Now it is ~a (Universal: ~:d; Unix: ~:d). In Chœrogryllum, it is ~
 ~d:~2,'0d:~2,'0d on ~a"

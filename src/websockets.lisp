@@ -133,7 +133,7 @@ For broadcasts, multiply by MULTIPLIER."
   (let* ((clients (hunchensocket:clients *infinity-websocket-resource*))
          (user-clients (remove-if-not #'user-account clients))
          (active-clients (remove-if-not (lambda (client)
-                                          (> (last-active client) (- (get-universal-time) +ws-idle-seconds+)))
+                                          (> (last-active client) (- (get-universal-time*) +ws-idle-seconds+)))
                                         clients)))
     (format nil "WebSockets: Connections: ~:d;
 Sign-Ins: ~:d (~:d%);
@@ -209,8 +209,8 @@ Active Clients (~:d secs): ~:d (~:d%)."
    (Toot :accessor Toot :initform nil)
    (random-key :accessor random-key :initform nil)
    (pre-login-commands :accessor pre-login-commands :initform +pre-login-max-commands+)
-   (connect-time :reader connect-time :initform (get-universal-time))
-   (last-active :accessor last-active :initform (get-universal-time))
+   (connect-time :reader connect-time :initform (get-universal-time*))
+   (last-active :accessor last-active :initform (get-universal-time*))
    (location :accessor Toot-position :initform (list :chor 0 0 0))
    (wtl-course :accessor wtl-course :initform nil)))
 
@@ -415,7 +415,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 
 (defun ws-without-login (client message)
   (if (or (zerop (decf (pre-login-commands client)))
-          (< +pre-login-max-time+ (- (get-universal-time)
+          (< +pre-login-max-time+ (- (get-universal-time*)
                                      (connect-time client))))
       (disconnect-no-login client)) 
   (websocket-authenticate client message))
@@ -425,7 +425,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defmethod hunchensocket:text-message-received ((res infinity-websocket-resource)
                                                 client message)
   (incf *ws-chars-received* (length message))
-  (setf (last-active client) (get-universal-time))
+  (setf (last-active client) (get-universal-time*))
   (with-websocket-disconnections (client)
     (if (user-account client)
         (ws-to-infinity client message)
@@ -1202,7 +1202,7 @@ exists. Otherwise, returns silently."
                  :|status| t
                  :|reasonCode| reason-code) 
            client)
-  (do-metronome (:one-shot-time (+ 5 (get-universal-time))
+  (do-metronome (:one-shot-time (+ 5 (get-universal-time*))
                                 :name (format nil "Finish kicking ~a" client))
     (hunchensocket:close-connection client)))
 

@@ -27,7 +27,7 @@
 
 (in-package :Tootsville)
 
-(defun sky-contents (x y z &optional (now (get-universal-time)))
+(defun sky-contents (x y z &optional (now (get-universal-time*)))
   (let ((day (nth-value 9 (Choerogryllum:decode*-universal-time now))))
     (list :|sun| (list :|azimuth| (sinus (- now (* 21 18 60 60)) (* 360 18 60 60))
                        :|elevation| (sinus now (* 18 60 60)))
@@ -258,4 +258,4 @@ Returns all items in that volume which are not in a character's inventory."
     (declare (ignore s min hour))
     (let ((holiday (choerogryllum:holiday-on y m d)))
       (format nil "<p> Today is ~@[<b>~a</b>, ~]~a. </p>" 
-              holiday (choerogryllum:date-string (get-universal-time))))))
+              holiday (choerogryllum:date-string (get-universal-time*))))))

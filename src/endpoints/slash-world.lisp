@@ -44,15 +44,15 @@ Your character must be able to observe that general area. No peeking!
 
 (defendpoint (GET "/world/clock/date" "text/plain")
   "Get the date on Chœrogryllum (pretty-printed date string)"
-  (chœrogryllum:date-string (get-universal-time)))
+  (chœrogryllum:date-string (get-universal-time*)))
 
 (defendpoint (GET "/world/clock/date/long" "text/plain")
   "Get the date on Chœrogryllum (pretty-printed date string)"
-  (chœrogryllum:date-string (get-universal-time)))
+  (chœrogryllum:date-string (get-universal-time*)))
 
 (defendpoint (GET "/world/clock/date/abbrev" "text/plain")
   "Get the date on Chœrogryllum (abbreviated date string)"
-  (chœrogryllum:date-string (get-universal-time) :form :abbrev))
+  (chœrogryllum:date-string (get-universal-time*) :form :abbrev))
 
 (defendpoint (GET "/world/clock/time" "application/json")
   "Get the date & time on Chœrogryllum as a JSON structure.
@@ -87,7 +87,7 @@ Name of any holiday that occurs on this day
 @end table"
   (multiple-value-bind (sec min hour day month year weekday
                             other-month-day pink-month-day julian)
-      (chœrogryllum:decode*-universal-time (get-universal-time))
+      (chœrogryllum:decode*-universal-time (get-universal-time*))
     (list :sec sec
           :min min
           :hour hour
@@ -107,11 +107,11 @@ Name of any holiday that occurs on this day
 Returns a string of Hours:Minutes:Seconds."
   (multiple-value-bind (sec min hour day month year weekday
                             other-month-day pink-month-day julian)
-      (chœrogryllum:decode*-universal-time (get-universal-time))
+      (chœrogryllum:decode*-universal-time (get-universal-time*))
     (declare (ignore day month year weekday other-month-day pink-month-day julian))
     (format nil "~2,'0d:~2,'0d:~2,'0d" hour min sec)))
 
-(defun detailed-time (&optional (now (get-universal-time)))
+(defun detailed-time (&optional (now (get-universal-time*)))
   "Get a long string explaining the date, time, and other info.
 
 This is a multiple-paragraph explanation of the form:

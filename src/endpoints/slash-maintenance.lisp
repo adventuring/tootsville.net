@@ -60,25 +60,25 @@
                                                    (string :-started)))))
     `(block nil
        (when-let (last (getf *maintenance-tasks-performed* ,task-sym))
-         (when (> last (- (get-universal-time) ,finish-delay))
+         (when (> last (- (get-universal-time*) ,finish-delay))
            (return
              (list 420 ()
                    ,(format nil "Task “~a” was performed less than ~a ago."
                             task-string (human-duration (eval finish-delay)))))))
        (when-let (last (getf *maintenance-tasks-performed* ,task-start-sym))
-         (when (> last (- (get-universal-time) ,start-delay))
+         (when (> last (- (get-universal-time*) ,start-delay))
            (return
              (list 420 ()
                    ,(format nil "Task “~a” was started less than ~a ago."
                             task-string (human-duration (eval start-delay)))))))
        (prog2
            (setf (getf *maintenance-tasks-performed* ,task-start-sym)
-                 (get-universal-time))
+                 (get-universal-time*))
            (with-standard-streams-to-string
              (with-continuable-errors-skipped
                ,@body))
          (setf (getf *maintenance-tasks-performed* ,task-sym)
-               (get-universal-time))))))
+               (get-universal-time*))))))
 
 (defmacro define-maintenance-task (label (name start-delay finish-delay)
                                    &body body)

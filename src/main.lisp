@@ -201,7 +201,7 @@ is available."
                                  host port))
                    (push acceptor *acceptors*)))
              (listen-for-websockets)
-             (setf *started* (get-universal-time))
+             (setf *started* (get-universal-time*))
              (start-game-metronome))
     (change-port (port*)
       :report "Use a different port"
@@ -378,7 +378,7 @@ allowing SystemD to start a new instance in case of a fatal error."
   (setf *running-main-loop* t)
   (loop
      (case *running-main-loop*
-       ((t) (when (zerop (mod (get-universal-time)
+       ((t) (when (zerop (mod (get-universal-time*)
                               *trace-output-heartbeat-time*))
               (trace-output-heartbeat)))
        ((nil) (stop-production))
