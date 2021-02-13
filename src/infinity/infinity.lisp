@@ -330,7 +330,9 @@ For a complete enumeration
                  (when (stringp reply)
                    (private-admin-message
                     ,(concatenate 'string #(#\#) (string-downcase command))
-                    reply)))
+                    reply))
+                 (when (consp reply)
+                   (unicast reply)))
                (private-admin-message "Builders Only"
                                       "# commands are only for Builder Toots.")))))))
 
