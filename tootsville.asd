@@ -190,7 +190,6 @@ REST services for the front-end."
                                            (:file "slash-version")
                                            (:file "slash-maintenance")
                                            (:file "slash-meta-game")
-
                                            (:file "slash-gossip")
                                            (:file "slash-toots")
                                            (:file "slash-users")
