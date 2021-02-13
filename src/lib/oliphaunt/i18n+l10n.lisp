@@ -1379,14 +1379,14 @@ well enough for many (most) English words. At least, an improvement upon
     (multiple-value-bind (sec-now min-now hour-now
                                   day-now month-now year-now 
                                   day-of-week-now)
-        (decode-universal-time (get-universal-time*))
+        (decode-universal-time (get-universal-time))
       (cond
         ((and (= hour-now hour)
               (= day-now day)
               (= month-now month)
               (= year-now year))
          (format nil "in ~a at ~2,'0d:~2,'0d" 
-                 (human-duration (- universal-time (get-universal-time*)))
+                 (human-duration (- universal-time (get-universal-time)))
                  hour min))
         ((and (= year-now year)
               (= month-now month))
