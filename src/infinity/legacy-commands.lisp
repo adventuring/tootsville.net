@@ -31,7 +31,7 @@
 
 
 
-(definfinity add-furniture ((&rest d) user recipient/s)
+(definfinity add-furniture ((buddy ignore) user recipient/s)
   "Alias for INFINITY-SET-FURNITURE.
 
 Alias for `INFINITY-SET-FURNITURE', q.v."
@@ -52,16 +52,22 @@ This command can no longer be used to add a buddy, only to ignore someone.
 { ignore: USER }
 @end verbatim
 
+@subsection 200 OK
+
+When you begin ignoring someone, you'll get back a reply as from @code{getUserLists} `INFINITY-GET-USER-LISTS', q.v.
+
 @subsection 410 Gone
 
-This was a legacy feature removed in Romance 1.2.
+Using this to add a buddy was a legacy feature removed in Romance 1.2.
 
 @subsection Changes from 1.1 to 1.2
 @cindex Changes from 1.1 to 1.2
 
 This function was replaced  with `INFINITY-REQUEST-BUDDY' — requestBuddy
-— q.v."
-  (error 'legacy-gone))
+— q.v. It's only used for @code{ignore} now."
+  (when buddy (error 'legacy-gone))
+  (unless ignore (error 'bad-request))
+  (error 'unimplemented))
 
 (definfinity click ((on x y z with) user recipient/s)
   "Used by the client  to report a mouse click or  finger tap.
@@ -1950,8 +1956,8 @@ agree to be your buddy. If they agree, they'll send a
 @cindex Changes from 1.0 to 1.1
 
 The old system  allowed users to simply add anyone  to their buddy list;
-cv.   `INFINITY-ADD-TO-LIST'.   The   new   system   requires   mutually
-confirmed adding. AKA the Twitter vs. Facebook mechanisms.
+cv. `INFINITY-ADD-TO-LIST'.  The new system requires  mutually confirmed
+adding. AKA the Twitter vs. Facebook mechanisms.
 
 @subsection New in 1.1
 
