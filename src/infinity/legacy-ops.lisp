@@ -127,25 +127,24 @@ meaningless question.
              label_en_US: \"MEBBE\" } } }
 @end verbatim
 "
-  (list 200
-        `(:|from| "prompt" 
-           :|status| t
-           :|title| "Title Here"
-           :|label| "example"
-           :|label_en_US| "example"
-           :|attachUser| ,(Toot-name *Toot*)
-           :|id| "example/2134§þ=?/x'<>'\\\\\\\",:/blah"
-           :|msg| "Because it's really important to me that you are able to hear this question and give me an informed answer, I want to know: “Can you hear me now?”"
-           :|replies|
-           ( :|si| ( :|label| "Yes"
-                      :|type| "aff"
-                      :|label_en_US| "YES" )
-              :|no| ( :|label| "No"
-                       :|type| "neg"
-                       :|label_en_US| "NO" )
-              :|maybe| ( :|label| "Maybe. I'm not really sure. This one is mostly just in here to be a really long answer."
-                          :|type| "neu"
-                          :|label_en_US| "MEBBE" )))))
+  `(:|from| "prompt" 
+     :|status| t
+     :|title| "Title Here"
+     :|label| "example"
+     :|label_en_US| "example"
+     :|attachUser| ,(Toot-name *Toot*)
+     :|id| "example/2134§þ=?/x'<>'\\\\\\\",:/blah"
+     :|msg| "Because it's really important to me that you are able to hear this question and give me an informed answer, I want to know: “Can you hear me now?”"
+     :|replies|
+     ( :|si| ( :|label| "Yes"
+                :|type| "aff"
+                :|label_en_US| "YES" )
+        :|no| ( :|label| "No"
+                 :|type| "neg"
+                 :|label_en_US| "NO" )
+        :|maybe| ( :|label| "Maybe. I'm not really sure. This one is mostly just in here to be a really long answer."
+                    :|type| "neu"
+                    :|label_en_US| "MEBBE" ))))
 
 (define-operator-command ban (words user _)
   "Ban a user persistently (permanently) from the game.
