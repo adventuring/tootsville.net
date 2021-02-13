@@ -177,7 +177,8 @@ REST services for the front-end."
                                                          (:file "shade")
                                                          (:file "jack")
                                                          (:file "snowcone")
-                                                         (:file "mayor-louis")))))
+                                                         (:file "mayor-louis")
+                                                         (:file "welduh")))))
                              
                              (:module "auth"
                               :depends-on ("package-post" "users")
