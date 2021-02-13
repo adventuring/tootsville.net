@@ -1920,7 +1920,7 @@ as a string.
   "Check whether a buddy-list request is valid"
   (equal signature (generate-buddy-list-signature requestor requestee)))
 
-(definfinity request-buddy ((buddy) user recipient/s)
+(definfinity request-buddy ((buddy sign) user recipient/s)
   "Request adding a user to your buddy list (mutual-add) using the notification-based system.
 
 \(Added in 1.1)
