@@ -1914,7 +1914,7 @@ as a string.
   "Generate a signature for a buddy-list request."
   (sha1-hex (concatenate 'string requestor "/" requestee
                          "/buddy-list-request/"
-                         (get-stable-nonce))))
+                         *stable-nonce*)))
 
 (defun check-buddy-list-signature (requestor requestee signature)
   "Check whether a buddy-list request is valid"
