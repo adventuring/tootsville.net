@@ -112,7 +112,7 @@ addition, for each moon, the phase (φ) of the moon will be returned.
 @end verbatim
 
 "
-  (assert (eql world :chor))
+  (assert (string-equal world :chor))
   (list :|sun|
         (let ((xy (sun-position)))
           (list :|x| (first xy)

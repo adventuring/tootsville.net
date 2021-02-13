@@ -1247,11 +1247,12 @@ The new form, taking latitude and longitude, was added in 2.0.
                             :|status| :false
                             :|err| "room.notFound"
                             :|error| "There are no rooms in Tootsville V."))))
-  (setf (position *client*) (list world lat long alt))
+  (setf (Toot-position  *client*) (list world lat long alt))
   (unicast (list :|from| "roomJoin"
                  :|status| t
                  :|lat| lat :|long| long
                  :|alt| alt :|world| world))
+  (unicast (list :|from| "quiesce" :|status| :false))
   (list 200 (local-room-vars)))
 
 (definfinity logout ((&rest d) user recipient/s)

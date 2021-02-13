@@ -244,27 +244,28 @@ since rooms as such no longer exist, we use latitude and longitude now or
 named spots.
 
 "
-  (case (length words)
-    (1 (let ((spot (find-record 'named-spot :name (first words))))
-         (list :|from| "beam"
-               :|latitude| (named-spot-latitude spot)
-               :|longitude| (named-spot-longitude spot)
-               :|altitude| (named-spot-altitude spot)
-               :|world| (named-spot-world spot)
-               :|x| (named-spot-x spot)
-               :|y| (named-spot-y spot)
-               :|z| (named-spot-z spot))))
-    ((2 3)
-     (list 200 (list :|from| "beam"
-                     :|latitude| (parse-integer (first words))
-                     :|longitude| (parse-integer (second words))
-                     :|altitude| (if (< 2 (length words))
-                                     (parse-integer (third words))
-                                     0)
-                     :|world| (if (< 3 (length words))
-                                  (string-upcase (fourth words))
-                                  "CHOR"))))
-    (otherwise (return "Usage: #beam (placename) or #beam lat long [alt]"))))
+  (cond
+    ((= 1 (length words))
+     (let ((spot (find-record 'named-spot :name (first words))))
+       (list :|from| "beam"
+             :|latitude| (named-spot-latitude spot)
+             :|longitude| (named-spot-longitude spot)
+             :|altitude| (named-spot-altitude spot)
+             :|world| (named-spot-world spot)
+             :|x| (named-spot-x spot)
+             :|y| (named-spot-y spot)
+             :|z| (named-spot-z spot))))
+    ((<= 2 (length words) 3)
+     (list :|from| "beam"
+           :|latitude| (parse-integer (first words))
+           :|longitude| (parse-integer (second words))
+           :|altitude| (if (< 2 (length words))
+                           (parse-integer (third words))
+                           0)
+           :|world| (if (< 3 (length words))
+                        (string-upcase (fourth words))
+                        "CHOR")))
+    (t (return "Usage: #beam (placename) or #beam lat long [alt]"))))
 
 (define-operator-command spawnroom (words user _)
   "Mark a ``spot'' in the game.
