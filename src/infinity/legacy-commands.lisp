@@ -1957,15 +1957,17 @@ confirmed adding. AKA the Twitter vs. Facebook mechanisms.
 
 This was new in Romance 1.1
 "
-  (unicast (list :|from| "buddyRequest"
-                 :|status| t
-                 :|sender| (Toot-name *Toot*)
-                 :|sign| (generate-buddy-list-signature (Toot-name *Toot*) buddy))
-           (find-record 'Toot :name buddy))
-  (list 200 (list :|from| "buddyRequest"
-                  :|status| t
-                  :|sender| (Toot-name *Toot*)
-                  :|sign| (generate-buddy-list-signature (Toot-name *Toot*) buddy))))
+  (if sign
+      (error 'unimplemented)
+      (progn (unicast (list :|from| "buddyRequest"
+                            :|status| t
+                            :|sender| (Toot-name *Toot*)
+                            :|sign| (generate-buddy-list-signature (Toot-name *Toot*) buddy))
+                      (find-record 'Toot :name buddy))
+             (list 200 (list :|from| "buddyRequest"
+                             :|status| t
+                             :|sender| (Toot-name *Toot*)
+                             :|sign| (generate-buddy-list-signature (Toot-name *Toot*) buddy))))))
 
 (definfinity send-out-of-band-message ((sender from status body send-Room-List) user recipient/s)
   "Send an arbitrary JSON packet to another user, or all of the users
