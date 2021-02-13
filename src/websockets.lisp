@@ -365,7 +365,7 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
 (defmethod hunchensocket:client-disconnected ((res infinity-websocket-resource) client)
   (v:info :stream "WebSocket disconnection on ~a from ~a" res client)
   (when (Toot client)
-    (unless (find (Toot client) (mapcar #'Toot (all-connected)) :test #'Toot=)
+    (unless (find (Toot client) (remove-if #'Null (mapcar #'Toot (all-connected))) :test #'Toot=)
       (ws-broadcast *infinity-websocket-resource*
                     (list :|from| "bye"
                           :|status| t
