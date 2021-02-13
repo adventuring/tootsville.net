@@ -172,6 +172,10 @@ Active Clients (~:d secs): ~:d (~:d%)."
        (v:warn :stream "Disconnect detected on ~a: ~a" ,client c)
        (force-close-hunchensocket ,client)
        (incf *ws-surprise-disconnects*))
+     (sb-int:simple-stream-error (c)
+       (v:warn :stream "Disconnect detected on ~a: ~a" ,client c)
+       (force-close-hunchensocket ,client)
+       (incf *ws-surprise-disconnects*))
      (sb-int:broken-pipe (c)
        (v:warn :stream "Disconnect detected on ~a for ~a: ~a"
                (stream-error-stream c) ,client c)
