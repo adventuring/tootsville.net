@@ -138,14 +138,11 @@ addition, for each moon, the phase (φ) of the moon will be returned.
 
 See `INFINITY-GET-ROOM-VARS' for a discussion of the Place system."
   (remove-if #'null
-             (loop for la from (1- lat) upto (1+ lat)
-                append
-                  (loop for lo from (1- long) upto (1+ long)
-                     append (find-records 'place 
-                                          :world world
-                                          :latitude la
-                                          :longitude lo
-                                          :altitude alt)))))
+             (find-records 'place 
+                           :world world
+                           :latitude lat
+                           :longitude long
+                           :altitude alt)))
 
 (defun local-room-vars (&optional (observer *client*))
   "Gets ``room variables'' local to *CLIENT*.
@@ -161,6 +158,8 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
   (let* ((world (world observer))
          (vars (make-hash-table :test 'equal)))
     (setf (gethash "s" vars) (sky-room-var world))
+    (v:info :get-room-vars "Getting room vars for ~s ~d, ~d, ~d"
+            world (latitude observer) (longitude observer) (altitude observer))
     (dolist (item (find-records 'item
                                 :world world
                                 :latitude (latitude observer)
@@ -764,12 +763,13 @@ immediate vicinity.
                      (list :|uuid| (person-uuid *user*)
                            :|name| (person-display-name *user*)
                            :|email| (person-first-email *user*)))))
-  (broadcast (Toot-join-message Toot) :except (or *client* *user*))
+  (burgeon-quiesced-state Toot)
+  (broadcast (Toot-join-message Toot) :near *client* :except (or *client* *user*))
   (broadcast (list :|status| t
                    :|from| "avatars"
                    :|inRoom| "@Tootsville"
-                   :|avatars| (list :|joined| (Toot-info Toot))))
-  (burgeon-quiesced-state Toot)
+                   :|avatars| (list :|joined| (Toot-info Toot)))
+             :near *client*)
   (unicast (local-room-vars))
   (list 200 (from-avatars (plist-with-index (connected-toots)))))
 
