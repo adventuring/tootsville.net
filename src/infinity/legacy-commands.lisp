@@ -1205,7 +1205,7 @@ Joining a room used to return a packet like:
 
 You will never get this reply in Romance 2.0.
 
-@subsection Error Return values
+@subsection Error Return values (room join form)
 
 @table @code
 @item zone.notFound
