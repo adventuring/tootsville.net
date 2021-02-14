@@ -381,8 +381,8 @@ Returns (LIST LATITUDE LONGITUDE)"
   (terrain/connect-streams))
 
 (defmethod generate-terrain-features (contour (habitat (eql :shaddow)))
-  (loop repeat (random 100) do (terrain/add-shaddow-stalagmite))
-  (loop repeat (random 100) do (terrain/add-shaddow-bush))
+  (loop repeat (+ 200 (random 600)) do (terrain/add-shaddow-stalagmite))
+  (loop repeat (+ 50 (random 100)) do (terrain/add-shaddow-bush))
   (loop repeat (random 25) do (terrain/add-shaddow-pit)))
 
 (defmethod generate-terrain-features (contour (habitat (eql :swamp)))
@@ -395,7 +395,7 @@ Returns (LIST LATITUDE LONGITUDE)"
   (loop repeat (random 300) do (terrain/add-grass)))
 
 (defmethod generate-terrain-features (contour (habitat (eql :forest)))
-  (loop repeat (+ 100 (random 200)) do (terrain/add-tree))
+  (loop repeat (+ 250 (random 1000)) do (terrain/add-tree))
   (loop repeat (random 100) do (terrain/add-mushrooms))
   (loop repeat (random 100) do (terrain/add-log))
   (loop repeat (random 100) do (terrain/add-flowers))
