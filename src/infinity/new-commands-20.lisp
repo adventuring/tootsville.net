@@ -158,8 +158,6 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
   (let* ((world (world observer))
          (vars (make-hash-table :test 'equal)))
     (setf (gethash "s" vars) (sky-room-var world))
-    (v:info :get-room-vars "Getting room vars for ~s ~d, ~d, ~d"
-            world (latitude observer) (longitude observer) (altitude observer))
     (dolist (item (find-records 'item
                                 :world world
                                 :latitude (latitude observer)
@@ -763,14 +761,17 @@ immediate vicinity.
                              :|name| (person-display-name *user*)
                              :|email| (person-first-email *user*)))))
     (burgeon-quiesced-state Toot)
-    (broadcast (Toot-join-message Toot) :near *client* :except (or *client* *user*))
+    (broadcast (Toot-join-message Toot) :near *client* :except *client*)
     (broadcast (list :|status| t
                      :|from| "avatars"
                      :|inRoom| "@Tootsville"
                      :|avatars| (list :|joined| (Toot-info Toot)))
                :near *client*)
     (unicast (local-room-vars))
-    (list 200 (from-avatars (plist-with-index (connected-toots))))))
+    (list 200 (from-avatars (plist-with-index 
+                             (remove-if-not (lambda (Toot)
+                                              (nearp Toot *Client*))
+                                            (connected-toots)))))))
 
 (definfinity play-with ((character) u r)
   "Choose a Toot as your active CHARACTER in the game.
