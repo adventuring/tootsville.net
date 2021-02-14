@@ -157,25 +157,28 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
   var: { [ key: value ] ... } }
 @end verbatim"
   (let* ((world (world observer))
+         (latitude (latitude observer))
+         (longitude (longitude observer))
+         (altitude (altitude observer))
          (vars (make-hash-table :test 'equal)))
     (setf (gethash "s" vars) (sky-room-var world))
-    (do-records (item item :world world
-                           :latitude (latitude observer)
-                           :longitude (longitude observer)
-                           :altitude (altitude observer))
+    (do-records (item item :world (princ-to-string world) ; string needed for do-records
+                           :latitude latitude
+                           :longitude longitude
+                           :altitude altitude)
       (setf (gethash (format nil "itm2~~~a" (item-uuid item))
                      vars) 
             (item-info item)))
-    (dolist (place (places-at-position (world observer) (latitude observer)
+    (dolist (place (places-at-position world (latitude observer)
                                        (longitude observer) (altitude observer)))
       (setf (gethash (format nil "zone~~~a" (place-uuid place))
                      vars)
             (place-string place)))
     (list :|from| "rv"
           :|status| t
-          :|lat| (latitude observer)
-          :|long| (longitude observer)
-          :|alt| (altitude observer)
+          :|lat| latitude 
+          :|long| longitude
+          :|alt| altitude
           :|world| world
           :|var| vars)))
 
@@ -699,7 +702,7 @@ Creates a Toot-Quiesced record for them
   (quaestor-new-Toot Toot)
   (ensure-record 'Toot-quiesced
                  :Toot (Toot-uuid Toot)
-                 :world :chor
+                 :world "CHOR"
                  :latitude -28
                  :longitude -109
                  :altitude 0
