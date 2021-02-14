@@ -186,10 +186,10 @@ Selects one record at a time from TABLE. Does not use MemCacheD."
        (destructuring-bind (,$columns ,$values) (split-plist (list ,@columns+values))
          (let* ((,$query (cl-dbi:prepare tootsville::*dbi-connection*
                                          (build-simple-query ,table ,$columns)))
-                (,$result-set (apply #'cl-dbi:execute ,$query ,$values)))
+                (,$result-set (apply #'cl-dbi:execute ,$query (list ,$values))))
            (loop for ,record-var = (cl-dbi:fetch ,$result-set)
-              while ,record-var
-              do (progn ,@body)))))))
+                 while ,record-var
+                 do (progn ,@body)))))))
 
 
 
