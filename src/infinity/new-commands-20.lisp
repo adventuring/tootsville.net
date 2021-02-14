@@ -153,16 +153,16 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
 @verbatim
 { from: \"rv\",
   status: true,
+  lat: LAT, long: LONG, alt: ALT, world: WORLD,
   var: { [ key: value ] ... } }
 @end verbatim"
   (let* ((world (world observer))
          (vars (make-hash-table :test 'equal)))
     (setf (gethash "s" vars) (sky-room-var world))
-    (dolist (item (find-records 'item
-                                :world world
-                                :latitude (latitude observer)
-                                :longitude (longitude observer)
-                                :altitude (altitude observer)))
+    (do-records (item item :world world
+                           :latitude (latitude observer)
+                           :longitude (longitude observer)
+                           :altitude (altitude observer))
       (setf (gethash (format nil "itm2~~~a" (item-uuid item))
                      vars) 
             (item-info item)))
@@ -173,6 +173,10 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
             (place-string place)))
     (list :|from| "rv"
           :|status| t
+          :|lat| (latitude observer)
+          :|long| (longitude observer)
+          :|alt| (altitude observer)
+          :|world| world
           :|var| vars)))
 
 (definfinity get-room-vars (nil u recipient/s)
@@ -665,7 +669,7 @@ of the world.
   (let* ((θ (random (* 2 pi)))
          (θ₂ (random (* 2 pi)))
          (ρ (+ 35 (random 100)))
-         (x (* ρ (cos θ)))
+         (x (- (* ρ (cos θ)) 50))
          (z (- (abs (* ρ (sin θ))))))
     (to-json (list :|course| (list :|endPoint| (list :|x| x :|y| 0 :|z| z)
                                    :|startPoint| (list :|x| x :|y| 0 :|z| z)
@@ -696,8 +700,8 @@ Creates a Toot-Quiesced record for them
   (ensure-record 'Toot-quiesced
                  :Toot (Toot-uuid Toot)
                  :world :chor
-                 :latitude 0
-                 :longitude 0
+                 :latitude -28
+                 :longitude -109
                  :altitude 0
                  :wtl (random-start-wtl-for-Toot)
                  :d3 nil
