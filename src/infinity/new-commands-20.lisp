@@ -726,7 +726,6 @@ Creates a Toot-Quiesced record for them
                      :|fairy-dust| (Toot-fairy-dust Toot)
                      :|attribs| (Toot-quiesced-attribs state)))
       (when (and *Toot* (Toot= Toot *Toot*))
-        (v:info :burgeon "Burgeoning *TOOT* so setting *CLIENT* position")
         (setf (Toot-position *client*) (list (Toot-quiesced-world state)
                                              (Toot-quiesced-latitude state)
                                              (Toot-quiesced-longitude state)
@@ -764,8 +763,6 @@ immediate vicinity.
                              :|name| (person-display-name *user*)
                              :|email| (person-first-email *user*)))))
     (burgeon-quiesced-state Toot)
-    (v:info :burgeon "After burgeoning the client position is ~s"
-            (Toot-position *client*))
     (broadcast (Toot-join-message Toot) :near *client* :except (or *client* *user*))
     (broadcast (list :|status| t
                      :|from| "avatars"
