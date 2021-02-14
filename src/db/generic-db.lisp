@@ -49,6 +49,7 @@ Does  not   attempt  to  destroy   OBJECT,  so  a  subsequent   call  to
 
 (defmethod destroy-record :after (object)
   "Invalidate any cached version of OBJECT"
+  (v:info :db "Destroyed ~a" object)
   (invalidate-cache object))
 
 (defgeneric find-records-by-sql (type sql)
