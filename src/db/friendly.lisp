@@ -300,48 +300,51 @@
 
 
 (defrecord place (:friendly "places")
-  (uuid uuid)
-  (world keyword ref worlds)
-  (latitude number)
-  (longitude number)
-  (altitude number)
-  (shape string)
-  (kind keyword)
-  (attributes string)
-  (appearance string))
-
-(defmethod id-column-for ((type (eql 'toot-quiesced)))
-  'Toot)
+           (uuid uuid)
+           (world keyword ref worlds)
+           (latitude number)
+           (longitude number)
+           (altitude number)
+           (shape string)
+           (kind keyword)
+           (attributes string)
+           (appearance string))
 
 
 
-(defrecord toot-quiesced (:friendly "toots_quiesced")
-  (Toot uuid ref Toot)
-  (world keyword ref worlds)
-  (latitude number)
-  (longitude number)
-  (altitude number)
-  (wtl string)
-  (d3 string)
-  (emotion keyword)
-  (observed timestamp)
-  (peer-address string)
-  (attribs string))
+(defrecord Toot-quiesced (:friendly "toots_quiesced")
+           (Toot uuid ref Toot)
+           (world keyword ref worlds)
+           (latitude number)
+           (longitude number)
+           (altitude number)
+           (wtl string)
+           (d3 string)
+           (emotion keyword)
+           (observed timestamp)
+           (peer-address string)
+           (attribs string))
+
+(defmethod id-column-for ((type (eql 'Toot-quiesced)))
+  'Toot)
+
+(defmethod print-object ((q Toot-quiesced) s)
+  (format s "#<Toot-Quiesced ~a>" (Toot-quiesced-Toot q)))
 
 
 
 (defrecord quaestor-event (:friendly "quaestor_events")
-  (uuid uuid)
-  (source uuid)
-  (started-by uuid ref Toot)
-  (started-at timestamp)
-  (ended-at timestamp)
-  (completedp yornp)
-  (peanuts number)
-  (fairy-dust number)
-  (item uuid ref items)
-  (score number)
-  (medal keyword))
+           (uuid uuid)
+           (source uuid)
+           (started-by uuid ref Toot)
+           (started-at timestamp)
+           (ended-at timestamp)
+           (completedp yornp)
+           (peanuts number)
+           (fairy-dust number)
+           (item uuid ref items)
+           (score number)
+           (medal keyword))
 
 
 
