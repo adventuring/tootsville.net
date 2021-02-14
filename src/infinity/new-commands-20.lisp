@@ -711,8 +711,6 @@ Creates a Toot-Quiesced record for them
   (let ((state (or (ignore-not-found
                      (find-record 'Toot-quiesced :Toot (Toot-uuid Toot)))
                    (make-new-Toot-state Toot))))
-    (when (and *client* *Toot* (Toot= Toot *Toot*))
-      (setf (wtl-course *client*) (parse-wtl-course (Toot-quiesced-wtl state))))
     (let ((wtl (and (Toot-quiesced-wtl state) (jonathan.decode:parse (Toot-quiesced-wtl state)))))
       (unicast (list :|status| t
                      :|from| "burgeon"
@@ -727,11 +725,13 @@ Creates a Toot-Quiesced record for them
                      :|peanuts| (Toot-peanuts Toot)
                      :|fairy-dust| (Toot-fairy-dust Toot)
                      :|attribs| (Toot-quiesced-attribs state)))
-      (setf (Toot-position (user-stream Toot)) (list (Toot-quiesced-world state)
-                                                     (Toot-quiesced-latitude state)
-                                                     (Toot-quiesced-longitude state)
-                                                     (Toot-quiesced-altitude state))
-            (wtl-course (user-stream Toot)) wtl))))
+      (when (and *Toot* (Toot= Toot *Toot*))
+        (v:info :burgeon "Burgeoning *TOOT* so setting *CLIENT* position")
+        (setf (Toot-position *client*) (list (Toot-quiesced-world state)
+                                             (Toot-quiesced-latitude state)
+                                             (Toot-quiesced-longitude state)
+                                             (Toot-quiesced-altitude state))
+              (wtl-course *client*) (parse-wtl-course wtl))))))
 
 (defun update-Toot-last-active (Toot)
   "Set the `TOOT-LAST-ACTIVE' time for TOOT to the present time."
@@ -751,27 +751,29 @@ success message from @code{playWith}, their own avatar information,
 nearby players' avatar information, and `LOCAL-ROOM-VARS' for their
 immediate vicinity.
 "
-  (when *client*
-    (setf (Toot *client*) Toot))
-  (update-Toot-last-active Toot)
-  (unicast
-   (list :|status| t
-         :|from| "playWith"
-         :|playWith| (Toot-name Toot)
-         :|uuid| (Toot-UUID Toot)
-         :|player| (when *user*
-                     (list :|uuid| (person-uuid *user*)
-                           :|name| (person-display-name *user*)
-                           :|email| (person-first-email *user*)))))
-  (burgeon-quiesced-state Toot)
-  (broadcast (Toot-join-message Toot) :near *client* :except (or *client* *user*))
-  (broadcast (list :|status| t
-                   :|from| "avatars"
-                   :|inRoom| "@Tootsville"
-                   :|avatars| (list :|joined| (Toot-info Toot)))
-             :near *client*)
-  (unicast (local-room-vars))
-  (list 200 (from-avatars (plist-with-index (connected-toots)))))
+  (let ((*Toot* Toot))
+    (setf (Toot *client*) Toot)
+    (update-Toot-last-active Toot)
+    (unicast
+     (list :|status| t
+           :|from| "playWith"
+           :|playWith| (Toot-name Toot)
+           :|uuid| (Toot-UUID Toot)
+           :|player| (when *user*
+                       (list :|uuid| (person-uuid *user*)
+                             :|name| (person-display-name *user*)
+                             :|email| (person-first-email *user*)))))
+    (burgeon-quiesced-state Toot)
+    (v:info :burgeon "After burgeoning the client position is ~s"
+            (Toot-position *client*))
+    (broadcast (Toot-join-message Toot) :near *client* :except (or *client* *user*))
+    (broadcast (list :|status| t
+                     :|from| "avatars"
+                     :|inRoom| "@Tootsville"
+                     :|avatars| (list :|joined| (Toot-info Toot)))
+               :near *client*)
+    (unicast (local-room-vars))
+    (list 200 (from-avatars (plist-with-index (connected-toots))))))
 
 (definfinity play-with ((character) u r)
   "Choose a Toot as your active CHARACTER in the game.
