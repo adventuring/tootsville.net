@@ -344,7 +344,7 @@ Returns (LIST LATITUDE LONGITUDE)"
                             :altitude 0
                             :kind :water
                             :shape (place-string-circle ρ x z segments))
-        (do-records (item item :world :chor 
+        (do-records (item item :world "CHOR"
                                :latitude *global-heightmap-x%
                                :longitude *global-heightmap-y%
                                :altitude 0)
