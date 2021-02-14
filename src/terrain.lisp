@@ -27,6 +27,8 @@
 
 (in-package :Tootsville)
 
+
+
 (define-constant +habitat-colors+
     '(((65 0 145). :shaddow)
       ((150 150 150). :rocky)
@@ -121,13 +123,9 @@ In space, in transit between Choerogryllum and The Moon.
 @end table"
   '(member :chor :moon :othm :pink :orbit))
 
-(deftype even-coordinate ()
-  '(and integer (satisfies divisible-by-200-p)))
-
 
 
 ;; Reading map data from images
-
 
 (defvar *habitat-map*
   (pngload:load-file (asdf:system-relative-pathname :Tootsville
@@ -162,20 +160,17 @@ approximate/net altitude of each 200 by 200 meter area of the game.")
 
 (defun get-9-terrain-tiles (latitude longitude)
   "Returns 9 tiles of terrain centered on LATITUDE LONGITUDE as a 3 by 3 array"
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
-  (let ((x-offset (/ latitude 200))
-        (y-offset (/ longitude 200))
+  (let ((x-offset (+ latitude 400))
+        (y-offset (+ longitude 300))
         (elevation (make-array '(3 3) :element-type '(unsigned-byte 8)))
         (habitat (make-array '(3 3) :element-type 'symbol :initial-element :ocean)))
     (when (or (< x-offset 0) (< y-offset 0)
               (> x-offset 799) (> y-offset 599))
-      (error 'unimplemented))
+      (warn "out of bounds reference to (~d, ~d)" x-offset y-offset))
     (dotimes (ix 3)
       (dotimes (iy 3)
         (setf (aref elevation ix iy)
               (aref (pngload:data *elevation-map*) (+ x-offset ix) (+ y-offset iy) 2)
-
               (aref habitat ix iy)
               (habitat<-pixel
                (aref (pngload:data *habitat-map*) (+ x-offset ix) (+ y-offset iy) 0)
@@ -208,9 +203,9 @@ If no adjacent tile has yet been spawned, small chance of creating a new
                 (item-template-id
                  (find-record
                   'item-template
-                  :name (random-elt '("Decorative Plant"
-                                      "Little Plant" "Plant" "Spider Plant"
-                                      "Succulent Plant" "Yucca plant"))))))
+                  :id (random-elt '(8 9 10 11 12 13 14 15 16 24 65 66 
+                                    132 133 134 135 136 137 138 139 140 141 142 
+                                    205 240 241 242 243 244 245 246 247 248 249 250 251))))))
          (scale (+ (/ (random 150) 100.0) 1.5)))
     (setf (item-latitude tree) latitude
           (item-longitude tree) longitude
@@ -218,20 +213,80 @@ If no adjacent tile has yet been spawned, small chance of creating a new
           (item-y tree) (- (/ (random 2000) 100.0) 10.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
-          (item-avatar-scale-z tree) scale))
-  )
+          (item-avatar-scale-z tree) scale)))
+
+(defun terrain/add-grass ()
+  "Add a random bit of tall grass"
+  (let* ((latitude (1+ *global-heightmap-x%))
+         (longitude (1+ *global-heightmap-y%))
+         (tree (create-item
+                (item-template-id
+                 (find-record
+                  'item-template
+                  :id (random-elt '(74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91))))))
+         (scale (+ (/ (random 150) 100.0) 1.5)))
+    (setf (item-latitude tree) latitude
+          (item-longitude tree) longitude
+          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-avatar-scale-x tree) scale
+          (item-avatar-scale-y tree) scale
+          (item-avatar-scale-z tree) scale)))
 
 (defun terrain/add-mushrooms ()
   "Add a cluster of mushrooms or similar."
-  (error 'unimplemented))
+  (let* ((latitude (1+ *global-heightmap-x%))
+         (longitude (1+ *global-heightmap-y%))
+         (tree (create-item
+                (item-template-id
+                 (find-record
+                  'item-template
+                  :id (random-elt '(48 49 50 51 52 53 54 119 144 145
+                                    151 152 153 154 155 156 157 158 222 223 224 225 226 267 268 269))))))
+         (scale (+ (/ (random 150) 100.0) 1.5)))
+    (setf (item-latitude tree) latitude
+          (item-longitude tree) longitude
+          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-avatar-scale-x tree) scale
+          (item-avatar-scale-y tree) scale
+          (item-avatar-scale-z tree) scale)))
 
 (defun terrain/add-log ()
   "Adds a fallen log or similar feature."
-  (error 'unimplemented))
+  (let* ((latitude (1+ *global-heightmap-x%))
+         (longitude (1+ *global-heightmap-y%))
+         (tree (create-item
+                (item-template-id
+                 (find-record
+                  'item-template
+                  :id (random-elt '(102 103 104 105 106 107 108 109 110 111 112 113 114))))))
+         (scale (+ (/ (random 150) 100.0) 1.5)))
+    (setf (item-latitude tree) latitude
+          (item-longitude tree) longitude
+          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-avatar-scale-x tree) scale
+          (item-avatar-scale-y tree) scale
+          (item-avatar-scale-z tree) scale)))
 
 (defun terrain/add-flowers ()
   "Add a random cluster of appropriate flowers or herbs."
-  (error 'unimplemented))
+  (let* ((latitude (1+ *global-heightmap-x%))
+         (longitude (1+ *global-heightmap-y%))
+         (tree (create-item
+                (item-template-id
+                 (find-record
+                  'item-template
+                  :id (random-elt '(29 143 146 147 150 256 257 258 259 260 261 262 266))))))
+         (scale (+ (/ (random 150) 100.0) 1.5)))
+    (setf (item-latitude tree) latitude
+          (item-longitude tree) longitude
+          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-avatar-scale-x tree) scale
+          (item-avatar-scale-y tree) scale
+          (item-avatar-scale-z tree) scale)))
 
 (defun terrain/stream-present-p ()
   "Does a stream bisect the currently-active space?
@@ -301,7 +356,7 @@ Returns (LIST LATITUDE LONGITUDE)"
   (error 'unimplemented))
 
 (defmethod generate-terrain-features (contour (habitat (eql :grassland)))
-  (error 'unimplemented))
+  (loop repeat (random 300) do (terrain/add-grass)))
 
 (defmethod generate-terrain-features (contour (habitat (eql :forest)))
   (loop repeat (random 200) do (terrain/add-tree))
@@ -311,16 +366,16 @@ Returns (LIST LATITUDE LONGITUDE)"
   (loop repeat (random 5) do (terrain/add-small-pond)))
 
 (defmethod generate-terrain-features (contour (habitat (eql :desert)))
-  (error 'unimplemented))
+  (warn "desert"))
 
 (defmethod generate-terrain-features (contour (habitat (eql :savannah)))
-  (error 'unimplemented))
+  (warn "savannah"))
 
 (defmethod generate-terrain-features (contour (habitat (eql :rocky)))
-  (error 'unimplemented))
+  (warn "unimplemented: rocky"))
 
 (defmethod generate-terrain-features (contour (habitat (eql :ice)))
-  (error 'unimplemented))
+  (warn "unimplemented: ice"))
 
 
 
@@ -358,16 +413,12 @@ Returns (LIST LATITUDE LONGITUDE)"
      do (setf (global-heightmap-corner xi yi) base-elevation)))
 
 (defun fill-blank-contour (latitude longitude base-elevation)
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
   (dotimes (xi 200)
     (dotimes (yi 200)
       (setf (global-heightmap-corner (+ xi latitude) (+ yi longitude))
             (+ base-elevation (- (random 5) 2))))))
 
 (defun smoothe-contour-200×200 (latitude longitude &optional (repeats 3))
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
   (dotimes (i repeats)
     (dotimes (xi 200)
       (dotimes (yi 200)
@@ -413,18 +464,14 @@ Returns (LIST LATITUDE LONGITUDE)"
   (smoothe-contour-200×200 latitude longitude 30))
 
 
-(defun (setf global-heightmap-corner) (elevation latitude longitude)
+(defun (setf global-heightmap-corner) (elevation tile-x tile-y)
   (setf (aref *global-heightmap%
-              (- latitude *global-heightmap-x%)
-              (- longitude *global-heightmap-y%))
+              (- tile-x *global-heightmap-x%)
+              (- tile-y *global-heightmap-y%))
         elevation))
 
-(defun global-heightmap-corner (latitude longitude)
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
-  (aref *global-heightmap%
-        (- latitude *global-heightmap-x%)
-        (- longitude *global-heightmap-y%)))
+(defun global-heightmap-corner (tile-x tile-y)
+  (aref *global-heightmap% tile-x tile-y))
 
 (defmethod generate-terrain-contour (9-elevations habitat latitude longitude
                                      (scale (eql 0)))
@@ -449,8 +496,6 @@ Returns (LIST LATITUDE LONGITUDE)"
 
 (defun shift-contour-point (latitude longitude shift)
   "Shift a point on the contour map vertically"
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
   (setf (global-heightmap-corner latitude longitude)
         (min #xff (max 0 (+ (global-heightmap-corner latitude longitude)
                             shift)))))
@@ -469,24 +514,17 @@ Returns (LIST LATITUDE LONGITUDE)"
               (shift-contour-point (+ latitude (* xi scale) xj)
                                    (+ longitude (* yi scale) yj)
                                    shift))))))
-    (smoothe-contour-200×200 latitude longitude)
-
-    ;; (format  *trace-output*   "~&  After  contour   randomization  on
-    ;; ~D×~:*~D     square~p:"     scale      (floor     200     scale))
-    ;; (dump-global-heightmap latitude longitude)
-    )
+    (smoothe-contour-200×200 latitude longitude))
 
   (generate-terrain-contour 9-elevations habitat latitude longitude (1- step)))
 
 (defun dump-global-heightmap (latitude longitude)
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
   (format *trace-output* "~& ┎────────────────────────────────────────────────────────────────┒~
 ~{~% ┃ ~{~2,'0x~^ ~} ┃~}~
 ~% ┖────────────────────────────────────────────────────────────────┚"
-          (loop for yi from longitude upto (+ longitude 200) by 5
-             collect (loop for xi from latitude upto (+ latitude 200) by 10
-                        collect (global-heightmap-corner xi yi)))))
+          (loop for yi from 0 upto 200 by 5
+                collect (loop for xi from 0 upto 200 by 10
+                              collect (global-heightmap-corner xi yi)))))
 
 
 
@@ -498,14 +536,12 @@ Returns (LIST LATITUDE LONGITUDE)"
 
 (defgeneric spawn-terrain (place latitude longitude))
 
-(defmethod spawn-terrain ((place (eql :chor)) (latitude integer) (longitude integer))
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
-  (assert (<= -80000 latitude 80000))
-  (assert (<= -60000 longitude 60000))
+(defmethod spawn-terrain ((world (eql :chor)) (latitude integer) (longitude integer))
+  (assert (<= -400 latitude 400))
+  (assert (<= -300 longitude 300))
   (let ((*global-heightmap% (make-array (list 202 202) :element-type '(unsigned-byte 8)))
-        (*global-heightmap-x% (1- latitude))
-        (*global-heightmap-y% (1- longitude))
+        (*global-heightmap-x% latitude)
+        (*global-heightmap-y% longitude)
         (*features%))
     (destructuring-bind (elevation habitat)
         (get-9-terrain-tiles latitude longitude)
@@ -527,15 +563,13 @@ in habitat ~:(~A~) with elevations ~S"
 
 (defun terrain-db-key (place latitude longitude)
   (check-type place map-places)
-  (check-type latitude even-coordinate)
-  (check-type longitude even-coordinate)
   (format nil "World/~:(~a~)/~x×~x" place latitude longitude))
 
 (defun terrain-exists-p (place latitude longitude)
   "If terrain has been previously defined at the tile given, return it.
 
 Use `TERRAIN' generally instead."
-  (clouchdb:get-document (terrain-db-key place latitude longitude)))
+  )
 
 (defun terrain (place latitude longitude)
   "Obtain the terrain tile in PLACE at LATITUDE,LONGITUDE
