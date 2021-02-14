@@ -2885,9 +2885,11 @@ any tags assigned to it.
 @end verbatim
 
 The  response admin  message is  simply the  machine name  to which  you
-are connected.
+are connected, and the latitude, longitude, and altitude of the player.
 "
-  (machine-instance))
+  (format nil "You are on server ~:(~a~), at (~d, ~d) + ~d"
+          (machine-instance)
+          (latitude *client*) (longitude *client*) (altitude *client*)))
 
 (define-operator-command whereis (words user _)
   "Locate a user in the game world.
