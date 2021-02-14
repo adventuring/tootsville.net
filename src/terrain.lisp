@@ -160,8 +160,8 @@ approximate/net altitude of each 200 by 200 meter area of the game.")
 
 (defun get-9-terrain-tiles (latitude longitude)
   "Returns 9 tiles of terrain centered on LATITUDE LONGITUDE as a 3 by 3 array"
-  (let ((x-offset (+ latitude 400))
-        (y-offset (+ longitude 300))
+  (let ((x-offset (+ latitude 399))
+        (y-offset (+ longitude 299))
         (elevation (make-array '(3 3) :element-type '(unsigned-byte 8)))
         (habitat (make-array '(3 3) :element-type 'symbol :initial-element :ocean)))
     (when (or (< x-offset 0) (< y-offset 0)
@@ -169,13 +169,15 @@ approximate/net altitude of each 200 by 200 meter area of the game.")
       (warn "out of bounds reference to (~d, ~d)" x-offset y-offset))
     (dotimes (ix 3)
       (dotimes (iy 3)
-        (setf (aref elevation ix iy)
-              (aref (pngload:data *elevation-map*) (+ x-offset ix) (+ y-offset iy) 2)
-              (aref habitat ix iy)
-              (habitat<-pixel
-               (aref (pngload:data *habitat-map*) (+ x-offset ix) (+ y-offset iy) 0)
-               (aref (pngload:data *habitat-map*) (+ x-offset ix) (+ y-offset iy) 1)
-               (aref (pngload:data *habitat-map*) (+ x-offset ix) (+ y-offset iy) 2)))))
+        (setf (aref elevation ix iy) (aref (pngload:data *elevation-map*)
+                                           (+ x-offset ix) (+ y-offset iy) 2)
+              (aref habitat ix iy) (habitat<-pixel
+                                    (aref (pngload:data *habitat-map*)
+                                          (+ x-offset ix) (+ y-offset iy) 0)
+                                    (aref (pngload:data *habitat-map*)
+                                          (+ x-offset ix) (+ y-offset iy) 1)
+                                    (aref (pngload:data *habitat-map*)
+                                          (+ x-offset ix) (+ y-offset iy) 2)))))
     (list elevation habitat)))
 
 
@@ -197,8 +199,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
 
 (defun terrain/add-tree ()
   "Add a random tree or bush."
-  (let* ((latitude (1+ *global-heightmap-x%))
-         (longitude (1+ *global-heightmap-y%))
+  (let* ((latitude *global-heightmap-x%)
+         (longitude *global-heightmap-y%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -209,16 +211,19 @@ If no adjacent tile has yet been spawned, small chance of creating a new
          (scale (+ (/ (random 150) 100.0) 1.5)))
     (setf (item-latitude tree) latitude
           (item-longitude tree) longitude
-          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
-          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-altitude tree) 0
+          (item-world tree) :chor
+          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
-          (item-avatar-scale-z tree) scale)))
+          (item-avatar-scale-z tree) scale)
+    (save-record tree)))
 
 (defun terrain/add-grass ()
   "Add a random bit of tall grass"
-  (let* ((latitude (1+ *global-heightmap-x%))
-         (longitude (1+ *global-heightmap-y%))
+  (let* ((latitude *global-heightmap-x%)
+         (longitude *global-heightmap-y%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -227,16 +232,19 @@ If no adjacent tile has yet been spawned, small chance of creating a new
          (scale (+ (/ (random 150) 100.0) 1.5)))
     (setf (item-latitude tree) latitude
           (item-longitude tree) longitude
-          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
-          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-altitude tree) 0
+          (item-world tree) :chor
+          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
-          (item-avatar-scale-z tree) scale)))
+          (item-avatar-scale-z tree) scale)
+    (save-record tree)))
 
 (defun terrain/add-mushrooms ()
   "Add a cluster of mushrooms or similar."
-  (let* ((latitude (1+ *global-heightmap-x%))
-         (longitude (1+ *global-heightmap-y%))
+  (let* ((latitude *global-heightmap-x%)
+         (longitude *global-heightmap-y%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -246,16 +254,19 @@ If no adjacent tile has yet been spawned, small chance of creating a new
          (scale (+ (/ (random 150) 100.0) 1.5)))
     (setf (item-latitude tree) latitude
           (item-longitude tree) longitude
-          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
-          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-altitude tree) 0
+          (item-world tree) :chor
+          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
-          (item-avatar-scale-z tree) scale)))
+          (item-avatar-scale-z tree) scale)
+    (save-record tree)))
 
 (defun terrain/add-log ()
   "Adds a fallen log or similar feature."
-  (let* ((latitude (1+ *global-heightmap-x%))
-         (longitude (1+ *global-heightmap-y%))
+  (let* ((latitude *global-heightmap-x%)
+         (longitude *global-heightmap-y%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -264,16 +275,19 @@ If no adjacent tile has yet been spawned, small chance of creating a new
          (scale (+ (/ (random 150) 100.0) 1.5)))
     (setf (item-latitude tree) latitude
           (item-longitude tree) longitude
-          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
-          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-altitude tree) 0
+          (item-world tree) :chor
+          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
-          (item-avatar-scale-z tree) scale)))
+          (item-avatar-scale-z tree) scale)
+    (save-record tree)))
 
 (defun terrain/add-flowers ()
   "Add a random cluster of appropriate flowers or herbs."
-  (let* ((latitude (1+ *global-heightmap-x%))
-         (longitude (1+ *global-heightmap-y%))
+  (let* ((latitude *global-heightmap-x%)
+         (longitude *global-heightmap-y%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -282,11 +296,14 @@ If no adjacent tile has yet been spawned, small chance of creating a new
          (scale (+ (/ (random 150) 100.0) 1.5)))
     (setf (item-latitude tree) latitude
           (item-longitude tree) longitude
-          (item-x tree) (- (/ (random 2000) 100.0) 10.0)
-          (item-y tree) (- (/ (random 2000) 100.0) 10.0)
+          (item-altitude tree) 0
+          (item-world tree) :chor
+          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
-          (item-avatar-scale-z tree) scale)))
+          (item-avatar-scale-z tree) scale)
+    (save-record tree)))
 
 (defun terrain/stream-present-p ()
   "Does a stream bisect the currently-active space?
@@ -295,22 +312,21 @@ Should return true  if a body of water exists  which enters the space
  from any  side and  bisects the  space into  two disjoint  land areas.
  Terminus of  a stream  or completely underwater  are not  “streams” by
  this definition."
-  (error 'unimplemented))
+  (warn "unimplemented: stream-present-p"))
 
 (defun point-underwater-p (latitude longitude)
   "Is the point underwater? TODO"
-  (declare (ignore latitude longitude))
-  (error 'unimplemented))
+  (warn "unimplemented: point-underwater-p"))
 
 (defun find-random-point-if (function)
   "Find a random point within the space for which FUNCTION is true.
 
 Returns (LIST LATITUDE LONGITUDE)"
   (loop
-     for latitude = (/ (random 20000) 100)
-     for longitude = (/ (random 20000) 100)
-     until (funcall function latitude longitude)
-     finally (return (list latitude longitude))))
+    for latitude = (/ (random 20000) 100)
+    for longitude = (/ (random 20000) 100)
+    until (funcall function latitude longitude)
+    finally (return (list latitude longitude))))
 
 (defun terrain/add-small-pond ()
   "Create a pool of water smaller than the tile and contained within it. TODO"
@@ -318,7 +334,27 @@ Returns (LIST LATITUDE LONGITUDE)"
       (destructuring-bind (latitude longitude)
           (find-random-point-if #'point-underwater-p)
         (error 'unimplemented))
-      (error 'unimplemented)))
+      (let* ((x (- (/ (random 100000) 100.0) 500.0))
+             (z (- (/ (random 100000) 100.0) 500.0))
+             (ρ (/ (random 4000) 10.0))
+             (segments (max 3 (round (/ ρ )))))
+        (make-record 'place :world :chor 
+                            :latitude *global-heightmap-x% 
+                            :longitude *global-heightmap-y%
+                            :altitude 0
+                            :kind :water
+                            :shape (place-string-circle ρ x z segments))
+        (do-records (item item :world :chor 
+                               :latitude *global-heightmap-x%
+                               :longitude *global-heightmap-y%
+                               :altitude 0)
+          (when (< (distance (item-x item) (item-y item) (item-z item) x 0 z) ρ)
+            (destroy-record item)))
+        (dotimes (xi 200) 
+          (dotimes (zi 200)
+            (when (< (distance xi 0 zi x 0 z) ρ)
+              (when (>= (global-heightmap-corner xi zi) 128)
+                (setf (global-heightmap-corner xi zi) 127))))))))
 
 (defun terrain/add-shaddow-bush ()
   "Add a Shaddow bush to the area"
@@ -359,17 +395,17 @@ Returns (LIST LATITUDE LONGITUDE)"
   (loop repeat (random 300) do (terrain/add-grass)))
 
 (defmethod generate-terrain-features (contour (habitat (eql :forest)))
-  (loop repeat (random 200) do (terrain/add-tree))
-  (loop repeat (random 10) do (terrain/add-mushrooms))
-  (loop repeat (random 10) do (terrain/add-log))
-  (loop repeat (random 5) do (terrain/add-flowers))
+  (loop repeat (+ 100 (random 200)) do (terrain/add-tree))
+  (loop repeat (random 100) do (terrain/add-mushrooms))
+  (loop repeat (random 100) do (terrain/add-log))
+  (loop repeat (random 100) do (terrain/add-flowers))
   (loop repeat (random 5) do (terrain/add-small-pond)))
 
 (defmethod generate-terrain-features (contour (habitat (eql :desert)))
-  (warn "desert"))
+  (warn "unimplemented: desert"))
 
 (defmethod generate-terrain-features (contour (habitat (eql :savannah)))
-  (warn "savannah"))
+  (warn "unimplemented: savannah"))
 
 (defmethod generate-terrain-features (contour (habitat (eql :rocky)))
   (warn "unimplemented: rocky"))
@@ -518,7 +554,7 @@ Returns (LIST LATITUDE LONGITUDE)"
 
   (generate-terrain-contour 9-elevations habitat latitude longitude (1- step)))
 
-(defun dump-global-heightmap (latitude longitude)
+(defun dump-global-heightmap ()
   (format *trace-output* "~& ┎────────────────────────────────────────────────────────────────┒~
 ~{~% ┃ ~{~2,'0x~^ ~} ┃~}~
 ~% ┖────────────────────────────────────────────────────────────────┚"
@@ -552,30 +588,32 @@ in habitat ~:(~A~) with elevations ~S"
                                                 latitude longitude 1))
              (features (generate-terrain-features contour (aref habitat 1 1)))))
       (format *trace-output* "~& Final rough map:")
-      (dump-global-heightmap latitude longitude)
+      (dump-global-heightmap)
       ))
   ;; apply sea level
   ;; save to map database
-
   )
 
 
 
-(defun terrain-db-key (place latitude longitude)
-  (check-type place map-places)
-  (format nil "World/~:(~a~)/~x×~x" place latitude longitude))
-
-(defun terrain-exists-p (place latitude longitude)
+(defun find-terrain (place latitude longitude)
   "If terrain has been previously defined at the tile given, return it.
 
 Use `TERRAIN' generally instead."
-  )
+  nil)
 
-(defun terrain (place latitude longitude)
-  "Obtain the terrain tile in PLACE at LATITUDE,LONGITUDE
+(defun terrain (world latitude longitude)
+  "Obtain the terrain tile in WORLD at LATITUDE,LONGITUDE
 
-PLACE is one of :chor, :Moon, :othm, :pink, :orbit.
+PLACE is one of :Chor, :Moon, :othm, :pink, :orbit."
+  (or (find-terrain world latitude longitude)
+      (spawn-terrain world latitude longitude)))
 
-LATITUDE and LONGITUDE must be aligned to 200m increments."
-  (or (terrain-exists-p place latitude longitude)
-      (spawn-terrain place latitude longitude)))
+
+
+(defun destroy-disowned-items ()
+  (do-db-records-simply (record "items" :world "INV")
+    (let ((item (load-record 'item record)))
+      (if-let (inv (ignore-not-found (find-record 'inventory-item :item (item-UUID item))))
+        (format t "~&Inventory ~a" inv)
+        (destroy-record item)))))
