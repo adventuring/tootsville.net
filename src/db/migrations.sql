@@ -1182,7 +1182,8 @@ values
 (1109, 'Xylophone', 'xylophone'), 
 (1110, 'yamaha-yzr-r6', 'yamaha-yzr-r6'), 
 (1111, 'Yosemite Frame', 'YosemiteFrame');
-
+
+update items set latitude=-28, longitude=-109, x=-50, y=0, z=0 where template=2495;
 
 select 'All Done' as migrations;
 
