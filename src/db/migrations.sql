@@ -31,6 +31,22 @@ alter table items add column if not exists attributes text;
 
 alter table items add column if not exists special_texture text;
 
+create table if not exists quaestor_events
+( uuid CHAR(22) not null,
+  item CHAR(22) null,
+  source CHAR(22) null,
+  started_by CHAR(22) not null,
+  started_at DATETIME not null default 'NOW',
+  ended_at DATETIME null,
+  completedp ENUM('Y','N') not null default 'N',
+  peanuts DECIMAL(5) not null default 0,
+  fairy_dust DECIMAL(5) not null default 0,
+  score DECIMAL(6) not null default 0,
+  medal VARCHAR(64) null,
+  kind VARCHAR(64) not null,
+  constraint item_granted foreign key (item) references items (uuid) on delete restrict on update cascade,
+  constraint toot_started foreign key (started_at) references toots (uuid) on delete restrict on update cascade );
+
 create table if not exists item_tags
 ( item int not null,
   tag varchar(64) not null,
