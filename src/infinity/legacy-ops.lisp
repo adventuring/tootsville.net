@@ -1634,8 +1634,28 @@ See `TOOTSVILLE-USER::PLACE'"
     (error 'unimplemented)))
 
 (defun %operator-place-room (where params)
-  (destructuring-bind (spot-moniker) params
-    (error 'unimplemented)))
+  (destructuring-bind (spot-moniker) params)
+  (if-let (spot (find-record 'named-spot :name spot-moniker))
+    (progn (setf (named-spot-world spot) (world where)
+                 (named-spot-latitude spot) (latitude where)
+                 (named-spot-longitude spot) (longitude where)
+                 (named-spot-altitude spot) (altitude where)
+                 (named-spot-x spot) (game-point-x where)
+                 (named-spot-y spot) (game-point-y where)
+                 (named-spot-z spot) (game-point-z where))
+           (save-record spot)
+           "Updated named spot")
+    (progn (make-record 'named-spot
+                        :name spot-moniker
+                        :world (world where)
+                        :latitude (latitude where)
+                        :longitude (longitude where)
+                        :altitude (altitude where)
+                        :x (game-point-x where)
+                        :y (game-point-y where)
+                        :z (game-point-z where)
+                        :badgedp nil)
+           "Created named spot")))
 
 (defun %operator-place-shop (where params)
   "The operator is placing a shop item at WHERE with PARAMS.
