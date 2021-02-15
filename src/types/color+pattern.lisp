@@ -87,7 +87,7 @@ Formerly known as the ``extra color'' of the avatar."
 
 (define-constant +Toot-basic-pattern-names+
     '(Flowers Horseshoes Lightning Patches "Polka Dots"
-      Notes Sparkles Spots Stars Swirls)
+      Hearts Notes Sparkles Spots Stars Swirls)
   :test #'equalp
   :documentation "Basic patterns available to any Toot")
 
