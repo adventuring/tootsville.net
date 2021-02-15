@@ -2919,7 +2919,23 @@ User Name of a specific user;
 @end verbatim
 
 "
-  (error 'unimplemented))
+  (cond
+    ((equalp "#everyone" (first words))
+     (format nil "<ul>~{~{~%<li>~a~@[~%is at (~d, ~d) + ~d~]</li>~}~}</ul>"
+             (mapcar (lambda (Toot)
+                       (list (Toot-name Toot)
+                             (or (ignore-not-found (latitude Toot)) "?")
+                             (or (ignore-not-found (longitude Toot)) "?")
+                             (or (ignore-not-found (altitude Toot)) "?")))
+                     (connected-Toots))))
+    ((char= #\@ (char (first words) 0))
+     "Unimplemented")
+    (t (let ((Toot (find-record 'Toot :name (first words))))
+         (format nil "~a is at (~d, ~d) + ~d"
+                 (Toot-name Toot)
+                 (or (ignore-not-found (latitude Toot)) "?")
+                 (or (ignore-not-found (longitude Toot)) "?")
+                 (or (ignore-not-found (altitude Toot)) "?"))))))
 
 (define-operator-command who (words user _)
   "Displays a  list of everyone  currently in  a room.
