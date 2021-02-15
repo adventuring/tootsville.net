@@ -317,13 +317,14 @@ See `COMPUTE-FOUNTAIN-RANDOM-FAIRY-DUST'."
   "Give the new TOOT their starting peanuts."
   (make-record 'quaestor-event
                :uuid (uuid:make-v4-uuid)
-               :source "new-game"
+               :kind "new-game"
+               :source (Toot-UUID Toot)
                :started-by (Toot-uuid Toot)
                :started-at (now)
                :completedp t
                :ended-at (now)
                :peanuts 100
                :fairy-dust 0
-               :item nil
                :score 0
+               :item nil
                :medal nil))

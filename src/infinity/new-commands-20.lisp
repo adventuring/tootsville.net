@@ -694,7 +694,7 @@ Create a New Toot Quaestor event
 @item
 Creates a Toot-Quiesced record for them
 @end itemize"
-  (when (find-record 'Toot-quiesced :Toot (Toot-UUID Toot))
+  (when (ignore-not-found (find-record 'Toot-quiesced :Toot (Toot-UUID Toot)))
     (return-from make-new-Toot-state))
   (private-admin-message
    (format nil "Welcome to Tootsville, ~:(~a~)!" (Toot-name Toot))

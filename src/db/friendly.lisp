@@ -344,7 +344,8 @@
            (fairy-dust number)
            (item uuid ref items)
            (score number)
-           (medal keyword))
+           (medal keyword)
+           (kind keyword))
 
 
 

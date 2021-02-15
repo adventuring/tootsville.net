@@ -31,21 +31,25 @@ alter table items add column if not exists attributes text;
 
 alter table items add column if not exists special_texture text;
 
+drop table if exists quaestor_events;                               
+
 create table if not exists quaestor_events
-( uuid CHAR(22) not null,
+( uuid CHAR(22) not null primary key,
   item CHAR(22) null,
   source CHAR(22) null,
   started_by CHAR(22) not null,
-  started_at DATETIME not null default 'NOW',
+  started_at DATETIME not null default current_timestamp(),
   ended_at DATETIME null,
   completedp ENUM('Y','N') not null default 'N',
-  peanuts DECIMAL(5) not null default 0,
-  fairy_dust DECIMAL(5) not null default 0,
-  score DECIMAL(6) not null default 0,
-  medal VARCHAR(64) null,
+  peanuts DECIMAL(10,0) not null default 0,
+  fairy_dust DECIMAL(10,0) not null default 0,
+  score DECIMAL(10,0) not null default 0,
+  medal VARCHAR(32) null,
   kind VARCHAR(64) not null,
   constraint item_granted foreign key (item) references items (uuid) on delete restrict on update cascade,
-  constraint toot_started foreign key (started_at) references toots (uuid) on delete restrict on update cascade );
+  constraint toot_started foreign key (started_by) references toots (uuid) on delete restrict on update cascade
+)
+engine=InnoDB default charset=utf8;
 
 create table if not exists item_tags
 ( item int not null,

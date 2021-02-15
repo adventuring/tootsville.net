@@ -469,9 +469,10 @@ Returns person objects, removing nulls for unauthenticated users."
 
 (defun connected-Toots ()
   "All Toots currently connected — players or NPCs"
-  (remove-if #'null
-             (append (mapcar #'Toot (all-connected))
-                     (mapcar #'Toot (hash-table-values *Robots*)))))
+  (remove-duplicates 
+   (remove-if #'null
+              (append (mapcar #'Toot (all-connected))
+                      (mapcar #'Toot (hash-table-values *Robots*))))))
 
 (defun connected-Toot-names ()
   "The names of all Toots currently connected — players or NPCs."

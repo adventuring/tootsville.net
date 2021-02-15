@@ -184,15 +184,17 @@ Returns all items in that volume which are not in a character's inventory."
         (let ((x₁ |x|) (y₁ |y|) (z₁ |z|))
           (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |endPoint|
             (let ((x₂ |x|) (y₂ |y|) (z₂ |z|))
-              (make-instance 'wtl-course
-                             :speed |speed|
-                             :start-time |startTime|
-                             :end-time (or |endTime|
-                                           (+ |startTime| (/ (distance x₁ y₁ z₁ x₂ y₂ z₂) (or |speed| 0.1))))
-                             :start-point (list x₁ y₁ z₁)
-                             :end-point (list x₂ y₂ z₂)
-                             :speed (or |speed| 0.1)
-                             :facing (interpret-facing |facing|)))))))))
+              (let ((speed (min (or |speed| 0.1) 1/1000000)))
+                (make-instance 'wtl-course
+                               :speed |speed|
+                               :start-time |startTime|
+                               :end-time (or |endTime|
+                                             (+ |startTime| (/ (distance x₁ y₁ z₁ x₂ y₂ z₂)
+                                                               (+ speed 1/1000000000000))))
+                               :start-point (list x₁ y₁ z₁)
+                               :end-point (list x₂ y₂ z₂)
+                               :speed speed
+                               :facing (interpret-facing |facing|))))))))))
 
 
 
