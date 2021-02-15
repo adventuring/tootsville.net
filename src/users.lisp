@@ -233,7 +233,7 @@ come from a trusted authentication provider like Google Firebase)."
 (defvar *403.json-bytes*
   (flexi-streams:string-to-octets "{\"error\":\"player-not-found\",
 \"note\":\"You are not signed in to the web services\",
-\"login\":\"https://play.Tootsville.org/login/\"}"))
+\"login\":\"https://play.Tootsville.org/play/\"}"))
 
 
 
