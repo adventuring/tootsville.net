@@ -2920,6 +2920,8 @@ User Name of a specific user;
 
 "
   (cond
+    ((or (zerop (length words)) (not (stringp (first words))))
+     "#whereis #everyone or #whereis TOOT")
     ((equalp "#everyone" (first words))
      (format nil "<ul>~{~{~%<li>~a~@[~%is at (~d, ~d) + ~d~]</li>~}~}</ul>"
              (mapcar (lambda (Toot)
