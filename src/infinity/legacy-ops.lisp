@@ -2930,12 +2930,15 @@ User Name of a specific user;
                      (connected-Toots))))
     ((char= #\@ (char (first words) 0))
      "Unimplemented")
-    (t (let ((Toot (find-record 'Toot :name (first words))))
-         (format nil "~a is at (~d, ~d) + ~d"
-                 (Toot-name Toot)
-                 (or (ignore-not-found (latitude Toot)) "?")
-                 (or (ignore-not-found (longitude Toot)) "?")
-                 (or (ignore-not-found (altitude Toot)) "?"))))))
+    (t (let ((Toot (ignore-errors (find-record 'Toot :name (first words)))))
+         (if Toot
+             (format nil "~a is at (~d, ~d) + ~d"
+                     (Toot-name Toot)
+                     (or (ignore-not-found (latitude Toot)) "?")
+                     (or (ignore-not-found (longitude Toot)) "?")
+                     (or (ignore-not-found (altitude Toot)) "?"))
+             (format nil "No Toot is named ~a"
+                     (first words)))))))
 
 (define-operator-command who (words user _)
   "Displays a  list of everyone  currently in  a room.
