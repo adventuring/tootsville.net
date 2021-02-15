@@ -83,7 +83,7 @@ TIME defaults to the present (@code{(NOW)})."
   "This is a microsecond-precision replacement for `GET-UNIVERSAL-TIME'."
   (let ((n (now)))
     (+ (timestamp-to-universal n) 
-       (/ (timestamp-microsecond n) 1000000))))
+       (/ (timestamp-microsecond n) 1000000.0))))
 
 (defun get-Unix-time (&optional (universal-time (get-universal-time*)))
   "Get the UNIVERSAL-TIME (default to now) in Unix time.
