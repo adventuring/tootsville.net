@@ -213,8 +213,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
           (item-longitude tree) longitude
           (item-altitude tree) 0
           (item-world tree) :chor
-          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
-          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-x tree) (- (/ (random 102400) 100.0) 512.0)
+          (item-z tree) (- (/ (random 102400) 100.0) 512.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
           (item-avatar-scale-z tree) scale)
@@ -234,8 +234,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
           (item-longitude tree) longitude
           (item-altitude tree) 0
           (item-world tree) :chor
-          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
-          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-x tree) (- (/ (random 102400) 100.0) 512.0)
+          (item-z tree) (- (/ (random 102400) 100.0) 512.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
           (item-avatar-scale-z tree) scale)
@@ -256,8 +256,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
           (item-longitude tree) longitude
           (item-altitude tree) 0
           (item-world tree) :chor
-          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
-          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-x tree) (- (/ (random 102400) 100.0) 512.0)
+          (item-z tree) (- (/ (random 102400) 100.0) 512.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
           (item-avatar-scale-z tree) scale)
@@ -277,8 +277,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
           (item-longitude tree) longitude
           (item-altitude tree) 0
           (item-world tree) :chor
-          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
-          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-x tree) (- (/ (random 102400) 100.0) 512.0)
+          (item-z tree) (- (/ (random 102400) 100.0) 512.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
           (item-avatar-scale-z tree) scale)
@@ -298,8 +298,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
           (item-longitude tree) longitude
           (item-altitude tree) 0
           (item-world tree) :chor
-          (item-x tree) (- (/ (random 200000) 100.0) 1000.0)
-          (item-z tree) (- (/ (random 200000) 100.0) 1000.0)
+          (item-x tree) (- (/ (random 102400) 100.0) 512.0)
+          (item-z tree) (- (/ (random 102400) 100.0) 512.0)
           (item-avatar-scale-x tree) scale
           (item-avatar-scale-y tree) scale
           (item-avatar-scale-z tree) scale)
