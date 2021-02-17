@@ -96,25 +96,29 @@
 PLIST  can  have  keys  that  align to  a  DB.PERSON  or  their  contact
 infos (eg,  email) and is expected  to have been validated  already (eg,
 come from a trusted authentication provider like Google Firebase)."
+  (v:info :login "Ensuring user account exists for ~s" plist)
   (let ((person
-         (or (find-user-for-credentials (getf plist :credentials))
-             (when-let (email (and (getf plist :email-verified-p)
-                                   (getf plist :email)))
-               (when-let (links (person-links-to-email email))
-                 (when-let (link (when (all-links-to-same-person-p links)
-                                   (first links)))
-                   (find-reference link :person))))
-             (progn
-               (make-record
-                'person
-                :display-name (or (getf plist :name)
-                                  (email-lhs (getf plist :email)))
-                :given-name (or (getf plist :given-name)
-                                (getf plist :name)
-                                (email-lhs (getf plist :email)))
-                :surname (or (getf plist :surname) "")
-                :gender :X
-                :lang "en_US")))))
+          (or (find-user-for-credentials (getf plist :credentials))
+              (when-let (email (and (getf plist :email-verified-p)
+                                    (getf plist :email)))
+                (when-let (links (person-links-to-email email))
+                  (when-let (link (when (all-links-to-same-person-p links)
+                                    (first links)))
+                    (find-reference link :person))))
+              (progn
+                (and (getf plist :email)
+                     (getf plist :email-verified-p)
+                     (make-record
+                      'person
+                      :display-name (or (getf plist :name)
+                                        (email-lhs (getf plist :email)))
+                      :given-name (or (getf plist :given-name)
+                                      (getf plist :name)
+                                      (email-lhs (getf plist :email)))
+                      :surname (or (getf plist :surname) "")
+                      :gender :X
+                      :lang "en_US"))))))
+    (unless person (return-from ensure-user-for-plist nil))
     (ensure-record 'person-link
                    :person (person-uuid person)
                    :rel :contact
@@ -305,7 +309,6 @@ limitations under the License. |#
   "Returns true if PERSON is a patron of CIWTA.
 
 Currently just Bruce-Robert Pocock, Gene Cronk, Zephyr Salz, and Ali Dolan."
-  ;; just me ☹
   (member (uuid-to-uri (person-uuid person)) 
           '("SAsJFzx6TRO1W6pWEFxeAA==" ; Bruce-Robert
             "Vra1I1adQaGXZKZeA82vlg==" ; Gene
