@@ -136,10 +136,10 @@ aWqa
     (pad-to-multiple-of-8 string))))
 
 (defun check-firebase-id-token (token)
+  (v:warn :login "Token from Firebase: ~s" token)
   (handler-case
-      (multiple-value-bind (claims header digest claims$ header$)
-          (cljwt-custom:unpack (base64-from-uri-form token))
-        (declare (ignore claims$ header$))
+      (multiple-value-bind (claims header digest)
+          (cljwt-custom:unpack token)
         (let ((google-account-keys (get-google-account-keys)))
           (extract-certificate-base64
            (extract google-account-keys
@@ -186,6 +186,7 @@ aWqa
                         :picture (gethash "picture" claims))))
             (v:info :Firebase "Credentials from Firebase: ~S" credentials)
             credentials)))
-    (cl-base64:bad-base64-character (c)
-      (declare (ignore c))
-      nil)))
+    ;; (cl-base64:bad-base64-character (c)
+    ;;   (v:warn :Firebase "Error extracting credentials, ~S ~:*~A" c)
+    ;;   nil)
+    ))

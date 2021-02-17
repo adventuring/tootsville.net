@@ -101,7 +101,7 @@ color  or pattern  name(s)  given are  not valid.  (400  if the  request
 is malformed.)"
   (with-user ()
     (with-posted-json (name base-color pad-color pattern pattern-color
-                            t-shirt-color child-p child-code)
+                       t-shirt-color child-p child-code)
       (v:info :registration
               "Begin registration request for ~:(~a~)" name)
       (check-arg-type name Toot-name)
@@ -117,38 +117,38 @@ is malformed.)"
       (v:info :registration
               "Registration request for ~:(~a~) seems sane" name)
       (with-errors-as-http (409)
-        (assert (not (ignore-not-found (find-record 'Toot :name name)))))
+        (assert (null (ignore-not-found (find-record 'Toot :name name)))))
       (let ((Toot
-             (prog1
-                 (make-record 'Toot
-                              :name name
-                              :player (person-uuid *user*)
-                              :pattern (pattern-id (find-record 'pattern
-                                                                :name pattern))
-                              :base-color (parse-color24 base-color)
-                              :pattern-color (parse-color24 pattern-color)
-                              :pad-color (parse-color24 pad-color)
-                              :avatar-scale-x 1.0
-                              :avatar-scale-y 1.0
-                              :avatar-scale-z 1.0
-                              :avatar 1  ; UltraToot
-                              :child-code (when child-p
-                                            child-code)
-                              :note "New Toot registered via web")
-               (v:info :registration
-                       "Created new Toot ~:(~a~)" name)))
+              (prog1
+                  (make-record 'Toot
+                               :name name
+                               :player (person-uuid *user*)
+                               :pattern (pattern-id (find-record 'pattern
+                                                                 :name pattern))
+                               :base-color (parse-color24 base-color)
+                               :pattern-color (parse-color24 pattern-color)
+                               :pad-color (parse-color24 pad-color)
+                               :avatar-scale-x 1.0
+                               :avatar-scale-y 1.0
+                               :avatar-scale-z 1.0
+                               :avatar 1  ; UltraToot
+                               :child-code (when child-p
+                                             child-code)
+                               :note "New Toot registered via web")
+                (v:info :registration
+                        "Created new Toot ~:(~a~)" name)))
             (t-shirt
-             (make-record 'item
-                          :base-color (parse-color24 t-shirt-color)
-                          :alt-color (color24-rgb 0 0 0)
-                          :template 1       ; Solid color basic T-shirt
-                          :x 0 :y 0 :z 0
-                          :latitude 0 :longitude 0 :altitude 0
-                          :world :chor
-                          :facing 0
-                          :avatar-scale-x 1.0
-                          :avatar-scale-y 1.0
-                          :avatar-scale-z 1.0)))
+              (make-record 'item
+                           :base-color (parse-color24 t-shirt-color)
+                           :alt-color (color24-rgb 0 0 0)
+                           :template 1       ; Solid color basic T-shirt
+                           :x 0 :y 0 :z 0
+                           :latitude 0 :longitude 0 :altitude 0
+                           :world :chor
+                           :facing 0
+                           :avatar-scale-x 1.0
+                           :avatar-scale-y 1.0
+                           :avatar-scale-z 1.0)))
         (save-record Toot)
         (save-record t-shirt)
         (save-record
