@@ -479,7 +479,7 @@ UNIMPLEMENTED.
   "Gives the uptime of the server software."
   (let ((uptime (- (get-universal-time*) *started*)))
     (format nil "The server ~:(~a~) has been up for ~a (precisely ~:d sec)"
-            (machine-instance) (human-duration uptime) uptime)))
+            (machine-instance) (human-duration uptime) (round uptime))))
 
 (define-operator-command whatabout (words user _)
   "Searches for related item templates.
