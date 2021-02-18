@@ -1,7 +1,12 @@
 @node Conclusion
 @chapter Conclusion
 
-@node License, AGPL v3 License, Conclusion, Conclusion
+@menu
+* License and Credits::
+* AGPL v3 License::
+@end menu
+
+@node License and Credits, AGPL v3 License, Conclusion, Conclusion
 @section License and Credits
 
 Tootsville V and the Romance II game system are based upon Braque,
@@ -9,7 +14,7 @@ Copyright © 2006, 2007, Bruce-Robert Pocock, and Appius Claudius
 Caecus and the Romance Game System version I, Copyright © 2008-2015
 Bruce-Robert Pocock.
 
-Tootsville V is Copyright © 2016-2017 Bruce-Robert Pocock; © 2018-2021
+Tootsville V is Copyright ©  2016, 2017 Bruce-Robert Pocock; © 2018-2021
 The Corporation for Inter-World Tourism and Adventuring.
 
 Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
@@ -17,6 +22,13 @@ Levi Mc Call, and Zephyr Salz.
 
 In memory of the contributions of Maureen Kenny (RIP).
 
+@menu
+* Res Interactive::
+* Tootsville Contents::
+* Additional Media Content::
+@end menu
+
+@node Res Interactive, Tootsville Contents, License, License
 @subsection Res Interactive, LLC
 
 Tootsville and the The Toots characters were created by Res Interactive,
@@ -32,7 +44,8 @@ Bruce-Robert Pocock, © 2011-2015 Bruce-Robert Pocock (AGPL).
 Tootsville I-III client front-end ``Nightmare'' and Tootsville IV client
 front-end ``Persephone'' by Brandon Booker, Robert Dawson, Eric Feiling,
 Sean  King,  and  Bruce-Robert  Pocock  is  Copyright  ©  2008-2011  Res
-Interactive, LLC; no portion of Persephone is used in Tootsville V.
+Interactive,  LLC; no  portion of  Nightmare nor  Persephone is  used in
+Tootsville V.
 
 Tootsville IV application  ``Zookeeper'' by Eric Feiling  is Copyright ©
 2008-2011  Res Interactive,  LLC; no  portion  of Zookeeper  is used  in
@@ -53,6 +66,7 @@ Interactive, LLC. No  portion of Tootsbook (Res  Interactive Version) is
 used in Tootsville V or Tootsbook (current version); the current version
 of Tootsbook is built upon Wordpress.
 
+@node Tootsville Contents, Additional Media Content, Res Interactive, License
 @subsection Tootsville Contents
 
 Tootsville original Toot (UltraToot) character design, logos, design,
@@ -60,8 +74,7 @@ layout, world design, and other contents are Copyright © 2016-2017,
 Bruce-Robert Pocock, and Copyright © 2018-2021 The Corporation for
 Inter-World Tourism and Adventuring. ALL RIGHTS RESERVED.
 
-@emph{The use of original Tootsville content in any work, in any
-medium, must be approved by CIWTA.}
+@emph{The use of original Tootsville content in any work, in any medium, must be approved by CIWTA.}
 
 If you would like to use Tootsville Materials of any kind in your own
 work, contact the Cadre at @code{cadre@@ciwta.org}, or write to:
@@ -72,6 +85,7 @@ Oakland Park, FL 33307-3095
 USA
 @end verbatim
 
+@node Additional Media Content,  , Tootsville Contents, License
 @subsection Additional Media Content
 
 Tootsville incorporates a variety of Additional Media Content, in the
@@ -80,6 +94,15 @@ other contents. Credit through the User Interface is given whenever
 practical. Here, too, is a partial listing of acknowledgements for
 Additional Media Content.
 
+@menu
+* Public Domain Content::
+* Purchased Content::
+* 3D CC-BY Assets::
+* Music::
+* Assets may have been edited::
+@end menu
+
+@node Public Domain Content, Purchased Content, Additional Media Content, Additional Media Content
 @subsubsection Public Domain Content
 
 Tootsville   makes  use   of   some  assets   in   the  public   domain.
@@ -96,6 +119,7 @@ The parrot squawk sound
 The ``impact'' sounds by Iwan ``qubodup'' Gabovich
 @end itemize
 
+@node Purchased Content, 3D CC-BY Assets, Public Domain Content, Additional Media Content
 @subsubsection Purchased Content
 
 Some   assets   were   purchased  under   royalty-free   licenses   from
@@ -104,6 +128,7 @@ and may not be repurposed. These assets may have been adapted from their
 original formats by changing their file type, editing them, and changing
 their textures and coloration.
 
+@node 3D CC-BY Assets, Music, Purchased Content, Additional Media Content
 @subsubsection 3D CC-BY Assets
 
 Tootsville makes  use of 3D  assets licensed under the  Creative Commons
@@ -112,8 +137,6 @@ is available at @url{http://creativecommons.org/licenses/by/3.0/us/} and
 in this manual at @ref{CC-BY License}.
 
 See the directory of an individual item for details.
-
-@subsubsection 3D Assets
 
 Some 3D assets were created by and Copyright @copyright{} Andrew Kator &
 Jennifer Legaz.
@@ -164,57 +187,6 @@ Varivar
 @item
 WeaponGuy
 @end itemize
-
-@subsubsection Music
-
-Tootsville contains music by:
-
-@itemize
-@item
-Admiral Bob
-@item
-Advent Chamber Orchestra
-@item
-Apoxode
-@item
-artemisstrong
-@item
-John Bartmann
-@item
-Bersarin Quartet
-@item
-Calyman
-@item
-Ivan Chew
-@item
-Martijn de Boer (NiGiD)
-@item
-Dee Yan-Key
-@item
-Scott Holmes
-@item
-Jahzzar
-@item
-Javolenus
-@item
-Stefan Kertenberg
-@item
-Lobo Lobo
-@item
-Puma Studios @url{https://puma-studios.com/}
-@item
-Antony Raijekov
-@item
-reusenoise
-@item
-Kara Square
-@item
-Benjamin TISSOT (Bensound)
-@item
-Vidian
-@end itemize
-
-@subsubsection BlendSwap Assets
 
 Assets used in Tootsville came from the following users on BlendSwap:
 
@@ -305,7 +277,59 @@ Assets used in Tootsville came from the following users on BlendSwap:
  xablend1122
 @end itemize
 
-@node Assets may have been edited,  , License, License
+
+@node Music, Assets may have been edited, 3D CC-BY Assets, Additional Media Content
+@subsubsection Music
+
+Tootsville contains music by:
+
+@itemize
+@item
+Admiral Bob
+@item
+Advent Chamber Orchestra
+@item
+Apoxode
+@item
+artemisstrong
+@item
+John Bartmann
+@item
+Bersarin Quartet
+@item
+Calyman
+@item
+Ivan Chew
+@item
+Martijn de Boer (NiGiD)
+@item
+Dee Yan-Key
+@item
+Scott Holmes
+@item
+Jahzzar
+@item
+Javolenus
+@item
+Stefan Kertenberg
+@item
+Lobo Lobo
+@item
+Puma Studios @url{https://puma-studios.com/}
+@item
+Antony Raijekov
+@item
+reusenoise
+@item
+Kara Square
+@item
+Benjamin TISSOT (Bensound)
+@item
+Vidian
+@end itemize
+
+
+@node Assets may have been edited,  , Music, Additional Media Content
 @subsubsection Assets may have been edited.
 
 Some  assets  were scaled,  cropped,  converted  into a  different  file
@@ -992,6 +1016,10 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 <http://www.gnu.org/licenses/>.
 
 @page
+@menu
+* CC-BY License::
+@end menu
+
 @node CC-BY License,  , AGPL v3 License, AGPL v3 License
 @subsection CC-BY License
 
