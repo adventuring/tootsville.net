@@ -2718,7 +2718,17 @@ Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC."
                                                 "<p>Tootsville V version "
                                                 (asdf:component-version (asdf:find-system  :Tootsville))
                                                 "</p>"
-                                                (docstring->html +credits+ '+credits+))))
+                                                (docstring->html +credits+ '+credits+)
+                                                "<p>  This   program  is
+Free             Software;             you            can             <a
+href=\"https://www.gnu.org/licenses/agpl-3.0.en.html\">copy   and  alter
+the  program</a>,  but  you  may  not  use  the  Tootsville  characters,
+graphics, sound, music, etc without permission. </p>
+
+<p>  For  complete  credits  including art  assets,  <a  target=\"_new\"
+href=\"https://goethe.tootsville.org/devel/docs/Tootsville/"
+                                                (asdf:component-version (asdf:find-system  :Tootsville))
+                                                "/Tootsville.html.d/License and Credits.html\">see the manual</a></p>")))
 
 (definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin a Quaestor Event. Might return an error.
