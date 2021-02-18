@@ -177,8 +177,11 @@ Active Clients (~:d secs): ~:d (~:d%)."
        (force-close-hunchensocket ,client)
        (incf *ws-surprise-disconnects*))
      (sb-int:broken-pipe (c)
-       (v:warn :stream "Disconnect detected on ~a for ~a: ~a"
-               (stream-error-stream c) ,client c)
+       (v:warn :stream "Disconnect detected on ~a: ~a" ,client c)
+       (force-close-hunchensocket ,client)
+       (incf *ws-surprise-disconnects*))
+     (usocket:ns-host-not-found-error (c)
+       (v:error :string "DNS or network down on ~a: ~a" ,client c)
        (force-close-hunchensocket ,client)
        (incf *ws-surprise-disconnects*))
      (error (c)
