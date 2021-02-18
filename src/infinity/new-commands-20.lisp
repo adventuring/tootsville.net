@@ -1025,3 +1025,14 @@ garner attention to special events.
 
 "
   (error 'unimplemented))
+
+(definfinity user-agent ((agent version navigator for-romance) u r)
+  "The client can voluntarily report its version information.
+
+The server could potentially offer a different protocol or other
+affordances for known bugs or limitations in the client."
+  (v:info :user-agent "Client ~s reports user agent ~a/~a, ~
+navigator ~a, for Romance version ~f"
+          agent version navigator for-romance)
+  (list :|from| "userAgent"
+        :|status| t))
