@@ -1030,7 +1030,9 @@ garner attention to special events.
   "The client can voluntarily report its version information.
 
 The server could potentially offer a different protocol or other
-affordances for known bugs or limitations in the client."
+affordances for known bugs or limitations in the client.
+
+In practice, it's currently logged and forgotten."
   (v:info :user-agent "Client ~s reports user agent ~a/~a, ~
 navigator ~a, for Romance version ~f"
           agent version navigator for-romance)
