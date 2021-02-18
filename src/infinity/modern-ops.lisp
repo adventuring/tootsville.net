@@ -585,6 +585,15 @@ template.
 
 Reports a few interesting statistics in a row.
 
+This gives a quick summary of what you would learn from a variety of
+other operator commands, and also lists the operator commands you
+would use to get more detailed information.
+
+The intention is that operators can use @code{#status} to begin a
+shift and see how things are going across the board.
+
+TODO this should flag recent staff journal entries as well.
+
 @subsection Usage
 
 @verbatim
