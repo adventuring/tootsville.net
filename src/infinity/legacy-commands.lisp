@@ -2714,7 +2714,11 @@ Bruce-Robert Pocock, and Ed Winkelman at Res Interactive, LLC."
 
 (defun dump-credits ()
   "Send +CREDITS+ as a private admin message. Response to the ,credits user utterance."
-  (private-admin-message "Credits" (docstring->html +credits+ '+credits+)))
+  (private-admin-message "Credits" (concatenate 'string
+                                                "<p>Tootsville V version "
+                                                (asdf:component-version (asdf:find-system  :Tootsville))
+                                                "</p>"
+                                                (docstring->html +credits+ '+credits+))))
 
 (definfinity start-event ((moniker) user recipient/s)
   "Attempt to begin a Quaestor Event. Might return an error.
