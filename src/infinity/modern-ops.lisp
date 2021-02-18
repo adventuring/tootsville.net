@@ -593,7 +593,7 @@ Reports a few interesting statistics in a row.
 "
   (format nil "Status report for ~:(~a~)
 <table>
-<tr><th>Cluster</th><td>~:d server~:p</td></tr>
+<tr><th>#server-list</th><td>~:d server~:p</td></tr>
 <tr><th>#mem</th><td>~a</td></tr>
 <tr><th>#ws-stats</th><td>~:d socket~:p</td></tr>
 <tr><th>#infinity-stats</th><td>~:d request~:p</td></tr>
