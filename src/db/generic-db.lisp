@@ -154,5 +154,6 @@ Used by `FIND-RECORD', which should be preferred."
       (return-from refind-record object))))
 
 (defpost refind-record ()
+  "Prove that loading the same record twice gives an EQL object."
   (eql (find-record 'Toot :name "Pil")
        (find-record 'Toot :name "Pil")))
