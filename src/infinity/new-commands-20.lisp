@@ -1035,6 +1035,6 @@ affordances for known bugs or limitations in the client.
 In practice, it's currently logged and forgotten."
   (v:info :user-agent "Client ~s reports user agent ~a/~a, ~
 navigator ~a, for Romance version ~f"
-          agent version navigator for-romance)
+          *client* agent version navigator for-romance)
   (list :|from| "userAgent"
         :|status| t))
