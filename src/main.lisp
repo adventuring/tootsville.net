@@ -31,8 +31,10 @@
 
 (defvar *motd*
   "Welcome to Tootsville! Let's make some noise!
-
-This is experimental server software for Tootsville V."
+<BR>
+This is experimental server software for Tootsville V.
+<BR>
+Lots of things will not work yet."
   "The message of the day. 
 
 This is served up to every person who signs in. It can be altered easily
