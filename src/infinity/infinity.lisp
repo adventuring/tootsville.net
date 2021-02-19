@@ -54,14 +54,16 @@ Used to create the REST endpoints mapping to METHOD."
        (list 500 (list :|status| :false
                        :|from| "c"
                        :|command| ,command
-                       :|error| (format nil "~a" c))))
+                       :|error| (format nil "~a" c)
+                       :|trace| (rollbar::find-appropriate-backtrace)8)))
      (http-client-error (c)
        (list (http-status-code c)
              (list :|status| :false
                    :|from| "c"
                    :|command| ,command
                    :|httpError| (http-status-code c)
-                   :|error| (format nil "~a" c))))))
+                   :|error| (format nil "~a" c)
+                   :|trace| (rollbar::find-appropriate-backtrace))))))
 
 (defun average (list)
   (/ (reduce #'+ list) (length list)))
