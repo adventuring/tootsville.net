@@ -340,7 +340,7 @@ the HTML form @code{#rrggbb}, without any sigil.
   (integer-to-color24
    (etypecase color
      (color24 (return-from parse-color24 color))
-     (string (cond ((string-equal "rgb(" color :end2 4)
+     (string (cond ((and (< 4 (length color)) (string-equal "rgb(" color :end2 4))
                     (register-groups-bind (r g b)
                         ("rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)" color)
                       (logior (ash (parse-integer r) 16)
