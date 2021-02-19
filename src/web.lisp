@@ -179,24 +179,24 @@ It returns a content-type of ~:*~(~a~).~]~2%~
     (let (($begin (gensym "BEGIN-"))
           ($elapsed (gensym "ELAPSED-")))
       `(defun ,fname (,@λ-list) ,docstring
-              (let ((,$begin (get-internal-real-time)))
-                (v:info '(,(make-keyword fname) :endpoint :endpoint-start)
-                        ,(concatenate 'string "Starting: " (first-line docstring)))
-                (setf (hunchentoot:content-type*) ,(add-charset (string-downcase content-type)))
-                (unwind-protect
-                     (let ((reply
-                            (catch 'endpoint
-                              (block endpoint
-                                (with-timeout (,(* (the real how-slow-is-slow) 10.0))
-                                  (block ,fname
-                                    ,@body))))))
-                       (send-reply-as-bytes reply ',fname))
-                  (let ((,$elapsed (/ (- (get-internal-real-time) ,$begin) internal-time-units-per-second)))
-                    (v:info '(,(make-keyword fname) :endpoint :endpoint-finish)
-                            ,(concatenate 'string "Finished: " (first-line docstring) " in ~,3fs")
-                            (* 1.0 ,$elapsed))
-                    (when (< ,how-slow-is-slow ,$elapsed)
-                      (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
+         (let ((,$begin (get-internal-real-time)))
+           (v:info '(,(make-keyword fname) :endpoint :endpoint-start)
+                   ,(concatenate 'string "Starting: " (first-line docstring)))
+           (setf (hunchentoot:content-type*) ,(add-charset (string-downcase content-type)))
+           (unwind-protect
+                (let ((reply
+                        (catch 'endpoint
+                          (block endpoint
+                            (with-timeout (,(* (the real how-slow-is-slow) 10.0))
+                              (block ,fname
+                                ,@body))))))
+                  (send-reply-as-bytes reply ',fname))
+             (let ((,$elapsed (/ (- (get-internal-real-time) ,$begin) internal-time-units-per-second)))
+               (v:info '(,(make-keyword fname) :endpoint :endpoint-finish)
+                       ,(concatenate 'string "Finished: " (first-line docstring) " in ~,3fs")
+                       (* 1.0 ,$elapsed))
+               (when (< ,how-slow-is-slow ,$elapsed)
+                 (report-slow-query ',fname ,$elapsed ,how-slow-is-slow))))))))
 
   (defun after-slash (s)
     "Splits a string S at a slash. Useful for getting the end of a content-type.

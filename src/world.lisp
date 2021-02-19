@@ -125,6 +125,14 @@ Returns all items in that volume which are not in a character's inventory."
    (world :initarg :world :initform :chor :accessor world)
    (facing :initarg :facing :initform 0 :accessor facing)))
 
+(defmethod print-object ((course wtl-course) s)
+  (with-slots (start-point end-point start-time end-time 
+               latitude longitude altitude world)
+      course
+    (format s "#<WtL-Course from ~{(~d,~d,~d)~} at ~:d to ~{(~d,~d,~d)~} at ~:d, @ ~d,~d + ~d on ~s>"
+            start-point start-time end-point end-time
+            latitude longitude altitude world)))
+
 (defun wtl-find-end-time-if-blank (course)
   (unless (wtl-course-end-time course)
     (let ((speed (or (wtl-course-speed course) 0.1)))
@@ -179,7 +187,9 @@ Returns all items in that volume which are not in a character's inventory."
 
 (defmethod parse-wtl-course ((course cons))
   (destructuring-bind (&key |course| |facing|) course
-    (destructuring-bind (&key |startTime| |endTime| |speed| |startPoint| |endPoint|) |course|
+    (destructuring-bind (&key |startTime| |endTime| |speed| |startPoint| |endPoint|
+                              |world| |latitude| |longitude| |altitude|)
+        |course|
       (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |startPoint|
         (let ((x₁ |x|) (y₁ |y|) (z₁ |z|))
           (destructuring-bind (&key |x| |y| |z| &allow-other-keys) |endPoint|
@@ -194,6 +204,10 @@ Returns all items in that volume which are not in a character's inventory."
                                :start-point (list x₁ y₁ z₁)
                                :end-point (list x₂ y₂ z₂)
                                :speed speed
+                               :world |world|
+                               :latitude |latitude|
+                               :longitude |longitude|
+                               :altitude |altitude|
                                :facing (interpret-facing |facing|))))))))))
 
 

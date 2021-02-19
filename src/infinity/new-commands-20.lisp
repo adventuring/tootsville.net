@@ -489,8 +489,12 @@ As with @code{wtl},  @code{facing} can be supplied in  either radians or
 as   a  value   from  the   list  @code{N   NE  E   SE  S   SW  W   NW}.
 See `INTERPRET-FACING'.
 "
-  
   (when *client*
+    (unless (getf course :|world|)
+      (setf (getf course :|world|) (make-keyword (string-upcase (world (Toot-position *client*))))
+            (getf course :|latitude|) (latitude (Toot-position *client*))
+            (getf course :|longitude|) (longitude (Toot-position *client*))
+            (getf course :|altitude|) (altitude (Toot-position *client*))))
     (setf (wtl-course *client*) (parse-wtl-course (list :|course| course :|facing| facing))))
   (broadcast (list :|from| "wtl"
                    :|status| t

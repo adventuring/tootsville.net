@@ -111,9 +111,11 @@ See `INFINITY-WTL' for a discussion of this format."))
   "Get the walk-the-line course of Toot"
   (if (robotp Toot)
       (robot-course (find-robot Toot))
-      (parse-wtl-for-robot (jonathan.decode:parse
-                            (Toot-quiesced-wtl
-                             (Toot-quiesced-data Toot))))))
+      (if-let (client (user-stream Toot))
+        (wtl-course client)
+        (parse-wtl-for-robot (jonathan.decode:parse
+                              (Toot-quiesced-wtl
+                               (Toot-quiesced-data Toot)))))))
 
 (defgeneric nearp (thing place)
   (:documentation "Is THING near to PLACE?
