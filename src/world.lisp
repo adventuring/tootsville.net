@@ -236,7 +236,7 @@ Returns all items in that volume which are not in a character's inventory."
   (:documentation "The altitude of THING"))
 
 (defmethod world ((cons cons))
-  (first cons))
+  (make-keyword (string-upcase (first cons))))
 
 (defmethod latitude ((cons cons))
   (second cons))
