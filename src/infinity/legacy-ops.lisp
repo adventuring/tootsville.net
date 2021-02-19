@@ -2305,11 +2305,11 @@ In 1.2, this moved an user into another room.
   (check-type words list)
   (let ((latitude (parse-integer (second words)))
         (longitude (parse-integer (third words)))
-        (altitude (if (< 2 (length words))
-                      (parse-integer (third words))
+        (altitude (if (< 3 (length words))
+                      (parse-integer (fourth words))
                       0))
-        (world (if (< 3 (length words))
-                   (string-upcase (fourth words))
+        (world (if (< 4 (length words))
+                   (string-upcase (fifth words))
                    "CHOR")))
     (unicast (list :|from| "beam"
                    :|latitude| latitude
