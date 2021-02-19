@@ -160,8 +160,8 @@ approximate/net altitude of each 200 by 200 meter area of the game.")
 
 (defun get-9-terrain-tiles (latitude longitude)
   "Returns 9 tiles of terrain centered on LATITUDE LONGITUDE as a 3 by 3 array"
-  (let ((x-offset (+ latitude 399))
-        (y-offset (+ longitude 299))
+  (let ((x-offset (+ longitude 399))
+        (y-offset (+ latitude 299))
         (elevation (make-array '(3 3) :element-type '(unsigned-byte 8)))
         (habitat (make-array '(3 3) :element-type 'symbol :initial-element :ocean)))
     (when (or (< x-offset 0) (< y-offset 0)
@@ -173,11 +173,11 @@ approximate/net altitude of each 200 by 200 meter area of the game.")
                                            (+ x-offset ix) (+ y-offset iy) 2)
               (aref habitat ix iy) (habitat<-pixel
                                     (aref (pngload:data *habitat-map*)
-                                          (+ x-offset ix) (+ y-offset iy) 0)
+                                          (+ y-offset iy) (+ x-offset ix) 0)
                                     (aref (pngload:data *habitat-map*)
-                                          (+ x-offset ix) (+ y-offset iy) 1)
+                                          (+ y-offset iy) (+ x-offset ix) 1)
                                     (aref (pngload:data *habitat-map*)
-                                          (+ x-offset ix) (+ y-offset iy) 2)))))
+                                          (+ y-offset iy) (+ x-offset ix) 2)))))
     (list elevation habitat)))
 
 
@@ -199,8 +199,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
 
 (defun terrain/add-tree ()
   "Add a random tree or bush."
-  (let* ((latitude *global-heightmap-x%)
-         (longitude *global-heightmap-y%)
+  (let* ((latitude *global-heightmap-y%)
+         (longitude *global-heightmap-x%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -222,8 +222,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
 
 (defun terrain/add-grass ()
   "Add a random bit of tall grass"
-  (let* ((latitude *global-heightmap-x%)
-         (longitude *global-heightmap-y%)
+  (let* ((latitude *global-heightmap-y%)
+         (longitude *global-heightmap-x%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -243,8 +243,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
 
 (defun terrain/add-mushrooms ()
   "Add a cluster of mushrooms or similar."
-  (let* ((latitude *global-heightmap-x%)
-         (longitude *global-heightmap-y%)
+  (let* ((latitude *global-heightmap-y%)
+         (longitude *global-heightmap-x%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -265,8 +265,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
 
 (defun terrain/add-log ()
   "Adds a fallen log or similar feature."
-  (let* ((latitude *global-heightmap-x%)
-         (longitude *global-heightmap-y%)
+  (let* ((latitude *global-heightmap-y%)
+         (longitude *global-heightmap-x%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -286,8 +286,8 @@ If no adjacent tile has yet been spawned, small chance of creating a new
 
 (defun terrain/add-flowers ()
   "Add a random cluster of appropriate flowers or herbs."
-  (let* ((latitude *global-heightmap-x%)
-         (longitude *global-heightmap-y%)
+  (let* ((latitude *global-heightmap-y%)
+         (longitude *global-heightmap-x%)
          (tree (create-item
                 (item-template-id
                  (find-record
@@ -339,14 +339,14 @@ Returns (LIST LATITUDE LONGITUDE)"
              (ρ (/ (random 4000) 10.0))
              (segments (max 3 (round (/ ρ )))))
         (make-record 'place :world :chor 
-                            :latitude *global-heightmap-x% 
-                            :longitude *global-heightmap-y%
+                            :latitude *global-heightmap-y% 
+                            :longitude *global-heightmap-x%
                             :altitude 0
                             :kind :water
                             :shape (place-string-circle ρ x z segments))
         (do-records (item item :world "CHOR"
-                               :latitude *global-heightmap-x%
-                               :longitude *global-heightmap-y%
+                               :latitude *global-heightmap-y%
+                               :longitude *global-heightmap-x%
                                :altitude 0)
           (when (< (distance (item-x item) (item-y item) (item-z item) x 0 z) ρ)
             (destroy-record item)))
@@ -430,17 +430,17 @@ Returns (LIST LATITUDE LONGITUDE)"
 (defun copy-terrain-edge-vert (latitude start-longitude end-longitude
                                dest-latitude dest-longitude)
   (loop for yi from start-longitude to end-longitude
-     for xi = latitude
-     for yj from dest-longitude to (+ dest-longitude (- start-longitude
-                                                        end-longitude))
-     for xj = dest-latitude
-     do (setf (global-heightmap-corner xj yj) (global-heightmap-corner xi yi))))
+        for xi = latitude
+        for yj from dest-longitude to (+ dest-longitude (- start-longitude
+                                                           end-longitude))
+        for xj = dest-latitude
+        do (setf (global-heightmap-corner xj yj) (global-heightmap-corner xi yi))))
 
 (defun generate-terrain-blank-edge-horz (start-latitude longitude
                                          end-latitude base-elevation)
   (loop for xi from start-latitude to end-latitude
-     for yi = longitude
-     do (setf (global-heightmap-corner xi yi) base-elevation)))
+        for yi = longitude
+        do (setf (global-heightmap-corner xi yi) base-elevation)))
 
 (defun generate-terrain-blank-edge-vert (latitude start-longitude
                                          end-longitude base-elevation)
@@ -573,22 +573,23 @@ Returns (LIST LATITUDE LONGITUDE)"
 (defgeneric spawn-terrain (place latitude longitude))
 
 (defmethod spawn-terrain ((world (eql :chor)) (latitude integer) (longitude integer))
-  (assert (<= -400 latitude 400))
-  (assert (<= -300 longitude 300))
+  (assert (<= -399 longitude 399))
+  (assert (<= -299 latitude 299))
   (let ((*global-heightmap% (make-array (list 202 202) :element-type '(unsigned-byte 8)))
-        (*global-heightmap-x% latitude)
-        (*global-heightmap-y% longitude)
+        (*global-heightmap-x% longitude)
+        (*global-heightmap-y% latitude)
         (*features%))
     (destructuring-bind (elevation habitat)
         (get-9-terrain-tiles latitude longitude)
       (verbose:info :terrain "~& Generating map at (~:d,~:d) ~
 in habitat ~:(~A~) with elevations ~S"
                     latitude longitude (aref habitat 1 1) elevation)
-      (let* ((contour (generate-terrain-contour elevation habitat
-                                                latitude longitude 1))
-             (features (generate-terrain-features contour (aref habitat 1 1)))))
-      (format *trace-output* "~& Final rough map:")
-      (dump-global-heightmap)
+      (let* (#+ (or) (contour (generate-terrain-contour elevation habitat
+                                                        latitude longitude 1))
+                (features (generate-terrain-features nil (aref habitat 1 1))))
+        #+ (or) (progn (format *trace-output* "~& Final rough map:")
+                       (dump-global-heightmap))
+        features)
       ))
   ;; apply sea level
   ;; save to map database
@@ -596,18 +597,19 @@ in habitat ~:(~A~) with elevations ~S"
 
 
 
-(defun find-terrain (place latitude longitude)
+(defun find-terrain (world latitude longitude)
   "If terrain has been previously defined at the tile given, return it.
 
 Use `TERRAIN' generally instead."
-  nil)
+  (find-records 'item :world world :latitude latitude :longitude longitude))
 
 (defun terrain (world latitude longitude)
   "Obtain the terrain tile in WORLD at LATITUDE,LONGITUDE
 
 PLACE is one of :Chor, :Moon, :othm, :pink, :orbit."
   (or (find-terrain world latitude longitude)
-      (spawn-terrain world latitude longitude)))
+      (progn (spawn-terrain world latitude longitude)
+             (find-terrain world latitude longitude))))
 
 
 
