@@ -2701,8 +2701,8 @@ WRITEME
 (define-constant +credits+
   "Tootsville V by Bruce-Robert Pocock at the Corporation for Inter-World Tourism and Adventuring.
 
-Special thanks to Ali Dolan, Mariaelisa Greenwood, Richard Harnden,
-Levi Mc Call, Gian Ratnapala, and Zephyr Salz.
+Special  thanks  to  Chris  Brunner, Ali  Dolan,  Mariaelisa  Greenwood,
+Richard Harnden, Levi Mc Call, Gian Ratnapala, and Zephyr Salz.
 
 In memory of the contributions of Maureen Kenny (RIP).
 
