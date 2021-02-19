@@ -162,6 +162,8 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
          (altitude (altitude observer))
          (vars (make-hash-table :test 'equal)))
     (setf (gethash "s" vars) (sky-room-var world))
+    (when (and (= 0 altitude) (eql :chor world))
+      (terrain world latitude longitude))
     (do-records (item item :world (princ-to-string world) ; string needed for do-records
                            :latitude latitude
                            :longitude longitude
@@ -707,8 +709,8 @@ Creates a Toot-Quiesced record for them
   (ensure-record 'Toot-quiesced
                  :Toot (Toot-uuid Toot)
                  :world "CHOR"
-                 :latitude -28
-                 :longitude -109
+                 :latitude -60
+                 :longitude 20
                  :altitude 0
                  :wtl (random-start-wtl-for-Toot)
                  :d3 nil
