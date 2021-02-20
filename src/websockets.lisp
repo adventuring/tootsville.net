@@ -296,7 +296,9 @@ WHOM might be a Toot, person, websocket client, robot, &c."))
 
 (defmethod user-stream ((Toot Toot))
   "Find the stream associated with TOOT"
-  (or (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*)
+  (or (when-let (stream (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*))
+        (when (member stream (all-connected))
+          stream))
       (when-let (stream (find Toot 
                               (remove-if-not #'Toot (all-connected))
                               :key #'Toot :test #'Toot=))
