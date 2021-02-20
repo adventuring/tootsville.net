@@ -308,13 +308,15 @@ WHOM might be a Toot, person, websocket client, robot, &c."))
 (defun force-close-hunchensocket (client)
   "Attempt to destroy the connection to CLIENT"
   (v:warn :websockets "Force-closing socket ~a" client)
-  (ignore-errors
-   (with-slots (clients lock) *infinity-websocket-resource*
-     (bt:with-lock-held (lock)
-       (with-slots (write-lock) client
-         (bt:with-lock-held (write-lock)
-           (setq clients (remove client clients))
-           (setq write-lock nil))))))
+  (handler-case 
+      (with-slots (hunchensocket::clients lock) *infinity-websocket-resource*
+        (bt:with-lock-held (lock)
+          (with-slots (hunchensocket::write-lock) client
+            (bt:with-lock-held (hunchensocket::write-lock)
+              (setq hunchensocket::clients (remove client hunchensocket::clients))
+              (setq hunchensocket::write-lock nil)))))
+    (error (c)
+      (v:error :websockets "Error force-closing socket ~a: ~a" client c)))
   (hunchensocket:client-disconnected *infinity-websocket-resource* client))
 
 (defun ws-broadcast (res message &key near except)
@@ -357,7 +359,8 @@ You almost certainly don't want to call this --- you want `BROADCAST'."
   (let ((message (ensure-message-is-characters message))
         (user-stream (etypecase user
                        (ws-client user)
-                       (person (user-stream user)))))
+                       (person (user-stream user))
+                       (Toot (user-stream user)))))
     (if user-stream
         (websockets-unicast-low-level% message user-stream)
         (v:warn :stream "Unable to send ~:d character~:p to ~a" (length message) user))))
