@@ -298,26 +298,29 @@ WHOM might be a Toot, person, websocket client, robot, &c."))
   "Find the stream associated with TOOT"
   (or (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot)) *ws-client-for-Toot*)
       (when-let (stream (find Toot 
-                              (remove-if-not 
-                               #'Toot (hunchensocket:clients *infinity-websocket-resource*))
+                              (remove-if-not #'Toot (all-connected))
                               :key #'Toot :test #'Toot=))
         (setf (gethash (uuid:uuid-to-byte-array (Toot-uuid Toot))
                        *ws-client-for-Toot*)
               stream))))
 
 (defun force-close-hunchensocket (client)
-  "Attempt to destroy the connection to CLIENT"
+  "Attempt to destroy the connection to CLIENT."
   (v:warn :websockets "Force-closing socket ~a" client)
   (handler-case 
       (with-slots (hunchensocket::clients lock) *infinity-websocket-resource*
-        (bt:with-lock-held (lock)
-          (with-slots (hunchensocket::write-lock) client
-            (bt:with-lock-held (hunchensocket::write-lock)
-              (setq hunchensocket::clients (remove client hunchensocket::clients))
-              (setq hunchensocket::write-lock nil)))))
+        (if lock
+            (bt:with-lock-held (lock)
+              (with-slots (hunchensocket::write-lock) client
+                (if hunchensocket::write-lock
+                    (bt:with-lock-held (hunchensocket::write-lock)
+                      (setq hunchensocket::clients (remove client hunchensocket::clients))
+                      (setq hunchensocket::write-lock nil))
+                    (error "No LOCK in inner binding"))))
+            (error "No LOCK in outer binding"))
+        (hunchensocket:client-disconnected *infinity-websocket-resource* client))
     (error (c)
-      (v:error :websockets "Error force-closing socket ~a: ~a" client c)))
-  (hunchensocket:client-disconnected *infinity-websocket-resource* client))
+      (v:error :websockets "Error force-closing socket ~a:~%~a" client c))))
 
 (defun ws-broadcast (res message &key near except)
   "Low-level broadcast MESSAGE to all WebSocket clients of resource RES near NEAR except EXCEPT.
