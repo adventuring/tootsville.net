@@ -33,6 +33,13 @@
   "Convert UUID to a string in JSON string notation."
   (jonathan.encode:%write-string (format nil "\"~a\"" uuid)))
 
+(defmethod %to-json ((timestamp timestamp))
+  "Convert timestamp to a Java time value"
+  (jonathan.encode:%write-string 
+   (format nil "~f" 
+           (* 1000 (+ (timestamp-to-unix timestamp)
+                      (/ (timestamp-microsecond timestamp) 1000000))))))
+
 (defmethod %to-json ((color24 color24))
   "Convert COLOR24 a string in JSON notation.
 
