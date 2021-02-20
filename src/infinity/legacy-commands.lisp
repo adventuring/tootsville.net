@@ -1009,12 +1009,12 @@ If any item ID cannot be found, the entire query fails with a 404."
    (lambda (contact)
      (list :|id| (contact-uuid contact)
            :|n| (Toot-name (find-reference contact :contact))
-           :|starredP| (contact-starredp contact)
+           :|starredP| (or (contact-starredp contact) :false)
            :|added| (contact-added contact)
            :|lastUsed| (contact-last-used contact)))
    (sort
     (find-records 'contact :owner (Toot-UUID Toot))
-    #'< :key #'contact-last-used)))
+    #'timestamp< :key #'contact-last-used)))
 
 (definfinity get-user-lists (nil user recipient/s)
   "Get the user's buddy list and ignore list.
@@ -1965,7 +1965,36 @@ adding. AKA the Twitter vs. Facebook mechanisms.
 This was new in Romance 1.1
 "
   (if sign
-      (error 'unimplemented)
+      (if (equal sign (generate-buddy-list-signature buddy (Toot-name *Toot*)))
+          (let ((buddy-Toot (find-record 'Toot :name buddy)))
+            (make-record 'contact :uuid (uuid:make-v4-uuid)
+                                  :owner (Toot-UUID *Toot*)
+                                  :contact (Toot-UUID buddy-Toot)
+                                  :added (now)
+                                  :last-used (now))
+            (make-record 'contact :uuid (uuid:make-v4-uuid)
+                                  :owner (Toot-UUID buddy-Toot)
+                                  :contact (Toot-UUID *Toot*)
+                                  :added (now)
+                                  :last-used (now))
+            (unicast (list :|from| "buddyList"
+                           :|notice| (format nil "~:(~a~) is now your contact." buddy)))
+            (unicast (list :|from| "buddyList"
+                           :|notice| (format nil "~:(~a~) is now your contact." (Toot-name *Toot*)))
+                     buddy-Toot)
+            (unicast (list :|from| "getUserLists"
+                           :|status| t
+                           :|buddyList| (Toot-buddy-list buddy-Toot)
+                           :|ignoreList| #())
+                     buddy-Toot)
+            (list 200 (list :|from| "getUserLists"
+                            :|status| t
+                            :|buddyList| (Toot-buddy-list)
+                            :|ignoreList| #())))
+          (list 400 (list :|from| "buddyRequest"
+                          :|status| :false
+                          :|err| "sign.fail"
+                          :|error| "The buddy request was not signed properly. Try again.")))
       (progn (unicast (list :|from| "buddyRequest"
                             :|status| t
                             :|sender| (Toot-name *Toot*)
