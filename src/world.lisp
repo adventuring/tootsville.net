@@ -256,7 +256,39 @@ Returns all items in that volume which are not in a character's inventory."
 (defmethod longitude ((null null))
   0)
 (defmethod altitude ((null null))
-  0)
+  1000)
+
+(defmethod latitude (thing)
+  (latitude (wtl-course thing)))
+
+(defmethod longitude (thing)
+  (longitude (wtl-course thing)))
+
+(defmethod altitude (thing)
+  (altitude (wtl-course thing)))
+
+(defmethod world (thing)
+  (world (wtl-course thing)))
+
+(defmethod latitude ((Toot Toot))
+  (if-let (stream (user-stream Toot))
+    (latitude stream)
+    (latitude (wtl-course Toot))))
+(defmethod longitude ((Toot Toot))
+  (if-let (stream (user-stream Toot))
+    (longitude stream)
+    (longitude (wtl-course Toot))))
+(defmethod altitude ((Toot Toot))
+  (if-let (stream (user-stream Toot))
+    (altitude stream)
+    (altitude (wtl-course Toot))))
+(defmethod world ((Toot Toot))
+  (if-let (stream (user-stream Toot))
+    (world stream)
+    (world (wtl-course Toot))))
+
+
+
 
 (defmethod print-object ((point game-point) s)
   (format s "#<Game-Point (~d, ~d, ~d) at ~a (~d, ~d) + ~d>"
