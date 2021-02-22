@@ -2846,6 +2846,8 @@ provided event ID.
 
 @subsubsection Event requires a download to begin
 
+The old (Flash plugin) style of download event looked like:
+
 @verbatim
 { from: \"startEvent\",
   status: true,
@@ -2936,15 +2938,29 @@ or canceled using `INFINITY-END-EVENT', q.v.
 
 @subsubsection Magic Fountains
 
-WRITEME
+When the player clicks on a fountain, a startEvent will be fired,
+giving the player the opportunity to ``make a wish'' on the
+fountain. They'll then receive a response to their endEvent with a
+number of peanuts gained, and possibly fairy dust as well. If they
+decline making a wish, they cancel the event.
+
+The startEvent @code{handler} code is @code{fountain}.
 
 @subsubsection Shops
 
-WRITEME
+When the player clicks on a shop item, a startEvent will be fired,
+giving the player the opportunity to purchase that item. They'll then
+send an endEvent and in the response get an updated inventory with the
+purchased item. If they decline, they cancel the event.
+
+The startEvent @code{handler} code is @code{shop}.
 
 @subsubsection Secrets and Treasures
 
-WRITEME
+When the player clicks on certain items, a startEvent will be fired to
+inform the user if they have found an item or some peanuts. The
+message will be encoded is @code{message} with the @code{handler} code
+@code{gift}.
 
 @subsubsection Minigames
 
