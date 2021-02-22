@@ -28,15 +28,15 @@
 (in-package :Tootsville)
 
 (defrecord person (:friendly "people")
-           (uuid uuid)
-           (display-name string)
-           (given-name string)
-           (surname string)
-           (date-of-birth timestamp)
-           (age number)
-           (sensitivep yornp)
-           (gender keyword)
-           (lang keyword))
+  (uuid uuid)
+  (display-name string)
+  (given-name string)
+  (surname string)
+  (date-of-birth timestamp)
+  (age number)
+  (sensitivep yornp)
+  (gender keyword)
+  (lang keyword))
 
 (defmethod save-record :before ((person person))
   (when (null (person-given-name person))
@@ -49,8 +49,8 @@
                                                (person-surname person)))))
 
 (defrecord parent-child (:friendly "parent_child")
-           (parent uuid ref person)
-           (child uuid ref person))
+  (parent uuid ref person)
+  (child uuid ref person))
 
 (defrecord credential (:friendly "credentials")
   (uuid uuid)
@@ -63,12 +63,12 @@
   (json-info json))
 
 (defrecord person-link (:friendly "person_links")
-           (uuid uuid)
-           (person uuid ref person)
-           (rel keyword)
-           (url uri)
-           (label string)
-           (provenance string))
+  (uuid uuid)
+  (person uuid ref person)
+  (rel keyword)
+  (url uri)
+  (label string)
+  (provenance string))
 
 (defmethod print-object ((link person-link) s)
   (format s "#<Person-Link ~a ~a —~a—→ ~a (~a from ~a)>"
@@ -80,13 +80,13 @@
           (person-link-provenance link)))
 
 (defrecord login (:friendly "logins")
-           (uuid uuid)
-           (person uuid ref person)
-           (credential uuid ref credential)
-           (start timestamp)
-           (renewed timestamp)
-           (last-seen timestamp)
-           (origin string))
+  (uuid uuid)
+  (person uuid ref person)
+  (credential uuid ref credential)
+  (start timestamp)
+  (renewed timestamp)
+  (last-seen timestamp)
+  (origin string))
 
 (defrecord contact (:friendly "contacts")
   (uuid uuid)
@@ -97,7 +97,7 @@
   (last-used timestamp))
 
 (defmethod print-object ((contact contact) s)
-  (format s "#<Contact ~a:~a~@[ ★~]>" 
+  (format s "#<Contact ~a:~a~@[ ★~]>"
           (contact-owner contact) (contact-contact contact) (contact-starredp contact)))
 
 (defrecord sms (:friendly "sms")
@@ -199,7 +199,7 @@
   (format s "#<Item (~a) @ (~d, ~d, ~d) on ~a (~d, ~d) + ~d>"
           (item-template item)
           (item-x item) (item-y item) (item-z item)
-          (item-world item) 
+          (item-world item)
           (item-latitude item) (item-longitude item)
           (item-altitude item)))
 
@@ -319,30 +319,30 @@
 
 
 (defrecord place (:friendly "places")
-           (uuid uuid)
-           (world keyword ref worlds)
-           (latitude number)
-           (longitude number)
-           (altitude number)
-           (shape string)
-           (kind keyword)
-           (attributes string)
-           (appearance string))
+  (uuid uuid)
+  (world keyword ref worlds)
+  (latitude number)
+  (longitude number)
+  (altitude number)
+  (shape string)
+  (kind keyword)
+  (attributes string)
+  (appearance string))
 
 
 
 (defrecord Toot-quiesced (:friendly "toots_quiesced")
-           (Toot uuid ref Toot)
-           (world keyword ref worlds)
-           (latitude number)
-           (longitude number)
-           (altitude number)
-           (wtl string)
-           (d3 string)
-           (emotion keyword)
-           (observed timestamp)
-           (peer-address string)
-           (attribs string))
+  (Toot uuid ref Toot)
+  (world keyword ref worlds)
+  (latitude number)
+  (longitude number)
+  (altitude number)
+  (wtl string)
+  (d3 string)
+  (emotion keyword)
+  (observed timestamp)
+  (peer-address string)
+  (attribs string))
 
 (defmethod id-column-for ((type (eql 'Toot-quiesced)))
   'Toot)
@@ -353,18 +353,18 @@
 
 
 (defrecord quaestor-event (:friendly "quaestor_events")
-           (uuid uuid)
-           (source uuid)
-           (started-by uuid ref Toot)
-           (started-at timestamp)
-           (ended-at timestamp)
-           (completedp yornp)
-           (peanuts number)
-           (fairy-dust number)
-           (item uuid ref items)
-           (score number)
-           (medal keyword)
-           (kind keyword))
+  (uuid uuid)
+  (source uuid)
+  (started-by uuid ref Toot)
+  (started-at timestamp)
+  (ended-at timestamp)
+  (completedp yornp)
+  (peanuts number)
+  (fairy-dust number)
+  (item uuid ref items)
+  (score number)
+  (medal keyword)
+  (kind keyword))
 
 
 
@@ -381,12 +381,12 @@
 
 
 (defrecord named-spot (:friendly "named_spots")
-           (name string)
-           (world keyword)
-           (latitude number)
-           (longitude number)
-           (altitude number)
-           (x number)
-           (y number)
-           (z number)
-           (badgedp yornp))
+  (name string)
+  (world keyword)
+  (latitude number)
+  (longitude number)
+  (altitude number)
+  (x number)
+  (y number)
+  (z number)
+  (badgedp yornp))
