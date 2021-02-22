@@ -31,13 +31,21 @@
 
 
 (defun read-staff-journal (&key (start-date (yesterday)) (end-date (now))
-                             last)
-  "Read staff journal entries between (inclusive) START-DATE and END-DATE; default, yesterday and today.
+                             (last 0))
+  "Read staff journal entry between (inclusive) START-DATE and END-DATE.
+
+The defaults are yesterday and today.
 
 Or, read the single item LAST from the end; when LAST = 0, the very
 latest entry; when LAST < 0, then the ``nth'' entry from the
 end. Thus, -1 is the next-to-last entry, -2 is the third from the
 end."
+
+  "SELECT * FROM staff_journal_entries 
+WHERE written_at >= ? AND written_at <= ?
+ORDER BY written_at DSC
+OFFSET ?
+LIMIT 1" start-date end-date (- last)
   (error 'unimplemented))
 
 (defun write-staff-journal-entry (entry who)
@@ -48,9 +56,20 @@ WHO may be anything accepted by `ENSURE-LIST-OF-PEOPLE'.
 Journal entries are associated with the person (people) owning the
 relevant Toot(s)
 "
-  (error 'unimplemented))
+  (let ((entry (make-record 'staff-journal-entry
+                            :uuid (uuid:make-v4-uuid)
+                            :written-by (person-uuid (Toot-player *Toot*))
+                            :written-at (now)
+                            :entry entry))
+        (related (ensure-list-of-people who)))
+    (dolist (rel related)
+      (when rel
+        (make-record 'staff-journal-reference
+                     :entry (staff-journal-entry-uuid entry)
+                     :person rel)))
+    entry))
 
-(defun read-related-journal (who &key last)
+(defun read-related-journal (who &key (last 0))
   "Read staff journal entries related to WHO.
 
 Or, read the single item LAST from the end; when LAST = 0, the very
@@ -82,7 +101,7 @@ A list of any of the above
 @item
 A string list of the above, joined by #\, or  #\;
 @item
-NIL
+NIL (returns nil)
 @end itemize
 "
   (if (listp identifier)
