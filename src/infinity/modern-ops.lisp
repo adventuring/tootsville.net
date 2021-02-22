@@ -519,25 +519,25 @@ item.
                                   (item-template-name template)))
                           (mapcar
                            (lambda (item-tag)
-                             (find-record 'item-template :id item-tag-item))
+                             (find-record 'item-template :id (item-tag-item item-tag)))
                            (find-records 'item-tag :tag tag))))
-                (format nil "Item templates tagged ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
-                        tag results)
-                (format nil "No templates found tagged ~a" tag)))
-  (let ((term (join #\Space words)))
-    (if-let (results (mapcar (lambda (template)
-                               (list (item-template-id template)
-                                     (item-template-name template)))
-                             (remove-if-not (lambda (template)
-                                              (or (search term (item-template-name template)
-                                                          :test 'string-equal)
-                                                  (search term (item-template-description template)
-                                                          :test 'string-equal)))
-                                            (find-records 'item-template))))
-            (format nil "Item templates like <q>~/html/</q>: ~
+          (format nil "Item templates tagged ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
+                  tag results)
+          (format nil "No templates found tagged ~a" tag)))
+      (let ((term (join #\Space words)))
+        (if-let (results (mapcar (lambda (template)
+                                   (list (item-template-id template)
+                                         (item-template-name template)))
+                                 (remove-if-not (lambda (template)
+                                                  (or (search term (item-template-name template)
+                                                              :test 'string-equal)
+                                                      (search term (item-template-description template)
+                                                              :test 'string-equal)))
+                                                (find-records 'item-template))))
+          (format nil "Item templates like <q>~/html/</q>: ~
 <ul>~{<li>~{~d. ~/html/~}</li>~}</ul>"
-                    term results)
-            (format nil "No templates found like <Q>~/HTML/</Q>" results)))))
+                  term results)
+          (format nil "No templates found like <Q>~/HTML/</Q>" results)))))
 
 (define-operator-command describeitem (words user _)
   "Set description for an item.
@@ -692,16 +692,16 @@ artists.
                                      :keyword))
                    (world *client*))))
     (unless music
-      (return "Could not find music ~a" moniker))
+      (return (format nil "Could not find music ~a" (first words))))
     (if-let (found (find-record 'locale-music :latitude lat
                                               :longitude long
                                               :altitude alt
                                               :world world))
-            (progn
-              (setf (locale-music-music found) (music-id music))
-              (save-record found))
-            (make-record 'locale-music :music (music-id music)
-                                       :latitude lat
-                                       :longitude long
-                                       :altitude alt
-                                       :world world))))
+      (progn
+        (setf (locale-music-music found) (music-id music))
+        (save-record found))
+      (make-record 'locale-music :music (music-id music)
+                                 :latitude lat
+                                 :longitude long
+                                 :altitude alt
+                                 :world world))))
