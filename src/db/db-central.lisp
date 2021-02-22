@@ -458,7 +458,7 @@ Identity is determined by the ID column, ~A."
 
 (defclass db-record () ())
 
-(defmacro defrecord (name (database table &key pull id-column) &rest columns)
+(defmacro defrecord (name (database table &key pull id-column) &body columns)
   "Define a database-mapping object type NAME, for DATABASE and TABLE, with COLUMNS.
 
 DATABASE  is the  symbolic name  of the  database, mapped  via `CONFIG';
