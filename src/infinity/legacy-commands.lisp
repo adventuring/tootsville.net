@@ -2893,13 +2893,13 @@ object-as-namespace initialization of the form:
 
 @verbatim
 if (!('Tootville' in window))
- { Tootsville = { Event: { Foo: {} } }; }
+  Tootsville = { Event: { Foo: {} } };
 
 if (!('Event' in Tootsville))
- { Tootsville.Event = { Foo: {} } }; }
+  Tootsville.Event = { Foo: {} } };
 
 if (!('Foo' in Tootsville.Event))
- { Tootsville.Event.Foo = {}; }
+  Tootsville.Event.Foo = {};
 
 Tootsville.Event.foo = function (eventID) { ... };
 
