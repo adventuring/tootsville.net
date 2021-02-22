@@ -534,9 +534,9 @@ item.
                                                   (search term (item-template-description template)
                                                           :test 'string-equal)))
                                             (find-records 'item-template))))
-            (format nil "Item templates like ~a: <ul>~{<li>~{~d. ~a~}</li>~}</ul>"
-                    (join #\Space words)
-                    results)
+            (format nil "Item templates like <q>~/html/</q>: ~
+<ul>~{<li>~{~d. ~/html/~}</li>~}</ul>"
+                    term results)
             (format nil "No templates found like <Q>~/HTML/</Q>" results)))))
 
 (define-operator-command describeitem (words user _)
@@ -617,4 +617,62 @@ TODO this should flag recent staff journal entries as well.
           (+ *infinity-stream-requests* *infinity-rest-requests*)
           (human-duration (- (get-universal-time*) *started*))
           (length (hash-table-keys *banhammer*))))
-        
+
+(define-operator-command whatmusic (words u r)
+"Discover available music
+
+Searches the music available for a keyword --- both titles and
+artists.
+
+@subsection Usage
+
+@verbatim
+#whatmusic WORD[s]
+@end verbatim
+
+@subsection Examples
+
+@verbatim
+#whatmusic bensound
+#whatmusic adventure
+@end verbatim
+"
+  (unless (plusp (length words))
+    (return "Give some search tepm to look for"))
+  (let ((term (join #\Space words)))
+    (if-let (results (mapcar
+                      (lambda (music)
+                        (list (music-moniker music)
+                              (music-title music)
+                              (music-artist music)))
+                      (remove-if-not (lambda (music)
+                                       (or (search term (music-title music)
+                                                   :test 'string-equal)
+                                           (search term (music-artist music)
+                                                   :test 'string-equal)))
+                                     (find-records 'music))))
+            (format nil "Music like <q>~/html/</q>: ~
+<ul>~{<li><b>~/html/</b>: <q>~/html/</q> by ~/html/</li>~}</ul>"
+                    term results)
+            (format nil "No music like <q>~/html/</q>" term))))
+
+(define-operator-command setmusic (words u r)
+  "Set the music for an area (or this area)
+
+@subsection Usage
+
+@verbatim
+#setmusic MONIKER
+#setmusic MONIKER LAT LONG [ALT [WORLD]]
+@end verbatim
+
+@subsection Examples
+
+@verbatim
+#setmusic adventure
+#setmusic adventure 30 -20
+#setmusic adventure 30 -20 0
+#setmusic adventure 30 -20 0 CHOR
+@end verbatim
+"
+  (error 'unimplemented))
