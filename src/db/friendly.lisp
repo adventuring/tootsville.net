@@ -263,10 +263,10 @@
 (defrecord locale-music (:friendly "locale_music"
                          :pull t)
   (music number ref music)
-  (x number)
-  (y number)
-  (z number)
-  (radius number))
+  (latitude number)
+  (longitude number)
+  (altitude number)
+  (world string))
 
 
 

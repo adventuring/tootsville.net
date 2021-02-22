@@ -1332,10 +1332,12 @@ alter table locale_music drop column if exists z;
 
 alter table locale_music drop column if exists radius;
 
-alter table locale_music add column if not exists latitude;
+alter table locale_music add column if not exists latitude int not null;
 
-alter table locale_music add column if not exists longitude;
+alter table locale_music add column if not exists longitude int not null;
 
-alter table locale_music add column if not exists altitude;
+alter table locale_music add column if not exists altitude int not null;
+
+alter table locale_music add column if not exists world varchar(6) not null;
 
 select 'All Done' as migrations;
