@@ -2844,6 +2844,15 @@ caller had better know what to do about it; typically, that will only be
 to  turn  around  and  immediately call  `INFINITY-END-EVENT'  with  the
 provided event ID.
 
+@subsubsection Event started, requires client handler
+
+@verbatim
+{ from: \"startEvent\",
+  status: true,
+  eventID: ID,
+  handler: HANDLER-CODE }
+@end verbatim
+
 @subsubsection Event requires a download to begin
 
 The old (Flash plugin) style of download event looked like:
