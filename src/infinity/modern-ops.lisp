@@ -675,4 +675,33 @@ artists.
 #setmusic adventure 30 -20 0 CHOR
 @end verbatim
 "
-  (error 'unimplemented))
+  (unless (plusp (length words))
+    (return "Usage: #setmusic MONIKER LAT LONG ALT WORLD"))
+  (let ((music (ignore-not-found (find-record 'music :moniker (first words))))
+        (lat (or (and (< 1 (length words))
+                      (parse-number (second words)))
+                 (latitude *client*)))
+        (long (or (and (< 2 (length words))
+                       (parse-number (third words)))
+                  (longitude *client*)))
+        (alt (or (and (< 3 (length words))
+                      (parse-number (fourth words)))
+                 (altitude *client*)))
+        (world (or (and (< 4 (length words))
+                        (find-symbol (string-upcase (fifth words))
+                                     :keyword))
+                   (world *client*))))
+    (unless music
+      (return "Could not find music ~a" moniker))
+    (if-let (found (find-record 'locale-music :latitude lat
+                                              :longitude long
+                                              :altitude alt
+                                              :world world))
+            (progn
+              (setf (locale-music-music found) (music-id music))
+              (save-record found))
+            (make-record 'locale-music :music (music-id music)
+                                       :latitude lat
+                                       :longitude long
+                                       :altitude alt
+                                       :world world))))
