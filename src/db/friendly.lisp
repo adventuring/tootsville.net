@@ -250,7 +250,8 @@
   (id number)
   (title string)
   (artist string)
-  (genre string)
+  (file string)
+  (link string)
   (license string)
   (moniker string))
 
