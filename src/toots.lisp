@@ -196,6 +196,17 @@ Scaling of the avatar in each of x, y, and z dimensions. See
  and  `TOOT-AVATAR-SCALE-Z'
 @end table
 
+If a Toot is online and visible to the player, then we 
+also send @code{position} which contains:
+
+@table @code
+@item lat, long, alt, world
+Latitude, longitude, altitude, and world of the Toot's position
+@item wtl
+Toot's latest @code{wtl} positioning information; 
+see `INFINITY-WTL' for a discussion of the format
+@end table
+
 @subsection Changes from 1.0 to 1.1
 @cindex Changes from 1.0 to 1.1
 
@@ -246,6 +257,8 @@ When the requestor owns this Toot, added @code{note},
 @code{inRoom} always returns ``@@Tootsville''.
 @item
 @code{vars} always returns nil.
+@item
+Added the positioning information for online Toots.
 @end itemize
 
 See also Deprecation section below.
@@ -280,6 +293,7 @@ Fetch avatar information for a list of Toots.
 
 "
   (let* ((Toot (ensure-Toot Toot))
+         (user-stream (user-stream Toot))
          (avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
     (list :|name| (Toot-name Toot)
           :|userName| (Toot-presentation-name Toot)
@@ -293,6 +307,13 @@ Fetch avatar information for a list of Toots.
                                        (find-reference Toot :pattern)))
           :|patternColor| (color24-name (Toot-pattern-color Toot))
           :|padColor| (color24-name (Toot-pad-color Toot))
+          :|position|
+          (when (Toot-online-p Toot)
+            (list :|lat| (latitude Toot)
+                  :|long| (longitude Toot)
+                  :|alt| (altitude Toot)
+                  :|world| (world Toot)
+                  :|wtl| (wtl-course Toot))) ;; BUG? might not want WTL-COURSE
           :|childP| (or (Toot-childp Toot) :false)
           :|childRequest| 
           (when privatep
