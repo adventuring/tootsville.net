@@ -673,3 +673,9 @@ Normally run by the metronome periodically."
   (v:info :child-request "Reaping approved requests (1 week): ~s"
           (db-select-all :friendly
                          "DELETE FROM child_requests WHERE allowed_at IS NOT NULL AND placed_at < CURRENT_TIMESTAMP - INTERVAL 7 DAY")))
+
+
+
+(defun Toot-online-p (Toot)
+  "Is TOOT online right now?"
+  (member Toot (connected-Toots) :test #'Toot=))
