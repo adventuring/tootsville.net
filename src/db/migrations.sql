@@ -70,7 +70,7 @@ create table if not exists named_spots
   badgedp enum('Y','N') not null default 'N')
 engine=InnoDB default charset=utf8;
 
-insert ignore into item_templates (id, name, default_base_color, avatar, wear_slot, description)
+replace into item_templates (id, name, default_base_color, avatar, wear_slot, description)
 values (6, 'Snowball', 'FFFFFF', 'snowball', 12, 'A ball of snow that makes a playful missile.');
 
 replace into item_templates (id, name, avatar)
@@ -1184,6 +1184,145 @@ values
 (1111, 'Yosemite Frame', 'YosemiteFrame');
 
 update items set latitude=-60, longitude=20, x=-50, y=0, z=0 where template=2495;
+
+alter table music drop column if exists genre;
+
+alter table music add column if not exists file varchar(255) null;
+
+alter table music add column if not exists link varchar(255) null;
+
+replace into music (id, title, artist, file, link, license, moniker)
+values
+(5, 'Hope is a Dangerous Thing', 'Admiral Bob', 'admiralbob77_-_Hope_is_a_Dangerous_Thing', 'http://ccmixter.org/people/admiralbob77', 'CC-BY', 'hope-is-a-dangerous-thing'),
+  (6, 'Twenty Five', 'Admiral Bob', 'admiralbob77_-_Twenty_Five', 'http://ccmixter.org/people/admiralbob77', 'CC-BY', 'twenty-five'),
+  (7, 'Wash of Blue', 'Admiral Bob', 'admiralbob77_-_Wash_of_Blue', 'http://ccmixter.org/people/admiralbob77', 'CC-BY', 'wash-of-blue'),
+  (8, 'Brandenburg Concerto No. 3 Mvt. 3 Allegro', 'Advent Chamber Orchestra / J.S. Bach', 'Advent_Chamber_Orchestra_-_01_-_Bach_-_Brandenburg_Concerto_no3_mvt3_allegro', null, 'CC-BY','brandenburg-3-3'),
+  (9, 'Brandenburg Concerto No. 3 Mvt. 1 Allegro', 'Advent Chamber Orchestra / J.S. Bach', 'Advent_Chamber_Orchestra_-_03_-_Bach_-_Brandenburg_Concerto_No_3_1_allegro', null, 'CC-BY', 'brandenburg-3-1'),
+  (10, 'Eine Kleine Nachtmusik Allegro', 'Advent Chamber Orchestra / W.A. Mozart', 'Advent_Chamber_Orchestra_-_04_-_Mozart_-_Eine_Kleine_Nachtmusik_allegro', null, 'CC-BY', 'eine-kleine-nachtmusik'),
+  (11, 'Brandenburg Concerto 05', 'Advent Chamber Orchestra / J.S. Bach', 'Advent_Chamber_Orchestra_-_05_-_Bach_-_Brandenburg_Concerto_No_3_3_allegro', null, 'CC-BY', 'brandenburg-05'),
+  (12, 'Serenade for Strings Op. 22 in E Major Larghetto', 'Advent Chamber Orchestra / Dvorak', 'Advent_Chamber_Orchestra_-_05_-_Dvorak_-_Serenade_for_Strings_Op22_in_E_Major_larghetto', null, 'CC-BY', 'serenade-for-strings'),
+  (13, 'Suite for Violin 8 Ardeleneasca Moderato', 'Advent Chamber Orchestra / Bughici', 'Advent_Chamber_Orchestra_-_08_-_Bughici_-_Suite_for_Violin_8_Ardeleneasca_moderato', null, 'CC-BY', 'bughici-violin-8'),
+  (14, 'Concerto in C Major for Oboe and Orchestra Andante', 'Advent Chamber Orchestra / Vivaldi', 'Advent_Chamber_Orchestra_-_08_-_Vivaldi_-_Concerto_in_C_Major_for_Oboe_and_Orchestra_andante', null, 'CC-BY', 'vivaldi-c-major'),
+  (15, 'Suite for Violin 9 Hora Vivace', 'Advent Chamber Orchestra / Bughici', 'Advent_Chamber_Orchestra_-_09_-_Bughici_-_Suite_for_Violin_9_Hora_vivace', null, 'CC-BY', 'violin-9-hora-vivace'),
+  (16, 'Laudate Dominum', 'Advent Chamber Orchestra / W.A. Mozart', 'Advent_Chamber_Orchestra_-_11_-_Mozart_-_Laudate_Dominum', null, 'CC-BY', 'laudate-dominum'),
+  (17, 'Credo Crucifixus', 'Advent Chamber Orchestra / Vivaldi', 'Advent_Chamber_Orchestra_-_14_-_Vivaldi_-_Credo_Crucifixus', null, 'CC-BY', 'credo-crucifixus'),
+  (18, 'La Marche Royale du Lion', 'Aitua / Camille Saint Saens', 'Aitua_-_05_-_Camille_Saint_Saens_-_Carnaval_des_animaux_-_I_La_Marche_Royale_du_Lion', null, 'CC-0', 'lion'),
+  (19, 'Presto', 'Aitua', 'Aitua_-_05_-_The_Grim_Reaper_-_II_Presto', null, 'CC-0', 'presto'),
+  (20, 'Blind Fire', 'Aitua', 'Aitua_-_06_-_Elements_-_I_Blind_Fire', null, 'CC-0', 'blind-fire'),
+  (21, 'The Rain', 'Aitua', 'Aitua_-_07_-_Elements_-_II_The_Rain', null, 'CC-0', 'the-rain'),
+  (22, 'Blue Sky', 'Aitua', 'Aitua_-_08_-_Elements_-_III_Blue_Sky', null, 'CC-0', 'blue-sky'),
+  (23, 'Volcano', 'Aitua', 'Aitua_-_09_-_Elements_-_IV_Volcano', null, 'CC-0', 'volcano'),
+  (24, 'Dancing Upside Down', 'Aitua', 'Aitua_-_10_-_Dancing_upside_down', null, 'CC-0', 'dancing-upside-down'),
+  (25, 'The Gray Forest I: Welcome', 'Aitua', 'Aitua_-_12_-_The_Gray_Forest_-_I_Welcome', null, 'CC-0', 'gray-forest-i'),
+  (26, 'The Gray Forest II: The Trap', 'Aitua', 'Aitua_-_13_-_The_Gray_Forest_-_II_The_Trap', null, 'CC-0', 'gray-forest-ii'),
+  (27, 'The Gray Forest III: Jocker', 'Aitua', 'Aitua_-_14_-_The_Gray_Forest_-_III_Jocker', null, 'CC-0', 'gray-forest-iii'),
+  (28, 'The Gray Forest IV: Escape', 'Aitua', 'Aitua_-_15_-_The_Gray_Forest_-_IV_Escape', null, 'CC-0', 'gray-forest-iv'),
+  (29, 'Prarie Heat', 'Anzaticus Music', 'Anzaticus_Music_-_Prarie_Heat', 'http://ccmixter.org/people/Anzaticus_Music', 'CC-BY', 'prarie-heat'),
+  (30, 'Me by My Decree', 'Apoxode ft. Silkwords, Uwe Hermann', 'Apoxode_-_Me_by_My_Decree_1', 'http://ccmixter.org/people/Apoxode', 'CC-BY', 'me-by-my-decree'),
+  (31, 'Time to Take Out the Trash (City Slums Mix)', 'artemisstrong', 'artemisstrong_-_Time_To_Take_Out_The_Trash_(City_Slums_Mix)', 'http://ccmixter.org/people/artemisstrong',  'CC-BY', 'time-to-take-out-the-trash'),
+  (32, 'The Garden State', 'Audiobringer', 'Audiobringer_-_The_Garden_State', 'http://www.audiobringer.net/', 'CC-BY', 'garden-state'),
+  (33, 'Acoustic Breeze', 'Benjamin TISSOT (Bensound)', 'bensound-acousticbreeze', 'http://www.bensound.com/', 'free license', 'acoustic-breeze'),
+  (34, 'A Day to Remember', 'Benjamin TISSOT (Bensound)', 'bensound-adaytoremember', 'http://www.bensound.com/', 'free license', 'a-day-to-remember'),
+  (35, 'Adventure', 'Benjamin TISSOT (Bensound)', 'bensound-adventure', 'http://www.bensound.com/', 'free license', 'adventure'),
+  (36, 'A New Beginning', 'Benjamin TISSOT (Bensound)', 'bensound-anewbeginning', 'http://www.bensound.com/', 'free license', 'a-new-beginning'),
+  (37, 'Better Days', 'Benjamin TISSOT (Bensound)', 'bensound-betterdays', 'http://www.bensound.com/', 'free license', 'better-days'),
+  (38, 'Beyond the Line', 'Benjamin TISSOT (Bensound)', 'bensound-beyondtheline', 'http://www.bensound.com/', 'free license', 'beyond-the-line'),
+  (39, 'Birth of a Hero', 'Benjamin TISSOT (Bensound)', 'bensound-birthofahero', 'http://www.bensound.com/', 'free license', 'birth-of-a-hero'),
+  (40, 'Brazil Samba', 'Benjamin TISSOT (Bensound)', 'bensound-brazilsamba', 'http://www.bensound.com/', 'free license', 'brazil-samba'),
+  (41, 'Buddy', 'Benjamin TISSOT (Bensound)', 'bensound-buddy', 'http://www.bensound.com/', 'free license', 'buddy'),
+  (42, 'Clap and Yell', 'Benjamin TISSOT (Bensound)', 'bensound-clapandyell', 'http://www.bensound.com/', 'free license', 'clap-and-yell'),
+  (43, 'Clear Day', 'Benjamin TISSOT (Bensound)', 'bensound-clearday', 'http://www.bensound.com/', 'free license', 'clear-day'),
+  (44, 'Country Boy', 'Benjamin TISSOT (Bensound)', 'bensound-countryboy', 'http://www.bensound.com/', 'free license', 'country-boy'),
+  (45, 'Creative Minds', 'Benjamin TISSOT (Bensound)', 'bensound-creativeminds', 'http://www.bensound.com/', 'free license', 'creative-minds'),
+  (46, 'Creepy', 'Benjamin TISSOT (Bensound)', 'bensound-creepy', 'http://www.bensound.com/', 'free license', 'creepy'),
+  (47, 'Cute', 'Benjamin TISSOT (Bensound)', 'bensound-cute', 'http://www.bensound.com/', 'free license', 'cute'),
+  (48, 'Downtown', 'Benjamin TISSOT (Bensound)', 'bensound-downtown', 'http://www.bensound.com/', 'free license', 'downtown'),
+  (49, 'Dreams', 'Benjamin TISSOT (Bensound)', 'bensound-dreams', 'http://www.bensound.com/', 'free license', 'dreams'),
+  (50, 'Dubstep', 'Benjamin TISSOT (Bensound)', 'bensound-dubstep', 'http://www.bensound.com/', 'free license', 'dubstrep'),
+  (51, 'Endless Motion', 'Benjamin TISSOT (Bensound)', 'bensound-endlessmotion', 'http://www.bensound.com/', 'free license', 'endless-motion'),
+  (52, 'Energy', 'Benjamin TISSOT (Bensound)', 'bensound-energy', 'http://www.bensound.com/', 'free license', 'energy'),
+  (53, 'Enigmatic', 'Benjamin TISSOT (Bensound)', 'bensound-enigmatic', 'http://www.bensound.com/', 'free license', 'enigmatic'),
+  (54, 'Epic', 'Benjamin TISSOT (Bensound)', 'bensound-epic', 'http://www.bensound.com/', 'free license', 'epic'),
+  (55, 'E.R.F.', 'Benjamin TISSOT (Bensound)', 'bensound-erf', 'http://www.bensound.com/', 'free license', 'erf'),
+  (56, 'Extreme Action Sport', 'Benjamin TISSOT (Bensound)', 'bensound-extremeaction', 'http://www.bensound.com/', 'free license', 'extreme-action-sport'),
+  (57, 'Fun Day', 'Benjamin TISSOT (Bensound)', 'bensound-funday', 'http://www.bensound.com/', 'free license', 'fun-day'),
+  (58, 'Funky Element', 'Benjamin TISSOT (Bensound)', 'bensound-funkyelement', 'http://www.bensound.com/', 'free license', 'funky-element'),
+  (59, 'Funky Suspense', 'Benjamin TISSOT (Bensound)', 'bensound-funkysuspense', 'http://www.bensound.com/', 'free license', 'funky-suspense'),
+  (60, 'Funny Song', 'Benjamin TISSOT (Bensound)', 'bensound-funnysong', 'http://www.bensound.com/', 'free license', 'funny-song'),
+  (61, 'Going Higher', 'Benjamin TISSOT (Bensound)', 'bensound-goinghigher', 'http://www.bensound.com/', 'free license', 'going-higher'),
+  (62, 'Happiness', 'Benjamin TISSOT (Bensound)', 'bensound-happiness', 'http://www.bensound.com/', 'free license', 'happiness'),
+  (63, 'Hey', 'Benjamin TISSOT (Bensound)', 'bensound-hey', 'http://www.bensound.com/', 'free license', 'hey'),
+  (64, 'High Octane', 'Benjamin TISSOT (Bensound)', 'bensound-highoctane', 'http://www.bensound.com/', 'free license', 'high-octane'),
+  (65, 'India', 'Benjamin TISSOT (Bensound)', 'bensound-india', 'http://www.bensound.com/', 'free license', 'india'),
+  (66, 'Inspire', 'Benjamin TISSOT (Bensound)', 'bensound-inspire', 'http://www.bensound.com/', 'free license', 'inspire'),
+  (67, 'Instinct', 'Benjamin TISSOT (Bensound)', 'bensound-instinct', 'http://www.bensound.com/', 'free license', 'instinct'),
+  (68, 'Little Idea', 'Benjamin TISSOT (Bensound)', 'bensound-littleidea', 'http://www.bensound.com/', 'free license', 'little-idea'),
+  (69, 'Little Planet', 'Benjamin TISSOT (Bensound)', 'bensound-littleplanet', 'http://www.bensound.com/', 'free license', 'little-planet'),
+  (70, 'Memories', 'Benjamin TISSOT (Bensound)', 'bensound-memories', 'http://www.bensound.com/', 'free license', 'memories'),
+  (71, 'Moose', 'Benjamin TISSOT (Bensound)', 'bensound-moose', 'http://www.bensound.com/', 'free license', 'moose'),
+  (72, 'New Dawn', 'Benjamin TISSOT (Bensound)', 'bensound-newdawn', 'http://www.bensound.com/', 'free license', 'new-dawn'),
+  (73, 'November', 'Benjamin TISSOT (Bensound)', 'bensound-november', 'http://www.bensound.com/', 'free license', 'november'),
+  (74, 'Of Elia''s Dream', 'Benjamin TISSOT (Bensound)', 'bensound-ofeliasdream', 'http://www.bensound.com/', 'free license', 'of-elias-dream'),
+  (75, 'Once Again', 'Benjamin TISSOT (Bensound)', 'bensound-onceagain', 'http://www.bensound.com/', 'free license', 'once-again'),
+  (76, 'Perception', 'Benjamin TISSOT (Bensound)', 'bensound-perception', 'http://www.bensound.com/', 'free license', 'perception'),
+  (77, 'Photo Album', 'Benjamin TISSOT (Bensound)', 'bensound-photoalbum', 'http://www.bensound.com/', 'free license', 'photo-album'),
+  (78, 'Piano Moment', 'Benjamin TISSOT (Bensound)', 'bensound-pianomoment', 'http://www.bensound.com/', 'free license', 'piano-moment'),
+  (79, 'Pop Dance', 'Benjamin TISSOT (Bensound)', 'bensound-popdance', 'http://www.bensound.com/', 'free license', 'pop-dance'),
+  (80, 'Psychadelic', 'Benjamin TISSOT (Bensound)', 'bensound-psychadelic', 'http://www.bensound.com/', 'free license', 'psychadelic'),
+  (81, 'Punky', 'Benjamin TISSOT (Bensound)', 'bensound-punky', 'http://www.bensound.com/', 'free license', 'punky'),
+  (82, 'Relaxing', 'Benjamin TISSOT (Bensound)', 'bensound-relaxing', 'http://www.bensound.com/', 'free license', 'relaxing'),
+  (83, 'Retro Soul', 'Benjamin TISSOT (Bensound)', 'bensound-retrosoul', 'http://www.bensound.com/', 'free license', 'retro-soul'),
+  (84, 'Rumble', 'Benjamin TISSOT (Bensound)', 'bensound-rumble', 'http://www.bensound.com/', 'free license', 'rumble'),
+  (85, 'Sad Day', 'Benjamin TISSOT (Bensound)', 'bensound-sadday', 'http://www.bensound.com/', 'free license', 'sad-day'),
+  (86, 'Sci Fi', 'Benjamin TISSOT (Bensound)', 'bensound-scifi', 'http://www.bensound.com/', 'free license', 'sci-fi'),
+  (87, 'Slow Motion', 'Benjamin TISSOT (Bensound)', 'bensound-slowmotion', 'http://www.bensound.com/', 'free license', 'slow-motion'),
+  (88, 'Small Guitar', 'Benjamin TISSOT (Bensound)', 'bensound-smallguitar', 'http://www.bensound.com/', 'free license', 'small-guitar'),
+  (89, 'Smile', 'Benjamin TISSOT (Bensound)', 'bensound-smile', 'http://www.bensound.com/', 'free license', 'smile'),
+  (90, 'Straight', 'Benjamin TISSOT (Bensound)', 'bensound-straight', 'http://www.bensound.com/', 'free license', 'straight'),
+  (91, 'Summer', 'Benjamin TISSOT (Bensound)', 'bensound-summer', 'http://www.bensound.com/', 'free license', 'summer'),
+  (92, 'Sunny', 'Benjamin TISSOT (Bensound)', 'bensound-sunny', 'http://www.bensound.com/', 'free license', 'sunny'),
+  (93, 'Sweet', 'Benjamin TISSOT (Bensound)', 'bensound-sweet', 'http://www.bensound.com/', 'free license', 'sweet'),
+  (94, 'Tenderness', 'Benjamin TISSOT (Bensound)', 'bensound-tenderness', 'http://www.bensound.com/', 'free license', 'tenderness'),
+  (95, 'The Duel', 'Benjamin TISSOT (Bensound)', 'bensound-theduel', 'http://www.bensound.com/', 'free license', 'the-duel'),
+  (96, 'The Elevator Bossa Nova', 'Benjamin TISSOT (Bensound)', 'bensound-theelevatorbossanova', 'http://www.bensound.com/', 'free license','elevator-bossa-nova'),
+  (97, 'The Jazz Piano', 'Benjamin TISSOT (Bensound)', 'bensound-thejazzpiano', 'http://www.bensound.com/', 'free license', 'jazz-piano'),
+  (98, 'Tomorrow', 'Benjamin TISSOT (Bensound)', 'bensound-tomorrow', 'http://www.bensound.com/', 'free license', 'tomorrow'),
+  (99, 'Ukelele', 'Benjamin TISSOT (Bensound)', 'bensound-ukelele', 'http://www.bensound.com/', 'free license', 'ukelele'),
+  (100, 'St Petersburg', 'Bersarin Quartet', 'Bersarin-Quartett_-_06_-_St_Petersburg', null, 'CC-BY', 'st-petersburg'),
+  (101, 'Making Monkeys (G minor)', 'Bluemillenium (ft. Admiral Bob)', 'Bluemillenium_-_Making_Monkeys_(G_minor)', 'http://ccmixter.org/people/Bluemillenium', 'CC-BY', 'making-monkeys'),
+  (102, 'Angle of Light', 'David Hilowitz', 'David_Hilowitz_-_Andle_of_Light', null, 'CC-BY', 'angle-of-light'),
+  (103, 'Artless Grief', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_artless_grief', null, 'CC-BY', 'artless-grief'),
+  (104, 'Dance of the Elves', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_Dance_of_the_Elves', null, 'CC-BY', 'dance-of-the-elves'),
+  (105, 'Autumn Meditation', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_Autumn_Meditation', null, 'CC-BY', 'autumn-meditation'),
+  (106, 'Energico', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_Energico', null, 'CC-BY', 'energico'),
+  (107, 'Overture', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_Overture', null, 'CC-BY', 'overture'),
+  (108, 'Sorrow', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_Sorrow', null, 'CC-BY', 'sorrow'),
+  (109, 'That ain''t Chopin', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_That_aint_Chopin', null, 'CC-BY', 'that-aint-chopin'),
+  (110, 'The Old Baron (Var. I)', 'Dee Yan-Key', 'Dee_Yan-Key_-_01_-_The_Old_Bason_Var_I', null, 'CC-BY', 'the-old-baron-1'),
+  (111, 'Ameno', 'Dee Yan-Key', 'Dee_Yan-Key_-_02_-_Ameno', null, 'CC-BY', 'ameno'),
+  (112, 'Comfort', 'Dee Yan-Key', 'Dee_Yan-Key_-_02_-_comfort', null, 'CC-BY', 'comfort'),
+  (113, 'First Autumn Breeze', 'Dee Yan-Key', 'Dee_Yan-Key_-_02_-_first_autumn_breeze__Largo', null, 'CC-BY', 'first-autumn-breeze'),
+  (114, 'Night in the Woods', 'Dee Yan-Key', 'Dee_Yan-Key_-_02_-_Night_in_the_Woods', null, 'CC-BY', 'night-in-the-woods'),
+  (115, 'Ombroso', 'Dee Yan-Key', 'Dee_Yan-Key_-_02_-_Ombroso', null, 'CC-BY', 'ombroso'),
+  (116, 'Sempre con anima', 'Dee Yan-Key', 'Dee_Yan-Key_-_02_-_Sempre_con_anima', null, 'CC-BY', 'sempre-con-anima'),
+  (117, 'Winter is Coming: Adagio — First Snow', 'Dee Yan-Key', 'Dee_Yan-Key_-_02_-_Winter_is_coming_Adagio_-_FIrst_Snow', null, 'CC-BY', 'first-snow'),
+  (118, 'Allegro amabile', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_Allegra_amabile', null, 'CC-BY', 'allegro-amabile'),
+  (119, 'Allegro giusto', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_Allegro_giusto', null, 'CC-BY', 'allegro-guisto'),
+  (120, 'Andante Vivace', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_Andante__-__Vivace', null, 'CC-BY', 'andante-vivace'),
+  (121, 'Antares', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_Antares', null, 'CC-BY', 'antares'),
+  (122, 'Arrival of the Ghosts', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_Arrival_of_the_Ghosts', null, 'CC-BY', 'arrival-of-the-ghosts'),
+  (123, 'Bipolar', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_Bipolar', null, 'CC-BY', 'bipolar'),
+  (124, 'Into the Light', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_into_the_light', null, 'CC-BY', 'into-the-light'),
+  (125, 'Last Wind from South', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_last_wind_from_south__Allegretto', null, 'CC-BY', 'last-wind-from-south'),
+  (126, 'The Earl and the Poet (Var. II)', 'Dee Yan-Key', 'Dee_Yan-Key_-_03_-_The_Earl_and_the_Poet_Var_II', null, 'CC-BY', 'the-earl-and-the-poet'),
+  (127, 'In July', 'Dee Yan-Key', 'Dee_Yan-Key_-_04_-_In_July', null, 'CC-BY', 'in-july'),
+  (128, 'Rain', 'Dee Yan-Key', 'Dee_Yan-Key_-_05_-_Rain', null, 'CC-BY', 'rain'),
+  (129, 'Weep no More', 'Dee Yan-Key', 'Dee_Yan-Key_-_05_-_Weep_no_More', null, 'CC-BY', 'weep-no-more'),
+  (130, 'Ease and Comfort', 'Dee Yan-Key', 'Dee_Yan-Key_-_19_-_Ease_and_Comfort', null, 'CC-BY', 'ease-and-comfort'),
+  (131, 'Lullaby', 'Dee Yan-Key', 'Dee_Yan-Key_-_27_-_lullaby', null, 'CC-BY', 'lullaby'),
+  (132, 'Head Shrinker', 'Extra Life', 'Extra_Life_-_02_-_Head_Shrinker_Tyondai_Braxton_remix', null, 'CC-BY', 'head-shrinker'),
+  (133, 'Made Flesh', 'Extra Life', 'Extra_Life_-_07_-_Made_Flesh_Justin_K_Broadrick_remix', null, 'CC-BY', 'made-flesh')
+  ;
 
 select 'All Done' as migrations;
 
