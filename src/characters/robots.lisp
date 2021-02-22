@@ -87,18 +87,6 @@ USER may be a robot or a Toot that is controlled by a robot."
 (defmethod world ((robot robot))
   (world (robot-course robot)))
 
-(defmethod latitude (thing)
-  (latitude (wtl-course thing)))
-
-(defmethod longitude (thing)
-  (longitude (wtl-course thing)))
-
-(defmethod altitude (thing)
-  (altitude (wtl-course thing)))
-
-(defmethod world (thing)
-  (world (wtl-course thing)))
-
 (defun Toot-quiesced-data (Toot)
   (find-record 'Toot-quiesced :Toot (Toot-UUID Toot)))
 
