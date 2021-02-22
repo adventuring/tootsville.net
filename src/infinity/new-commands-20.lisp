@@ -233,6 +233,14 @@ position of a sky object such as the sun, a moon, or a cloud.
 The Floor; no longer used in 2.0. (This was the actual SWF file that had
 the room background in it, in Romance I.)
 
+@item m
+
+Music.  A JSON  object describing  the  background music  for the  area.
+Attributes are  @code{title}, @code{artist}, @code{link},  @code{file} —
+@code{file} is  the URL fragment  base name;  there are three  files for
+each song, in  the @code{mp3}, @code{ogg}, and  @code{webm} formats, all
+found in @code{https://jumbo.tootsville.org/Assets/Music/5/}.
+
 @item w
 
 The Weather, or overlay artwork. Used to indicate precipitation.
