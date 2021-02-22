@@ -171,6 +171,17 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
       (setf (gethash (format nil "itm2~~~a" (item-uuid item))
                      vars) 
             (item-info item)))
+    (when-let (locale-music (ignore-not-found (find-record 'locale-music
+                                                           :latitude latitude
+                                                           :longitude longitude
+                                                           :altitude altitude
+                                                           :world world)))
+      (when-let (music (ignore-not-found (find-reference music :music)))
+        (setf (gethash "m" vars) (list :|title| (music-title music)
+                                       :|artist| (music-artist music)
+                                       :|file| (music-file music)
+                                       :|link| (music-link music)
+                                       :|license| (music-license music)))))
     (dolist (place (places-at-position world (latitude observer)
                                        (longitude observer) (altitude observer)))
       (setf (gethash (format nil "zone~~~a" (place-uuid place))
