@@ -608,7 +608,7 @@ TODO this should flag recent staff journal entries as well.
 <tr><th>#infinity-stats</th><td>~:d request~:p</td></tr>
 <tr><th>#uptime</th><td>~a</td></tr>
 <tr><th>#banhammer #list</th><td>~:d client~:p</td></tr>
-<tr><th>Load Avg. </th><td>~{~f, ~f, ~f (~d ~:d)~}</td> </tr>
+<tr><th>Load Avg. </th><td>~{~f, ~f, ~f ~}</td> </tr>
 </table>"
           (machine-instance)
           (length (server-list))
@@ -618,7 +618,7 @@ TODO this should flag recent staff journal entries as well.
           (+ *infinity-stream-requests* *infinity-rest-requests*)
           (human-duration (- (get-universal-time*) *started*))
           (length (hash-table-keys *banhammer*))
-          (multiple-value-list (load-average))))
+          (subseq (multiple-value-list (load-average)) 0 3)))
 
 (define-operator-command whatmusic (words u r)
   "Discover available music
@@ -654,7 +654,7 @@ artists.
                                                    :test 'string-equal)))
                                      (find-records 'music))))
       (format nil "Music like <q>~/html/</q>: ~
-<ul>~{<li><b>~/html/</b>: <q>~/html/</q> by ~/html/</li>~}</ul>"
+<ul>~{<li>~{<b>~/html/</b>: <q>~/html/</q> by ~/html/~}</li>~}</ul>"
               term results)
       (format nil "No music like <q>~/html/</q>" term))))
 
