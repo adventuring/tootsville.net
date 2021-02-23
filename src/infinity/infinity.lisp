@@ -55,7 +55,7 @@ Used to create the REST endpoints mapping to METHOD."
                        :|from| "c"
                        :|command| ,command
                        :|error| (format nil "~a" c)
-                       :|trace| (rollbar::find-appropriate-backtrace)8)))
+                       :|trace| (rollbar::find-appropriate-backtrace))))
      (http-client-error (c)
        (list (http-status-code c)
              (list :|status| :false
