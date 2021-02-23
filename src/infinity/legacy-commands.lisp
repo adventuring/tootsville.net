@@ -3145,7 +3145,7 @@ WRITEME
 
 "
   (let* ((event-id (or event-i-d id))
-         (event (ignore-not-found (find-record 'quaestor-event :id event-id))))
+         (event (ignore-not-found (find-record 'quaestor-event :uuid (uuid:make-uuid-from-string event-id)))))
     (when (null event)
       (return (list 404 (list :|from| "endEvent"
                               :|status| :false
@@ -3157,13 +3157,13 @@ WRITEME
                               :|err| "eventID.notYours"
                               :|error| "You tried to end someone else's event."))))
     (string-case status
-                 ("cmp" (quaestor-complete-event event score medal))
-                 ("cxl" (quaestor-cancel-event event))
-                 (otherwise 
-                  (list 400 (list :|from| "endEvent"
-                                  :|status| :false
-                                  :|err| "badStatus"
-                                  :|error| "Your software tried to end an event with an unrecognized status"))))))
+      ("cmp" (quaestor-complete-event event score medal))
+      ("cxl" (quaestor-cancel-event event))
+      (otherwise 
+       (list 400 (list :|from| "endEvent"
+                       :|status| :false
+                       :|err| "badStatus"
+                       :|error| "Your software tried to end an event with an unrecognized status"))))))
 
 (definfinity use-equipment ((|t| x y z on of) user recipient/s)
   "The player wishes to use a piece of equipment on a particular item or place.
