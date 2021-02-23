@@ -175,8 +175,8 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
                                                            :latitude latitude
                                                            :longitude longitude
                                                            :altitude altitude
-                                                           :world world)))
-      (when-let (music (ignore-not-found (find-reference music :music)))
+                                                           :world (princ-to-string world))))
+      (when-let (music (ignore-not-found (find-reference locale-music :music)))
         (setf (gethash "m" vars) (list :|title| (music-title music)
                                        :|artist| (music-artist music)
                                        :|file| (music-file music)
@@ -755,12 +755,12 @@ Creates a Toot-Quiesced record for them
                      :|peanuts| (Toot-peanuts Toot)
                      :|fairy-dust| (Toot-fairy-dust Toot)
                      :|attribs| (Toot-quiesced-attribs state)))
-      (when (and *Toot* (Toot= Toot *Toot*))
-        (setf (Toot-position *client*) (list (Toot-quiesced-world state)
-                                             (Toot-quiesced-latitude state)
-                                             (Toot-quiesced-longitude state)
-                                             (Toot-quiesced-altitude state))
-              (wtl-course *client*) (parse-wtl-course wtl))))))
+      (when-let (stream (user-stream Toot))
+        (setf (Toot-position stream) (list (Toot-quiesced-world state)
+                                           (Toot-quiesced-latitude state)
+                                           (Toot-quiesced-longitude state)
+                                           (Toot-quiesced-altitude state))
+              (wtl-course stream) (parse-wtl-course wtl))))))
 
 (defun update-Toot-last-active (Toot)
   "Set the `TOOT-LAST-ACTIVE' time for TOOT to the present time."
