@@ -268,6 +268,26 @@
   (altitude number)
   (world string))
 
+(defmethod save-record ((object locale-music))
+  (with-dbi (:friendly)
+    (before-save-normalize object)
+    (let* ((query
+             (dbi.driver:prepare *dbi-connection*
+                                 "INSERT INTO locale_music (music, latitude, longitude, altitude, world) values (?, ?, ?, ?, ?) on duplicate key update  music =  ?;")))
+      (verbose:info :db "saving Locale Music for (~d,~d) +~d @~a"
+                    (locale-music-latitude object) (locale-music-longitude object)
+                    (locale-music-altitude object) (locale-music-world object))
+      (with-slots (latitude longitude altitude world music)
+          object
+        (dbi.driver:execute query
+                            (list (column-save-value music :number)
+                                  (column-save-value latitude :number)
+                                  (column-save-value longitude :number)
+                                  (column-save-value altitude :number)
+                                  (column-save-value world :keyword)
+                                  (column-save-value music :number))))))
+  object)
+
 
 
 (defrecord lot (:friendly "lots")
