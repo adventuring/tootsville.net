@@ -689,16 +689,15 @@ artists.
         (alt (or (and (< 3 (length words))
                       (parse-number (fourth words)))
                  (altitude *client*)))
-        (world (or (and (< 4 (length words))
-                        (find-symbol (string-upcase (fifth words))
-                                     :keyword))
-                   (world *client*))))
+        (world (string-upcase (or (and (< 4 (length words))
+                                       (fifth words))
+                                  (world *client*)))))
     (unless music
       (return (format nil "Could not find music ~a" (first words))))
-    (if-let (found (find-record 'locale-music :latitude lat
-                                              :longitude long
-                                              :altitude alt
-                                              :world world))
+    (if-let (found (ignore-not-found (find-record 'locale-music :latitude lat
+                                                                :longitude long
+                                                                :altitude alt
+                                                                :world world)))
       (progn
         (setf (locale-music-music found) (music-id music))
         (save-record found))
