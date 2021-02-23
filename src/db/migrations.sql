@@ -1342,4 +1342,7 @@ alter table locale_music add column if not exists world varchar(6) not null;
 
 alter table locale_music add constraint primary key if not exists placement (latitude, longitude, altitude, world);
 
+replace into locale_music (music, latitude, longitude, altitude, world)
+values (89, -60, 20, 0, 'CHOR');
+                                                      
 select 'All Done' as migrations;
