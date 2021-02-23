@@ -201,16 +201,9 @@ the server.
 "
   (declare (ignore x y z with))
   (let ((item (find-record 'item :uuid (uuid:make-uuid-from-string on))))
-    (let ((accepted (ecase (item-effect item)
-                      (:fountain (let ((event-uuid (quaestor-event-uuid (quaestor-start-event/fountain% item *Toot*))))
-                                   (list :|from| "startEvent"
-                                         :|status| t
-                                         :|eventID| event-uuid
-                                         :|handler| "fountain")))
-                      ((:nil nil) nil))))
-      (if accepted
-          (list 202 accepted)
-          (list 204 nil)))))
+    (case (item-effect item)
+      (:fountain (quaestor-start-event/fountain% item *Toot*))
+      ((:nil nil) (list 204 nil)))))
 
 (definfinity create-user-house ((lot house index connect-to connect-at) user recipient/s)
   "Either claim the user's house and lot, or add a room to their house.

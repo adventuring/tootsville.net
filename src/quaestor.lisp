@@ -30,9 +30,8 @@
 
 
 (defun quaestor-start-event/fountain% (item Toot)
-  (if (fountain-duplicate-p (item-uuid item))
-      (fountain-reject-as-already-done (item-uuid item))
-      (quaestor-start-general item :fountain Toot)))
+  (fountain-reject-as-already-done (item-uuid item))
+  (quaestor-start-general item :fountain Toot))
 
 (defun quaestor-start-event/item% (item Toot)
   "Start an event whose source is ITEM, for TOOT.
@@ -89,18 +88,14 @@ Reports success or failure back to the client."
                   :|err| "eventType.notFound"
                   :|error| "No such event can be started")))
 
-(defun quaestor-start-event (moniker &optional (Toot *Toot*))
-  "TOOT wants to start an event identified by MONIKER.
+(defun quaestor-start-event (item &optional (Toot *Toot*))
+  "TOOT wants to start an event triggered by SOURCE
 
 See `INFINITY-START-EVENT' for details of the procedure."
-  
-  
-  ;; (if-let (store-item (find-record 'store-item :uuid moniker))
-  ;;   (quaestor-start-event/purchase% store-item Toot)
-  ;;   (if-let (item (find-record 'item :uuid moniker))
-  ;;     (quaestor-start-event/item% item Toot)
-  ;;     (reject-event-not-found%)))
-  )
+  (let ((item (ensure-item item)))
+    (case (item-effect item)
+      (:fountain (quaestor-start-event/fountain% item Toot))
+      (otherwise (error 'unimplemented)))))
 
 (defun quaestor-complete-event (event score &optional medal)
   "Complete EVENT with SCORE and MEDAL earned.
@@ -118,11 +113,12 @@ the item template."
   "Cancel EVENT.
 
 See `INFINITY-END-EVENT' for details of the procedure."
+  (v:info :end-event "Cancel event ~s" event)
   (setf (quaestor-event-completedp event) nil
         (quaestor-event-ended-at event) (now)
         (quaestor-event-peanuts event) 0
         (quaestor-event-fairy-dust event) 0
-        (quaestor-event-item event) 0
+        (quaestor-event-item event) nil
         (quaestor-event-score event) 0
         (quaestor-event-medal event) nil)
   (save-record event)
@@ -218,19 +214,23 @@ where started_by='~a' and completedp = 'Y'"
 
 (defun quaestor-start-general (item kind Toot)
   "Start a general event sourced on ITEM for TOOT."
-  (make-record 'quaestor-event
-               :uuid (uuid:make-v4-uuid)
-               :source (item-uuid item)
-               :started-by (Toot-uuid Toot)
-               :started-at (now)
-               :completedp nil
-               :ended-at nil
-               :peanuts 0
-               :fairy-dust 0
-               :item nil
-               :kind kind
-               :score 0
-               :medal nil))
+  (let ((event (make-record 'quaestor-event
+                            :uuid (uuid:make-v4-uuid)
+                            :source (item-uuid item)
+                            :started-by (Toot-uuid Toot)
+                            :started-at (now)
+                            :completedp nil
+                            :ended-at nil
+                            :peanuts 0
+                            :fairy-dust 0
+                            :item nil
+                            :kind kind
+                            :score 0
+                            :medal nil)))
+    (list 202 (list :|from| "startEvent"
+                    :|status| t
+                    :|eventID| (quaestor-event-uuid event)
+                    :|handler| kind))))
 
 (defun fountain-duplicate-p (event-source)
   "Returns generalized true if EVENT-SOURCE has happened already on the same Tootsville day as today."
@@ -281,8 +281,8 @@ Usually nothing, with a 1% change of being a random amount up to 10."
   "End the Fountain event."
   (if (fountain-duplicate-p (quaestor-event-source event))
       (progn
-        (fountain-reject-as-already-done (quaestor-event-uuid event))
-        (quaestor-cancel-event event))
+        (quaestor-cancel-event event)
+        (fountain-reject-as-already-done (quaestor-event-uuid event)))
       (let ((peanuts (compute-fountain-peanuts))
             (fairy-dust (compute-fountain-random-fairy-dust)))
         (setf (quaestor-event-ended-at event) (now)

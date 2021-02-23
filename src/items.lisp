@@ -584,3 +584,9 @@ TEMPLATE can be an `ITEM-TEMPLATE' or the ID number for one."
                        (item-template (item-template-id template)))))
     (mapcar #'item-tag-tag (find-records 'item-tag
                                          :item template-id))))
+
+(defun ensure-item (designator)
+  (etypecase designator
+    (string (find-record 'item :uuid designator))
+    (uuid:uuid (find-record 'item :uuid designator))
+    (item designator)))
