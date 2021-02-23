@@ -1011,7 +1011,7 @@ If any item ID cannot be found, the entire query fails with a 404."
        (list :|id| (contact-uuid contact)
              :|n| (Toot-name buddy)
              :|starredP| (or (contact-starredp contact) :false)
-             :|onlineP| (Toot-online-p buddy)
+             :|onlineP| (or (Toot-online-p buddy) :false)
              :|added| (contact-added contact)
              :|lastUsed| (contact-last-used contact))))
    (sort
