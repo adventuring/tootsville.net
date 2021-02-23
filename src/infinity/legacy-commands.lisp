@@ -3144,8 +3144,8 @@ scores for this event.
 WRITEME
 
 "
-  (let* ((event-id (or event-i-d id))
-         (event (ignore-not-found (find-record 'quaestor-event :uuid (uuid:make-uuid-from-string event-id)))))
+  (let* ((event-id (or event-i-d id moniker))
+         (event (ignore-not-found (find-record 'quaestor-event :uuid event-id))))
     (when (null event)
       (return (list 404 (list :|from| "endEvent"
                               :|status| :false
