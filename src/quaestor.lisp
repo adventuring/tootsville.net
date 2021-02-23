@@ -29,6 +29,11 @@
 
 
 
+(defun quaestor-start-event/fountain% (item Toot)
+  (if (fountain-duplicate-p (item-uuid item))
+      (fountain-reject-as-already-done (item-uuid item))
+      (quaestor-start-general item :fountain Toot)))
+
 (defun quaestor-start-event/item% (item Toot)
   "Start an event whose source is ITEM, for TOOT.
 
@@ -88,11 +93,14 @@ Reports success or failure back to the client."
   "TOOT wants to start an event identified by MONIKER.
 
 See `INFINITY-START-EVENT' for details of the procedure."
-  (if-let (store-item (find-record 'store-item :uuid moniker))
-    (quaestor-start-event/purchase% store-item Toot)
-    (if-let (item (find-record 'item :uuid moniker))
-      (quaestor-start-event/item% item Toot)
-      (reject-event-not-found%))))
+  
+  
+  ;; (if-let (store-item (find-record 'store-item :uuid moniker))
+  ;;   (quaestor-start-event/purchase% store-item Toot)
+  ;;   (if-let (item (find-record 'item :uuid moniker))
+  ;;     (quaestor-start-event/item% item Toot)
+  ;;     (reject-event-not-found%)))
+  )
 
 (defun quaestor-complete-event (event score &optional medal)
   "Complete EVENT with SCORE and MEDAL earned.
@@ -211,7 +219,7 @@ where started_by='~a' and completedp = 'Y'"
 
 
 
-(defun quaestor-start-general (item Toot)
+(defun quaestor-start-general (item kind Toot)
   "Start a general event sourced on ITEM for TOOT."
   (make-record 'quaestor-event
                :uuid (uuid:make-v4-uuid)
@@ -223,6 +231,7 @@ where started_by='~a' and completedp = 'Y'"
                :peanuts 0
                :fairy-dust 0
                :item nil
+               :kind kind
                :score 0
                :medal nil))
 
@@ -232,7 +241,7 @@ where started_by='~a' and completedp = 'Y'"
                 'quaestor-event
                 (format nil "SELECT * FROM quaestor_events
 WHERE source='~a' AND ended_at > CURRENT_TIMESTAMP - INTERVAL 18 HOUR
-ORDER BY ended_at DSC LIMIT 1"
+ORDER BY ended_at DESC LIMIT 1"
                         (uuid-to-base64 event-source)))))
     (when prior
       (multiple-value-bind (sec_ min_ hour_ last-day last-month)
@@ -269,7 +278,7 @@ Usually nothing, with a 1% change of being a random amount up to 10."
       (random 10)
       0))
 
-(defun quaestor-end-fountain (event score)
+(defun quaestor-end-fountain (item event score)
   "End a fountain EVENT with the user-supplied SCORE.
 
 The SCORE and the (Choerogyllum) day of the week are used to compute the
@@ -299,17 +308,11 @@ See `COMPUTE-FOUNTAIN-RANDOM-FAIRY-DUST'."
 
 
 
-(defmethod quaestor-start-event/item-template% ((template-id (eql 2495)) item Toot)
-  "Start the Toot Square Fountain event."
-  (if (fountain-duplicate-p (item-uuid item))
-      (fountain-reject-as-already-done (item-uuid item))
-      (quaestor-start-general item Toot)))
-
-(defmethod quaestor-complete-event/item-template% ((template-id (eql 2495)) event score medal)
+(defmethod quaestor-complete-event/fountain% (item event score medal)
   "End the Toot Square Fountain event."
   (without-medal (medal)
     (with-score-in-range (score 0 100)
-      (quaestor-end-fountain event score))))
+      (quaestor-end-fountain item event score))))
 
 
 
