@@ -125,9 +125,10 @@ Strips the trailing @code{==} that in invariant."
 
 (defun base64-to-uuid (value)
   "Convert a BASE64 value into a UUID."
-  (uuid:byte-array-to-uuid
-   (cl-base64:base64-string-to-usb8-array
-    (concatenate 'string value "=="))))
+  (unless (emptyp value)
+    (uuid:byte-array-to-uuid
+     (cl-base64:base64-string-to-usb8-array
+      (concatenate 'string value "==")))))
 
 (let ((uuid (uuid:make-v4-uuid)))
   (assert (uuid:uuid= uuid (base64-to-uuid (uuid-to-base64 uuid))))
