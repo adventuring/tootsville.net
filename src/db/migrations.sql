@@ -1183,15 +1183,13 @@ values
 (1110, 'yamaha-yzr-r6', 'yamaha-yzr-r6'),
 (1111, 'Yosemite Frame', 'YosemiteFrame');
 
-update items set latitude=-60, longitude=20, x=-50, y=0, z=0 where template=2495;
+update items set latitude=-60, longitude=20, x=-50, y=0, z=0, effect='FOUNTAIN' where template=2495;
 
 alter table music drop column if exists genre;
 
 alter table music add column if not exists file varchar(255) null;
 
 alter table music add column if not exists link varchar(255) null;
-
-alter table locale_music add constraint primary key if not exists placement (latitude, longitude, altitude, world);
 
 replace into music (id, title, artist, file, link, license, moniker)
 values
@@ -1341,5 +1339,7 @@ alter table locale_music add column if not exists longitude int not null;
 alter table locale_music add column if not exists altitude int not null;
 
 alter table locale_music add column if not exists world varchar(6) not null;
+
+alter table locale_music add constraint primary key if not exists placement (latitude, longitude, altitude, world);
 
 select 'All Done' as migrations;
