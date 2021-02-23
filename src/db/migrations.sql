@@ -1191,6 +1191,8 @@ alter table music add column if not exists file varchar(255) null;
 
 alter table music add column if not exists link varchar(255) null;
 
+alter table locale_music add constraint primary key if not exists placement (latitude, longitude, altitude, world);
+
 replace into music (id, title, artist, file, link, license, moniker)
 values
 (5, 'Hope is a Dangerous Thing', 'Admiral Bob', 'admiralbob77_-_Hope_is_a_Dangerous_Thing', 'http://ccmixter.org/people/admiralbob77', 'CC-BY', 'hope-is-a-dangerous-thing'),
