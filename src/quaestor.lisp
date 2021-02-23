@@ -110,16 +110,9 @@ See `INFINITY-END-EVENT' for details of the procedure.
 If  EVENT  is a  purchase,  then  purchase  the associated  store  item;
 otherwise, perform  whatever specific event side-effects  are related to
 the item template."
-  
-  ;;FIXME switch event on kind of event saved when starting and handle accordingly.
-  
-  ;; (if-let (store-item (find-record 'store-item :uuid (quaestor-event-source event)))
-  ;;   (quaestor-complete-event/purchase% store-item event)
-  ;;   (quaestor-complete-event/item-template% (item-template 
-  ;;                                            (find-record 'item
-  ;;                                                         :uuid (quaestor-event-source event)))
-  ;;                                           event score medal))
-  )
+  (case (quaestor-event-kind event)
+    (:fountain (quaestor-complete-event/fountain% event))
+    (otherwise (error 'unimplemented))))
 
 (defun quaestor-cancel-event (event)
   "Cancel EVENT.
@@ -268,11 +261,11 @@ Tells the player to make a wish again tomorrow."
                   :|moniker| moniker
                   :|error| "Make a wish again tomorrow")))
 
-(defun compute-fountain-peanuts-for-score (score)
+(defun compute-fountain-peanuts ()
   (multiple-value-bind (sec_ min_ hr_ day_ month_ year_ day-of-week)
       (Choerogryllum:decode*-universal-time (get-universal-time*))
     (declare (ignore sec_ min_ hr_ day_ month_ year_))
-    (+ 25 (mod (+ score (* 10 day-of-week)) 75))))
+    (+ 25 (mod (* 10 day-of-week) 75))))
 
 (defun compute-fountain-random-fairy-dust ()
   "How much fairy dust is obtained from the fountain?
@@ -282,25 +275,21 @@ Usually nothing, with a 1% change of being a random amount up to 10."
       (random 10)
       0))
 
-(defun quaestor-end-fountain (item event score)
-  "End a fountain EVENT with the user-supplied SCORE.
+
 
-The SCORE and the (Choerogyllum) day of the week are used to compute the
-actual number of peanuts earned. See `COMPUTE-FOUNTAIN-PEANUTS-FOR-SCORE'.
-
-Occassionally,       fairy       dust       is       also       awarded.
-See `COMPUTE-FOUNTAIN-RANDOM-FAIRY-DUST'."
+(defun quaestor-complete-event/fountain% (event)
+  "End the Fountain event."
   (if (fountain-duplicate-p (quaestor-event-source event))
       (progn
         (fountain-reject-as-already-done (quaestor-event-uuid event))
         (quaestor-cancel-event event))
-      (let ((peanuts (compute-fountain-peanuts-for-score score))
+      (let ((peanuts (compute-fountain-peanuts))
             (fairy-dust (compute-fountain-random-fairy-dust)))
         (setf (quaestor-event-ended-at event) (now)
               (quaestor-event-completedp event) t
               (quaestor-event-peanuts event) peanuts
               (quaestor-event-fairy-dust event) fairy-dust
-              (quaestor-event-score event) score)
+              (quaestor-event-score event) 1)
         (save-record event)
         (list 200 (list :|from| "endEvent"
                         :|status| t
@@ -309,14 +298,6 @@ See `COMPUTE-FOUNTAIN-RANDOM-FAIRY-DUST'."
                         :|fairydust| fairy-dust
                         :|totalPeanuts| (Toot-peanuts (quaestor-event-started-by event))
                         :|totalFairyDust| (Toot-fairy-dust (quaestor-event-started-by event)))))))
-
-
-
-(defmethod quaestor-complete-event/fountain% (item event score medal)
-  "End the Toot Square Fountain event."
-  (without-medal (medal)
-    (with-score-in-range (score 0 100)
-      (quaestor-end-fountain item event score))))
 
 
 
