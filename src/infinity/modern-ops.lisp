@@ -608,6 +608,7 @@ TODO this should flag recent staff journal entries as well.
 <tr><th>#infinity-stats</th><td>~:d request~:p</td></tr>
 <tr><th>#uptime</th><td>~a</td></tr>
 <tr><th>#banhammer #list</th><td>~:d client~:p</td></tr>
+<tr><th>Load Avg. </th><td>~{~f, ~f, ~f (~d ~:d)~}</td> </tr>
 </table>"
           (machine-instance)
           (length (server-list))
@@ -616,10 +617,11 @@ TODO this should flag recent staff journal entries as well.
           (length (hunchensocket::clients *infinity-websocket-resource*))
           (+ *infinity-stream-requests* *infinity-rest-requests*)
           (human-duration (- (get-universal-time*) *started*))
-          (length (hash-table-keys *banhammer*))))
+          (length (hash-table-keys *banhammer*))
+          (multiple-value-list (load-average))))
 
 (define-operator-command whatmusic (words u r)
-"Discover available music
+  "Discover available music
 
 Searches the music available for a keyword --- both titles and
 artists.
@@ -651,10 +653,10 @@ artists.
                                            (search term (music-artist music)
                                                    :test 'string-equal)))
                                      (find-records 'music))))
-            (format nil "Music like <q>~/html/</q>: ~
+      (format nil "Music like <q>~/html/</q>: ~
 <ul>~{<li><b>~/html/</b>: <q>~/html/</q> by ~/html/</li>~}</ul>"
-                    term results)
-            (format nil "No music like <q>~/html/</q>" term))))
+              term results)
+      (format nil "No music like <q>~/html/</q>" term))))
 
 (define-operator-command setmusic (words u r)
   "Set the music for an area (or this area)
