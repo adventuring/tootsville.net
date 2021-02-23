@@ -110,12 +110,16 @@ See `INFINITY-END-EVENT' for details of the procedure.
 If  EVENT  is a  purchase,  then  purchase  the associated  store  item;
 otherwise, perform  whatever specific event side-effects  are related to
 the item template."
-  (if-let (store-item (find-record 'store-item :uuid (quaestor-event-source event)))
-    (quaestor-complete-event/purchase% store-item event)
-    (quaestor-complete-event/item-template% (item-template 
-                                             (find-record 'item
-                                                          :uuid (quaestor-event-source event)))
-                                            event score medal)))
+  
+  ;;FIXME switch event on kind of event saved when starting and handle accordingly.
+  
+  ;; (if-let (store-item (find-record 'store-item :uuid (quaestor-event-source event)))
+  ;;   (quaestor-complete-event/purchase% store-item event)
+  ;;   (quaestor-complete-event/item-template% (item-template 
+  ;;                                            (find-record 'item
+  ;;                                                         :uuid (quaestor-event-source event)))
+  ;;                                           event score medal))
+  )
 
 (defun quaestor-cancel-event (event)
   "Cancel EVENT.
