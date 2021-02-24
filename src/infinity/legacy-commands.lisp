@@ -203,6 +203,11 @@ the server.
   (let ((item (find-record 'item :uuid (uuid:make-uuid-from-string on))))
     (case (item-effect item)
       (:fountain (quaestor-start-event/fountain% item *Toot*))
+      (:mini (quaestor-start-event/minigame% item *Toot*))
+      (:snowball (let ((snowball (grant-item +snowball-item+ *Toot*)))
+                   (don-item snowball)))
+      (:vitem (quaestor-start-event/vitem% item *Toot*))
+      (:shop (quaestor-start-event/shop% item *Toot*))
       ((:nil nil) (list 204 nil)))))
 
 (definfinity create-user-house ((lot house index connect-to connect-at) user recipient/s)
