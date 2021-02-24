@@ -1039,16 +1039,17 @@ NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
 #givehead 1337 catvlle
 @end example
 
-This creates  a new item  from the  item template number  indicated, and
-equips it on the recipient. To give  a gift from your own inventory, see
-`TOOTSVILLE-USER::GIVE'. To grant a new item without equipping it, see `TOOTSVILLE-USER::GRANT'."
+This creates a new item from the item template number indicated, and
+equips it on the recipient. To give a gift from your own inventory,
+see `TOOTSVILLE-USER::GIVE'. To grant a new item without equipping it,
+see `TOOTSVILLE-USER::GRANT'."
   (error 'unimplemented))
 
 (define-operator-command grant (words user _)
   "Grants a new inventory item to a user.
 
-NOTE:  @code{#grant} and  @code{#givehead}  are  identical, except  that
-@code{#givehead} equips  the item  and @code{#grant}  does not.  See also
+NOTE: @code{#grant} and @code{#givehead} are identical, except that
+@code{#givehead} equips the item and @code{#grant} does not.  See also
 `TOOTSVILLE-USER::GIVEHEAD'.
 
 @subsection Usage

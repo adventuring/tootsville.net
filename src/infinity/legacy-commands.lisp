@@ -2675,7 +2675,11 @@ beginning with them.
 For convenience of Spanish speakers, sentences beginning with @code{?}
 or @code{!} are converted into @code{¿} and @code{¡}.
 
-UNIMPLEMENTED
+Example:
+
+@quotation
+¡Hola!
+@end quotation
 
 @end table
 
