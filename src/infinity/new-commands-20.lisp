@@ -163,6 +163,14 @@ See `INFINITY-GET-ROOM-VARS' for a discussion.
          (vars (make-hash-table :test 'equal)))
     (setf (gethash "s" vars) (sky-room-var world))
     (when (and (= 0 altitude) (eql :chor world))
+      (unless (find-terrain world latitude longitude)
+        (unicast (list :|from| "rv"
+                       :|status| :false
+                       :|lat| latitude
+                       :|long| longitude
+                       :|alt| altitude
+                       :|world| world
+                       :|var| (list :|mist| t))))
       (terrain world latitude longitude))
     (do-records (item item :world (princ-to-string world) ; string needed for do-records
                            :latitude latitude
