@@ -41,9 +41,58 @@ quaestor event  whose source is ITEM,  which might be a  fountain, among
 other things."
   (quaestor-start-event/item-template% (item-template item) item Toot))
 
-(defun quaestor-start-event/minigame% (item Toot))
+(defun quaestor-start-event/minigame% (item Toot)
+  ;; TODO check for existing unfinished play of that minigame
+  (start-minigame-event item Toot))
+
+(defun start-minigame-event (item Toot)
+  (let ((event (make-record 'quaestor-event
+                            :uuid (uuid:make-v4-uuid)
+                            :source (item-uuid item)
+                            :started-by (Toot-uuid Toot)
+                            :completedp nil
+                            :ended-at nil
+                            :peanuts 0
+                            :fairy-dust 0
+                            :item nil
+                            :score 0
+                            :medal nil)))
+    (destructuring-bind (filename function score-scalar)
+        (split-sequence #\# (item-attributes item))
+      (declare (ignore score-scalar))
+      (list 202 (list :|from| "startEvent"
+                      :|handler| "minigame"
+                      :|status| t
+                      :|eventID| (quaestor-event-uuid event)
+                      :|filename| filename
+                      :|function| function
+                      :|asVersion| "html5")))))
+
 (defun quaestor-start-event/vitem% (item Toot)
-  (start-gifting-event item Toot))
+  (start-vitem-gifting-event item Toot))
+
+(defun start-vitem-gifting-event (item Toot)
+ (let ((event (make-record 'quaestor-event
+                            :uuid (uuid:make-v4-uuid)
+                            :source (item-uuid item)
+                            :started-by (Toot-uuid Toot)
+                            :completedp nil
+                            :ended-at nil
+                            :peanuts 0
+                            :fairy-dust 0
+                            :item nil
+                            :score 0
+                            :medal nil))
+       (vitem (or (when-let (id (parse-integer (item-attributes item)))
+                    (find-record 'item-template :id id))
+                  (find-reference item :template))))
+    
+      (list 202 (list :|from| "startEvent"
+                      :|handler| "vitem"
+                      :|status| t
+                      :|eventID| (quaestor-event-uuid event)
+                      :|vitem| (item-template-info vitem)))))
+
 (defun quaestor-start-event/shop% (item Toot)
   (start-purchase-event item Toot))
 
@@ -105,6 +154,10 @@ otherwise, perform  whatever specific event side-effects  are related to
 the item template."
   (case (quaestor-event-kind event)
     (:fountain (quaestor-complete-event/fountain% event))
+    (:minigame (quaestor-complete-event/minigame% event score medal))
+    (:vitem (quaestor-complete-event/vitem% event))
+    (:shop (quaestor-complete-event/shop% event))
+    ((:nil nil) (list 204 nil))
     (otherwise (error 'unimplemented))))
 
 (defun quaestor-cancel-event (event)
@@ -274,6 +327,27 @@ Usually nothing, with a 1% change of being a random amount up to 10."
       0))
 
 
+
+(defun quaestor-complete-event/vitem% (event)
+  (let* ((item (find-record 'item :uuid (quaestor-event-source event)))
+         (vitem-id (or (parse-integer (item-attributes item))
+                       (item-template item)))
+         (Toot (find-record 'Toot :uuid (quaestor-event-started-by event)))
+         (granted (grant-item vitem-id Toot)))
+    (list 200 (list :|from| "endEvent"
+                    :|status| t
+                    :|ended| (quaestor-event-uuid event)
+                    :|peanuts| 0
+                    :|fairyDust| 0
+                    :|totalPeanuts| (Toot-peanuts Toot)
+                    :|totalFairyDust| (Toot-fairy-dust Toot)
+                    :|item| (item-info granted)))))
+
+(defun quaestor-complete-event/shop% (event)
+  (error 'unimplemented))
+
+(defun quaestor-complete-event/minigame% (event score medal)
+  (error 'unimplemented))
 
 (defun quaestor-complete-event/fountain% (event)
   "End the Fountain event."
