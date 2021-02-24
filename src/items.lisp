@@ -159,16 +159,19 @@ If ITEM's Energy-Kind is :COUNTABLE, then AMOUNT must be an integer."
 
 
 
-(defun don-item (inventory-item wear-slot)
+(defun don-item (inventory-item &optional wear-slot)
   "Equip INVENTORY-ITEM on its owning Toot in SLOT.
 
 If this conflicts with any other equipped items, remove them."
   (let* ((inventory-item (ensure-inventory-item inventory-item))
-         (wear-slot (ensure-wear-slot wear-slot))
          (item (find-reference inventory-item :item))
          (item-template (find-reference item :template))
          (Toot (find-reference inventory-item :Toot))
          (avatar (find-reference Toot :avatar))
+         (wear-slot (ensure-wear-slot
+                     (if wear-slot
+                         wear-slot
+                         (item-template-wear-slot item-template))))
          (person (find-reference inventory-item :person)))
     (assert (UUID:UUID= (Toot-player Toot) (person-UUID person))
             (Toot person)
