@@ -1065,7 +1065,8 @@ Fairy Dust was added after 1.2.
 @subsection 200 OK
 
 Returns the wallet info."
-  (list 200 (wallet-info *Toot*)))
+  (list 200 (append (list :|from| "earning" :|status| t)
+                    (wallet-info *Toot*))))
 
 (definfinity get-Zone-List (nil user recipient/s)
   "Get a list of all Zones currently active/visible.
