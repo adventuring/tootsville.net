@@ -2269,7 +2269,7 @@ In Romance 1.2, this would save the effective room variables in a room
 to the database permanently.  Now, all things that room variables used
 to represent are already persisted to the database.
 "
-  (error 'unimplemented))
+  (error 'gone))
 
 (define-operator-command scotty (words user _)
   "Force a user to relocate to another location
