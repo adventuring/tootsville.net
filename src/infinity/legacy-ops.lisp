@@ -531,7 +531,7 @@ This command existed in Romance 1.2 and was different than
 `TOOTSVILLE-USER::SPAWNROOM', but now they are synonymous.
 
 "
-  (error 'unimplemented))
+  (Tootsville-user::spawnroom words user _))
 
 (define-operator-command dbcpinfo (words user _)
   "Get information from the DBI (database) layer.
