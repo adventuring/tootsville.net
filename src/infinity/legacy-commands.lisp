@@ -200,10 +200,11 @@ The click event is being ignored; ITEM-ID was not an interesting item to
 the server.
 "
   (declare (ignore x y z with))
+  ;; XXX handle mods
   (let ((item (find-record 'item :uuid (uuid:make-uuid-from-string on))))
     (case (item-effect item)
       (:fountain (quaestor-start-event/fountain% item *Toot*))
-      (:mini (quaestor-start-event/minigame% item *Toot*))
+      (:minigame (quaestor-start-event/minigame% item *Toot*))
       (:snowball (let ((snowball (grant-item +snowball-item+ *Toot*)))
                    (don-item snowball)))
       (:vitem (quaestor-start-event/vitem% item *Toot*))
@@ -2881,6 +2882,7 @@ by comparison.
 @verbatim
 { from: \"startEvent\",
   status: true,
+  handler: \"minigame\",
   eventID: \"ID\",
   filename: \"blah.js\",
   function: \"foo\",
