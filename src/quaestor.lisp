@@ -41,20 +41,30 @@ quaestor event  whose source is ITEM,  which might be a  fountain, among
 other things."
   (quaestor-start-event/item-template% (item-template item) item Toot))
 
+(defun quaestor-start-event/minigame% (item Toot))
+(defun quaestor-start-event/vitem% (item Toot)
+  (start-gifting-event item Toot))
+(defun quaestor-start-event/shop% (item Toot)
+  (start-purchase-event item Toot))
+
 (defun start-purchase-event (store-item Toot)
   "Start an event for TOOT to purchase STORE-ITEM"
-  (make-record 'quaestor-event
-               :uuid (uuid:make-v4-uuid)
-               :source (store-item-uuid store-item)
-               :started-by (Toot-uuid Toot)
-               :started-at (now)
-               :completedp nil
-               :ended-at nil
-               :peanuts 0
-               :fairy-dust 0
-               :item nil
-               :score 0
-               :medal nil))
+  (let ((event (make-record 'quaestor-event
+                            :uuid (uuid:make-v4-uuid)
+                            :source (store-item-uuid store-item)
+                            :started-by (Toot-uuid Toot)
+                            :started-at (now)
+                            :completedp nil
+                            :ended-at nil
+                            :peanuts 0
+                            :fairy-dust 0
+                            :item nil
+                            :score 0
+                            :medal nil)))
+    (list 202 (list :|from| "startEvent"
+                    :|handler| "shop"
+                    :|item| (item-info store-item)
+                    :|eventID| (quaestor-event-UUID event)))))
 
 (defun Toot-can-afford-p (Toot store-item)
   "Whether TOOT can afford STORE-ITEM"
@@ -66,20 +76,8 @@ other things."
                   :|status| :false
                   :|eventID| event-id
                   :|err| "cost"
-                  :|error| (format nil "You cannot afford ~:d peanut~:p."
+                  :|error| (format nil "You cannot afford ~:d 🥜."
                                    (store-item-price store-item)))))
-
-(defun quaestor-start-event/purchase% (store-item Toot)
-  "TOOT wishes to purchase STORE-ITEM: Begin event.
-
-Reports success or failure back to the client."
-  (if (Toot-can-afford-p Toot store-item)
-      (let ((event (start-purchase-event store-item Toot)))
-        (list 201 (list :|from| "startEvent"
-                        :|status| t
-                        :|eventID| (quaestor-event-uuid event))))
-      (quaestor-reject-cannot-afford% "startEvent" 
-                                      (store-item-uuid store-item) store-item)))
 
 (defun reject-event-not-found% ()
   "Send a rejection for an event not found."
