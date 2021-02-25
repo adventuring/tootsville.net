@@ -1344,5 +1344,14 @@ alter table locale_music add constraint primary key if not exists placement (lat
 
 replace into locale_music (music, latitude, longitude, altitude, world)
 values (89, -60, 20, 0, 'CHOR');
-                                                      
+
+create table if not exists ignored (
+  uuid char(22) not null primary key,
+  owner char(22) not null,
+  ignored char(22) not null,
+  constraint owner_ignoree unique key (owner, ignored),
+  constraint owned_by foreign key (owner) references toots (uuid) on delete restrict on update cascade,
+  constraint ignoree foreign key (ignored) references toots (uuid) on delete restrict on update cascade
+) engine=InnoDB default charset=utf8;
+
 select 'All Done' as migrations;
