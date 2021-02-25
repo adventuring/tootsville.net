@@ -31,10 +31,11 @@
 
 
 
-(definfinity add-furniture (d user recipient/s)
+(definfinity add-furniture ((item slot x y z facing remove) user recipient/s)
   "Alias for INFINITY-SET-FURNITURE.
 
 Alias for `INFINITY-SET-FURNITURE', q.v."
+  (declare (ignorable item slot x y z facing remove))
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
 (definfinity add-to-list ((buddy ignore) user recipient/s)
@@ -684,7 +685,7 @@ the usual form:
                     :|error| (format nil "No such gameAction: ~a" action)
                     :|err| "game-action-not-found"))))
 
-(definfinity get-avatars ((&rest _+user-names) user recipient/s)
+(definfinity get-avatars ((&rest Toots-with-keys) user recipient/s)
   "Get avatar data for a list of (other) users.
 
 Synonym for `INFINITY-FINGER'
@@ -2129,11 +2130,10 @@ color now.
  encode a response into a JSON form
 
 SQLException - if the palettes can't be loaded"
-  (error "This requires Doodle's intervention now")
-  (destructuring-bind (base-red base-green base-blue) (rgb-bytes->rgb base)
-    (setf (Toot-base-color *Toot*) (color24-rgb base-red base-green base-blue)))
-  (destructuring-bind (pad-red pad-green pad-blue) (rgb-bytes->rgb extra)
-    (setf (Toot-pad-color *Toot*) (color24-rgb pad-red pad-green pad-blue))))
+  (list 410 (list :|from| "setAvatarColor" 
+                  :|status| nil
+                  :|err| "gone"
+                  :|error| "This requires Doodle's intervention now")))
 
 (defun remove-furniture (slot)
   (error 'unimplemented))
