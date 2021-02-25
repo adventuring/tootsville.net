@@ -394,7 +394,7 @@ The weight of instances of this template
   
   (list :|id| (item-template-id template)
         :|name| (item-template-name template)
-        :|description| (item-template-description template)
+        :|description| (or (item-template-description template) "")
         :|trade| (string-upcase (item-template-trade template))
         :|avatar| (item-template-avatar template)
         :|energyKind| (item-template-energy-kind template)
