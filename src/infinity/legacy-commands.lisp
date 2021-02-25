@@ -81,6 +81,7 @@ This function was replaced  with `INFINITY-REQUEST-BUDDY' — requestBuddy
                        :uuid (uuid:make-v4-uuid)
                        :owner (Toot-UUID *Toot*)
                        :ignored (Toot-UUID ignored))
+          (unicast (get-user-lists))
           (list 201 (list :|from| "addToList"
                           :|status| t
                           :|ignore| ignore))))))
@@ -1052,6 +1053,12 @@ If any item ID cannot be found, the entire query fails with a 404."
              :|n| (Toot-name ignoree))))
    (find-records 'ignored :owner (Toot-UUID Toot))))
 
+(defun get-user-lists ()
+  (list :|from| "getUserLists"
+        :|status| t
+        :|buddyList| (Toot-buddy-list)
+        :|ignoreList| (Toot-ignore-list)))
+
 (definfinity get-user-lists (nil user recipient/s)
   "Get the user's buddy list and ignore list.
 
@@ -1065,10 +1072,7 @@ If any item ID cannot be found, the entire query fails with a 404."
 Buddies on the buddy list can be starred, with attribute @code{starred: true}.
 
 "
-  (list 200 (list :|from| "getUserLists"
-                  :|status| t
-                  :|buddyList| (Toot-buddy-list)
-                  :|ignoreList| (Toot-ignore-list))))
+  (list 200 (get-user-lists)))
 
 (definfinity get-Wallet ((&rest d) user recipient/s)
   "Get the contents of the player's wallet (peanuts and fairy dust)
