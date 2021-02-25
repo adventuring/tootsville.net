@@ -1699,8 +1699,6 @@ Creates a VITEM effect item.
 See `TOOTSVILLE-USER::PLACE'"
   (check-type where game-point)
   (destructuring-bind (item-template-number &optional facing) params
-    (error 'unimplemented)
-    ;; FIXME. This should be an item with an attribute.
     (make-record 'place
                  :uuid (uuid:make-v4-uuid)
                  :world (world where)
@@ -1715,7 +1713,13 @@ See `TOOTSVILLE-USER::PLACE'"
                  :attributes (princ-to-string item-template-number)
                  :appearance (format nil "~d~~~g"
                                      item-template-number
-                                     (interpret-facing facing)))))
+                                     (interpret-facing facing)))
+    (private-admin-message "#place #vitem"
+                           (format nil "Created VITEM from template ~d at (~f, ~f, ~f)"
+                                   (parse-number item-template-number)
+                                   (game-point-x where)
+                                   (game-point-y where)
+                                   (game-point-z where)))))
 
 (defun %operator-place-walk (where params)
   (assert (emptyp params))
@@ -2090,8 +2094,7 @@ Each subcommand is implemented by a ``private'' function named
   (unless (<= 2 (length words))
     (return "Syntax error"))
   (let ((where (ignore-errors (%parse-operator-place-where (first words)))))
-    (unless where
-      (return "WHERE error"))
+    (unless where (return "WHERE error"))
     (unless (char= #\# (char (second words) 0))
       (return "Subcommands start with #"))
     (let ((subcommand
