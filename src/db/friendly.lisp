@@ -100,6 +100,11 @@
   (format s "#<Contact ~a:~a~@[ ★~]>"
           (contact-owner contact) (contact-contact contact) (contact-starredp contact)))
 
+(defrecord ignored (:friendly "ignored")
+  (uuid uuid)
+  (owner uuid ref Toot)
+  (ignored uuid ref Toot))
+
 (defrecord sms (:friendly "sms")
   (uuid uuid)
   (sender uuid ref Toot)
