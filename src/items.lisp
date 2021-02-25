@@ -34,6 +34,7 @@
   "Create an item as an instance of the given TEMPLATE-ID."
   (let ((template (find-record 'item-template :id template-id)))
     (make-record 'item
+                 :uuid (uuid:make-v4-uuid)
                  :template template-id
                  :base-color (item-template-default-base-color template)
                  :alt-color (item-template-default-alt-color template)
@@ -57,12 +58,11 @@
                 (Toot recipient)
                 (string (find-record 'Toot :name recipient))
                 (person nil))))
-    (player-alert player :inventory :get item)
     (make-record 'inventory-item
                  :item (item-uuid item)
                  :person (person-uuid player)
                  :Toot (Toot-uuid Toot)
-                 :equipped :N)))
+                 :equipped :n)))
 
 (defun gift-item (item giver recipient)
   "Transfer the ownership of ITEM from GIVER to RECIPIENT."
