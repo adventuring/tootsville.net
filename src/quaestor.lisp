@@ -72,26 +72,28 @@ other things."
   (start-vitem-gifting-event item Toot))
 
 (defun start-vitem-gifting-event (item Toot)
- (let ((event (make-record 'quaestor-event
+  (let ((event (make-record 'quaestor-event
                             :uuid (uuid:make-v4-uuid)
                             :source (item-uuid item)
                             :started-by (Toot-uuid Toot)
+                            :started-at (now)
                             :completedp nil
                             :ended-at nil
                             :peanuts 0
                             :fairy-dust 0
                             :item nil
+                            :kind :vitem
                             :score 0
                             :medal nil))
-       (vitem (or (when-let (id (parse-integer (item-attributes item)))
-                    (find-record 'item-template :id id))
-                  (find-reference item :template))))
+        (vitem (or (when-let (id (parse-integer (item-attributes item)))
+                     (find-record 'item-template :id id))
+                   (find-reference item :template))))
     
-      (list 202 (list :|from| "startEvent"
-                      :|handler| "vitem"
-                      :|status| t
-                      :|eventID| (quaestor-event-uuid event)
-                      :|vitem| (item-template-info vitem)))))
+    (list 202 (list :|from| "startEvent"
+                    :|handler| "vitem"
+                    :|status| t
+                    :|eventID| (quaestor-event-uuid event)
+                    :|vitem| (item-template-info vitem)))))
 
 (defun quaestor-start-event/shop% (item Toot)
   (start-purchase-event item Toot))
@@ -343,7 +345,7 @@ Usually nothing, with a 1% change of being a random amount up to 10."
                     :|fairyDust| 0
                     :|totalPeanuts| (Toot-peanuts Toot)
                     :|totalFairyDust| (Toot-fairy-dust Toot)
-                    :|item| (item-info granted)))))
+                    :|item| (item-info (find-reference granted :item))))))
 
 (defun quaestor-complete-event/shop% (event)
   (error 'unimplemented))
