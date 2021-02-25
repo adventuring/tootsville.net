@@ -238,7 +238,7 @@ doc/Tootsville.pdf:	doc/Tootsville.texi
 	cd doc; PDFLATEX=xelatex makeinfo --pdf Tootsville.texi 
 
 doc/Tootsville.txt:	doc/Tootsville.texi
-	cd doc; makeinfo --plaintext -o Tootsville.txt Tootsville.texi
+	cd doc; makeinfo --plaintext -o Tootsville.txt Tootsville.texi || echo ''
 
 doc/Tootsville.info:	doc/Tootsville.texi
 	emacsclient -e '(with-current-buffer (find-file "doc/Tootsville.texi") (texinfo-all-menus-update) (texinfo-every-node-update) (texinfo-master-menu t) (save-buffer) (kill-buffer))'
