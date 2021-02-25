@@ -31,13 +31,13 @@
 
 
 
-(definfinity add-furniture ((buddy ignore) user recipient/s)
+(definfinity add-furniture (d user recipient/s)
   "Alias for INFINITY-SET-FURNITURE.
 
 Alias for `INFINITY-SET-FURNITURE', q.v."
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
-(definfinity add-to-list (nil user recipient/s)
+(definfinity add-to-list ((buddy ignore) user recipient/s)
   "Add a user to a buddy list or ignore list (removed in 1.2)
 
 …using   the   traditional   (online-only,   no   notification   engine)
