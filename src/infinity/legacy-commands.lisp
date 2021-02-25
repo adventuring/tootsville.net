@@ -1702,7 +1702,23 @@ was not on that list.
   err: \"notOnList\" }
 @end verbatim
 "
-  (error 'unimplemented))
+  (cond
+    (buddy (let* ((buddy-Toot (find-record 'Toot :name buddy))
+                  (contact (find-record 'contact :owner (Toot-UUID *Toot*)
+                                                 :contact (Toot-UUID buddy-Toot))))
+             (destroy-record contact)
+             (unicast (get-user-lists))
+             (list 200 (list :|from| "removeFromList"
+                             :|status| t
+                             :|buddy| buddy))))
+    (ignore (let* ((ignore-Toot (find-record 'Toot :name ignore))
+                   (ignoring (find-record 'ignored :owner (Toot-UUID *Toot*)
+                                                   :ignored (Toot-UUID ignore-Toot))))
+              (destroy-record ignoring)
+              (unicast (get-user-lists))
+              (list 200 (list :|from| "removeFromList"
+                              :|status| t
+                              :|ignore| ignore))))))
 
 (definfinity report-bug ((info) user recipient/s)
   "This method allows the client to ``phone home'' to report a bug.
