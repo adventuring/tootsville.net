@@ -1699,21 +1699,27 @@ Creates a VITEM effect item.
 See `TOOTSVILLE-USER::PLACE'"
   (check-type where game-point)
   (destructuring-bind (item-template-number &optional facing) params
-    (make-record 'place
+    (make-record 'item
                  :uuid (uuid:make-v4-uuid)
+                 :base-color (or (and base-color (parse-color24 base-color))
+                                 0)
+                 :alt-color (or (and alt-color (parse-color24 alt-color))
+                                0)
+                 :template (parse-number item-template-number)
+                 :energy 1
+                 :avatar-scale-x 1.0
+                 :avatar-scale-y 1.0
+                 :avatar-scale-z 1.0
+                 :x (game-point-x where)
+                 :y (game-point-y where)
+                 :z (game-point-z where)
+                 :facing (interpret-facing facing)
                  :world (world where)
                  :latitude (latitude where)
                  :longitude (longitude where)
                  :altitude (altitude where)
-                 :shape (format nil "~d,~d,~d" 
-                                (game-point-x where)
-                                (game-point-y where)
-                                (game-point-z where))
-                 :kind :vitem
-                 :attributes (princ-to-string item-template-number)
-                 :appearance (format nil "~d~~~g"
-                                     item-template-number
-                                     (interpret-facing facing)))
+                 :effect :vitem
+                 :attributes (parse-number item-template-number))
     (private-admin-message "#place #vitem"
                            (format nil "Created VITEM from template ~d at (~f, ~f, ~f)"
                                    (parse-number item-template-number)
