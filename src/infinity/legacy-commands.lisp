@@ -1025,9 +1025,9 @@ If any item ID cannot be found, the entire query fails with a 404."
     (setf (gethash "from" hash) "getStoreItemInfo"
           (gethash "status" hash) t)
     (loop for (key id) on jso by #'cddr
-       do (setf (gethash key hash) (store-info
-                                    (find-record 'store-item
-                                                 :id (parse-integer id)))))
+          do (setf (gethash key hash) (store-info
+                                       (find-record 'store-item
+                                                    :id (parse-integer id)))))
     (list 200 hash)))
 
 (defun Toot-buddy-list (&optional (Toot *Toot*))
@@ -1043,6 +1043,14 @@ If any item ID cannot be found, the entire query fails with a 404."
    (sort
     (find-records 'contact :owner (Toot-UUID Toot))
     #'timestamp< :key #'contact-last-used)))
+
+(defun Toot-ignore-list (&optional (Toot *Toot*))
+  (mapcar 
+   (lambda (ignored)
+     (let ((ignoree (find-reference ignored :ignored)))
+       (list :|id| (ignored-uuid ignored)
+             :|n| (Toot-name ignoree))))
+   (find-records 'ignored :owner (Toot-UUID Toot))))
 
 (definfinity get-user-lists (nil user recipient/s)
   "Get the user's buddy list and ignore list.
@@ -1060,7 +1068,7 @@ Buddies on the buddy list can be starred, with attribute @code{starred: true}.
   (list 200 (list :|from| "getUserLists"
                   :|status| t
                   :|buddyList| (Toot-buddy-list)
-                  :|ignoreList| #())))
+                  :|ignoreList| (Toot-ignore-list))))
 
 (definfinity get-Wallet ((&rest d) user recipient/s)
   "Get the contents of the player's wallet (peanuts and fairy dust)
