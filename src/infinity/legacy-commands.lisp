@@ -67,7 +67,22 @@ This function was replaced  with `INFINITY-REQUEST-BUDDY' — requestBuddy
 — q.v. It's only used for @code{ignore} now."
   (when buddy (error 'legacy-gone))
   (unless ignore (error 'bad-request))
-  (error 'unimplemented))
+  (let ((ignored (find-record 'Toot :name ignore)))
+    (if (ignore-not-found (find-record 'ignored 
+                                       :owner (Toot-UUID *Toot*)
+                                       :ignored (Toot-UUID ignored)))
+        (list 302 (list :|from| "addToList"
+                        :|status| :false
+                        :|err| "err.found"
+                        :|error| (format nil "You are already ignoring ~:(~a~)" ignore)))
+        (progn
+          (make-record 'ignored
+                       :uuid (uuid:make-v4-uuid)
+                       :owner (Toot-UUID *Toot*)
+                       :ignored (Toot-UUID ignored))
+          (list 201 (list :|from| "addToList"
+                          :|status| t
+                          :|ignore| ignore))))))
 
 (definfinity click ((on x y z with) user recipient/s)
   "Used by the client  to report a mouse click or  finger tap.
