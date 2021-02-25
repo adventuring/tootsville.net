@@ -243,23 +243,25 @@ without any peanuts, fairy dust, or items being awarded (nor charged).
 
 (defun Toot-peanuts (Toot)
   "Compute the total balance of peanuts that TOOT has earned over the course of the game."
-  (cadar (db-select-all 
-          :friendly 
-          (format nil "select sum(peanuts) from quaestor_events
+  (or (cadar (db-select-all 
+              :friendly 
+              (format nil "select sum(peanuts) from quaestor_events
 where started_by='~a' and completedp = 'Y'"
-                  (uuid-to-base64 (etypecase Toot
-                                    (Toot (Toot-uuid Toot))
-                                    (uuid:uuid Toot)))))))
+                      (uuid-to-base64 (etypecase Toot
+                                        (Toot (Toot-uuid Toot))
+                                        (uuid:uuid Toot))))))
+      0))
 
 (defun Toot-fairy-dust (Toot)
   "Compute the total balance of fairy dust that TOOT has earned over the course of the game."
-  (cadar (db-select-all 
-          :friendly 
-          (format nil "select sum(fairy_dust) from quaestor_events 
+  (or (cadar (db-select-all 
+              :friendly 
+              (format nil "select sum(fairy_dust) from quaestor_events 
 where started_by='~a' and completedp = 'Y'"
-                  (uuid-to-base64 (etypecase Toot
-                                    (Toot (Toot-uuid Toot))
-                                    (uuid:uuid Toot)))))))
+                      (uuid-to-base64 (etypecase Toot
+                                        (Toot (Toot-uuid Toot))
+                                        (uuid:uuid Toot))))))
+      0))
 
 
 
