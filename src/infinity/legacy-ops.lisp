@@ -212,11 +212,11 @@ The  first  word  is  a  subcommand;  one  of  @samp{#+ip},
   (format nil "<ul>~{<li>~a</li>~}</ul>" (hash-table-keys *banhammer*)))
 
 (defun banhammer-ip-address (address)
-  (setf (gethash (concatenate 'string "inet:" address) *banhammer*) t)
-  (format nil "Banned address inet:~a" address))
+  (setf (gethash address *banhammer*) t)
+  (format nil "Banned address ~a" address))
 
 (defun un-banhammer-ip-address (address)
-  (remhash (concatenate 'string "inet:" address) *banhammer*)
+  (remhash address *banhammer*)
   (format nil "Address ~a can connect" address))
 
 (define-operator-command beam (words user _)
