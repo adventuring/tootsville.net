@@ -1534,14 +1534,16 @@ down; the new engine should not have this kind of timing issue.
 @subsection Usage
 
 @verbatim
-#parentapproves TOOT
+#parentapproves TOOT [HOURS]
 @end verbatim
 
-@subsection Example
+@subsection Examples
 
-@example
+@verbatim
 #parentapproves Pil
-@end example
+
+#parentapproves Pil 3
+@end verbatim
 
 @subsection Limitations
 
@@ -1549,8 +1551,19 @@ This is only useful if TOOT is a child Toot account has begun to sign in
 and requested  parent permission ---  that is,  there must be  a pending
 child request from TOOT.
 
- "
-  (error 'unimplemented))
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+In Romance 1.2, a child account was given a permanent permission to
+play. In 2.0, permission to play is granted on a per-login basis.
+
+"
+  (let ((Toot (find-record 'Toot :name (first words))))
+    (if-let (request (find-record 'child-request
+                                  :uuid (Toot-UUID Toot)))
+            (parent-grant-permission request :hours (or (and (< 1 (length words))
+                                                             (parse-number (second words)))
+                                                        4)))))
 
 (define-operator-command ping (words user _)
   "Ping the  server, to force  a neutral administrative  message reply.
@@ -1586,7 +1599,34 @@ Pong!
 
 (defun %operator-place-fountain (where params)
   (destructuring-bind (item-template-number) params
-    (error 'unimplemented)))
+    (let ((template (find-record 'item-template
+                                 :id (parse-number item-template-number))))
+      (make-record 'item
+                   :uuid (uuid:make-v4-uuid)
+                   :base-color (or (and base-color (parse-color24 base-color))
+                                   0)
+                   :alt-color (or (and alt-color (parse-color24 alt-color))
+                                  0)
+                   :template (parse-number item-template-number)
+                   :energy 1
+                   :avatar-scale-x (item-template-avatar-scale-x template)
+                   :avatar-scale-y (item-template-avatar-scale-y template)
+                   :avatar-scale-z (item-template-avatar-scale-z template)
+                   :x (game-point-x where)
+                   :y (game-point-y where)
+                   :z (game-point-z where)
+                   :facing (interpret-facing facing)
+                   :world (world where)
+                   :latitude (latitude where)
+                   :longitude (longitude where)
+                   :altitude (altitude where)
+                   :effect :fountain)
+      (private-admin-message "#place #fountain"
+                             (format nil "Created fountain from template ~d at (~f, ~f, ~f)"
+                                     (parse-number item-template-number)
+                                     (game-point-x where)
+                                     (game-point-y where)
+                                     (game-point-z where))))))
 
 (defun %operator-place-game (where params)
   (destructuring-bind (game-moniker &rest game-attributes) params
