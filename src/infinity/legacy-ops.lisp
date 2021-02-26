@@ -1828,13 +1828,13 @@ Coördinate values can be in any format understood by `PARSE-NUMBER'
     (map 'vector
          (lambda (point)
            (destructuring-bind (x y &optional z) (split-sequence #\, point)
-             (make-game-point :latitude latitude
-                              :longitude longitude
-                              :altitude altitude
-                              :world world
-                              :x (parse-number x)
-                              :y (if z (parse-number y) 0)
-                              :z (if z (parse-number z) (parse-number y)))))
+             (make-instance 'game-point :latitude latitude
+                                        :longitude longitude
+                                        :altitude altitude
+                                        :world world
+                                        :x (parse-number x)
+                                        :y (if z (parse-number y) 0)
+                                        :z (if z (parse-number z) (parse-number y)))))
          (split-sequence #\~ polygon-string))))
 
 (defun %parse-operator-place-where (where)
