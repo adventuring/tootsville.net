@@ -1606,11 +1606,9 @@ Pong!
                                  :id (parse-number item-template-number))))
       (make-record 'item
                    :uuid (uuid:make-v4-uuid)
-                   :base-color (or (and base-color (parse-color24 base-color))
-                                   0)
-                   :alt-color (or (and alt-color (parse-color24 alt-color))
-                                  0)
-                   :template (parse-number item-template-number)
+                   :base-color (item-template-base-color template)
+                   :alt-color (item-template-alt-color template)
+                   :template (item-template-id template)
                    :energy 1
                    :avatar-scale-x (item-template-avatar-scale-x template)
                    :avatar-scale-y (item-template-avatar-scale-y template)
