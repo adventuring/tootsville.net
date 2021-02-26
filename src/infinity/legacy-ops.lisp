@@ -1068,7 +1068,10 @@ This creates  a new item  from the  item template number  indicated, and
 gives it to the recipient.  To give a gift from your own inventory, see
 `TOOTSVILLE-USER::GIVE'.  To grant a new item and equipping it, see
 `TOOTSVILLE-USER::GIVEHEAD'."
-  (error 'unimplemented))
+  (destructuring-bind (template$ Toot-name) words
+    (grant-item (parse-number template$) (find-record 'Toot :name Toot-name))
+    (format nil "Granted item ~d to ~:(~a~)" template$ Toot-name)))
+          
 
 (define-operator-command headcount (words user _)
   "Get headcount information about the running system.
