@@ -3043,18 +3043,18 @@ User Name of a specific user;
                      (first words)))))))
 
 (define-operator-command who (words user _)
-  "Displays a  list of everyone  currently in  a room.
+  "Displays a list of everyone currently near a location
 
-WRITEME this has not been updated for Romance II yet.
+Gives a list of users who are in a certain location. By default, lists
+users near the operator who issued this command.
 
 @subsection Usage
 @verbatim
- #who [ROOM]
+ #who LAT LONG [ALT [WORLD]]
+ #who SPOT-NAME
  #who
 @end verbatim
 
-NOTE: Leaving off the ROOM parameter will default to displaying for
-the room the command was initialized in.
 
 @subsection Examples
 @verbatim
