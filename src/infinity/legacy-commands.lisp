@@ -1324,7 +1324,28 @@ This sends an email with the given subject and body to
 @end verbatim
 
  "
-  (error 'unimplemented))
+  (cl-smtp:send-email
+     (config :email :noreply :smtp)
+     (format nil "\"~a (~:(~a~)\" <~a>" 
+             (person-display-name (find-reference *Toot* :player))
+             (Toot-name *Toot*)
+             (person-first-email (find-reference *Toot* :player)))
+     (format nil "\"Tootsville Support\" <support@tootsville.org>")
+     subject
+     (format nil "
+
+~a
+
+-- 
+Online support request submitted by Toot ~:(~a~)
+Owner: ~a
+"
+             body
+             (Toot-name *Toot*)
+             (person-display-name (find-reference *Toot* :player)))
+     :ssl :tls
+     :authentication (list (config :email :noreply :from-address)
+                           (config :email :noreply :password))))
 
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Look at other users' inventories
