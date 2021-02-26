@@ -1713,17 +1713,16 @@ Creates a SHOP effect item.
 See `TOOTSVILLE-USER::PLACE'"
   (check-type where game-point)
   (destructuring-bind (item-template-number price &optional facing) params
+    (let ((template (find-record 'item-template :id (parse-number item-template-number))))
     (make-record 'item
                  :uuid (uuid:make-v4-uuid)
-                 :base-color (or (and base-color (parse-color24 base-color))
-                                 0)
-                 :alt-color (or (and alt-color (parse-color24 alt-color))
-                                0)
+                 :base-color (item-template-base-color template)
+                 :alt-color (item-template-alt-color template)
                  :template (parse-number item-template-number)
                  :energy 1
-                 :avatar-scale-x 1.0
-                 :avatar-scale-y 1.0
-                 :avatar-scale-z 1.0
+                 :avatar-scale-x (item-template-avatar-scale-x template)
+                 :avatar-scale-y (item-template-avatar-scale-y template)
+                 :avatar-scale-z (item-template-avatar-scale-z template)
                  :x (game-point-x where)
                  :y (game-point-y where)
                  :z (game-point-z where)
@@ -1741,7 +1740,7 @@ See `TOOTSVILLE-USER::PLACE'"
                                    item-template-number
                                    (game-point-x where)
                                    (game-point-y where)
-                                   (game-point-z where)))))
+                                   (game-point-z where))))))
 
 (defun %operator-place-snowball (where params)
   "The operator is placing a snowball pile at WHERE with PARAMS.
