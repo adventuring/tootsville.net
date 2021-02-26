@@ -1642,18 +1642,20 @@ PARAMS are the item-template ber, and optional facing angle, base color,
 and alt color.
 
 See `TOOTSVILLE-USER::PLACE'"
-  (destructuring-bind (item-template-number &optional facing base-color alt-color) params
+  (destructuring-bind (item-template-number &optional facing base-color alt-color)
+      params
+    (let ((template (find-record 'item-template :id (parse-number item-template-number))))
     (make-record 'item
                  :uuid (uuid:make-v4-uuid)
                  :base-color (or (and base-color (parse-color24 base-color))
-                                 0)
+                                 (item-template-base-color template))
                  :alt-color (or (and alt-color (parse-color24 alt-color))
-                                0)
-                 :template (parse-number item-template-number)
+                                (item-template-alt-color template))
+                 :template (item-template-id template)
                  :energy 1
-                 :avatar-scale-x 1.0
-                 :avatar-scale-y 1.0
-                 :avatar-scale-z 1.0
+                 :avatar-scale-x (item-template-avatar-scale-x template)
+                 :avatar-scale-y (item-template-avatar-scale-y template)
+                 :avatar-scale-z (item-template-avatar-scale-z template)
                  :x (game-point-x where)
                  :y (game-point-y where)
                  :z (game-point-z where)
@@ -1664,7 +1666,7 @@ See `TOOTSVILLE-USER::PLACE'"
                  :altitude (altitude where))
     (private-admin-message "#place #item"
                            (format nil "Created item from template ~d at (~f, ~f, ~f)"
-                                   (parse-number item-template-number)
+                                   item-template-number
                                    (game-point-x where)
                                    (game-point-y where)
                                    (game-point-z where)))))
