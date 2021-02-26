@@ -797,6 +797,8 @@ Note that the current Tootsville V client does not make use of LABEL."
 
 (defun Toot-speak (speech &key (Toot *Toot*) vol)
   "Broadcast a public message of SPEECH from TOOT at volume VOL."
+  (format *standard-output* "~&[~:(~a~)]: ~a"
+          (Toot-name Toot) speech)
   (broadcast (list :|from| "pub"
                    :|u| (Toot-name Toot)
                    :|t| speech
