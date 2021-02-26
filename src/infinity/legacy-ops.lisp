@@ -255,7 +255,7 @@ named spots.
              :|x| (named-spot-x spot)
              :|y| (named-spot-y spot)
              :|z| (named-spot-z spot))))
-    ((<= 2 (length words) 3)
+    ((<= 2 (length words) 4)
      (list :|from| "beam"
            :|latitude| (parse-integer (first words))
            :|longitude| (parse-integer (second words))
