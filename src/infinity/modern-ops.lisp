@@ -238,9 +238,11 @@ REFERENCE will always be zero or negative.
      (let ((users (split-sequence #\, (second words))))
        (assert (plusp (length users)))
        (write-staff-journal-entry (join #\Space (subseq words 3))
-                                  users)))
+                                  users))
+     (return "Wrote journal entry."))
     (t
-     (write-staff-journal-entry (join #\Space words) nil))))
+     (write-staff-journal-entry (join #\Space words) nil)
+     (return "Wrote journal entry."))))
 
 (define-operator-command doodle (words u r)
   "Change the colors of a Toot.
