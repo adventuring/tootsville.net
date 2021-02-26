@@ -1225,17 +1225,32 @@ Lying about your birth date is against the law!
       (error 'unimplemented)))
 
 (define-operator-command king (words user _)
-  "Upgrade a user account
+  "Upgrade a user account to an operator.
+
+This can be used to make a user into an operator or Builder Toot.
+Currently, both have the same powers.
+
+While this command takes a Toot name as its parameter, the Operator or
+Builder privileges are associated with the @emph{person} owning the
+account.
 
 @subsection Usage
 @verbatim
- #king [DAYS] [LOGIN]
+#king (operator|builder|normal) LOGIN
 @end verbatim
 
 @subsection Example
 @verbatim
- #king 2 flappyperry
+#king operator flappyperry
+#king builder catvlle
+#king normal example
 @end verbatim
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+This command has been repurposed since Tootsville IV. It used to be
+used to promote a Toot to a VIT (paid member) for a period of time.
 
 "
   (error 'unimplemented))
