@@ -139,7 +139,7 @@ For broadcasts, multiply by MULTIPLIER."
                                           (> (last-active client) (- (get-universal-time*) +ws-idle-seconds+)))
                                         clients)))
     (format nil "WebSockets: Connections: ~:d;
-Sign-Ins: ~:d (~:d%);
+Sign-Ins: ~:d (~:d%); High water: ~:d
 Chars: Received: ~:d, Sent: Broadcast: ~:d, Unicast: ~:d;
 Surprise Disconnects: ~:d;
 Active Clients: ~:d;
@@ -148,6 +148,7 @@ Active Clients (~:d secs): ~:d (~:d%)."
             *ws-connections*
             *ws-sign-ins* (when (plusp *ws-connections*)
                             (round (* 100 (/ *ws-sign-ins* *ws-connections*))))
+            *ws-high-water*
             *ws-chars-received* *ws-chars-broadcast* *ws-chars-unicast*
             *ws-surprise-disconnects*
             (length clients)
