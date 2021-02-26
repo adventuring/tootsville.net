@@ -71,6 +71,8 @@ of the bandwidth involved.")
 (defvar *ws-traffic-from* (make-hash-table :test 'equal))
 (defvar *ws-traffic-other* 0)
 
+(defvar *ws-high-water* 0)
+
 (defun ws-stats-reset-all ()
   (setf *ws-connections* 0
         *ws-sign-ins* 0
@@ -80,7 +82,8 @@ of the bandwidth involved.")
         *ws-surprise-disconnects* 0
         *ws-traffic-commands* (make-hash-table :test 'equal)
         *ws-traffic-from* (make-hash-table :test 'equal)
-        *ws-traffic-other* 0))
+        *ws-traffic-other* 0
+        *ws-high-water* 0))
 
 (defun ws-bandwidth-by-source ()
   (format nil "Commands:
@@ -597,7 +600,9 @@ only handles the low-level bookkeeping."
     (setf (user-account client) user
           (gethash (uuid:uuid-to-byte-array (person-uuid user)) *ws-client-for-user*) client))
   (post-sign-in user)
-  (incf *ws-sign-ins*))
+  (incf *ws-sign-ins*)
+  (setf *ws-high-water* (max (length (all-connected))
+                             *ws-high-water*)))
 
 (defun ws-kick-other-streams-for-user (&optional (user *user*))
   "`WS-KICK' any stream on which USER is signed in."
