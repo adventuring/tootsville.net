@@ -1218,9 +1218,7 @@ exists. Otherwise, returns silently."
                  :|status| t
                  :|reasonCode| reason-code) 
            client)
-  (do-metronome (:one-shot-time (+ 5 (get-universal-time*))
-                                :name (format nil "Finish kicking ~a" client))
-    (hunchensocket:close-connection client)))
+  (hunchensocket:close-connection client))
 
 (defun kick-child-time-up (Toot)
   "Kick TOOT as the child's time to play has expired."
