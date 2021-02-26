@@ -1307,7 +1307,7 @@ logged it out before it received  & processed the logout message. So, we
 waited for the expected lag time to expire and then throw 2 full seconds
 of wasted wait time after it, which had ought to be enough time. This is
 no longer supported."
-  (error 'unimplemented))
+  (list 204 nil))
 
 (definfinity mail-customer-service ((subject body) user recipient/s)
   "Send an eMail to customer service (feedback)
