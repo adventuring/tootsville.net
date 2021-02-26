@@ -1336,11 +1336,12 @@ This sends an email with the given subject and body to
 
 ~a
 
--- 
+--~c
 Online support request submitted by Toot ~:(~a~)
 Owner: ~a
 "
              body
+             #\Space ; to avoid Emacs cleaning up trailing spaces
              (Toot-name *Toot*)
              (person-display-name (find-reference *Toot* :player)))
      :ssl :tls
