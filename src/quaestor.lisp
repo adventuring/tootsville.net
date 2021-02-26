@@ -98,11 +98,11 @@ other things."
 (defun quaestor-start-event/shop% (item Toot)
   (start-purchase-event item Toot))
 
-(defun start-purchase-event (store-item Toot)
-  "Start an event for TOOT to purchase STORE-ITEM"
+(defun start-purchase-event (shop-item Toot)
+  "Start an event for TOOT to purchase SHOP-ITEM"
   (let ((event (make-record 'quaestor-event
                             :uuid (uuid:make-v4-uuid)
-                            :source (store-item-uuid store-item)
+                            :source (item-uuid shop-item)
                             :started-by (Toot-uuid Toot)
                             :started-at (now)
                             :completedp nil
@@ -112,10 +112,14 @@ other things."
                             :item nil
                             :score 0
                             :medal nil)))
-    (list 202 (list :|from| "startEvent"
-                    :|handler| "shop"
-                    :|item| (item-info store-item)
-                    :|eventID| (quaestor-event-UUID event)))))
+    (destructuring-bind (sale-item-id price)
+        (split-sequence #\# (item-attributes shop-item))
+      (let ((sale-item (find-record 'item-template :id sale-item-id)))
+        (list 202 (list :|from| "startEvent"
+                        :|handler| "shop"
+                        :|item| (item-template-info sale-item)
+                        :|price| price
+                        :|eventID| (quaestor-event-UUID event)))))))
 
 (defun Toot-can-afford-p (Toot store-item)
   "Whether TOOT can afford STORE-ITEM"
