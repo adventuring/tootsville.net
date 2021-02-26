@@ -1775,27 +1775,27 @@ See `TOOTSVILLE-USER::PLACE'"
                    :uuid (uuid:make-v4-uuid)
                    :base-color (item-template-default-base-color template)
                    :alt-color (item-template-default-alt-color template)
-                 :template (item-template-id template)
-                 :energy 1
-                 :avatar-scale-x (item-template-avatar-scale-x template)
-                 :avatar-scale-y (item-template-avatar-scale-y template)
-                 :avatar-scale-z (item-template-avatar-scale-z template)
-                 :x (game-point-x where)
-                 :y (game-point-y where)
-                 :z (game-point-z where)
-                 :facing (interpret-facing facing)
-                 :world (world where)
-                 :latitude (latitude where)
-                 :longitude (longitude where)
-                 :altitude (altitude where)
-                 :effect :vitem
-                 :attributes (parse-number item-template-number))
-    (private-admin-message "#place #vitem"
-                           (format nil "Created VITEM from template ~d at (~f, ~f, ~f)"
-                                   item-template-number
-                                   (game-point-x where)
-                                   (game-point-y where)
-                                   (game-point-z where))))))
+                   :template (item-template-id template)
+                   :energy 1
+                   :avatar-scale-x (item-template-avatar-scale-x template)
+                   :avatar-scale-y (item-template-avatar-scale-y template)
+                   :avatar-scale-z (item-template-avatar-scale-z template)
+                   :x (game-point-x where)
+                   :y (game-point-y where)
+                   :z (game-point-z where)
+                   :facing (interpret-facing facing)
+                   :world (world where)
+                   :latitude (latitude where)
+                   :longitude (longitude where)
+                   :altitude (altitude where)
+                   :effect :vitem
+                   :attributes (parse-number item-template-number))
+      (private-admin-message "#place #vitem"
+                             (format nil "Created VITEM from template ~d at (~f, ~f, ~f)"
+                                     item-template-number
+                                     (game-point-x where)
+                                     (game-point-y where)
+                                     (game-point-z where))))))
 
 (defun %operator-place-walk (where params)
   (assert (emptyp params))
