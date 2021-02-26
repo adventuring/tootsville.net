@@ -342,6 +342,11 @@ Usually nothing, with a 1% change of being a random amount up to 10."
                        (item-template item)))
          (Toot (find-record 'Toot :uuid (quaestor-event-started-by event)))
          (granted (grant-item vitem-id Toot)))
+    (setf (quaestor-event-ended-at event) (now)
+          (quaestor-event-completedp event) t
+          (quaestor-event-item event) (find-reference granted :item)
+          (quaestor-event-score event) 1)
+        (save-record event)
     (list 200 (list :|from| "endEvent"
                     :|status| t
                     :|ended| (quaestor-event-uuid event)
@@ -352,7 +357,28 @@ Usually nothing, with a 1% change of being a random amount up to 10."
                     :|item| (item-info (find-reference granted :item))))))
 
 (defun quaestor-complete-event/shop% (event)
-  (error 'unimplemented))
+  (let ((item (find-record 'item :uuid (quaestor-event-source event))))
+    (destructuring-bind (template$ price$)
+        (split-sequence #\# (item-attributes item))
+      (let* ((template (parse-number template$))
+             (price (parse-number price$))
+             (item-template (find-record 'item-template :id template))
+             (Toot (find-record 'Toot :uuid (quaestor-event-started-by event)))
+             (granted (grant-item template Toot)))
+        (setf (quaestor-event-ended-at event) (now)
+              (quaestor-event-completedp event) t
+              (quaestor-event-peanuts event) (- price)
+              (quaestor-event-item event) (find-reference granted :item)
+              (quaestor-event-score event) 1)
+        (save-record event)
+    (list 200 (list :|from| "endEvent"
+                    :|status| t
+                    :|ended| (quaestor-event-uuid event)
+                    :|peanuts| (- price)
+                    :|fairyDust| 0
+                    :|totalPeanuts| (Toot-peanuts Toot)
+                    :|totalFairyDust| (Toot-fairy-dust Toot)
+                    :|item| (item-info (find-reference granted :item))))))))
 
 (defun quaestor-complete-event/minigame% (event score medal)
   (error 'unimplemented))
