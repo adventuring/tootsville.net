@@ -605,7 +605,7 @@ WRITEME"
     (if-let (*user* (let ((user (find-reference Toot :player)))
                       (and (user-online-p user) user)))
       (send-parent-child-login-request request)
-      (send-parent-child-login-email request)))
+      (run-async (send-parent-child-login-email request))))
   (list 200 (list :|message| "Waiting for permission…")))
 
 (defun pending-child-approval-request (user)
