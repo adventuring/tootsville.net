@@ -396,9 +396,15 @@
 
 (defrecord staff-journal-entry (:friendly "staff_journal_entries")
   (uuid uuid)
-  (written-by uuid)
+  (written-by uuid ref person)
   (written-at timestamp)
   (entry string))
+
+(defmethod print-object ((entry staff-journal-entry) s)
+  (format s "#<Staff Journal Entry by ~a at ~a: ~s >"
+          (person-display-name (find-reference entry :written-by))
+          (staff-journal-entry-written-at entry)
+          (staff-journal-entry-entry entry)))
 
 (defrecord staff-journal-reference (:friendly "staff_journal_references")
   (entry uuid)

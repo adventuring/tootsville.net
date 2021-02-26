@@ -58,7 +58,7 @@ relevant Toot(s)
 "
   (let ((entry (make-record 'staff-journal-entry
                             :uuid (uuid:make-v4-uuid)
-                            :written-by (person-uuid (Toot-player *Toot*))
+                            :written-by (Toot-player *Toot*)
                             :written-at (now)
                             :entry entry))
         (related (ensure-list-of-people who)))
