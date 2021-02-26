@@ -1669,7 +1669,7 @@ See `TOOTSVILLE-USER::PLACE'"
                                    item-template-number
                                    (game-point-x where)
                                    (game-point-y where)
-                                   (game-point-z where)))))
+                                   (game-point-z where))))))
 
 (defun %operator-place-mini (where params)
   (destructuring-bind (moniker) params
