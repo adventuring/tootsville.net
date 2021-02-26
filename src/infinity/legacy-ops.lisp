@@ -1606,8 +1606,8 @@ Pong!
                                  :id (parse-number item-template-number))))
       (make-record 'item
                    :uuid (uuid:make-v4-uuid)
-                   :base-color (item-template-base-color template)
-                   :alt-color (item-template-alt-color template)
+                   :base-color (item-template-default-base-color template)
+                   :alt-color (item-template-default-alt-color template)
                    :template (item-template-id template)
                    :energy 1
                    :avatar-scale-x (item-template-avatar-scale-x template)
@@ -1646,9 +1646,9 @@ See `TOOTSVILLE-USER::PLACE'"
     (make-record 'item
                  :uuid (uuid:make-v4-uuid)
                  :base-color (or (and base-color (parse-color24 base-color))
-                                 (item-template-base-color template))
+                                 (item-template-default-base-color template))
                  :alt-color (or (and alt-color (parse-color24 alt-color))
-                                (item-template-alt-color template))
+                                (item-template-default-alt-color template))
                  :template (item-template-id template)
                  :energy 1
                  :avatar-scale-x (item-template-avatar-scale-x template)
@@ -1714,8 +1714,8 @@ See `TOOTSVILLE-USER::PLACE'"
     (let ((template (find-record 'item-template :id (parse-number item-template-number))))
     (make-record 'item
                  :uuid (uuid:make-v4-uuid)
-                 :base-color (item-template-base-color template)
-                 :alt-color (item-template-alt-color template)
+                 :base-color (item-template-default-base-color template)
+                 :alt-color (item-template-default-alt-color template)
                  :template (parse-number item-template-number)
                  :energy 1
                  :avatar-scale-x (item-template-avatar-scale-x template)
@@ -1774,9 +1774,9 @@ See `TOOTSVILLE-USER::PLACE'"
       (make-record 'item
                    :uuid (uuid:make-v4-uuid)
                    :base-color (or (and base-color (parse-color24 base-color))
-                                   (item-template-base-color template))
+                                   (item-template-default-base-color template))
                    :alt-color (or (and alt-color (parse-color24 alt-color))
-                                  (item-template-alt-color template))
+                                  (item-template-default-alt-color template))
                  :template (item-template-id template)
                  :energy 1
                  :avatar-scale-x (item-template-avatar-scale-x template)
