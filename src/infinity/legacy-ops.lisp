@@ -1616,7 +1616,7 @@ Pong!
                    :x (game-point-x where)
                    :y (game-point-y where)
                    :z (game-point-z where)
-                   :facing (interpret-facing facing)
+                   :facing +PI+
                    :world (world where)
                    :latitude (latitude where)
                    :longitude (longitude where)
