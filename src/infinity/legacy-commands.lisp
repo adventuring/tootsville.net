@@ -1324,15 +1324,15 @@ This sends an email with the given subject and body to
 @end verbatim
 
  "
-  (cl-smtp:send-email
-     (config :email :noreply :smtp)
-     (format nil "\"~a (~:(~a~)\" <~a>" 
-             (person-display-name (find-reference *Toot* :player))
-             (Toot-name *Toot*)
-             (person-first-email (find-reference *Toot* :player)))
-     (format nil "\"Tootsville Support\" <support@tootsville.org>")
-     subject
-     (format nil "
+  (let ((smtp-reply (cl-smtp:send-email
+                     (config :email :noreply :smtp)
+                     (format nil "\"~a (~a) (Support relay)\" <~a>" 
+                             (person-display-name (find-reference *Toot* :player))
+                             (Toot-name *Toot*)
+                             (config :email :noreply :from-address))
+                     (format nil "\"Tootsville Support\" <support@tootsville.org>")
+                     subject
+                     (format nil "
 
 ~a
 
@@ -1340,13 +1340,22 @@ This sends an email with the given subject and body to
 Online support request submitted by Toot ~:(~a~)
 Owner: ~a
 "
-             body
-             #\Space ; to avoid Emacs cleaning up trailing spaces
-             (Toot-name *Toot*)
-             (person-display-name (find-reference *Toot* :player)))
-     :ssl :tls
-     :authentication (list (config :email :noreply :from-address)
-                           (config :email :noreply :password))))
+                             body
+                             #\Space   ; to avoid Emacs cleaning up trailing spaces
+                             (Toot-name *Toot*)
+                             (person-display-name (find-reference *Toot* :player)))
+                     :ssl :tls
+                     :authentication (list (config :email :noreply :from-address)
+                                           (config :email :noreply :password))
+                     :reply-to (format nil "\"~a (~a)\" <~a>"
+                                       (person-display-name (find-reference *Toot* :player))
+                                       (Toot-name *Toot*)
+                                       (person-first-email (find-reference *Toot* :player))))))
+    (if (string-equal "2.0.0" (first smtp-reply) :end2 5)
+        (private-admin-message "Message Sent" "Your message was sent to support@Tootsville.org")
+        (private-admin-message "Trouble sending"
+                               (format nil "Your message could not be sent due to ~a"
+                                       smtp-reply)))))
 
 (definfinity peek-at-inventory ((who type) user recipient/s)
   "Look at other users' inventories
