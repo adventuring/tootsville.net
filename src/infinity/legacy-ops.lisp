@@ -1727,33 +1727,33 @@ See `TOOTSVILLE-USER::PLACE'"
   (check-type where game-point)
   (destructuring-bind (item-template-number price &optional facing) params
     (let ((template (find-record 'item-template :id (parse-number item-template-number))))
-    (make-record 'item
-                 :uuid (uuid:make-v4-uuid)
-                 :base-color (item-template-default-base-color template)
-                 :alt-color (item-template-default-alt-color template)
-                 :template (parse-number item-template-number)
-                 :energy 1
-                 :avatar-scale-x (item-template-avatar-scale-x template)
-                 :avatar-scale-y (item-template-avatar-scale-y template)
-                 :avatar-scale-z (item-template-avatar-scale-z template)
-                 :x (game-point-x where)
-                 :y (game-point-y where)
-                 :z (game-point-z where)
-                 :facing (interpret-facing facing)
-                 :world (world where)
-                 :latitude (latitude where)
-                 :longitude (longitude where)
-                 :altitude (altitude where)
-                 :effect :vitem
-                 :attributes (format nil "~d#~d" item-template-number
-                                     price))
-    (private-admin-message "#place #shop"
-                           (format nil "Created SHOP item, price ~:d 🥜, from template ~d at (~f, ~f, ~f)"
-                                   price
-                                   item-template-number
-                                   (game-point-x where)
-                                   (game-point-y where)
-                                   (game-point-z where))))))
+      (make-record 'item
+                   :uuid (uuid:make-v4-uuid)
+                   :base-color (item-template-default-base-color template)
+                   :alt-color (item-template-default-alt-color template)
+                   :template (parse-number item-template-number)
+                   :energy 1
+                   :avatar-scale-x (item-template-avatar-scale-x template)
+                   :avatar-scale-y (item-template-avatar-scale-y template)
+                   :avatar-scale-z (item-template-avatar-scale-z template)
+                   :x (game-point-x where)
+                   :y (game-point-y where)
+                   :z (game-point-z where)
+                   :facing (interpret-facing facing)
+                   :world (world where)
+                   :latitude (latitude where)
+                   :longitude (longitude where)
+                   :altitude (altitude where)
+                   :effect :shop
+                   :attributes (format nil "~d#~d" item-template-number
+                                       price))
+      (private-admin-message "#place #shop"
+                             (format nil "Created SHOP item, price ~:d 🥜, from template ~d at (~f, ~f, ~f)"
+                                     price
+                                     item-template-number
+                                     (game-point-x where)
+                                     (game-point-y where)
+                                     (game-point-z where))))))
 
 (defun %operator-place-snowball (where params)
   "The operator is placing a snowball pile at WHERE with PARAMS.
