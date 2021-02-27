@@ -115,6 +115,7 @@ other things."
       (let ((sale-item (find-record 'item-template :id (parse-number sale-item-id))))
         (list 202 (list :|from| "startEvent"
                         :|handler| "shop"
+                        :|status| t
                         :|item| (item-template-info sale-item)
                         :|price| (parse-number price)
                         :|eventID| (quaestor-event-UUID event)))))))
