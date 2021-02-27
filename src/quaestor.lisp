@@ -361,7 +361,6 @@ Usually nothing, with a 1% change of being a random amount up to 10."
         (split-sequence #\# (item-attributes item))
       (let* ((template (parse-number template$))
              (price (parse-number price$))
-             (item-template (find-record 'item-template :id template))
              (Toot (find-record 'Toot :uuid (quaestor-event-started-by event)))
              (granted (grant-item template Toot)))
         (setf (quaestor-event-ended-at event) (now)
