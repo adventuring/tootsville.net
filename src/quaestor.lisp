@@ -95,10 +95,7 @@ other things."
                     :|eventID| (quaestor-event-uuid event)
                     :|vitem| (item-template-info vitem)))))
 
-(defun quaestor-start-event/shop% (item Toot)
-  (start-purchase-event item Toot))
-
-(defun start-purchase-event (shop-item Toot)
+(defun quaestor-start-event/shop% (shop-item Toot)
   "Start an event for TOOT to purchase SHOP-ITEM"
   (let ((event (make-record 'quaestor-event
                             :uuid (uuid:make-v4-uuid)
@@ -111,14 +108,15 @@ other things."
                             :fairy-dust 0
                             :item nil
                             :score 0
-                            :medal nil)))
+                            :medal nil
+                            :kind :shop)))
     (destructuring-bind (sale-item-id price)
         (split-sequence #\# (item-attributes shop-item))
-      (let ((sale-item (find-record 'item-template :id sale-item-id)))
+      (let ((sale-item (find-record 'item-template :id (parse-number sale-item-id))))
         (list 202 (list :|from| "startEvent"
                         :|handler| "shop"
                         :|item| (item-template-info sale-item)
-                        :|price| price
+                        :|price| (parse-number price)
                         :|eventID| (quaestor-event-UUID event)))))))
 
 (defun Toot-can-afford-p (Toot store-item)
