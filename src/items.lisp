@@ -593,4 +593,5 @@ TEMPLATE can be an `ITEM-TEMPLATE' or the ID number for one."
   (etypecase designator
     (string (find-record 'item :uuid designator))
     (uuid:uuid (find-record 'item :uuid designator))
-    (item designator)))
+    (item designator)
+    (inventory-item (inventory-item-item designator))))
