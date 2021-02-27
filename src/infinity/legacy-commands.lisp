@@ -2548,11 +2548,12 @@ WRITEME
           (progn
             (v:info :infinity "Operator command #~a ~{~a~^ ~} from ~a"
                     command params *client*)
-            (handler-case
-                (apply sym params)
-              (error (e)
-                (private-admin-message (format nil "~a error" command)
-                                       (format nil "~/HTML/" e)))))
+            (run-async 
+             (handler-case
+                 (apply sym params)
+               (error (e)
+                 (private-admin-message (format nil "~a error" command)
+                                        (format nil "~/HTML/" e))))))
           (private-admin-message 
            (concatenate 'string "Can't run #" command) 
            "Not a remote operator command"))
