@@ -1609,7 +1609,35 @@ Pong!
 
 (defun %operator-place-download (where params)
   (destructuring-bind (item-template-number url &optional facing) params
-    (error 'unimplemented)))
+    (let ((template (find-record 'item-template
+                                 :id (parse-number item-template-number))))
+      (make-record 'item
+                   :uuid (uuid:make-v4-uuid)
+                   :base-color (item-template-default-base-color template)
+                   :alt-color (item-template-default-alt-color template)
+                   :template (item-template-id template)
+                   :energy 1
+                   :avatar-scale-x (item-template-avatar-scale-x template)
+                   :avatar-scale-y (item-template-avatar-scale-y template)
+                   :avatar-scale-z (item-template-avatar-scale-z template)
+                   :x (game-point-x where)
+                   :y (game-point-y where)
+                   :z (game-point-z where)
+                   :facing +PI+
+                   :world (world where)
+                   :latitude (latitude where)
+                   :longitude (longitude where)
+                   :altitude (altitude where)
+                   :effect :download
+                   :attributes url)
+      (private-admin-message "#place #fountain"
+                             (format nil "Created <a href=\"~a\" target=\"_new\">download</a>
+ from template ~d at (~f, ~f, ~f)"
+                                     url
+                                     (parse-number item-template-number)
+                                     (game-point-x where)
+                                     (game-point-y where)
+                                     (game-point-z where))))))
 
 (defun %operator-place-exit (where params)
   (destructuring-bind (moniker) params
