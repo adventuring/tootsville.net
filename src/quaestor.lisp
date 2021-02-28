@@ -343,9 +343,9 @@ Usually nothing, with a 1% change of being a random amount up to 10."
          (granted (grant-item vitem-id Toot)))
     (setf (quaestor-event-ended-at event) (now)
           (quaestor-event-completedp event) t
-          (quaestor-event-item event) (find-reference granted :item)
+          (quaestor-event-item event) (inventory-item-item granted)
           (quaestor-event-score event) 1)
-        (save-record event)
+    (save-record event)
     (list 200 (list :|from| "endEvent"
                     :|status| t
                     :|ended| (quaestor-event-uuid event)
