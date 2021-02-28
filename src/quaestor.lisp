@@ -33,6 +33,9 @@
   (fountain-reject-as-already-done (item-uuid item))
   (quaestor-start-general item :fountain Toot))
 
+(defun quaestor-start-event/download% (item Toot)
+  (quaestor-start-general item :download Toot))
+
 (defun quaestor-start-event/item% (item Toot)
   "Start an event whose source is ITEM, for TOOT.
 
