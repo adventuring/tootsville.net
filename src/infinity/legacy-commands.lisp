@@ -226,6 +226,7 @@ the server.
                    (don-item snowball)))
       (:vitem (quaestor-start-event/vitem% item *Toot*))
       (:shop (quaestor-start-event/shop% item *Toot*))
+      (:download (quaestor-start-event/download% item *Toot*))
       ((:nil nil) (list 204 nil)))))
 
 (definfinity create-user-house ((lot house index connect-to connect-at) user recipient/s)
