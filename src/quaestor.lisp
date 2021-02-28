@@ -165,6 +165,7 @@ the item template."
     (:minigame (quaestor-complete-event/minigame% event score medal))
     (:vitem (quaestor-complete-event/vitem% event))
     (:shop (quaestor-complete-event/shop% event))
+    (:download (quaestor-complete-event/download% event))
     ((:nil nil) (list 204 nil))
     (otherwise (error 'unimplemented))))
 
@@ -357,6 +358,22 @@ Usually nothing, with a 1% change of being a random amount up to 10."
                     :|totalPeanuts| (Toot-peanuts Toot)
                     :|totalFairyDust| (Toot-fairy-dust Toot)
                     :|item| (item-info (find-reference granted :item))))))
+
+(defun quaestor-complete-event/download% (event)
+  (let* ((item (find-record 'item :uuid (quaestor-event-source event)))
+         (Toot (find-record 'Toot :uuid (quaestor-event-started-by event))))
+    (setf (quaestor-event-ended-at event) (now)
+          (quaestor-event-completedp event) t
+          (quaestor-event-score event) 1)
+    (save-record event)
+    (list 200 (list :|from| "endEvent"
+                    :|status| t
+                    :|ended| (quaestor-event-uuid event)
+                    :|download| (item-attributes item)
+                    :|peanuts| 0
+                    :|fairyDust| 0
+                    :|totalPeanuts| (Toot-peanuts Toot)
+                    :|totalFairyDust| (Toot-fairy-dust Toot)))))
 
 (defun quaestor-complete-event/shop% (event)
   (let ((item (find-record 'item :uuid (quaestor-event-source event))))
