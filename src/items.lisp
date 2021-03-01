@@ -595,3 +595,11 @@ TEMPLATE can be an `ITEM-TEMPLATE' or the ID number for one."
     (uuid:uuid (find-record 'item :uuid designator))
     (item designator)
     (inventory-item (inventory-item-item designator))))
+
+
+(defun inventory-item-info (inv)
+  (list :|id| (inventory-item-item inv)
+        :|isActive| (if (equalp "N" (inventory-item-equipped inv))
+                        :false
+                        t)
+        :|info| (item-info (find-reference inv :item)))) 
