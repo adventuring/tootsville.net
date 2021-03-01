@@ -1113,10 +1113,10 @@ Gives the high-water mark of the maximum number of simultaneous users
 who have been online since the last boot.
 "
   (string-case (first words)
-    ("#all" (error 'unimplemented))
-    ("#members" (error 'unimplemented))
-    ("#room" (error 'unimplemented))
-    ("#highwater" (error 'unimplemented))))
+    ("#all" (length (all-connected)))
+    ("#members" (length (remove-if-not #'builder-Toot-p (all-connected))))
+    ("#room" (length (remove-if-not (curry #'nearp *Toot*) (all-connected))))
+    ("#highwater" *ws-high-water*)))
 
 (define-operator-command inv (words user _)
   "Get a user's inventory
@@ -1577,11 +1577,12 @@ play. In 2.0, permission to play is granted on a per-login basis.
 
 "
   (let ((Toot (find-record 'Toot :name (first words))))
-    (if-let (request (find-record 'child-request
-                                  :uuid (Toot-UUID Toot)))
-            (parent-grant-permission request :hours (or (and (< 1 (length words))
-                                                             (parse-number (second words)))
-                                                        4)))))
+    (if-let (request (ignore-not-found (find-record 'child-request
+                                                    :uuid (Toot-UUID Toot))))
+      (parent-grant-permission request :hours (or (and (< 1 (length words))
+                                                       (parse-number (second words)))
+                                                  4))
+      (return "No request for that Toot outstandining"))))
 
 (define-operator-command ping (words user _)
   "Ping the  server, to force  a neutral administrative  message reply.
