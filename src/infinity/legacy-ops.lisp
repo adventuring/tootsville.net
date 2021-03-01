@@ -309,7 +309,7 @@ room has been created by setting the 'f' room variable.
 @end verbatim
 
 "
-  (error 'unimplemented))
+  (place-named-spot (here-position) (first words)))
 
 (define-operator-command census (words user _)
   "Load a number of users.
@@ -1721,8 +1721,7 @@ See `TOOTSVILLE-USER::PLACE'"
   (destructuring-bind (kind) params
     (error 'unimplemented)))
 
-(defun %operator-place-room (where params)
-  (destructuring-bind (spot-moniker) params)
+(defun place-named-spot (where spot-moniker)
   (if-let (spot (find-record 'named-spot :name spot-moniker))
     (progn (setf (named-spot-world spot) (world where)
                  (named-spot-latitude spot) (latitude where)
@@ -1744,6 +1743,10 @@ See `TOOTSVILLE-USER::PLACE'"
                         :z (game-point-z where)
                         :badgedp nil)
            "Created named spot")))
+
+(defun %operator-place-room (where params)
+  (destructuring-bind (spot-moniker) params
+    (place-named-spot where spot-moniker)))
 
 (defun %operator-place-shop (where params)
   "The operator is placing a shop item at WHERE with PARAMS.
@@ -1881,6 +1884,15 @@ Coördinate values can be in any format understood by `PARSE-NUMBER'
                                         :z (if z (parse-number z) (parse-number y)))))
          (split-sequence #\~ polygon-string))))
 
+(defun here-position ()
+  (destructuring-bind (x y z) (current-position (or *client* *Toot*))
+    (declare (ignore y))
+    (make-instance 'game-point :x x :y 0 :z z
+                               :latitude (latitude *Toot*)
+                               :longitude (longitude *Toot*)
+                               :altitude (altitude *Toot*)
+                               :world (world *Toot*))))
+
 (defun %parse-operator-place-where (where)
   "Parse the WHERE parameter to the #place operator command.
 
@@ -1890,8 +1902,7 @@ WHERE can be one of:
 
 @table @b
 @item @code{#here}
-The location of the operator issuing the command, surrounded by an ``average
-size'' polygon approximating a circle.
+The location of the operator issuing the command
 
 @item @code{#here-tiny}
 The location of the operator issuing the command, surrounded by a ``tiny''
@@ -1917,23 +1928,17 @@ center will be at x position 50, z position 60.
 
 @end table"
   (cond
-    ((string-equal "#here" where) ; here
-     (destructuring-bind (x y z) (current-position (or *client* *Toot*))
-       (declare (ignore y))
-       (make-instance 'game-point :x x :y 0 :z z
-                                  :latitude (latitude *Toot*)
-                                  :longitude (longitude *Toot*)
-                                  :altitude (altitude *Toot*)
-                                  :world (world *Toot*))))
-    ((string-equal "#here-tiny" where) ; small spot around here
+    ((string-equal "#here" where)       ; here
+     (here-position))
+    ((string-equal "#here-tiny" where)  ; small spot around here
      (destructuring-bind (x y z) (current-position *Toot*)
        (declare (ignore y))
        (parse-polygon (place-string-circle 10 x z 6) *Toot*)))
-    ((string-equal "#here-big" where) ; big spot around here
+    ((string-equal "#here-big" where)   ; big spot around here
      (destructuring-bind (x y z) (current-position *Toot*)
        (declare (ignore y))
        (parse-polygon (place-string-circle 40 x z 12) *Toot*)))
-    ((find #\x where) ; specific circle
+    ((find #\x where)                   ; specific circle
      (parse-polygon
       (if (find #\+ where)
           (destructuring-bind (center radius) (split-sequence #\+ where)
@@ -1963,7 +1968,7 @@ center will be at x position 50, z position 60.
                                      z
                                      (round (/ (parse-number where) 3))))))
       *Toot*))
-    ((find #\~ where) ; specific polygon
+    ((find #\~ where)                   ; specific polygon
      (parse-polygon where *Toot*)) 
     (t
      (destructuring-bind (x z) (split-sequence #\, where)
