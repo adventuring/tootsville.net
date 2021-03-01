@@ -2825,7 +2825,9 @@ In Romance 1.2,  this command was used  to destroy a room.  We no longer
 have rooms, so it is instead used to destroy named spots.
 
 "
-  (error 'unimplemented))
+  (let ((spot (find-record 'named-spot :name (first words))))
+    (destroy-record spot)
+    (format nil "Destroyed the spot named ~a" (named-spot-name spot))))
 
 (define-operator-command v (words user _)
   "Forces a user to say a message.
