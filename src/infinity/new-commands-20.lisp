@@ -1057,7 +1057,17 @@ will be used to draw the players'  attention to these badges in order to
 garner attention to special events.
 
 "
-  (error 'unimplemented))
+  (list 200 (list :|from| "readMap"
+                  :|status| t
+                  :|badges| (make-hash-table)
+                  :|spots| (let ((spots (make-hash-table :test 'equal)))
+                             (dolist (spot (find-records 'named-spot))
+                               (setf (gethash (named-spot-name spot) spots)
+                                     (list :|lat| (named-spot-latitude spot)
+                                           :|long| (named-spot-longitude spot)
+                                           :|alt| (named-spot-altitude spot)
+                                           :|world| (named-spot-world spot))))
+                             spots) )))
 
 (definfinity user-agent ((agent version navigator for-romance) u r)
   "The client can voluntarily report its version information.
