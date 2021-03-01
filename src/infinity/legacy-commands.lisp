@@ -760,13 +760,16 @@ This command requires no parameters.
 Returns a set of items as
 @verbatim
 { from: \"getInventory\", 
-  inv: { 0: { id: 123, isActive: boolean }, ... } }
+  inv: { 0: { id: ID, info: ITEM-INFO, isActive: BOOLEAN }, ... } }
 @end verbatim
 
 WRITEME
 
 "
-  (error 'unimplemented))
+  (list 200 (list :|from| "getInventory"
+                  :|inv| (loop for inv in (find-records 'inventory-item :Toot (Toot-UUID *Toot*))
+                               for i from 0
+                               appending (list i (inventory-item-info inv))))))
 
 (definfinity get-Inventory-By-Type ((type) user recipient/s)
   "Get a subset of items from your own inventory
