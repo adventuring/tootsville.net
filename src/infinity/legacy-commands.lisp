@@ -38,8 +38,8 @@ Alias for `INFINITY-SET-FURNITURE', q.v."
   (declare (ignorable item slot x y z facing remove))
   (apply #'infinity-set-furniture (list d user recipient/s)))
 
-(definfinity add-to-list ((buddy ignore) user recipient/s)
-  "Add a user to a buddy list or ignore list (removed in 1.2)
+(definfinity add-to-list ((buddy star ignore) user recipient/s)
+  "Add a user to ignore list, or star to a buddy.
 
 …using   the   traditional   (online-only,   no   notification   engine)
 mechanism    (using    out    of     band    methods).    Compare    vs.
@@ -47,26 +47,90 @@ requestBuddy `INFINITY-REQUEST-BUDDY'
 
 @subsection Usage
 
-This command can no longer be used to add a buddy, only to ignore someone.
+This command can no longer be used to add a buddy, only to ignore
+someone or add a star to an existing buddy.
 
 @verbatim
 { ignore: USER }
+{ star: USER }
 @end verbatim
+
+It is an error to specify more than one option at one time. The
+results are undefined behavior.
 
 @subsection 200 OK
 
-When you begin ignoring someone, you'll get back a reply as from @code{getUserLists} `INFINITY-GET-USER-LISTS', q.v.
+When you begin ignoring someone, you'll get back a reply as from
+@code{getUserLists} `INFINITY-GET-USER-LISTS', q.v.
+
+@subsection 302 Found
+
+When you attempt to ignore someone who is already being ignored, or to
+star someone who has already been starred, you'll receive a 302 Found.
+
+WRITEME
 
 @subsection 410 Gone
 
 Using this to add a buddy was a legacy feature removed in Romance 1.2.
 
+@verbatim
+{ from: \"addToList\",
+  status: false,
+  err: \"err.found\",
+  error: \"You are already ignoring Catvlle\" }
+@end verbatim
+
+@subsection 412 Precondition Failed
+
+An attempt was made to add a star to a user not in your
+contacts (buddy list).
+
+@verbatim
+{ from: \"addToList\",
+  status: false,
+  err: \"err.notBuddy\",
+  error: \"Null-Pointer-Exception is not your Contact\" }
+@end verbatim
+
 @subsection Changes from 1.1 to 1.2
 @cindex Changes from 1.1 to 1.2
 
-This function was replaced  with `INFINITY-REQUEST-BUDDY' — requestBuddy
-— q.v. It's only used for @code{ignore} now."
+This function is no longer used to add a buddy; it was replaced with
+`INFINITY-REQUEST-BUDDY' — requestBuddy — q.v. It's only used for
+@code{ignore} now.
+
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+This function can now be used to ``star'' someone who is on your buddy
+(contacts) list using the @code{star} form.
+"
   (when buddy (error 'legacy-gone))
+  (when star
+    (let ((starred (find-record 'Toot :name star)))
+      (if-let (contact (ignore-not-found
+                        (find-record 'contact
+                                     :owner (Toot-UUID *Toot*)
+                                     :contact (Toot-UUID starred))))
+              (if (contact-starredp contact)
+                  (list 302 (list :|from| "addToList"
+                                  :|status| :false
+                                  :|err| "err.found"
+                                  :|error| (format nil "You already starred ~:(~a~)"
+                                                   star)))
+                  (progn
+                    (setf (contact-starredp contact) t)
+                    (save-record contact)
+                    (unicast (get-user-lists))
+                    (list 201 (list :|from| "addToList"
+                                    :|status| t
+                                    :|star| star))))
+              (list 412 (list :|from| "addToList"
+                              :|status| :false
+                              :|err| "err.notOnList"
+                              :|error| (format nil "~:(~a~) is not your Contact"
+                                               star))))))
   (unless ignore (error 'bad-request))
   (let ((ignored (find-record 'Toot :name ignore)))
     (if (ignore-not-found (find-record 'ignored 
@@ -1700,6 +1764,12 @@ To attend to someone who had previously been ignored:
 { ignore: \"name\" }
 @end verbatim
 
+To un-star a buddy on the buddy list:
+
+@verbatim
+{ star: \"name\" }
+@end verbatim
+
 @subsection Status 200 OK
 
 The user was removed from the buddy list or ignore list.
@@ -1729,15 +1799,38 @@ The user name given was not found.
 @subsection Status 412 Precondition Failed
 
 An attempt was made to remove someone  from the buddy or ignore list who
-was not on that list.
+was not on that list, or to unstar someone who was not starred.
 
 @verbatim
 { from: \"removeFromList\",
   status: false,
-  err: \"notOnList\" }
+  err: \"err.notOnList\" }
 @end verbatim
 "
   (cond
+    (star (let ((buddy-Toot (find-record 'Toot :name star)))
+            (if-let (contact (find-record 'contact :owner (Toot-UUID *Toot*)
+                                                   :contact (Toot-UUID buddy-Toot)))
+                    (if (contact-starredp contact)
+                        (progn
+                          (setf (contact-starredp contact) nil)
+                          (save-record contact)
+                          (unicast (get-user-lists))
+                          (list 200 (list :|from| "removeFromList"
+                                          :|status| t
+                                          :|star| star)))
+                        (list 412 (list :|from| "removeFromList"
+                                        :|status| :false
+                                        :|err| "err.notOnList"
+                                        :|error| (format nil
+                                                         "~:(~a~) is not starred"
+                                                         star))))
+                    (list 412 (list :|from| "removeFromList"
+                                    :|status| :false
+                                    :|err| "err.notOnList"
+                                    :|error| (format nil
+                                                     "~:(~a~) is not your Contact"
+                                                     star))))))
     (buddy (let* ((buddy-Toot (find-record 'Toot :name buddy))
                   (contact (find-record 'contact :owner (Toot-UUID *Toot*)
                                                  :contact (Toot-UUID buddy-Toot))))
