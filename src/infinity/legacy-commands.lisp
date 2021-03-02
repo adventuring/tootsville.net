@@ -767,6 +767,7 @@ WRITEME
 
 "
   (list 200 (list :|from| "getInventory"
+                  :|status| t
                   :|inv| (loop for inv in (find-records 'inventory-item :Toot (Toot-UUID *Toot*))
                                collecting (inventory-item-info inv)))))
 
