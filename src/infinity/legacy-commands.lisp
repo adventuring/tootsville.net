@@ -1878,12 +1878,14 @@ the backtrace up to a maximum of  1KiB, a log backtrace up to its last
 1KiB as ``bug,''  and as much machine-formatted  system information as
 possible in the ``info'' object.
 
+UNIMPLEMENTED for now as we are relying upon Rollbar exclusively (TODO)
+
 @subsection Usage
 
 @verbatim
 @end verbatim
 
-WRITME
+WRITEME
 
 @subsection Fields of ``info''
 
