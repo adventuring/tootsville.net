@@ -768,8 +768,7 @@ WRITEME
 "
   (list 200 (list :|from| "getInventory"
                   :|inv| (loop for inv in (find-records 'inventory-item :Toot (Toot-UUID *Toot*))
-                               for i from 0
-                               appending (list i (inventory-item-info inv))))))
+                               collecting (inventory-item-info inv)))))
 
 (definfinity get-Inventory-By-Type ((type) user recipient/s)
   "Get a subset of items from your own inventory
