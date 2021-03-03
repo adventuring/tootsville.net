@@ -2100,14 +2100,24 @@ as a string.
  "
   (error 'unimplemented))
 
-(definfinity report-user ((user-Name) user recipient/s)
+(definfinity report-user ((user-name rule note) user recipient/s)
   "Report an user to the moderator(s) on duty for breaking a rule
 
 @subsection Usage
 
 @verbatim
-{ c: \"reportUser\", d: { userName: LOGIN } }
+{ c: \"reportUser\",
+  d: { userName: LOGIN,
+       rule: RULE,
+       note: NOTE } }
 @end verbatim
+
+RULE should be one of:
+
+@code{BULLY CHEAT DIAMOND MEAN NICE PARENT}
+
+See also `TOOTSVILLE-USER::KICK' for the same list used in warning and
+kicking users.
 
 @subsection Example
 
@@ -2115,8 +2125,67 @@ as a string.
 { c: \"reportUser\", d: { userName: \" } }
 @end verbatim
 
+@subsection Changes from 1.2 to 2.0
+@cindex Changes from 1.2 to 2.0
+
+Added and now require the use of the @code{rule} attribute, and added
+the @code{note} attribute as an option.
+
 "
-  (error 'unimplemented))
+  (let ((rule-reason
+          (cond
+            ((string-equal rule "BULLY")
+             "was being a bully to another player")
+            ((string-equal rule "CHEAT")
+             "was cheating")
+            ((string-equal rule "DIAMOND")
+             "was using inappropriate language around a child or \
+sensitive player with a ◆ before their name")
+            ((string-equal rule "MEAN")
+             "was being mean to another player")
+            ((string-equal rule "NICE")
+             "was not being nice to another player")
+            ((string-equal rule "PARENT")
+             "is under the age of 13 and does not have permission \
+from a parent or guardian")
+            (t (return (list 404 (list :|from| "reportUser"
+                                       :|status| :false
+                                       :|err| "err.notReason"
+                                       :|error| (format nil "~s is not a known reason to report another user"
+                                                        rule)))))))
+        (blamed (find-record 'Toot :name user-name)))
+    (let ((smtp-reply (cl-smtp:send-email
+                     (config :email :noreply :smtp)
+                     (format nil "\"~a (~a) (Support relay)\" <~a>" 
+                             (person-display-name (find-reference *Toot* :player))
+                             (Toot-name *Toot*)
+                             (config :email :noreply :from-address))
+                     (format nil "\"Tootsville Support\" <support@tootsville.org>")
+                     (format nil "Report user ~:(~a~) for ~(~a~)" user-name rule)
+                     (format nil "
+
+~a
+
+--~c
+Online support request submitted by Toot ~:(~a~)
+Owner: ~a
+"
+                             body
+                             #\Space   ; to avoid Emacs cleaning up trailing spaces
+                             (Toot-name *Toot*)
+                             (person-display-name (find-reference *Toot* :player)))
+                     :ssl :tls
+                     :authentication (list (config :email :noreply :from-address)
+                                           (config :email :noreply :password))
+                     :reply-to (format nil "\"~a (~a)\" <~a>"
+                                       (person-display-name (find-reference *Toot* :player))
+                                       (Toot-name *Toot*)
+                                       (person-first-email (find-reference *Toot* :player))))))
+    (if (string-equal "2.0.0" (first smtp-reply) :end2 5)
+        (private-admin-message "Message Sent" "Your message was sent to support@Tootsville.org")
+        (private-admin-message "Trouble sending"
+                               (format nil "Your message could not be sent due to ~a"
+                                       smtp-reply)))))
 
 (defun generate-buddy-list-signature (requestor requestee)
   "Generate a signature for a buddy-list request."
