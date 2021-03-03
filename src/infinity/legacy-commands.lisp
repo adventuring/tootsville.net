@@ -1747,7 +1747,7 @@ cancelation packet silently if they do not process it.
                     :|status| :false
                     :|err| "id.notFound"))))
 
-(definfinity remove-from-list ((buddy ignore) user recipient/s)
+(definfinity remove-from-list ((buddy star ignore) user recipient/s)
   "Remove someone from a buddy list or ignore list.
 
 @subsection Usage
@@ -1811,56 +1811,56 @@ was not on that list, or to unstar someone who was not starred.
     (star (let ((buddy-Toot (find-record 'Toot :name star)))
             (if-let (contact (find-record 'contact :owner (Toot-UUID *Toot*)
                                                    :contact (Toot-UUID buddy-Toot)))
-                    (if (contact-starredp contact)
-                        (progn
-                          (setf (contact-starredp contact) nil)
-                          (save-record contact)
-                          (unicast (get-user-lists))
-                          (list 200 (list :|from| "removeFromList"
-                                          :|status| t
-                                          :|star| star)))
-                        (list 412 (list :|from| "removeFromList"
-                                        :|status| :false
-                                        :|err| "err.notOnList"
-                                        :|error| (format nil
-                                                         "~:(~a~) is not starred"
-                                                         star))))
-                    (list 412 (list :|from| "removeFromList"
-                                    :|status| :false
-                                    :|err| "err.notOnList"
-                                    :|error| (format nil
-                                                     "~:(~a~) is not your Contact"
-                                                     star))))))
+              (if (contact-starredp contact)
+                  (progn
+                    (setf (contact-starredp contact) nil)
+                    (save-record contact)
+                    (unicast (get-user-lists))
+                    (list 200 (list :|from| "removeFromList"
+                                    :|status| t
+                                    :|star| star)))
+                  (list 412 (list :|from| "removeFromList"
+                                  :|status| :false
+                                  :|err| "err.notOnList"
+                                  :|error| (format nil
+                                                   "~:(~a~) is not starred"
+                                                   star))))
+              (list 412 (list :|from| "removeFromList"
+                              :|status| :false
+                              :|err| "err.notOnList"
+                              :|error| (format nil
+                                               "~:(~a~) is not your Contact"
+                                               star))))))
     (buddy (let ((buddy-Toot (find-record 'Toot :name buddy)))
              (if-let (contact (find-record 'contact :owner (Toot-UUID *Toot*)
                                                     :contact (Toot-UUID buddy-Toot)))
-                     (progn
-                       (destroy-record contact)
-                       (unicast (get-user-lists))
-                       (list 200 (list :|from| "removeFromList"
-                                       :|status| t
-                                       :|buddy| buddy)))
-                    (list 412 (list :|from| "removeFromList"
-                                    :|status| :false
-                                    :|err| "err.notOnList"
-                                    :|error| (format nil
-                                                     "~:(~a~) is not your Contact"
-                                                     buddy))))))                     
+               (progn
+                 (destroy-record contact)
+                 (unicast (get-user-lists))
+                 (list 200 (list :|from| "removeFromList"
+                                 :|status| t
+                                 :|buddy| buddy)))
+               (list 412 (list :|from| "removeFromList"
+                               :|status| :false
+                               :|err| "err.notOnList"
+                               :|error| (format nil
+                                                "~:(~a~) is not your Contact"
+                                                buddy))))))                     
     (ignore (let ((ignore-Toot (find-record 'Toot :name ignore)))
               (if-let (ignoring (find-record 'ignored :owner (Toot-UUID *Toot*)
                                                       :ignored (Toot-UUID ignore-Toot)))
-                      (progn
-                        (destroy-record ignoring)
-                        (unicast (get-user-lists))
-                        (list 200 (list :|from| "removeFromList"
-                                        :|status| t
-                                        :|ignore| ignore)))
-                      (list 412 (list :|from| "removeFromList"
-                                      :|status| :false
-                                      :|err| "err.notOnList"
-                                      :|error| (format nil
-                                                       "You are not ignoring ~:(~a~)"
-                                                       ignore))))))))
+                (progn
+                  (destroy-record ignoring)
+                  (unicast (get-user-lists))
+                  (list 200 (list :|from| "removeFromList"
+                                  :|status| t
+                                  :|ignore| ignore)))
+                (list 412 (list :|from| "removeFromList"
+                                :|status| :false
+                                :|err| "err.notOnList"
+                                :|error| (format nil
+                                                 "You are not ignoring ~:(~a~)"
+                                                 ignore))))))))
 
 (definfinity report-bug ((info) user recipient/s)
   "This method allows the client to ``phone home'' to report a bug.
