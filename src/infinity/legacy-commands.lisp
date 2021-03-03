@@ -2174,9 +2174,9 @@ Online report submitted by Toot ~:(~a~)
 Owner: ~a
 "
                                user-name rule-reason
-                               #\Space   ; to avoid Emacs cleaning up trailing spaces
                                (now)
                                note
+                               #\Space   ; to avoid Emacs cleaning up trailing spaces
                                (Toot-name *Toot*)
                                (person-display-name (find-reference *Toot* :player)))
                        :ssl :tls
