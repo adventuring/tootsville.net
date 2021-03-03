@@ -2135,18 +2135,18 @@ the @code{note} attribute as an option.
   (let ((rule-reason
           (cond
             ((string-equal rule "BULLY")
-             "was being a bully to another player")
+             "being a bully to another player")
             ((string-equal rule "CHEAT")
-             "was cheating")
+             "cheating")
             ((string-equal rule "DIAMOND")
-             "was using inappropriate language around a child or \
+             "using inappropriate language around a child or \
 sensitive player with a ◆ before their name")
             ((string-equal rule "MEAN")
-             "was being mean to another player")
+             "being mean to another player")
             ((string-equal rule "NICE")
-             "was not being nice to another player")
+             "not being nice to another player")
             ((string-equal rule "PARENT")
-             "is under the age of 13 and does not have permission \
+             "being under the age of 13 and not having permission \
 from a parent or guardian")
             (t (return (list 404 (list :|from| "reportUser"
                                        :|status| :false
@@ -2163,7 +2163,7 @@ from a parent or guardian")
                        (format nil "Report user ~:(~a~) for ~(~a~)" user-name rule)
                        (format nil "
 
-~:(~a~) is being reported, because they ~a.
+~:(~a~) is being reported for ~a.
 
 This report was submitted ~a.
 
@@ -2187,7 +2187,7 @@ Owner: ~a
                                          (Toot-name *Toot*)
                                          (person-first-email (find-reference *Toot* :player))))))
       (if (string-equal "2.0.0" (first smtp-reply) :end2 5)
-          (private-admin-message "Message Sent" "Your message was sent to support@Tootsville.org")
+          (private-admin-message "Message Sent" "Your report was sent to support@Tootsville.org")
           (private-admin-message "Trouble sending"
                                  (format nil "Your message could not be sent due to ~a"
                                          smtp-reply))))))
