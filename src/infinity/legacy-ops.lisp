@@ -270,8 +270,6 @@ named spots.
 (define-operator-command spawnroom (words user _)
   "Mark a ``spot'' in the game.
 
-UNIMPLEMENTED.
-
 Mark the current position of your Toot as a named ``spot'' in the game
 world.
 
@@ -1113,12 +1111,14 @@ Gives the high-water mark of the maximum number of simultaneous users
 who have been online since the last boot.
 "
   (string-case (first words)
-    ("#all" (length (all-connected)))
-    ("#members" (length (remove-if-not #'builder-Toot-p 
-                                       (remove-if #'null 
-                                                  (mapcar #'Toot (all-connected))))))
-    ("#room" (length (remove-if-not (curry #'nearp *Toot*) (all-connected))))
-    ("#highwater" (princ-to-string *ws-high-water*))
+    ("#all" (format nil "#all: ~:d" (length (all-connected))))
+    ("#members" (format nil "#members: ~:d"
+                        (length (remove-if-not #'builder-Toot-p 
+                                               (remove-if #'null 
+                                                          (mapcar #'Toot (all-connected)))))))
+    ("#room" (format nil "#room: ~:d"
+                     (length (remove-if-not (curry #'nearp *Toot*) (all-connected)))))
+    ("#highwater" (format nil "#highwater: ~:d" *ws-high-water*))
     (otherwise (format nil "Unrecognized subcommand ~a" (first words)))))
 
 (define-operator-command inv (words user _)
