@@ -1354,4 +1354,16 @@ create table if not exists ignored (
   constraint ignoree foreign key (ignored) references toots (uuid) on delete restrict on update cascade
 ) engine=InnoDB default charset=utf8;
 
+create table if not exists badges (
+ id int primary key auto_increment,
+ title varchar(40) not null unique key,
+ latitude int not null,
+ longitude int not null,
+ altitude int not null,
+ world enum('CHOR', 'MOON', 'ORBIT', 'PINK', 'OTHM') not null default 'CHOR'
+) engine=InnoDB default charset=utf8;
+
+replace into badges (id, title, latitudo, longitudo, altitudo, world)
+values (1, 'TootSquare', -60, 20, 0, 'CHOR');
+
 select 'All Done' as migrations;
