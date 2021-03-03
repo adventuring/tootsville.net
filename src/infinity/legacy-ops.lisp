@@ -1114,9 +1114,12 @@ who have been online since the last boot.
 "
   (string-case (first words)
     ("#all" (length (all-connected)))
-    ("#members" (length (remove-if-not #'builder-Toot-p (all-connected))))
+    ("#members" (length (remove-if-not #'builder-Toot-p 
+                                       (remove-if #'null 
+                                                  (mapcar #'Toot (all-connected))))))
     ("#room" (length (remove-if-not (curry #'nearp *Toot*) (all-connected))))
-    ("#highwater" *ws-high-water*)))
+    ("#highwater" (princ-to-string *ws-high-water*))
+    (otherwise (format nil "Unrecognized subcommand ~a" (first words)))))
 
 (define-operator-command inv (words user _)
   "Get a user's inventory
