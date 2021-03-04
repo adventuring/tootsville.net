@@ -1161,3 +1161,28 @@ navigator ~a, for Romance version ~f"
   (list :|from| "userAgent"
         :|status| t))
 
+(definfinity drop ((slot) u r)
+  "Drop an item from inventory.
+
+Drops the item from inventory onto the ground / world at the player's
+current position.
+
+@subsection Usage
+
+@verbatim
+{c: \"drop\", d: { slot: UUID } }
+@end verbatim
+
+@subsection Example
+
+@verbatim
+{c: \"drop\",
+ d: { slot: \"FF43BB9E-F7E4-4DBC-BCC4-2352AFEE260C\" } }
+@end verbatim
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
+"
+  (error 'unimplemented))
