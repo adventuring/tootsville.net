@@ -534,7 +534,7 @@ that item).
                       :|status| :false))))
   (let ((item (find-record 'inventory-item :uuid (uuid:make-uuid-from-string slot))))
     (if (item-owned-by-p item *Toot*)
-        (don-item item (item-template-wear-slot (item-template (inventory-item-item item))))
+        (don-item item)
         (list 403 (list :|from| "don"
                         :|error| "That is not your item"
                         :|err| "notYourItem"
@@ -3470,4 +3470,3 @@ WRITEME
 
 "
   (error 'unimplemented))
-

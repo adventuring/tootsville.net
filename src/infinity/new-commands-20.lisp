@@ -52,6 +52,11 @@ array of information about each wear slot, in the format of
   status: true,
   slots: [ WEAR-SLOT-INFO, WEAR-SLOT-INFO, ... ] }
 @end verbatim
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
 "
   (list 200
         (list :|status| t
@@ -86,11 +91,23 @@ a key @code{avatar} which itself contains the JSON data in the fromat of
 The actual `INFINITY-WARDROBE' function is new, but the returned packets
 @code{from:  \"wardrobe\"} were  already being  used by  other commands,
 including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0, but the return packet format is
+not new and was used already in Romance 1.1. Note that the format is
+derived from `TOOT-INFO'.
 "
-  (list 200
-        (list :|status| t
-              :|from| "wardrobe"
-              :|wardrobe| (list :|avatar| (Toot-info *Toot*)))))
+  (list 200 (wardrobe)))
+
+(defun wardrobe ()
+  "A wardrobe packet, returned by certain commands
+
+See eg. `INFINITY-WARDROBE'"
+  (list :|status| t
+        :|from| "wardrobe"
+        :|wardrobe| (list :|avatar| (Toot-info *Toot*))))
 
 (defun sky-room-var (world)
   "Returns the current state of the skies over WORLD.
@@ -449,6 +466,11 @@ WRITEME --- there is more to explain about room variables.
 See  `TOOTSVILLE-USER::PLACE' for  an  explanation  of creating  certain
 places in the game and how they work.
 
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
 "
   (list 200 (local-room-vars)))
 
@@ -517,6 +539,11 @@ Note how the two-coördinate form uses x,z with y pinned at zero.
 As with @code{wtl},  @code{facing} can be supplied in  either radians or
 as   a  value   from  the   list  @code{N   NE  E   SE  S   SW  W   NW}.
 See `INTERPRET-FACING'.
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
 "
   (when *client*
     (unless (getf course :|world|)
@@ -547,7 +574,13 @@ See `INTERPRET-FACING'.
 
 Facing can be provided as per `INTERPRET-FACING'.
 
-WRITEME"
+WRITEME
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
+"
   (broadcast (list :|from| "wtl"
                    :|status| t
                    :|course| course
@@ -624,7 +657,13 @@ WRITEME
 @subsection See also
 
 See also the `INFINITY-SET-USER-VAR' command for an alternative way to
-promulgate shots."
+promulgate shots.
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
+"
   (error 'unimplemented))
 
 (defun Toot-list-message ()
@@ -683,6 +722,11 @@ Each Toot object is as per `TOOT-INFO', q.v.
 @end verbatim
 
 See `TOOT-LIST-MESSAGE'.
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
 "
   (toot-list-message))
 
@@ -849,7 +893,6 @@ The Toot named CHARACTER must exist.
 @verbatim
 { from: \"playWith\", status: false, error: \"No such Toot\" }
 @end verbatim
-
 "
   (if-let (Toot (find-record 'Toot :name character))
     (if (uuid:uuid= (Toot-player Toot) (person-uuid *user*))
@@ -920,6 +963,11 @@ state. When a client receives a message of the form:
 
 … they are expected to submit a quiesce message to the central
 servers.
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
 "
   
   (find-record 'Toot :UUID (Toot-UUID Toot)) ; signals an error if not found
@@ -999,6 +1047,11 @@ requests are hard deleted.
 
 @end itemize
 
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
 "
   (if-let (request (find-record 'child-request :uuid uuid))
     (if (uuid:uuid= (Toot-player (find-reference request :Toot))
@@ -1056,6 +1109,11 @@ a visit by a special character,  at that location. Little Reminders mice
 will be used to draw the players'  attention to these badges in order to
 garner attention to special events.
 
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
 "
   (list 200 (list :|from| "readMap"
                   :|status| t
@@ -1075,9 +1133,102 @@ garner attention to special events.
 The server could potentially offer a different protocol or other
 affordances for known bugs or limitations in the client.
 
-In practice, it's currently logged and forgotten."
+In practice, it's currently logged and forgotten.
+
+@subsection Usage
+
+@verbatim
+{ c: \"userAgent\",
+  d: { agent: SOFTWARE-NAME,
+       version: SOFTWARE-VERSION,
+       navigator: HTTP-USER-AGENT,
+       forRomance: \"2.0\" } }
+@end verbatim
+
+@subsection Example
+
+@verbatim
+{ c: \"userAgent\",
+  d: { agent: \"Tootsville V Web\",
+       version: \"0.6.15\",
+       navigator: \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+                    AppleWebKit/537.36 (KHTML, like Gecko)
+                    Chrome/88.0.4324.192 Safari/537.36\",
+       forRomance: \"2.0\" } }
+@end verbatim
+
+@subsection 200 OK
+
+@verbatim
+{ from: \"userAgent\", status: true }
+@end verbatim
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
+"
   (v:info :user-agent "Client ~s reports user agent ~a/~a, ~
 navigator ~a, for Romance version ~f"
           *client* agent version navigator for-romance)
-  (list :|from| "userAgent"
-        :|status| t))
+  (list 200 (list :|from| "userAgent"
+                  :|status| t)))
+
+(definfinity drop ((slot) u r)
+  "Drop an item from inventory.
+
+Drops the item from inventory onto the ground / world at the player's
+current position.
+
+@subsection Usage
+
+@verbatim
+{ c: \"drop\", d: { slot: UUID } }
+@end verbatim
+
+@subsection Example
+
+@verbatim
+{ c: \"drop\",
+  d: { slot: \"FF43BB9E-F7E4-4DBC-BCC4-2352AFEE260C\" } }
+@end verbatim
+
+@subsection 200 OK
+
+The item has been dropped. A room vars update and wardrobe packet
+usually will come at about the same time. See `INFINITY-WARDROBE' and
+`INFINITY-GET-ROOM-VARS' for discussions.
+
+@verbatim
+{ from: \"drop\", status: true, dropped: UUID }
+@end verbatim
+
+@subsection 403 Not Yours
+
+The item is not yours to be dropped.
+
+@verbatim
+{ from: \"drop\",
+  status: false,
+  err: \"item.notYours\",
+  error: \"That item is not yours to drop\" }
+@end verbatim
+
+@subsection New in 2.0
+@cindex New in 2.0
+
+This command is new in Romance 2.0
+"
+  (let ((item (find-record 'inventory-item :uuid slot)))
+    (unless (UUID:UUID= (Toot-UUID *Toot*) (inventory-item-owner item))
+      (return
+        (list 403 (list :|from| "drop"
+                        :|status| :false
+                        :|err| "item.notYours"
+                        :|error| "That item is not yours to drop"))))
+    (drop-item item)
+    (unicast (wardrobe))
+    (broadcast (local-room-vars) :near *Toot*)
+    (list 200 (list :|from| "drop"
+                    :|status| t
+                    :|dropped| slot)))
