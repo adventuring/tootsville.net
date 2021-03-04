@@ -99,10 +99,15 @@ This command is new in Romance 2.0, but the return packet format is
 not new and was used already in Romance 1.1. Note that the format is
 derived from `TOOT-INFO'.
 "
-  (list 200
-        (list :|status| t
-              :|from| "wardrobe"
-              :|wardrobe| (list :|avatar| (Toot-info *Toot*)))))
+  (list 200 (wardrobe)))
+
+(defun wardrobe ()
+  "A wardrobe packet, returned by certain commands
+
+See eg. `INFINITY-WARDROBE'"
+  (list :|status| t
+        :|from| "wardrobe"
+        :|wardrobe| (list :|avatar| (Toot-info *Toot*))))
 
 (defun sky-room-var (world)
   "Returns the current state of the skies over WORLD.
@@ -1214,14 +1219,16 @@ The item is not yours to be dropped.
 
 This command is new in Romance 2.0
 "
-  (let ((item (find-record 'item :uuid slot)))
-    (unless (UUID:UUID= (Toot-UUID *Toot*) (item-owner item))
+  (let ((item (find-record 'inventory-item :uuid slot)))
+    (unless (UUID:UUID= (Toot-UUID *Toot*) (inventory-item-owner item))
       (return
         (list 403 (list :|from| "drop"
                         :|status| :false
                         :|err| "item.notYours"
                         :|error| "That item is not yours to drop"))))
     (drop-item item)
+    (unicast (wardrobe))
+    (broadcast (local-room-vars) :near *Toot*)
     (list 200 (list :|from| "drop"
                     :|status| t
                     :|dropped| slot)))
