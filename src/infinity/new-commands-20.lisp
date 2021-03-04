@@ -95,7 +95,9 @@ including `INFINITY-DON' and `INFINITY-DOFF' and `INFINITY-DOFFF'.
 @subsection New in 2.0
 @cindex New in 2.0
 
-This command is new in Romance 2.0
+This command is new in Romance 2.0, but the return packet format is
+not new and was used already in Romance 1.1. Note that the format is
+derived from `TOOT-INFO'.
 "
   (list 200
         (list :|status| t
