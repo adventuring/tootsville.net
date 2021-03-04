@@ -1152,6 +1152,12 @@ In practice, it's currently logged and forgotten.
        forRomance: \"2.0\" } }
 @end verbatim
 
+@subsection 200 OK
+
+@verbatim
+{ from: \"userAgent\", status: true }
+@end verbatim
+
 @subsection New in 2.0
 @cindex New in 2.0
 
@@ -1160,8 +1166,8 @@ This command is new in Romance 2.0
   (v:info :user-agent "Client ~s reports user agent ~a/~a, ~
 navigator ~a, for Romance version ~f"
           *client* agent version navigator for-romance)
-  (list :|from| "userAgent"
-        :|status| t))
+  (list 200 (list :|from| "userAgent"
+                  :|status| t)))
 
 (definfinity drop ((slot) u r)
   "Drop an item from inventory.
@@ -1172,14 +1178,35 @@ current position.
 @subsection Usage
 
 @verbatim
-{c: \"drop\", d: { slot: UUID } }
+{ c: \"drop\", d: { slot: UUID } }
 @end verbatim
 
 @subsection Example
 
 @verbatim
-{c: \"drop\",
- d: { slot: \"FF43BB9E-F7E4-4DBC-BCC4-2352AFEE260C\" } }
+{ c: \"drop\",
+  d: { slot: \"FF43BB9E-F7E4-4DBC-BCC4-2352AFEE260C\" } }
+@end verbatim
+
+@subsection 200 OK
+
+The item has been dropped. A room vars update and wardrobe packet
+usually will come at about the same time. See `INFINITY-WARDROBE' and
+`INFINITY-GET-ROOM-VARS' for discussions.
+
+@verbatim
+{ from: \"drop\", status: true, dropped: UUID }
+@end verbatim
+
+@subsection 403 Not Yours
+
+The item is not yours to be dropped.
+
+@verbatim
+{ from: \"drop\",
+  status: false,
+  err: \"item.notYours\",
+  error: \"That item is not yours to drop\" }
 @end verbatim
 
 @subsection New in 2.0
@@ -1187,4 +1214,14 @@ current position.
 
 This command is new in Romance 2.0
 "
-  (error 'unimplemented))
+  (let ((item (find-record 'item :uuid slot)))
+    (unless (UUID:UUID= (Toot-UUID *Toot*) (item-owner item))
+      (return
+        (list 403 (list :|from| "drop"
+                        :|status| :false
+                        :|err| "item.notYours"
+                        :|error| "That item is not yours to drop"))))
+    (drop-item item)
+    (list 200 (list :|from| "drop"
+                    :|status| t
+                    :|dropped| slot)))
