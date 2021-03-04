@@ -2185,7 +2185,7 @@ Owner: ~a
         (private-admin-message "Message Sent" "Your message was sent to support@Tootsville.org")
         (private-admin-message "Trouble sending"
                                (format nil "Your message could not be sent due to ~a"
-                                       smtp-reply)))))
+                                       smtp-reply))))))
 
 (defun generate-buddy-list-signature (requestor requestee)
   "Generate a signature for a buddy-list request."
@@ -3465,4 +3465,3 @@ WRITEME
 
 "
   (error 'unimplemented))
-
