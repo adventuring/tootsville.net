@@ -422,3 +422,13 @@
   (y number)
   (z number)
   (badgedp yornp))
+
+
+
+(defrecord badge (:friendly "badges")
+  (id number)
+  (title string)
+  (latitude number)
+  (longitude number)
+  (altitude number)
+  (world keyword))
