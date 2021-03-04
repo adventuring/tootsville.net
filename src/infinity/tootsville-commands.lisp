@@ -117,6 +117,14 @@ Exactly one of @code{type} or @code{slot} must be present.
 
 If present, @code{type} must be @code{clothes} or @code{pivitz}.
 
+@subsection 403 Not Yours
+
+WRITEME
+
+@subsection 409 Not Equipped
+
+WRITEME
+
 @subsection 200 OK
 
 Responds with total wardrobe as per `INFINITY-WARDROBE'
@@ -125,7 +133,29 @@ Responds with total wardrobe as per `INFINITY-WARDROBE'
 
 This command was formerly a proprietary extension for Tootsville.com and
 has now been re-created for the AGPL version of Romance.
-")
+"
+  (cond
+    ((and type slot)
+     (list 400 (list :|from| "doff"
+                     :|status| :false
+                     :|err| "proto"
+                     :|error| "Protocol error, either type \
+or slot can be specified, but not both")))
+    (type (error 'unimplemented))
+    (slot (let ((item (find-record 'inventory-item :uuid slot)))
+            (unless (uuid:uuid= (Toot-uuid *Toot*) (inventory-item-owner item))
+              (return (list 403 (list :|from| "doff"
+                                      :|status| :false
+                                      :|err| "item.notYours"
+                                      :|error| "You can not doff \
+an item someone else has on."))))
+            (unless (item-equipped-p item)
+              (return (list 409 (list :|from| "doff"
+                                      :|status| :false
+                                      :|err| "item.notEquip"
+                                      :|error| "You can not doff \
+an item which has not been donned."))))
+            (doff-item item)))))
 
 (definfinity get-mail-in-box ((from limit) u r)
   "Get a listing of messages in an SMS mailbox.
