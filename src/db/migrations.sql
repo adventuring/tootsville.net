@@ -1363,7 +1363,7 @@ create table if not exists badges (
  world enum('CHOR', 'MOON', 'ORBIT', 'PINK', 'OTHM') not null default 'CHOR'
 ) engine=InnoDB default charset=utf8;
 
-replace into badges (id, title, latitudo, longitudo, altitudo, world)
+replace into badges (id, title, latitude, longitude, altitude, world)
 values (1, 'TootSquare', -60, 20, 0, 'CHOR');
 
 select 'All Done' as migrations;
