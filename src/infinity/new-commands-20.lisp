@@ -1219,8 +1219,19 @@ The item is not yours to be dropped.
 
 This command is new in Romance 2.0
 "
-  (let ((item (find-record 'inventory-item :uuid slot)))
-    (unless (UUID:UUID= (Toot-UUID *Toot*) (inventory-item-owner item))
+  (unless slot
+    (return (list 400 (list :|from| "drop"
+                            :|status| :false
+                            :|err| "item.missing"
+                            :|error| "Specify which item to drop"))))
+  (let ((item (ignore-not-found (find-record 'inventory-item :item slot))))
+    (unless item
+      (return
+        (list 404 (list :|from| "drop"
+                        :|status| :false
+                        :|err| "item.notFound"
+                        :|error| "Could not find that item"))))
+    (unless (UUID:UUID= (Toot-UUID *Toot*) (inventory-item-Toot item))
       (return
         (list 403 (list :|from| "drop"
                         :|status| :false
@@ -1231,4 +1242,4 @@ This command is new in Romance 2.0
     (broadcast (local-room-vars) :near *Toot*)
     (list 200 (list :|from| "drop"
                     :|status| t
-                    :|dropped| slot)))
+                    :|dropped| slot))))

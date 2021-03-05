@@ -142,7 +142,12 @@ has now been re-created for the AGPL version of Romance.
                      :|error| "Protocol error, either type \
 or slot can be specified, but not both")))
     (type (error 'unimplemented))
-    (slot (let ((item (find-record 'inventory-item :item slot)))
+    (slot (let ((item (ignore-not-found (find-record 'inventory-item :item slot))))
+            (unless item
+              (return (list 404 (list :|from| "doff"
+                                      :|status| :false
+                                      :|err| "item.notFound"
+                                      :|error| "Inventory item could not be found."))))
             (unless (uuid:uuid= (Toot-uuid *Toot*) (inventory-item-Toot item))
               (return (list 403 (list :|from| "doff"
                                       :|status| :false

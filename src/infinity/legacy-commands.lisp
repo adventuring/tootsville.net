@@ -532,8 +532,8 @@ that item).
                       :|error| "Color selection is not allowed any more"
                       :|err| "cannotSelectColor"
                       :|status| :false))))
-  (let ((item (find-record 'inventory-item :uuid (uuid:make-uuid-from-string slot))))
-    (if (item-owned-by-p item *Toot*)
+  (let ((item (find-record 'inventory-item :item slot)))
+    (if (uuid:uuid= (Toot-uuid *Toot*) (inventory-item-Toot item))
         (don-item item)
         (list 403 (list :|from| "don"
                         :|error| "That is not your item"
@@ -587,7 +587,7 @@ the user in the case of truncation.
 @subsection Changes from 1.2 to 2.0
 @cindex Changes from 1.2 to 2.0
 
-The 1kc limit was introduced in 2.0.
+The 1kic limit was introduced in 2.0.
 
 @subsection Known bugs
 @cindex Known bugs
@@ -835,7 +835,7 @@ WRITEME
                   :|inv| (loop for inv in (find-records 'inventory-item :Toot (Toot-UUID *Toot*))
                                collecting (inventory-item-info inv)))))
 
-(definfinity get-Inventory-By-Type ((type) user recipient/s)
+(definfinity get-inventory-by-type ((type) user recipient/s)
   "Get a subset of items from your own inventory
 
 @subsection Usage
