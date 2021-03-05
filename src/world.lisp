@@ -306,4 +306,4 @@ Returns all items in that volume which are not in a character's inventory."
     (declare (ignore s min hour))
     (let ((holiday (choerogryllum:holiday-on y m d)))
       (format nil "<p> Today is ~@[<b>~a</b>, ~]~a. </p>" 
-              holiday (choerogryllum:date-string (get-universal-time*))))))
+              holiday (choerogryllum:date-string (get-universal-time))))))
