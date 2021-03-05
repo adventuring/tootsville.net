@@ -228,7 +228,7 @@
           (inventory-item-item item)
           (inventory-item-person item)
           (inventory-item-Toot item)
-          (inventory-item-equipped item)))
+          (not (eql :n (inventory-item-equipped item)))))
 
 (defmethod inventory-item-equippedp ((item inventory-item))
   (inventory-item-equipped item))
