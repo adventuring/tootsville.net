@@ -31,8 +31,6 @@ alter table items add column if not exists attributes text;
 
 alter table items add column if not exists special_texture text;
 
-drop table if exists quaestor_events;
-
 create table if not exists quaestor_events
 ( uuid CHAR(22) not null primary key,
   item CHAR(22) null,
