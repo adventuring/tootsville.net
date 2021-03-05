@@ -142,14 +142,14 @@ has now been re-created for the AGPL version of Romance.
                      :|error| "Protocol error, either type \
 or slot can be specified, but not both")))
     (type (error 'unimplemented))
-    (slot (let ((item (find-record 'inventory-item :uuid slot)))
-            (unless (uuid:uuid= (Toot-uuid *Toot*) (inventory-item-owner item))
+    (slot (let ((item (find-record 'inventory-item :item slot)))
+            (unless (uuid:uuid= (Toot-uuid *Toot*) (inventory-item-Toot item))
               (return (list 403 (list :|from| "doff"
                                       :|status| :false
                                       :|err| "item.notYours"
                                       :|error| "You can not doff \
 an item someone else has on."))))
-            (unless (item-equipped-p item)
+            (unless (inventory-item-equippedp item)
               (return (list 409 (list :|from| "doff"
                                       :|status| :false
                                       :|err| "item.notEquip"
