@@ -599,7 +599,7 @@ TEMPLATE can be an `ITEM-TEMPLATE' or the ID number for one."
 
 (defun inventory-item-info (inv)
   (list :|id| (inventory-item-item inv)
-        :|isActive| (if (equalp "N" (inventory-item-equipped inv))
+        :|isActive| (if (eql :N (inventory-item-equipped inv))
                         :false
                         t)
         :|info| (item-info (find-reference inv :item)))) 

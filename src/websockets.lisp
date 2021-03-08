@@ -171,7 +171,10 @@ Active Clients (~:d secs): ~:d (~:d%)."
                           ,client)
                   (force-close-hunchensocket ,client)
                   (incf *ws-surprise-disconnects*))
-           (error c)))
+           (progn
+             (v:error :stream "Error detected on ~a:~%~a"
+                      ,client c)
+             (error c))))
      (end-of-file (c)
        (v:warn :stream "Disconnect detected on ~a: ~a" ,client c)
        (force-close-hunchensocket ,client)
