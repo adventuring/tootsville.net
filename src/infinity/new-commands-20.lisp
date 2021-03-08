@@ -1117,7 +1117,9 @@ This command is new in Romance 2.0
 "
   (list 200 (list :|from| "readMap"
                   :|status| t
-                  :|badges| (make-hash-table)
+                  :|badges| (let ((hash (make-hash-table)))
+                              (setf (gethash "TootSquare" hash) #(-60 20 0 "CHOR"))
+                              hash)
                   :|spots| (let ((spots (make-hash-table :test 'equal)))
                              (dolist (spot (find-records 'named-spot))
                                (setf (gethash (named-spot-name spot) spots)
@@ -1125,7 +1127,7 @@ This command is new in Romance 2.0
                                            :|long| (named-spot-longitude spot)
                                            :|alt| (named-spot-altitude spot)
                                            :|world| (named-spot-world spot))))
-                             spots) )))
+                             spots))))
 
 (definfinity user-agent ((agent version navigator for-romance) u r)
   "The client can voluntarily report its version information.
