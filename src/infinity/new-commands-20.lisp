@@ -1078,8 +1078,8 @@ places. These make up the map of Tootanga.
 @verbatim
 { from: \"readMap\",
   status: true,
-  spots: [ TootSquare: [ 0, 0, 0, \"CHOR\", \"Toot Square\" ], ... ],
-  badges: [ ... ] }
+  spots: [ { TootSquare: { lat: 0, long: 0, alt: 0, world: \"CHOR\" }, ... ],
+  badges: [ {…}, ... ] }
 @end verbatim
 
 The  lists @code{spots}  and  @code{badges}  each consist  of  a set  of
@@ -1118,7 +1118,8 @@ This command is new in Romance 2.0
   (list 200 (list :|from| "readMap"
                   :|status| t
                   :|badges| (let ((hash (make-hash-table)))
-                              (setf (gethash "TootSquare" hash) #(-60 20 0 "CHOR"))
+                              (setf (gethash "TootSquare" hash) 
+                                    (list :|lat| -60 :|long| 20 :|alt| 0 :|world| "CHOR"))
                               hash)
                   :|spots| (let ((spots (make-hash-table :test 'equal)))
                              (dolist (spot (find-records 'named-spot))
