@@ -120,6 +120,9 @@
   (avatar-scale-y number)
   (avatar-scale-z number))
 
+(defmethod print-object ((avatar avatar) s)
+  (format s "#<Avatar ~d: ~a>" (avatar-id avatar) (avatar-moniker avatar)))
+
 (defrecord pattern (:friendly "patterns" :pull t)
   (id number)
   (name string))
