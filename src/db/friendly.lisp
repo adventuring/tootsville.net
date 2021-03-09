@@ -156,6 +156,9 @@
   (obstruct-min number)
   (obstruct-max number))
 
+(defmethod print-object ((slot wear-slot) s)
+  (format s "#<Wear-Slot ~d: ~a>" (wear-slot-id slot) (wear-slot-name slot)))
+
 (defrecord avatar-slot (:friendly "avatar_slots")
   (id number)
   (avatar number ref avatar)
