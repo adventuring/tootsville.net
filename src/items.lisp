@@ -149,6 +149,14 @@ If ITEM's Energy-Kind is :COUNTABLE, then AMOUNT must be an integer."
 (defmethod ensure-wear-slot ((slot integer))
   (find-record 'wear-slot :id slot))
 
+(defmethod ensure-wear-slot ((slot (eql 0)))
+  ;; fixme: should be sensitive to avatar kind
+  (find-record 'wear-slot :id 12))
+
+(defmethod ensure-wear-slot ((slot null))
+  ;; fixme: should be sensitive to avatar kind
+  (find-record 'wear-slot :id 12))
+
 (defmethod ensure-wear-slot ((slot string))
   (find-record 'wear-slot :id (parse-integer slot)))
 
@@ -169,8 +177,7 @@ If this conflicts with any other equipped items, remove them."
          (Toot (find-reference inventory-item :Toot))
          (avatar (find-reference Toot :avatar))
          (wear-slot (ensure-wear-slot
-                     (if wear-slot
-                         wear-slot
+                     (or wear-slot
                          (item-template-wear-slot item-template))))
          (person (find-reference inventory-item :person)))
     (assert (UUID:UUID= (Toot-player Toot) (person-UUID person))
