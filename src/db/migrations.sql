@@ -1364,4 +1364,7 @@ create table if not exists badges (
 replace into badges (id, title, latitude, longitude, altitude, world)
 values (1, 'TootSquare', -60, 20, 0, 'CHOR');
 
+replace into avatar_slots (id, avatar, slot, valence)
+values (1, 1, 12, 0);
+                                                      
 select 'All Done' as migrations;
