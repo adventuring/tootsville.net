@@ -112,6 +112,13 @@
   (message string)
   (mmsp yornp))
 
+(defmethod print-object ((sms sms) s)
+  (format s "#<~:[SMS~;MMS~] from ~a to ~a: ~s>"
+          (sms-mmsp sms)
+          (sms-sender sms)
+          (sms-destination sms)
+          (sms-message sms)))
+
 
 (defrecord avatar (:friendly "avatars" :pull t)
   (id number)
@@ -167,6 +174,13 @@
   (avatar number ref avatar)
   (slot keyword)
   (valence number))
+
+(defmethod print-object ((slot avatar-slot) s)
+  (format s "#<Avatar-Slot ~d: avatar ~d slot ~a valence ~d>"
+          (avatar-slot-id slot)
+          (avatar-slot-avatar slot)
+          (avatar-slot-slot slot)
+          (avatar-slot-valence slot)))
 
 (defrecord item-template (:friendly "item_templates" :pull t)
   (id number)
