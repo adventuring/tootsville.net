@@ -187,10 +187,10 @@ If this conflicts with any other equipped items, remove them."
     (assert (avatar-has-slot-p avatar wear-slot)
             (avatar wear-slot)
             "Avatar ~s does not have a slot ~s" avatar wear-slot)
-    (assert (= (wear-slot-id wear-slot) (item-template-wear-slot item-template))
-            (item-template wear-slot)
-            "Item ~s: template ~s cannot be worn in slot ~s (needs slot #~d)"
-            inventory-item item-template wear-slot (item-template-wear-slot item-template))
+    #+ (or) (assert (= (wear-slot-id wear-slot) (item-template-wear-slot item-template))
+                    (item-template wear-slot)
+                    "Item ~s: template ~s cannot be worn in slot ~s (needs slot #~d)"
+                    inventory-item item-template wear-slot (item-template-wear-slot item-template))
     (doff-any-conflicting-item wear-slot Toot)
     (setf (inventory-item-equipped inventory-item) :Y))
   t)
@@ -204,14 +204,14 @@ If this conflicts with any other equipped items, remove them."
 (defun doff-any-conflicting-item (wear-slot Toot)
   (let ((doffedp nil))
     (when-let (point (wear-slot-obstruct-point wear-slot))
-           (let ((min (wear-slot-obstruct-min wear-slot))
-                 (max (wear-slot-obstruct-max wear-slot)))
-             (do-records (other-slot wear-slot :avatar-point point)
-               (when (<= min (wear-slot-valence other-slot) max)
-                 (let ((doffed-this-item-p (doff-item-in-slot other-slot Toot)))
-                   (unless doffedp
-                     (setf doffedp doffed-this-item-p)))))))
-   doffedp))
+      (let ((min (wear-slot-obstruct-min wear-slot))
+            (max (wear-slot-obstruct-max wear-slot)))
+        (do-records (other-slot wear-slot "avatar_point" (string point))
+          (when (<= min (wear-slot-valence other-slot) max)
+            (let ((doffed-this-item-p (doff-item-in-slot other-slot Toot)))
+              (unless doffedp
+                (setf doffedp doffed-this-item-p)))))))
+    doffedp))
 
 (defun doff-item (inventory-item)
   "Un-equip ITEM."
