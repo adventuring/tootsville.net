@@ -1365,6 +1365,21 @@ replace into badges (id, title, latitude, longitude, altitude, world)
 values (1, 'TootSquare', -60, 20, 0, 'CHOR');
 
 replace into avatar_slots (id, avatar, slot, valence)
-values (1, 1, 12, 0);
+values 
+  (1, 1, 'PIVITZ', 0),
+  (2, 1, 'HEAD', 30),
+  (3, 1, 'HEAD', 20),
+  (4, 1, 'HEAD', 10),
+  (5, 1, 'TORSO', 10),
+  (6, 1, 'TORSO', 20),
+  (7, 1, 'TORSO', 30),
+  (8, 1, 'TORSO', 40),
+  (9, 1, 'TORSO', 50),
+  (10, 1, 'TORSO', 60),
+  (11, 1, 'NECK', 10),
+  (12, 1, 'TRUNK', 10),
+  (13, 1, 'LEGS', 10),
+  (14, 1, 'LEGS', 20),
+  (15, 1, 'LEGS', 30);
                                                       
 select 'All Done' as migrations;
