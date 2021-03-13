@@ -534,7 +534,10 @@ that item).
                       :|status| :false))))
   (let ((item (find-record 'inventory-item :item slot)))
     (if (uuid:uuid= (Toot-uuid *Toot*) (inventory-item-Toot item))
-        (don-item item)
+        (progn (don-item item)
+               (unicast (wardrobe))
+               (list 200 (list :|from| "don"
+                               :|status| t)))
         (list 403 (list :|from| "don"
                         :|error| "That is not your item"
                         :|err| "notYourItem"
