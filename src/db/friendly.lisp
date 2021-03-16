@@ -133,6 +133,9 @@
 (defrecord pattern (:friendly "patterns" :pull t)
   (id number)
   (name string))
+
+(defmethod print-object ((pattern pattern) s)
+  (format s "#<Pattern ~d: ~a>" (pattern-id pattern) (pattern-name pattern)))
 
 (defrecord Toot (:friendly "toots")
   (uuid uuid)
