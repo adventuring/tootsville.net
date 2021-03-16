@@ -302,7 +302,7 @@ Fetch avatar information for a list of Toots.
 
 "
   (let* ((Toot (ensure-Toot Toot))
-         (user-stream (user-stream Toot))
+         #+ (or) (user-stream (user-stream Toot))
          (avatar-moniker (avatar-moniker (find-reference Toot :avatar))))
     (list :|name| (Toot-name Toot)
           :|userName| (Toot-presentation-name Toot)
