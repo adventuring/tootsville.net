@@ -309,7 +309,7 @@ Fetch avatar information for a list of Toots.
           :|chatFG| (color24-name (Toot-chat-foreground-color Toot))
           :|chatBG| (color24-name (Toot-chat-background-color Toot))
           :|uuid| (Toot-UUID Toot)
-          :|note| (and privatep (or (Toot-note Toot) ""))
+          :|note| (if privatep (or (Toot-note Toot) "") "")
           :|avatar| avatar-moniker
           :|baseColor| (color24-name (Toot-base-color Toot))
           :|pattern| (string-downcase (pattern-name
