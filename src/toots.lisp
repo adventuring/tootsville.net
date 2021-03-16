@@ -59,13 +59,22 @@ to it."
 
 (defun Toot-clothes+pattern (Toot)
   "The clothes (including Pivitz) and pattern that TOOT is wearing."
-  ;; TODO Toot-clothes+pattern
-  (list 0 (Toot-pattern Toot)
+  (list 0 (list :|pattern| (pattern-name (find-reference Toot :pattern)))
+        ;; TODO Toot-clothes+pattern
         ))
 
+(defun inventory-item-is-held-p (inv)
+  (and (not (eql :n (inventory-item-equipped inv)))
+       ;; 12 = trunk
+       (= 12 (item-template-wear-slot
+              (find-reference
+               (find-reference inv :item)
+               :template)))))
+
 (defun Toot-equipped-item (Toot)
-  ;; TODO Toot-equipped-item
-  nil)
+  (when-let (item (find-if #'inventory-item-is-held-p
+                           (find-records 'inventory-item :Toot (Toot-UUID Toot))))
+    (item-info item)))
 
 (defun Toot-chat-foreground-color (Toot)
   "The foreground (text) color of a Toot's speech balloon in normal speech.
@@ -79,13 +88,6 @@ a constant; it should be updated in a later release."
   (declare (ignore Toot))
   (color24-rgb 0 0 0))
 
-(defun ensure-Toot (Toot)
-  (etypecase Toot
-    (Toot Toot)
-    (Robot (Toot Toot))
-    (string (find-record 'Toot :name Toot))
-    (uuid:uuid (find-record 'Toot :uuid Toot))))
-
 (defun Toot-chat-background-color (Toot)
   "The background color of a Toot's speech balloon in normal speech.
 
@@ -97,6 +99,13 @@ Always  white  at present  (2.0).  This  should  not  be trusted  to  be
 a constant; it should be updated in a later release."
   (declare (ignore Toot))
   (color24-rgb #xff #xff #xff))
+
+(defun ensure-Toot (Toot)
+  (etypecase Toot
+    (Toot Toot)
+    (Robot (Toot Toot))
+    (string (find-record 'Toot :name Toot))
+    (uuid:uuid (find-record 'Toot :uuid Toot))))
 
 (defun Toot-info (Toot &optional (privatep
                                   (and *user*
@@ -338,7 +347,7 @@ Fetch avatar information for a list of Toots.
                             :false)
           :|lastSeen| (Toot-last-active Toot)
           :|clothes| (Toot-clothes+pattern Toot)
-          :|gameItem| (Toot-equipped-item Toot)
+          :|gameItem| (or (Toot-equipped-item Toot) :null)
           :|equip| (apply #'vector
                           (mapcar #'item-info
                                   (Toot-inventory Toot :privatep privatep)))
