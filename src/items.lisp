@@ -410,7 +410,7 @@ The weight of instances of this template
         :|gauge| (case (item-template-energy-kind template)
                    (:nil :false)
                    (otherwise t))
-        :|wearSlot| (item-template-wear-slot template)
+        :|wearSlot| (or (item-template-wear-slot template) :null)
         :|weight| (item-template-weight template)
         :|scale| (list :|x| (item-template-avatar-scale-x template)
                        :|y| (item-template-avatar-scale-y template)
