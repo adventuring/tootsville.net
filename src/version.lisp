@@ -47,7 +47,7 @@ Tootsville Ⅴ, version ~a.
 
 Copyright © 2006-2017,  Bruce-Robert Pocock
 Copyright  © 2018  - ~4d,  the Corporation  for Inter-World  Tourism and
-Adventuring (ciwta.org).
+Adventuring (interworldly.com).
 
 Licensed  under the  terms of  the  GNU Affero  General Public  License,
 version 3.~%~%"

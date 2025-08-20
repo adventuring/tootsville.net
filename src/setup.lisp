@@ -3,7 +3,7 @@
 ;;;; src/setup.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
-;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
+;;;; Interworldly Adventuring, LLC of Portland, OR, USA.
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
 ;;;; modify it under the terms of  the GNU Affero General Public License
@@ -19,7 +19,7 @@
 ;;; License    along     with    this     program.    If     not,    see
 ;;; <https://www.gnu.org/licenses/>.
 ;;;
-;;; You can reach CIWTA at https://ciwta.org/, or write to us at:
+;;; You can reach CIWTA at https://interworldly.com/, or write to us at:
 ;;;
 ;;; PO Box 23095
 ;;;; Oakland Park, FL 33307-3095
@@ -122,6 +122,10 @@
 #+sbcl
 (setf sb-impl::*default-external-format* :utf-8)
 
+
+(format *trace-output* "~&Loading local ZPB-TTF 1.0.7 (until Quicklisp catches up)")
+(asdf:load-asd (asdf:system-relative-pathname :skyline-tool "lib/zpb-ttf/zpb-ttf.asd"))
+(ql:quickload :zpb-ttf)
 
 
 (format *trace-output* "~&Setup script completed; ready to load.~4%")

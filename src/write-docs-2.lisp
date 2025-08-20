@@ -3,7 +3,7 @@
 ;;;; src/write-docs.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
-;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
+;;;; Interworldly Adventuring, LLC of Portland, OR, USA.
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
 ;;;; modify it under the terms of  the GNU Affero General Public License
@@ -19,7 +19,7 @@
 ;;; License    along     with    this     program.    If     not,    see
 ;;; <https://www.gnu.org/licenses/>.
 ;;;
-;;; You can reach CIWTA at https://ciwta.org/, or write to us at:
+;;; You can reach CIWTA at https://interworldly.com/, or write to us at:
 ;;;
 ;;; PO Box 23095
 ;;;; Oakland Park, FL 33307-3095
@@ -281,7 +281,7 @@ The Book of Romance II for Tootsville V version ~a
 Copyright @copyright{} 2008-2017 Bruce-Robert Pocock
 
 Copyright @copyright{} 2018-2021 The Corporation for Inter-World Tourism
-and Adventuring @url{https://ciwta.org/}
+and Adventuring @url{https://interworldly.com/}
 
 This manual is based upon manual-generating code taken from Declt 2.3.
 
@@ -324,7 +324,7 @@ except that this permission notice may be translated as well.
 @title The Book of Romance II
 @subtitle A reference manual for Tootsville V, version ~:*~a.
 
-@author Bruce-Robert Pocock <@email{BRPocock@@ciwta.org}>
+@author Bruce-Robert Pocock <@email{BRPocock@@interworldly.com}>
 
 @page
 @vskip 0pt plus 1filll

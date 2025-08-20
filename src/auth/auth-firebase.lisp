@@ -3,7 +3,7 @@
 ;;;; src/auth/auth-firebase.lisp is part of Tootsville
 ;;;
 ;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
-;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
+;;;; Interworldly Adventuring, LLC of Portland, OR, USA.
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
 ;;;; modify it under the terms of  the GNU Affero General Public License
@@ -19,7 +19,7 @@
 ;;; License    along     with    this     program.    If     not,    see
 ;;; <https://www.gnu.org/licenses/>.
 ;;;
-;;; You can reach CIWTA at https://ciwta.org/, or write to us at:
+;;; You can reach CIWTA at https://interworldly.com/, or write to us at:
 ;;;
 ;;; PO Box 23095
 ;;;; Oakland Park, FL 33307-3095
@@ -124,22 +124,45 @@ aWqa
               (substitute #\/ #\_ token)))
 
 (defun pad-to-multiple-of-8 (string)
-  (let ((rem (mod (length string) 8)))
-    (if (zerop rem)
-        string
-        (concatenate 'string string
-                     (make-string (- 8 rem) :initial-element #\=)))))
+  (concatenate 'string string
+               (make-string (rem (length string) 8) :initial-element #\=)))
+
+(defun pad-to-multiple-of-4 (string)
+  (concatenate 'string string
+               (make-string (rem (length string) 4) :initial-element #\=)))
 
 (defun base64-decode% (string)
   (base64:base64-string-to-usb8-array
    (base64-from-uri-form
-    (pad-to-multiple-of-8 string))))
+    (pad-to-multiple-of-4 string))))
 
 (defun check-firebase-id-token (token)
   (v:warn :login "Token from Firebase: ~s" token)
   (handler-case
       (multiple-value-bind (claims header digest)
-          (cljwt-custom:unpack token)
+          (destructuring-bind (claims header digest &rest _)
+              (split-sequence #\. token)
+            (declare (ignore _))
+            (values
+             (yason:parse (flexi-streams::octets-to-string
+                           (base64:base64-string-to-usb8-array
+                            ;; Re-pad the string, or CL-BASE64 will get confused
+                            (concatenate 'string
+                                         header
+                                         (make-string (rem (length header) 4)
+                                                      :initial-element #\.))
+                            :uri t)
+                           :external-format :utf-8))
+             (yason:parse (flexi-streams::octets-to-string
+                           (base64:base64-string-to-usb8-array
+                            ;; Re-pad the string, or CL-BASE64 will get confused
+                            (concatenate 'string
+                                         claims
+                                         (make-string (rem (length claims) 4)
+                                                      :initial-element #\.))
+                            :uri t)
+                           :external-format :utf-8))
+             digest))
         (let ((google-account-keys (get-google-account-keys)))
           (extract-certificate-base64
            (extract google-account-keys
@@ -147,18 +170,13 @@ aWqa
           ;; FIXME: JWT verification
           #+ (or)
           (multiple-value-bind (payload-claims payload-header)
-              (handler-bind
-                  ((cljwt-custom:invalid-rs256-signature
-                     (lambda (c)
-                       (declare (ignore c))
-                       (invoke-restart 'continue))))
-                (cljwt-custom:verify token
-                                     (crypto:make-cipher
-                                      :rc5 :mode :ces
-                                      :key (base64-decode% digest))
-                                     (gethash "alg" header)
-                                     :fail-if-unsecured t
-                                     :fail-if-unsupported t)))
+              (cljwt-custom:verify token
+                                   (crypto:make-cipher
+                                    :rc5 :mode :ces
+                                    :key (base64-decode% digest))
+                                   (gethash "alg" header)
+                                   :fail-if-unsecured t
+                                   :fail-if-unsupported t))
           (when (gethash "exp" header)
             (assert (> (gethash "exp" header) (timestamp-to-unix (now))) (token)
                     "Credential token has expired"))

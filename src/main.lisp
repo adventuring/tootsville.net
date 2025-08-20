@@ -2,8 +2,7 @@
 ;;;
 ;;;; src/main.lisp is part of Tootsville
 ;;;
-;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021  The
-;;;; Corporation for Inter-World Tourism and Adventuring (ciwta.org).
+;;;; Copyright  ©   2008-2017  Bruce-Robert  Pocock;  ©   2018-2021, 2024-2025  Interworldly Adventuring, LLC of Portland, OR, USA
 ;;;
 ;;;; This  program is  Free  Software: you  can  redistribute it  and/or
 ;;;; modify it under the terms of  the GNU Affero General Public License
@@ -19,11 +18,10 @@
 ;;; License    along     with    this     program.    If     not,    see
 ;;; <https://www.gnu.org/licenses/>.
 ;;;
-;;; You can reach CIWTA at https://ciwta.org/, or write to us at:
+;;; You can reach Interworldly Adventuring, LLC at https://interworldly.com/, or write to us at:
 ;;;
-;;; PO Box 23095
-;;;; Oakland Park, FL 33307-3095
-;;; USA
+;;; Interworldly Adventuring, LLC
+;;; Portland, OR, USA
 
 (in-package :Tootsville)
 
@@ -438,7 +436,7 @@ file, in TeXinfo format for inclusion in the manual.
 
  The server software monolith for REST services of Tootsville.org
 
-Author: Bruce-Robert Pocock <BRPocock@@ciwta.org>
+Author: Bruce-Robert Pocock <BRPocock@@interworldly.com>
 
 License: AGPL v3+
 

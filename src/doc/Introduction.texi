@@ -21,7 +21,7 @@ Romance Ⅱ Game System, particularly,  for the flagship implementation of
 it in the form of Tootsville Ⅴ.
 
 For more information about CIWTA, visit the web site at 
-@url{https://www.ciwta.org/}
+@url{https://www.interworldly.com/}
 
 
 @node What is Tootsville?

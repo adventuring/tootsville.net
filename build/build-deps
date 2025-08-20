@@ -7,6 +7,7 @@ git
 gnupg
 gpg
 joe
+librdkafka-devel
 mariadb-connector-c-devel
 openssl-devel
 readline-devel

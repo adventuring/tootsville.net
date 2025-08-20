@@ -3,7 +3,7 @@
 * The Tootsville V game servers
 
 Tootsville V is a massively multiplayer online role-playing game
-(MMO-RPG) developed by CIWTA.org, the Corporation for Inter-World
+(MMO-RPG) developed by Interworldly Adventuring, LLC, the Corporation for Inter-World
 Tourism and Adventuring.
 
 This package contains the game server. It provides services over REST

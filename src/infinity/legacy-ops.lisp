@@ -4,7 +4,7 @@
 ;;;
 ;;; Copyright ©  2008-2017, Bruce-Robert  Pocock; Copyright  © 2009,2010
 ;;; Res  Interactive LLC;  Copyright  © 2018-2021,  the Corporation  for
-;;; Inter-World Tourism and Adventuring (ciwta.org).
+;;; Inter-World Tourism and Adventuring (interworldly.com).
 ;;;
 ;;; This program is Free Software: you can redistribute it and/or modify
 ;;; it  under the  terms of  the GNU  Affero General  Public License  as
@@ -20,7 +20,7 @@
 ;;; License    along     with    this     program.    If     not,    see
 ;;; <https://www.gnu.org/licenses/>.
 ;;;
-;;; You can reach CIWTA at https://ciwta.org/, or write to us at:
+;;; You can reach CIWTA at https://interworldly.com/, or write to us at:
 ;;;
 ;;; PO Box 23095
 ;;;; Oakland Park, FL 33307-3095
