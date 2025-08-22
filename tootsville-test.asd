@@ -5,10 +5,20 @@
 
 (defsystem Tootsville-test
   :author "Bruce-Robert Pocock <BRFennPocock@star-hope.org>"
-  :license ""
+  :license "AGPL-3.0"
   :depends-on (:Tootsville
-               :prove)
+               :fiveam
+               :fiveam-matchers
+               :mock)
   :components ((:module "t"
                         :components
-                        ((:file "Tootsville"))))
+                        ((:file "test-suite")
+                         (:file "test-users")
+                         (:file "test-websockets")
+                         (:file "test-items")
+                         (:file "test-terrain")
+                         (:file "test-world")
+                         (:file "test-metronome")
+                         (:file "test-utils")
+                         (:file "test-auth"))))
   :perform (load-op :after (op c) (asdf:clear-system c)))

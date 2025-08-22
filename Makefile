@@ -137,12 +137,12 @@ install:	tootsville.service
 
 ####################
 
-deps:	.deps~
+deps:	.ready-20250822
 
-.deps~:	build/build-deps bin/do-install-deps
+.ready-20250822:	build/build-deps bin/do-install-deps
 	bin/do-install-deps
 	>> ~/.sbclrc
-	>.deps~
+	>.ready-20250822
 
 ####################
 

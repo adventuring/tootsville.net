@@ -53,7 +53,7 @@ REST services for the front-end."
                :cl-memcached
                :cl-ppcre
                :cl-smtp
-               :cljwt-custom
+               :jose/jwt
                :clouchdb
                :cxml
                :darts.lib.email-address
@@ -73,6 +73,7 @@ REST services for the front-end."
                :trivial-signal
                :uiop
                :uuid
+               :verbose
                                         ;:zeromq
 
                ;; Systems that travel bundled with Tootsville

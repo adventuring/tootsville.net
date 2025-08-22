@@ -124,7 +124,7 @@
 
 
 (format *trace-output* "~&Loading local ZPB-TTF 1.0.7 (until Quicklisp catches up)")
-(asdf:load-asd (asdf:system-relative-pathname :skyline-tool "lib/zpb-ttf/zpb-ttf.asd"))
+;; (asdf:load-asd (asdf:system-relative-pathname :skyline-tool "lib/zpb-ttf/zpb-ttf.asd"))
 (ql:quickload :zpb-ttf)
 
 

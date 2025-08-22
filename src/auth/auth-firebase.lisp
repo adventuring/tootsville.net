@@ -167,16 +167,13 @@ aWqa
           (extract-certificate-base64
            (extract google-account-keys
                     (make-keyword (gethash "kid" header))))
-          ;; FIXME: JWT verification
-          #+ (or)
+          ;; JWT verification using jose/jwt
           (multiple-value-bind (payload-claims payload-header)
-              (cljwt-custom:verify token
-                                   (crypto:make-cipher
-                                    :rc5 :mode :ces
-                                    :key (base64-decode% digest))
-                                   (gethash "alg" header)
-                                   :fail-if-unsecured t
-                                   :fail-if-unsupported t))
+              (jose/jwt:decode token
+                               :key (extract-certificate-base64
+                                     (extract google-account-keys
+                                              (make-keyword (gethash "kid" header))))
+                               :algorithm (gethash "alg" header))
           (when (gethash "exp" header)
             (assert (> (gethash "exp" header) (timestamp-to-unix (now))) (token)
                     "Credential token has expired"))
